@@ -13,13 +13,8 @@ def ex_handler_factory(creating_plan=False, no_throw=False):
             detail = json.loads(ex.response.text)['Message']
             if creating_plan:
                 if 'Requested features are not supported in region' in detail:
-                    detail = ("Plan with linux worker is not supported in current region. For " +
-                              "supported regions, please refer to https://docs.microsoft.com/"
-                              "azure/app-service-web/app-service-linux-intro")
-                elif 'Not enough available reserved instance servers to satisfy' in detail:
-                    detail = ("Plan with Linux worker can only be created in a group " +
-                              "which has never contained a Windows worker, and vice versa. " +
-                              "Please use a new resource group. Original error:" + detail)
+                    detail = ("Selected plan is not supported in current region. " +
+                              "Original error: " + detail)
             ex = CLIError(detail)
         except Exception:  # pylint: disable=broad-except
             pass
@@ -73,3 +68,9 @@ def cf_providers(cli_ctx, _):
 
 def cf_web_client(cli_ctx, _):
     return web_client_factory(cli_ctx)
+
+
+def domain_registration_client_factory(cli_ctx, **_):
+    from azure.cli.core.commands.client_factory import get_mgmt_service_client
+    from azure.mgmt.domainregistration import DomainRegistrationMgmtClient
+    return get_mgmt_service_client(cli_ctx, DomainRegistrationMgmtClient)

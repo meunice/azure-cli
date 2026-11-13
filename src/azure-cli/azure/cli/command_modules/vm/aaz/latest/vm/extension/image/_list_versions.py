@@ -22,9 +22,9 @@ class ListVersions(AAZCommand):
     """
 
     _aaz_info = {
-        "version": "2022-11-01",
+        "version": "2026-04-01",
         "resources": [
-            ["mgmt-plane", "/subscriptions/{}/providers/microsoft.compute/locations/{}/publishers/{}/artifacttypes/vmextension/types/{}/versions", "2022-11-01"],
+            ["mgmt-plane", "/subscriptions/{}/providers/microsoft.compute/locations/{}/publishers/{}/artifacttypes/vmextension/types/{}/versions", "2026-04-01"],
         ]
     }
 
@@ -45,7 +45,6 @@ class ListVersions(AAZCommand):
 
         _args_schema = cls._args_schema
         _args_schema.location = AAZResourceLocationArg(
-            help="Location. Values from: `az account list-locations`. You can configure the default location using `az configure --defaults location=<location>`.",
             required=True,
             id_part="name",
         )
@@ -60,6 +59,11 @@ class ListVersions(AAZCommand):
             help="Name of the extension.",
             required=True,
             id_part="child_name_3",
+        )
+        _args_schema.expand = AAZStrArg(
+            options=["--expand"],
+            help="Expand the response to include additional read-only metadata. Allowed values: `properties` — returns extended metadata (`releaseCategory`, `urgencyLevel`, `runProfile`).",
+            enum={"properties": "properties"},
         )
         _args_schema.filter = AAZStrArg(
             options=["--filter"],
@@ -144,6 +148,9 @@ class ListVersions(AAZCommand):
         def query_parameters(self):
             parameters = {
                 **self.serialize_query_param(
+                    "$expand", self.ctx.args.expand,
+                ),
+                **self.serialize_query_param(
                     "$filter", self.ctx.args.filter,
                 ),
                 **self.serialize_query_param(
@@ -153,7 +160,7 @@ class ListVersions(AAZCommand):
                     "$top", self.ctx.args.top,
                 ),
                 **self.serialize_query_param(
-                    "api-version", "2022-11-01",
+                    "api-version", "2026-04-01",
                     required=True,
                 ),
             }
@@ -196,10 +203,14 @@ class ListVersions(AAZCommand):
                 flags={"required": True},
             )
             _element.name = AAZStrType(
-                flags={"required": True, "read_only": True},
+                flags={"read_only": True},
             )
             _element.properties = AAZObjectType(
                 flags={"client_flatten": True},
+            )
+            _element.system_data = AAZObjectType(
+                serialized_name="systemData",
+                flags={"read_only": True},
             )
             _element.tags = AAZDictType()
             _element.type = AAZStrType(
@@ -211,6 +222,10 @@ class ListVersions(AAZCommand):
                 serialized_name="computeRole",
                 flags={"required": True},
             )
+            properties.extension_feature_metadata = AAZObjectType(
+                serialized_name="extensionFeatureMetadata",
+                flags={"read_only": True},
+            )
             properties.handler_schema = AAZStrType(
                 serialized_name="handlerSchema",
                 flags={"required": True},
@@ -219,11 +234,61 @@ class ListVersions(AAZCommand):
                 serialized_name="operatingSystem",
                 flags={"required": True},
             )
+            properties.release_category = AAZStrType(
+                serialized_name="releaseCategory",
+                flags={"read_only": True},
+            )
+            properties.release_notes = AAZStrType(
+                serialized_name="releaseNotes",
+                flags={"read_only": True},
+            )
+            properties.run_profile = AAZStrType(
+                serialized_name="runProfile",
+                flags={"read_only": True},
+            )
             properties.supports_multiple_extensions = AAZBoolType(
                 serialized_name="supportsMultipleExtensions",
             )
+            properties.urgency_level = AAZStrType(
+                serialized_name="urgencyLevel",
+                flags={"read_only": True},
+            )
             properties.vm_scale_set_enabled = AAZBoolType(
                 serialized_name="vmScaleSetEnabled",
+            )
+
+            extension_feature_metadata = cls._schema_on_200.Element.properties.extension_feature_metadata
+            extension_feature_metadata.extension_feature_tags = AAZListType(
+                serialized_name="extensionFeatureTags",
+            )
+
+            extension_feature_tags = cls._schema_on_200.Element.properties.extension_feature_metadata.extension_feature_tags
+            extension_feature_tags.Element = AAZObjectType()
+
+            _element = cls._schema_on_200.Element.properties.extension_feature_metadata.extension_feature_tags.Element
+            _element.key = AAZStrType(
+                flags={"required": True},
+            )
+            _element.value = AAZStrType()
+
+            system_data = cls._schema_on_200.Element.system_data
+            system_data.created_at = AAZStrType(
+                serialized_name="createdAt",
+            )
+            system_data.created_by = AAZStrType(
+                serialized_name="createdBy",
+            )
+            system_data.created_by_type = AAZStrType(
+                serialized_name="createdByType",
+            )
+            system_data.last_modified_at = AAZStrType(
+                serialized_name="lastModifiedAt",
+            )
+            system_data.last_modified_by = AAZStrType(
+                serialized_name="lastModifiedBy",
+            )
+            system_data.last_modified_by_type = AAZStrType(
+                serialized_name="lastModifiedByType",
             )
 
             tags = cls._schema_on_200.Element.tags

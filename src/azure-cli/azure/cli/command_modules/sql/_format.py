@@ -27,7 +27,7 @@ def _bytes_to_friendly_string(b):
     unit = next(u for u in _units if (b % u[0]) == 0)
 
     # Format the value with the chosen unit
-    return str((b // unit[0])) + unit[1]
+    return str(b // unit[0]) + unit[1]
 
 
 class LongRunningOperationResultTransform(LongRunningOperation):  # pylint: disable=too-few-public-methods
@@ -35,7 +35,7 @@ class LongRunningOperationResultTransform(LongRunningOperation):  # pylint: disa
     Long-running operation poller that also transforms the json response.
     '''
     def __init__(self, cli_ctx, transform_func):
-        super(LongRunningOperationResultTransform, self).__init__(cli_ctx)
+        super().__init__(cli_ctx)
         self._transform_func = transform_func
 
     def __call__(self, result):
@@ -50,7 +50,7 @@ class LongRunningOperationResultTransform(LongRunningOperation):  # pylint: disa
         from azure.cli.core.util import poller_classes
         if isinstance(result, poller_classes()):
             # Poll for long-running operation result result by calling base class
-            result = super(LongRunningOperationResultTransform, self).__call__(result)
+            result = super().__call__(result)
 
         # Apply transform function
         return self._transform_func(result)
@@ -149,17 +149,22 @@ def db_transform(result):
     '''
 
     # Add properties in order to improve backwards compatibility with api-version 2014-04-01
-    result.edition = result.sku.tier
-    result.elastic_pool_name = _last_segment(result.elastic_pool_id)
+    # SQL SDK 5.0 models are strict: extra attributes are not serialized and flattened ones can't be deleted,
+    # so work on a plain dict.
+    from azure.cli.core.util import todict
+    result = todict(result)
+
+    sku = result.get('sku')
+    result['edition'] = sku.get('tier') if sku else None
+    result['elasticPoolName'] = _last_segment(result.get('elasticPoolId'))
 
     # rename ledger setting name
-    if hasattr(result, 'is_ledger_on'):
-        result.ledger_on = result.is_ledger_on
-        del result.is_ledger_on
+    if 'isLedgerOn' in result:
+        result['ledgerOn'] = result.pop('isLedgerOn')
 
-    if hasattr(result, 'storage_account_type'):
-        result.backupStorageRedundancy = _get_external_backup_storage_redundancy(result.storage_account_type)
-        del result.storage_account_type
+    if 'storageAccountType' in result:
+        result['backupStorageRedundancy'] = _get_external_backup_storage_redundancy(
+            result.pop('storageAccountType'))
 
     return result
 
@@ -250,18 +255,55 @@ def elastic_pool_transform(result):
     Transforms the json response for an elastic pool.
     '''
 
-    # Add properties in order to improve backwards compatibility with api-version 2014-04-01
-    result.edition = result.sku.tier
-    result.storageMb = result.max_size_bytes / 1024 / 1024
+    # SQL SDK 5.0 does not serialize arbitrary model attributes; keep calculated CLI fields in a dict.
+    from azure.cli.core.util import todict
+    result = todict(result)
 
-    is_dtu = result.sku.tier in (
+    # Add properties in order to improve backwards compatibility with api-version 2014-04-01
+    result['edition'] = result['sku']['tier']
+    result['storageMb'] = result['maxSizeBytes'] / 1024 / 1024
+
+    is_dtu = result['sku']['tier'] in (
         'Basic',
         'Standard',
         'Premium')
 
-    result.dtu = result.sku.capacity if is_dtu else None
-    result.database_dtu_min = int(result.per_database_settings.min_capacity) if is_dtu else None
-    result.database_dtu_max = int(result.per_database_settings.max_capacity) if is_dtu else None
+    result['dtu'] = result['sku']['capacity'] if is_dtu else None
+    result['databaseDtuMin'] = int(result['perDatabaseSettings']['minCapacity']) if is_dtu else None
+    result['databaseDtuMax'] = int(result['perDatabaseSettings']['maxCapacity']) if is_dtu else None
+
+    return result
+
+
+#####
+#           sql deleted-server transformers for json
+#####
+
+
+def deleted_server_list_transform(results):
+    '''
+    Transforms the json response for a list of deleted servers.
+    '''
+    return [deleted_server_transform(r) for r in results]
+
+
+def deleted_server_transform(result):
+    '''
+    Transforms the json response for a deleted server.
+    Parses original_id to extract subscription ID, resource group, and server name.
+    '''
+    if result.original_id:
+        try:
+            # Parse original_id format:
+            # /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Sql/servers/{name}
+            parts = result.original_id.split('/')
+            if len(parts) >= 9:
+                result.subscription_id = parts[2]
+                result.resource_group = parts[4]
+                result.name = parts[8]
+        except (ValueError, IndexError):
+            # If parsing fails, just continue without adding the fields
+            pass
 
     return result
 

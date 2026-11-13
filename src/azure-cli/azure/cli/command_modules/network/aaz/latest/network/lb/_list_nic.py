@@ -22,11 +22,13 @@ class ListNic(AAZCommand):
     """
 
     _aaz_info = {
-        "version": "2022-05-01",
+        "version": "2023-09-01",
         "resources": [
-            ["mgmt-plane", "/subscriptions/{}/resourcegroups/{}/providers/microsoft.network/loadbalancers/{}/networkinterfaces", "2022-05-01"],
+            ["mgmt-plane", "/subscriptions/{}/resourcegroups/{}/providers/microsoft.network/loadbalancers/{}/networkinterfaces", "2023-09-01"],
         ]
     }
+
+    AZ_SUPPORT_PAGINATION = True
 
     def _handler(self, command_args):
         super()._handler(command_args)
@@ -119,7 +121,7 @@ class ListNic(AAZCommand):
         def query_parameters(self):
             parameters = {
                 **self.serialize_query_param(
-                    "api-version", "2022-05-01",
+                    "api-version", "2023-09-01",
                     required=True,
                 ),
             }
@@ -539,6 +541,7 @@ class _ListNicHelper:
         properties.location = AAZStrType()
         properties.outbound_rule = AAZObjectType(
             serialized_name="outboundRule",
+            flags={"read_only": True},
         )
         cls._build_schema_sub_resource_read(properties.outbound_rule)
         properties.outbound_rules = AAZListType(
@@ -549,9 +552,16 @@ class _ListNicHelper:
             serialized_name="provisioningState",
             flags={"read_only": True},
         )
+        properties.sync_mode = AAZStrType(
+            serialized_name="syncMode",
+        )
         properties.tunnel_interfaces = AAZListType(
             serialized_name="tunnelInterfaces",
         )
+        properties.virtual_network = AAZObjectType(
+            serialized_name="virtualNetwork",
+        )
+        cls._build_schema_sub_resource_read(properties.virtual_network)
 
         backend_ip_configurations = _schema_network_interface_ip_configuration_read.properties.load_balancer_backend_address_pools.Element.properties.backend_ip_configurations
         backend_ip_configurations.Element = AAZObjectType()
@@ -587,6 +597,7 @@ class _ListNicHelper:
         cls._build_schema_sub_resource_read(properties.load_balancer_frontend_ip_configuration)
         properties.network_interface_ip_configuration = AAZObjectType(
             serialized_name="networkInterfaceIPConfiguration",
+            flags={"read_only": True},
         )
         cls._build_schema_sub_resource_read(properties.network_interface_ip_configuration)
         properties.subnet = AAZObjectType()
@@ -650,6 +661,7 @@ class _ListNicHelper:
         cls._build_schema_sub_resource_read(properties.backend_address_pool)
         properties.backend_ip_configuration = AAZObjectType(
             serialized_name="backendIPConfiguration",
+            flags={"read_only": True},
         )
         cls._build_schema_network_interface_ip_configuration_read(properties.backend_ip_configuration)
         properties.backend_port = AAZIntType(
@@ -794,6 +806,9 @@ class _ListNicHelper:
         properties.auxiliary_mode = AAZStrType(
             serialized_name="auxiliaryMode",
         )
+        properties.auxiliary_sku = AAZStrType(
+            serialized_name="auxiliarySku",
+        )
         properties.disable_tcp_state_tracking = AAZBoolType(
             serialized_name="disableTcpStateTracking",
         )
@@ -802,6 +817,7 @@ class _ListNicHelper:
         )
         properties.dscp_configuration = AAZObjectType(
             serialized_name="dscpConfiguration",
+            flags={"read_only": True},
         )
         cls._build_schema_sub_resource_read(properties.dscp_configuration)
         properties.enable_accelerated_networking = AAZBoolType(
@@ -836,6 +852,7 @@ class _ListNicHelper:
         )
         properties.private_endpoint = AAZObjectType(
             serialized_name="privateEndpoint",
+            flags={"read_only": True},
         )
         cls._build_schema_private_endpoint_read(properties.private_endpoint)
         properties.private_link_service = AAZObjectType(
@@ -1024,8 +1041,13 @@ class _ListNicHelper:
         )
         properties.private_endpoint = AAZObjectType(
             serialized_name="privateEndpoint",
+            flags={"read_only": True},
         )
         cls._build_schema_private_endpoint_read(properties.private_endpoint)
+        properties.private_endpoint_location = AAZStrType(
+            serialized_name="privateEndpointLocation",
+            flags={"read_only": True},
+        )
         properties.private_link_service_connection_state = AAZObjectType(
             serialized_name="privateLinkServiceConnectionState",
         )
@@ -1500,6 +1522,7 @@ class _ListNicHelper:
         )
         properties.ip_configuration = AAZObjectType(
             serialized_name="ipConfiguration",
+            flags={"read_only": True},
         )
         cls._build_schema_ip_configuration_read(properties.ip_configuration)
         properties.ip_tags = AAZListType(
@@ -1528,6 +1551,7 @@ class _ListNicHelper:
         properties.public_ip_prefix = AAZObjectType(
             serialized_name="publicIPPrefix",
         )
+        cls._build_schema_sub_resource_read(properties.public_ip_prefix)
         properties.resource_guid = AAZStrType(
             serialized_name="resourceGuid",
             flags={"read_only": True},
@@ -1541,16 +1565,17 @@ class _ListNicHelper:
         ddos_settings.ddos_protection_plan = AAZObjectType(
             serialized_name="ddosProtectionPlan",
         )
+        cls._build_schema_sub_resource_read(ddos_settings.ddos_protection_plan)
         ddos_settings.protection_mode = AAZStrType(
             serialized_name="protectionMode",
         )
 
-        ddos_protection_plan = _schema_public_ip_address_read.properties.ddos_settings.ddos_protection_plan
-        ddos_protection_plan.id = AAZStrType()
-
         dns_settings = _schema_public_ip_address_read.properties.dns_settings
         dns_settings.domain_name_label = AAZStrType(
             serialized_name="domainNameLabel",
+        )
+        dns_settings.domain_name_label_scope = AAZStrType(
+            serialized_name="domainNameLabelScope",
         )
         dns_settings.fqdn = AAZStrType()
         dns_settings.reverse_fqdn = AAZStrType(
@@ -1628,9 +1653,6 @@ class _ListNicHelper:
         zones = _schema_public_ip_address_read.properties.nat_gateway.zones
         zones.Element = AAZStrType()
 
-        public_ip_prefix = _schema_public_ip_address_read.properties.public_ip_prefix
-        public_ip_prefix.id = AAZStrType()
-
         sku = _schema_public_ip_address_read.sku
         sku.name = AAZStrType()
         sku.tier = AAZStrType()
@@ -1700,7 +1722,9 @@ class _ListNicHelper:
         properties.direction = AAZStrType(
             flags={"required": True},
         )
-        properties.priority = AAZIntType()
+        properties.priority = AAZIntType(
+            flags={"required": True},
+        )
         properties.protocol = AAZStrType(
             flags={"required": True},
         )
@@ -1798,7 +1822,10 @@ class _ListNicHelper:
             serialized_name="addressPrefixes",
         )
         properties.application_gateway_ip_configurations = AAZListType(
-            serialized_name="applicationGatewayIpConfigurations",
+            serialized_name="applicationGatewayIPConfigurations",
+        )
+        properties.default_outbound_access = AAZBoolType(
+            serialized_name="defaultOutboundAccess",
         )
         properties.delegations = AAZListType()
         properties.ip_allocations = AAZListType(

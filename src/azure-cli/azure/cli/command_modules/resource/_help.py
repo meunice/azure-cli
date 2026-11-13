@@ -70,7 +70,6 @@ short-summary: Backfill Tenant Subscription Operations for Management Groups
 helps['account management-group tenant-backfill get'] = """
 type: command
 short-summary: Get the backfill status for a tenant.
-long-summary: Get the backfill status for a tenant.
 examples:
   - name: Get the backfill status for a tenant.
     text: >
@@ -80,7 +79,6 @@ examples:
 helps['account management-group tenant-backfill start'] = """
 type: command
 short-summary: Start backfilling subscriptions for a tenant.
-long-summary: Start backfilling subscriptions for a tenant.
 examples:
   - name: Start backfilling subscriptions for a tenant.
     text: >
@@ -90,7 +88,6 @@ examples:
 helps['account management-group check-name-availability'] = """
 type: command
 short-summary: Check if a Management Group Name is Valid.
-long-summary: Check if a Management Group Name is Valid.
 parameters:
   - name: --name -n
     type: string
@@ -104,7 +101,6 @@ examples:
 helps['account management-group create'] = """
 type: command
 short-summary: Create a new management group.
-long-summary: Create a new management group.
 parameters:
   - name: --name -n
     type: string
@@ -133,7 +129,6 @@ examples:
 helps['account management-group delete'] = """
 type: command
 short-summary: Delete an existing management group.
-long-summary: Delete an existing management group.
 parameters:
   - name: --name -n
     type: string
@@ -146,8 +141,7 @@ examples:
 
 helps['account management-group list'] = """
 type: command
-short-summary: List all management groups.
-long-summary: List of all management groups in the current tenant.
+short-summary: List all management groups in the current tenant.
 examples:
   - name: List all management groups
     text: >
@@ -156,8 +150,7 @@ examples:
 
 helps['account management-group show'] = """
 type: command
-short-summary: Get a specific management group.
-long-summary: Get the details of the management group.
+short-summary: Get the details of the management group.
 parameters:
   - name: --name -n
     type: string
@@ -188,7 +181,6 @@ short-summary: Subscription operations for Management Groups.
 helps['account management-group subscription add'] = """
 type: command
 short-summary: Add a subscription to a management group.
-long-summary: Add a subscription to a management group.
 parameters:
   - name: --name -n
     type: string
@@ -205,7 +197,6 @@ examples:
 helps['account management-group subscription show'] = """
 type: command
 short-summary: Show the details of a subscription under a known management group.
-long-summary: Show the details of a subscription under a known management group.
 parameters:
   - name: --name -n
     type: string
@@ -222,7 +213,6 @@ examples:
 helps['account management-group subscription show-sub-under-mg'] = """
 type: command
 short-summary: Get the subscription under a management group.
-long-summary: Get the subscription under a management group.
 parameters:
   - name: --name -n
     type: string
@@ -241,7 +231,6 @@ short-summary: Entity operations (Management Group and Subscriptions) for Manage
 helps['account management-group entities list'] = """
 type: command
 short-summary: List all entities for the authenticated user.
-long-summary: List all entities for the authenticated user.
 examples:
   - name: List all entities for the authenticated user.
     text: >
@@ -251,7 +240,6 @@ examples:
 helps['account management-group subscription remove'] = """
 type: command
 short-summary: Remove an existing subscription from a management group.
-long-summary: Remove an existing subscription from a management group.
 parameters:
   - name: --name -n
     type: string
@@ -268,7 +256,6 @@ examples:
 helps['account management-group update'] = """
 type: command
 short-summary: Update an existing management group.
-long-summary: Update an existing management group.
 parameters:
   - name: --name -n
     type: string
@@ -299,7 +286,6 @@ short-summary: Provide operations for hierarchy settings defined at the manageme
 helps['account management-group hierarchy-settings create'] = """
 type: command
 short-summary: Create hierarchy settings defined at the Management Group level.
-long-summary: Create hierarchy settings defined at the Management Group level.
 parameters:
   - name: --name -n
     type: string
@@ -328,7 +314,6 @@ examples:
 helps['account management-group hierarchy-settings list'] = """
 type: command
 short-summary: Get all the hierarchy settings defined at the Management Group level.
-long-summary: Get all the hierarchy settings defined at the Management Group level.
 parameters:
   - name: --name -n
     type: string
@@ -342,7 +327,6 @@ examples:
 helps['account management-group hierarchy-settings delete'] = """
 type: command
 short-summary: Delete the hierarchy settings defined at the Management Group level.
-long-summary: Delete the hierarchy settings defined at the Management Group level.
 parameters:
   - name: --name -n
     type: string
@@ -356,7 +340,6 @@ examples:
 helps['account management-group hierarchy-settings update'] = """
 type: command
 short-summary: Update the hierarchy settings defined at the Management Group level.
-long-summary: Update the hierarchy settings defined at the Management Group level.
 parameters:
   - name: --name -n
     type: string
@@ -427,7 +410,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -453,7 +436,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -568,7 +551,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -597,7 +580,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -634,7 +617,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -743,7 +726,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -774,9 +757,8 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
-        It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax. Also note if you are providing a bicepparam file with a bicep template then you can use this
-        argument only once.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax. Also note if you are providing a bicepparam file then you can use this argument only once.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
   - name: --template-uri -u
@@ -812,9 +794,13 @@ examples:
   - name: Create a deployment at resource group scope from a template-spec
     text: >
         az deployment group create --resource-group testrg --template-spec "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testrg/providers/Microsoft.Resources/templateSpecs/myTemplateSpec/versions/1.0"
-  - name: Create a deployment at resource group scope from a bicep template and a bicepparam parameter file
+  - name: Create a deployment at resource group scope from a bicepparam parameter file
     text: >
-        az deployment group create --resource-group testrg --template-file azuredeploy.bicep --parameters parameters.bicepparam
+        az deployment group create --resource-group testrg --parameters parameters.bicepparam
+  - name: Create a deployment at resource group across tenants
+    text: >
+        az deployment group create --resource-group testrg --name rollout01 \\
+            --template-file azuredeploy.json --parameters @myparameters.json --aux-tenants auxiliary_tenant01 auxiliary_tenant02
 """
 
 helps['deployment group what-if'] = """
@@ -825,7 +811,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -936,7 +922,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -967,7 +953,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -1003,7 +989,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -1109,7 +1095,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -1138,7 +1124,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -1172,7 +1158,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
   - name: --template-file -f
     short-summary: The path to the template file or Bicep file.
@@ -1385,7 +1371,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
 examples:
   - name: Create a deployment from a remote template file, using parameters from a local JSON file.
@@ -1423,7 +1409,7 @@ parameters:
   - name: --parameters -p
     short-summary: Supply deployment parameter values.
     long-summary: >
-        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as <KEY=VALUE> pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
+        Parameters may be supplied from a file using the `@{path}` syntax, a JSON string, or as `<KEY=VALUE>` pairs. Parameters are evaluated in order, so when a value is assigned twice, the latter value will be used.
         It is recommended that you supply your parameters file first, and then override selectively using KEY=VALUE syntax.
 examples:
   - name: Validate whether a template is syntactically correct. (autogenerated)
@@ -1715,415 +1701,6 @@ examples:
     crafted: true
 """
 
-helps['policy'] = """
-type: group
-short-summary: Manage resource policies.
-"""
-
-helps['policy assignment'] = """
-type: group
-short-summary: Manage resource policy assignments.
-"""
-
-helps['policy assignment create'] = """
-type: command
-short-summary: Create a resource policy assignment.
-parameters:
-  - name: --scope
-    type: string
-    short-summary: Scope to which this policy assignment applies.
-examples:
-  - name: Create a resource policy assignment at scope
-    text: |
-        Valid scopes are management group, subscription, resource group, and resource, for example
-           management group:  /providers/Microsoft.Management/managementGroups/MyManagementGroup
-           subscription:      /subscriptions/0b1f6471-1bf0-4dda-aec3-111122223333
-           resource group:    /subscriptions/0b1f6471-1bf0-4dda-aec3-111122223333/resourceGroups/myGroup
-           resource:          /subscriptions/0b1f6471-1bf0-4dda-aec3-111122223333/resourceGroups/myGroup/providers/Microsoft.Compute/virtualMachines/myVM
-             az policy assignment create --scope \\
-                "/providers/Microsoft.Management/managementGroups/MyManagementGroup" \\
-                    --policy {PolicyName} -p "{ \\"allowedLocations\\": \\
-                        { \\"value\\": [ \\"australiaeast\\", \\"eastus\\", \\"japaneast\\" ] } }"
-  - name: Create a resource policy assignment and provide rule parameter values.
-    text: |
-        az policy assignment create --policy {PolicyName} -p "{ \\"allowedLocations\\": \\
-            { \\"value\\": [ \\"australiaeast\\", \\"eastus\\", \\"japaneast\\" ] } }"
-  - name: Create a resource policy assignment with a system assigned identity.
-    text: >
-        az policy assignment create --name myPolicy --policy {PolicyName} --mi-system-assigned --location eastus
-  - name: Create a resource policy assignment with a system assigned identity. The identity will have 'Contributor' role access to the subscription.
-    text: >
-        az policy assignment create --name myPolicy --policy {PolicyName} --mi-system-assigned --identity-scope /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --role Contributor --location eastus
-  - name: Create a resource policy assignment with a user assigned identity.
-    text: >
-        az policy assignment create --name myPolicy --policy {PolicyName} -g MyResourceGroup --mi-user-assigned myAssignedId --location westus
-  - name: Create a resource policy assignment with an enforcement mode. It indicates whether a policy effect will be enforced or not during assignment creation and update. Please visit https://aka.ms/azure-policyAssignment-enforcement-mode for more information.
-    text: >
-        az policy assignment create --name myPolicy --policy {PolicyName} --enforcement-mode 'DoNotEnforce'
-"""
-
-helps['policy assignment update'] = """
-type: command
-short-summary: Update a resource policy assignment.
-examples:
-  - name: Update a resource policy assignment's description.
-    text: |
-        az policy assignment update --name myPolicy --description 'My policy description'
-"""
-
-helps['policy assignment delete'] = """
-type: command
-short-summary: Delete a resource policy assignment.
-examples:
-  - name: Delete a resource policy assignment. (autogenerated)
-    text: |
-        az policy assignment delete --name MyPolicyAssignment
-    crafted: true
-"""
-
-helps['policy assignment identity'] = """
-type: group
-short-summary: Manage a policy assignment's managed identity.
-"""
-
-helps['policy assignment identity assign'] = """
-type: command
-short-summary: Add a system assigned identity or a user assigned identity to a policy assignment.
-examples:
-  - name: Add a system assigned managed identity to a policy assignment.
-    text: >
-        az policy assignment identity assign --system-assigned -g MyResourceGroup -n MyPolicyAssignment
-  - name: Add a system assigned managed identity to a policy assignment and grant it the 'Contributor' role for the current resource group.
-    text: >
-        az policy assignment identity assign --system-assigned -g MyResourceGroup -n MyPolicyAssignment --role Contributor --identity-scope /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/MyResourceGroup
-  - name: Add a user assigned managed identity to a policy assignment.
-    text: >
-        az policy assignment identity assign --user-assigned MyAssignedId -g MyResourceGroup -n MyPolicyAssignment
-"""
-
-helps['policy assignment identity remove'] = """
-type: command
-short-summary: Remove a managed identity from a policy assignment.
-"""
-
-helps['policy assignment identity show'] = """
-type: command
-short-summary: Show a policy assignment's managed identity.
-examples:
-  - name: Show a policy assignment's managed identity. (autogenerated)
-    text: |
-        az policy assignment identity show --name MyPolicyAssignment --scope '/providers/Microsoft.Management/managementGroups/MyManagementGroup'
-    crafted: true
-"""
-
-helps['policy assignment non-compliance-message'] = """
-type: group
-short-summary: Manage a policy assignment's non-compliance messages.
-"""
-
-helps['policy assignment non-compliance-message create'] = """
-type: command
-short-summary: Add a non-compliance message to a policy assignment.
-examples:
-  - name: Add a non-compliance message to a policy assignment.
-    text: >
-        az policy assignment non-compliance-message create -g MyResourceGroup -n MyPolicyAssignment -m 'Resources must follow naming standards'
-  - name: Add a non-compliance message for a specific policy in an assigned policy set definition.
-    text: >
-        az policy assignment non-compliance-message create -g MyResourceGroup -n MyPolicySetAssignment -m 'Resources must use allowed SKUs' --policy-definition-reference-id SkuPolicyRefId
-"""
-
-helps['policy assignment non-compliance-message list'] = """
-type: command
-short-summary: List the non-compliance messages for a policy assignment.
-examples:
-  - name: List the non-compliance messages for a policy assignment.
-    text: >
-        az policy assignment non-compliance-message list -g MyResourceGroup -n MyPolicyAssignment
-"""
-
-helps['policy assignment non-compliance-message delete'] = """
-type: command
-short-summary: Remove one or more non-compliance messages from a policy assignment.
-examples:
-  - name: Remove non-compliance messages from a policy assignment that contain a specific message and no policy definition reference ID.
-    text: >
-        az policy assignment non-compliance-message delete -g MyResourceGroup -n MyPolicyAssignment -m 'Resources must follow naming standards'
-  - name: Remove non-compliance messages from a policy assignment that contain a specific message and a specific policy definition reference ID.
-    text: >
-        az policy assignment non-compliance-message delete -g MyResourceGroup -n MyPolicySetAssignment -m 'Resources must use allowed SKUs' --policy-definition-reference-id SkuPolicyRefId
-"""
-
-helps['policy assignment list'] = """
-type: command
-short-summary: List resource policy assignments.
-"""
-
-helps['policy assignment show'] = """
-type: command
-short-summary: Show a resource policy assignment.
-examples:
-  - name: Show a resource policy assignment. (autogenerated)
-    text: |
-        az policy assignment show --name MyPolicyAssignment
-    crafted: true
-"""
-
-helps['policy definition'] = """
-type: group
-short-summary: Manage resource policy definitions.
-"""
-
-helps['policy definition create'] = """
-type: command
-short-summary: Create a policy definition.
-parameters:
-  - name: --rules
-    type: string
-    short-summary: Policy rules in JSON format, or a path to a file containing JSON rules.
-  - name: --management-group
-    type: string
-    short-summary: Name of the management group the new policy definition can be assigned in.
-  - name: --subscription
-    type: string
-    short-summary: Name or id of the subscription the new policy definition can be assigned in.
-examples:
-  - name: Create a read-only policy.
-    text: |
-        az policy definition create --name readOnlyStorage --rules "{ \\"if\\": \\
-            { \\"field\\": \\"type\\", \\"equals\\": \\"Microsoft.Storage/storageAccounts/write\\" }, \\
-                \\"then\\": { \\"effect\\": \\"deny\\" } }"
-  - name: Create a policy parameter definition.
-    text: |
-        az policy definition create --name allowedLocations \\
-            --rules "{ \\"if\\": { \\"allOf\\": [ \\
-                { \\"field\\": \\"location\\",\\"notIn\\": \\"[parameters('listOfAllowedLocations')]\\" }, \\
-                    { \\"field\\": \\"location\\", \\"notEquals\\": \\"global\\" }, \\
-                        { \\"field\\": \\"type\\", \\"notEquals\\": \\
-                            \\"Microsoft.AzureActiveDirectory/b2cDirectories\\"} \\
-                                ] }, \\"then\\": { \\"effect\\": \\"deny\\" } }" \\
-            --params "{ \\"allowedLocations\\": { \\
-                \\"type\\": \\"array\\", \\"metadata\\": { \\"description\\": \\
-                    \\"The list of locations that can be specified when deploying resources\\", \\
-                        \\"strongType\\": \\"location\\", \\"displayName\\": \\"Allowed locations\\" } } }"
-  - name: Create a read-only policy that can be applied within a management group.
-    text: |
-        az policy definition create -n readOnlyStorage --management-group "MyManagementGroup" \\
-            --rules "{ \\"if\\": { \\"field\\": \\"type\\", \\
-                \\"equals\\": \\"Microsoft.Storage/storageAccounts/write\\" }, \\
-                    \\"then\\": { \\"effect\\": \\"deny\\" } }"
-  - name: Create a policy definition with mode. The mode 'Indexed' indicates the policy should be evaluated only for resource types that support tags and location.
-    text: |
-        az policy definition create --name TagsPolicyDefinition --subscription "MySubscription" \\
-            --mode Indexed --rules "{ \\"if\\": { \\"field\\": \\"tags\\", \\"exists\\": \\"false\\" }, \\
-                \\"then\\": { \\"effect\\": \\"deny\\" } }"
-"""
-
-helps['policy definition delete'] = """
-type: command
-short-summary: Delete a policy definition.
-examples:
-  - name: Delete a policy definition. (autogenerated)
-    text: |
-        az policy definition delete --name MyPolicyDefinition
-    crafted: true
-"""
-
-helps['policy definition list'] = """
-type: command
-short-summary: List policy definitions.
-"""
-
-helps['policy definition show'] = """
-type: command
-short-summary: Show a policy definition.
-examples:
-  - name: Show a policy definition. (autogenerated)
-    text: |
-        az policy definition show --name MyPolicyDefinition
-    crafted: true
-"""
-
-helps['policy definition update'] = """
-type: command
-short-summary: Update a policy definition.
-examples:
-  - name: Update a policy definition. (autogenerated)
-    text: |
-        az policy definition update --name MyPolicyDefinition
-    crafted: true
-"""
-
-helps['policy set-definition'] = """
-type: group
-short-summary: Manage resource policy set definitions.
-"""
-
-helps['policy set-definition create'] = """
-type: command
-short-summary: Create a policy set definition.
-parameters:
-  - name: --definitions
-    type: string
-    short-summary: Policy definitions in JSON format, or a path to a file or URI containing JSON rules.
-  - name: --management-group
-    type: string
-    short-summary: Name of management group the new policy set definition can be assigned in.
-  - name: --subscription
-    type: string
-    short-summary: Name or id of the subscription the new policy set definition can be assigned in.
-examples:
-  - name: Create a policy set definition.
-    text: |
-        az policy set-definition create -n readOnlyStorage \\
-            --definitions '[ { \\"policyDefinitionId\\": \\"/subscriptions/mySubId/providers/ \\
-                Microsoft.Authorization/policyDefinitions/storagePolicy\\" } ]'
-  - name: Create a policy set definition with parameters.
-    text: |
-        az policy set-definition create -n readOnlyStorage \\
-            --definitions "[ { \\"policyDefinitionId\\": \\"/subscriptions/mySubId/providers/ \\
-                Microsoft.Authorization/policyDefinitions/storagePolicy\\", \\"parameters\\": \\
-                    { \\"storageSku\\": { \\"value\\": \\"[parameters(\\\\"requiredSku\\\\")]\\" } } }]" \\
-            --params "{ \\"requiredSku\\": { \\"type\\": \\"String\\" } }"
-  - name: Create a policy set definition in a subscription.
-    text: |
-        az policy set-definition create -n readOnlyStorage \\
-            --subscription '0b1f6471-1bf0-4dda-aec3-111122223333' \\
-            --definitions '[ { \\"policyDefinitionId\\": \\"/subscriptions/ \\
-                0b1f6471-1bf0-4dda-aec3-111122223333/providers/Microsoft.Authorization/ \\
-                    policyDefinitions/storagePolicy\\" } ]'
-  - name: Create a policy set definition with policy definition groups.
-    text: |
-        az policy set-definition create -n computeRequirements \\
-            --definitions "[ { \\"policyDefinitionId \\": \\"/subscriptions/mySubId/providers/ \\
-                Microsoft.Authorization/policyDefinitions/storagePolicy\\", \\"groupNames\\": \\
-                    [ \\"CostSaving\\", \\"Organizational\\" ] }, { \\"policyDefinitionId\\": \\
-                        \\"/subscriptions/mySubId/providers/Microsoft.Authorization/ \\
-                            policyDefinitions/tagPolicy\\", \\"groupNames\\": [ \\
-                                \\"Organizational\\" ] } ]" \\
-            --definition-groups "[{ \\"name\\": \\"CostSaving\\" }, { \\"name\\": \\"Organizational\\" } ]"
-"""
-
-helps['policy set-definition delete'] = """
-type: command
-short-summary: Delete a policy set definition.
-examples:
-  - name: Delete a policy set definition. (autogenerated)
-    text: |
-        az policy set-definition delete --management-group myMg --name MyPolicySetDefinition
-    crafted: true
-"""
-
-helps['policy set-definition list'] = """
-type: command
-short-summary: List policy set definitions.
-"""
-
-helps['policy set-definition show'] = """
-type: command
-short-summary: Show a policy set definition.
-examples:
-  - name: Show a policy set definition. If the policy set is scoped to a management group, then you must include the `--management-group` parameter and value.
-    text: |
-        az policy set-definition show --name MyPolicySetDefinition --management-group MyManagementGroup
-    crafted: true
-"""
-
-helps['policy set-definition update'] = """
-type: command
-short-summary: Update a policy set definition.
-examples:
-  - name: Update a policy set definition.
-    text: |-
-        az policy set-definition update \\
-            --definitions '[ { \\"policyDefinitionId\\": \\"/subscriptions/mySubId/providers/ \\
-                Microsoft.Authorization/policyDefinitions/storagePolicy\\" } ]' \\
-            --name MyPolicySetDefinition
-  - name: Update the groups and definitions within a policy set definition.
-    text: |
-        az policy set-definition update -n computeRequirements \\
-            --definitions "[ { \\"policyDefinitionId\\": \\"/subscriptions/mySubId/providers/ \\
-                Microsoft.Authorization/policyDefinitions/storagePolicy\\", \\"groupNames\\": [ \\
-                    \\"CostSaving\\", \\"Organizational\\" ] }, { \\"policyDefinitionId\\": \\
-                        \\"/subscriptions/mySubId/providers/Microsoft.Authorization/ \\
-                            policyDefinitions/tagPolicy\\", \\
-                                \\"groupNames\\": [ \\"Organizational\\" ] } ]" \\
-            --definition-groups "[{ \\"name\\": \\"CostSaving\\" }, { \\"name\\": \\"Organizational\\" } ]"
-"""
-
-helps['policy exemption'] = """
-type: group
-short-summary: Manage resource policy exemptions.
-"""
-
-helps['policy exemption create'] = """
-type: command
-short-summary: Create a policy exemption.
-examples:
-  - name: Create a policy exemption in default subscription.
-    text: |
-        az policy exemption create -n exemptTestVM \\
-            --policy-assignment "/subscriptions/mySubId/providers/Microsoft.Authorization/policyAssignments/limitVMSku" \\
-            --exemption-category "Waiver"
-  - name: Create a policy exemption in the resource group.
-    text: |
-        az policy exemption create -n exemptTestVM \\
-            --policy-assignment "/subscriptions/mySubId/providers/Microsoft.Authorization/policyAssignments/limitVMSku" \\
-            --exemption-category "Waiver" \\
-            --resource-group "myResourceGroup"
-  - name: Create a policy exemption in a management group.
-    text: |
-        az policy exemption create -n exemptTestVM \\
-            --policy-assignment "/providers/Microsoft.Management/managementGroups/myMG/providers/Microsoft.Authorization/policyAssignments/limitVMSku" \\
-            --exemption-category "Waiver" \\
-            --scope "/providers/Microsoft.Management/managementGroups/myMG"
-"""
-
-helps['policy exemption delete'] = """
-type: command
-short-summary: Delete a policy exemption.
-examples:
-  - name: Delete a policy exemption.
-    text: |
-        az policy exemption delete --name MyPolicyExemption --resource-group "myResourceGroup"
-    crafted: true
-"""
-
-helps['policy exemption list'] = """
-type: command
-short-summary: List policy exemptions.
-"""
-
-helps['policy exemption show'] = """
-type: command
-short-summary: Show a policy exemption.
-examples:
-  - name: Show a policy exemption.
-    text: |
-        az policy exemption show --name MyPolicyExemption --resource-group "myResourceGroup"
-    crafted: true
-"""
-
-helps['policy exemption update'] = """
-type: command
-short-summary: Update a policy exemption.
-examples:
-  - name: Update a policy exemption.
-    text: |
-        az policy exemption update -n exemptTestVM \\
-            --exemption-category "Mitigated"
-  - name: Update a policy exemption in the resource group.
-    text: |
-        az policy exemption update -n exemptTestVM \\
-            --exemption-category "Mitigated" \\
-            --resource-group "myResourceGroup"
-  - name: Update a policy exemption in a management group.
-    text: |
-        az policy exemption update -n exemptTestVM \\
-            --exemption-category "Mitigated" \\
-            --scope "/providers/Microsoft.Management/managementGroups/myMG"
-"""
-
 helps['provider'] = """
 type: group
 short-summary: Manage resource providers.
@@ -2251,9 +1828,9 @@ helps['resource invoke-action'] = """
 type: command
 short-summary: Invoke an action on the resource.
 long-summary: >
-    A list of possible actions corresponding to a resource can be found at https://docs.microsoft.com/rest/api/. All POST requests are actions that can be invoked and are specified at the end of the URI path. For instance, to stop a VM, the
+    A list of possible actions corresponding to a resource can be found at https://learn.microsoft.com/rest/api/. All POST requests are actions that can be invoked and are specified at the end of the URI path. For instance, to stop a VM, the
     request URI is https://management.azure.com/subscriptions/{SubscriptionId}/resourceGroups/{ResourceGroup}/providers/Microsoft.Compute/virtualMachines/{VM}/powerOff?api-version={APIVersion} and the corresponding action is `powerOff`. This can
-    be found at https://docs.microsoft.com/rest/api/compute/virtualmachines/virtualmachines-stop.
+    be found at https://learn.microsoft.com/rest/api/compute/virtualmachines/virtualmachines-stop.
 examples:
   - name: Power-off a vm, specified by Id.
     text: >
@@ -2517,6 +2094,15 @@ examples:
     crafted: true
 """
 
+helps['resource move'] = """
+type: command
+short-summary: Move resources from one resource group to another (can be under different subscription).
+examples:
+  - name: Move multiple resources to the destination resource group under the destination subscription
+    text: >
+        az resource move --destination-group ResourceGroup --destination-subscription-id SubscriptionId --ids "ResourceId1" "ResourceId2" "ResourceId3"
+"""
+
 helps['tag'] = """
 type: group
 short-summary: Tag Management on a resource.
@@ -2722,9 +2308,9 @@ helps['bicep'] = """
 type: group
 short-summary: Bicep CLI command group.
 long-summary: |
-  Bicep CLI command group. There are two configurations that can be set for the command group, including bicep.check_version and bicep.use_binary_from_path:
+  There are two configurations that can be set for the command group, including bicep.check_version and bicep.use_binary_from_path:
 
-  [1] az config set bicep.version_check=True/False
+  [1] az config set bicep.check_version=True/False
       Turn on/off Bicep CLI version check when executing az bicep commands.
 
   [2] az config set bicep.use_binary_from_path=True/False/if_found_in_ci
@@ -2774,6 +2360,18 @@ examples:
     text: az bicep build --file {bicep_file} --no-restore
 """
 
+helps['bicep build-params'] = """
+type: command
+short-summary: Build .bicepparam file.
+examples:
+  - name: Build a .bicepparam file.
+    text: az bicep build-params --file {bicepparam_file}
+  - name: Build a .bicepparam file and print all output to stdout.
+    text: az bicep build-params --file {bicepparam_file} --stdout
+  - name: Build a .bicepparam file and save the result to the specified file.
+    text: az bicep build-params --file {bicepparam_file} --outfile {out_file}
+"""
+
 helps['bicep format'] = """
 type: command
 short-summary: Format a Bicep file.
@@ -2804,23 +2402,45 @@ examples:
     text: az bicep decompile --file {json_template_file} --force
 """
 
+helps['bicep decompile-params'] = """
+type: command
+short-summary: Decompile a parameters .json file to .bicepparam.
+examples:
+  - name: Attempts to decompile a parameters .json file to .bicepparam.
+    text: az bicep decompile-params --file {json_template_file}
+  - name: Attempts to decompile a parameters .json file to .bicepparam using the bicep file given.
+    text: az bicep decompile-params --file {json_template_file} --bicep-file {bicep_file}
+  - name: Attempts to decompile a parameters .json file to .bicepparam and overwrite existing output.
+    text: az bicep decompile-params --file {json_template_file} --force
+  - name: Attempts to decompile a parameters .json file to .bicepparam and print all output to stdout.
+    text: az bicep decompile-params --file {json_template_file} --stdout
+  - name: Attempts to decompile a parameters .json file to .bicepparam and print all output to stdout and save the result to the specified directory.
+    text: az bicep decompile-params --file {json_template_file} --outdir {out_dir}
+  - name: Attempts to decompile a parameters .json file to .bicepparam and print all output to stdout and save the result to the specified file.
+    text: az bicep decompile-params --file {json_template_file} --outfile {out_file}
+"""
+
 helps['bicep publish'] = """
 type: command
 short-summary: Publish a bicep file to a remote module registry.
 examples:
   - name: Publish a bicep file.
     text: az bicep publish --file {bicep_file} --target "br:{registry}/{module_path}:{tag}"
+  - name: Publish a bicep file overwriting an existing tag.
+    text: az bicep publish --file {bicep_file} --target "br:{registry}/{module_path}:{tag}" --force
   - name: Publish a bicep file with documentation uri.
-    text: az bicep publish --file {bicep_file} --target "br:{registry}/{module_path}:{tag}" --documentationUri {documentationUri}
+    text: az bicep publish --file {bicep_file} --target "br:{registry}/{module_path}:{tag}" --documentation-uri {documentation_uri}
+  - name: Publish a bicep file with documentation uri and include source code
+    text: az bicep publish --file {bicep_file} --target "br:{registry}/{module_path}:{tag}" --documentation-uri {documentation_uri} --with-source
 """
 
 helps['bicep restore'] = """
 type: command
 short-summary: Restore external modules for a bicep file.
 examples:
-  - name: Retore external modules.
+  - name: Restore external modules.
     text: az bicep restore --file {bicep_file}
-  - name: Retore external modules and overwrite cached external modules.
+  - name: Restore external modules and overwrite cached external modules.
     text: az bicep restore --file {bicep_file} --force
 """
 
@@ -2832,6 +2452,472 @@ short-summary: Show the installed version of Bicep CLI.
 helps['bicep list-versions'] = """
 type: command
 short-summary: List out all available versions of Bicep CLI.
+"""
+
+helps['stack'] = """
+type: group
+short-summary: A deployment stack is a native Azure resource type that enables you to perform operations on a resource collection as an atomic unit.
+long-summary: Deployment stacks are defined in ARM as the type Microsoft.Resources/deploymentStacks.
+"""
+
+helps['stack-whatif'] = """
+type: group
+short-summary: A deployment stack What-If is a preview of an operation to be performed on a new or existing deployment stack.
+long-summary: Deployment stacks What-Ifs are defined in ARM as the type Microsoft.Resources/deploymentStacksWhatIfResults.
+"""
+
+helps['stack mg'] = """
+type: group
+short-summary: Manage Deployment Stacks at management group.
+"""
+
+helps['stack mg create'] = """
+type: command
+short-summary: Create or update a deployment stack at management group scope
+examples:
+  - name: Create a deployment stack using template file and detach all resources on unmanage.
+    text: az stack mg create --name StackName --management-group-id myMg --template-file simpleTemplate.json --location westus2 --description description --deny-settings-mode None --action-on-unmanage detachAll
+  - name: Create a deployment stack with parameter file and delete resources on unmanage.
+    text: az stack mg create --name StackName --management-group-id myMg --action-on-unmanage deleteResources --template-file simpleTemplate.json --parameters simpleTemplateParams.json --location westus2 --description description --deny-settings-mode None
+  - name: Create a deployment stack with template spec.
+    text: az stack mg create --name StackName --management-group-id myMg --template-spec TemplateSpecResourceIDWithVersion --location westus2 --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack using bicep file and delete all resources on unmanage.
+    text: az stack mg create --name StackName --management-group-id myMg --action-on-unmanage deleteAll --template-file simple.bicep --location westus2 --description description --deny-settings-mode None
+  - name: Create a deployment stack using parameters from key/value pairs.
+    text: az stack mg create --name StackName --management-group-id myMg --template-file simpleTemplate.json --location westus --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack mg create --name StackName --management-group-id myMg --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --location westus --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, using deny settings.
+    text: az stack mg create --name StackName --management-group-id myMg --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --location westus --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, apply deny settings to child scope.
+    text: az stack mg create --name StackName --management-group-id myMg --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --location westus --action-on-unmanage deleteResources
+"""
+
+helps['stack mg validate'] = """
+type: command
+short-summary: Validate a deployment stack at management group scope
+examples:
+  - name: Validate a deployment stack using template file and detach all resources on unmanage.
+    text: az stack mg validate --name StackName --management-group-id myMg --template-file simpleTemplate.json --location westus2 --description description --deny-settings-mode None --action-on-unmanage detachAll
+  - name: Validate a deployment stack with parameter file and delete resources on unmanage.
+    text: az stack mg validate --name StackName --management-group-id myMg --action-on-unmanage deleteResources --template-file simpleTemplate.json --parameters simpleTemplateParams.json --location westus2 --description description --deny-settings-mode None
+  - name: Validate a deployment stack with template spec.
+    text: az stack mg validate --name StackName --management-group-id myMg --template-spec TemplateSpecResourceIDWithVersion --location westus2 --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack using bicep file and delete all resources on unmanage.
+    text: az stack mg validate --name StackName --management-group-id myMg --action-on-unmanage deleteAll --template-file simple.bicep --location westus2 --description description --deny-settings-mode None
+  - name: Validate a deployment stack using parameters from key/value pairs.
+    text: az stack mg validate --name StackName --management-group-id myMg --template-file simpleTemplate.json --location westus --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack mg validate --name StackName --management-group-id myMg --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --location westus --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, using deny settings.
+    text: az stack mg validate --name StackName --management-group-id myMg --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --location westus --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, apply deny settings to child scope.
+    text: az stack mg validate --name StackName --management-group-id myMg --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --location westus --action-on-unmanage deleteResources
+"""
+
+helps['stack mg list'] = """
+type: command
+short-summary: List all deployment stacks in management group
+examples:
+  - name: List all stacks
+    text: az stack mg list --management-group-id myMg
+"""
+
+helps['stack mg show'] = """
+type: command
+short-summary: Get specified deployment stack from management group scope
+examples:
+  - name: Get stack by name.
+    text: az stack mg show --name StackName --management-group-id myMg
+  - name: Get stack by stack resource id.
+    text: az stack mg show --id /providers/Microsoft.Management/managementGroups/myMg/providers/Microsoft.Resources/deploymentStacks/StackName --management-group-id myMg
+"""
+
+helps['stack mg export'] = """
+type: command
+short-summary: Export the template used to create the deployment stack
+examples:
+  - name: Export template by name.
+    text: az stack mg export --name StackName --management-group-id myMg
+  - name: Export template by stack resource id.
+    text: az stack mg export --id /providers/Microsoft.Management/managementGroups/myMg/providers/Microsoft.Resources/deploymentStacks/StackName --management-group-id myMg
+"""
+
+helps['stack mg delete'] = """
+type: command
+short-summary: Delete specified deployment stack from management group scope
+examples:
+  - name: Delete stack by name.
+    text: az stack mg delete --name StackName --management-group-id myMg --action-on-unmanage detachAll
+  - name: Delete stack by stack resource id.
+    text: az stack mg delete --id /providers/Microsoft.Management/managementGroups/myMg/providers/Microsoft.Resources/deploymentStacks/StackName --management-group-id myMg --action-on-unmanage deleteAll
+"""
+
+helps['stack-whatif mg'] = """
+type: group
+short-summary: Manage Deployment stacks what-if results at management group scope.
+"""
+
+helps['stack-whatif mg create'] = """
+type: command
+short-summary: Create a deployment stack what-if result at management group scope.
+examples:
+  - name: Perform a what-if on a deployment stack using template file and detach all unmanaged resources.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --template-file simpleTemplate.json --parameters simpleTemplateParams.json --location westus2 --description description --deny-settings-mode None --action-on-unmanage detachAll --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+  - name: Perform a what-if on a deployment stack with template spec.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --template-spec TemplateSpecResourceIDWithVersion --location westus2 --description description --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+  - name: Perform a what-if on a deployment stack using bicep file, delete all resources on unmanage, and remove color from the output.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --no-color --action-on-unmanage deleteAll --template-file simple.bicep --location westus2 --description description --deny-settings-mode None --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+  - name: Perform a what-if on a deployment stack using parameters from key/value pairs.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --template-file simpleTemplate.json --location westus --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+  - name: Perform a what-if on a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --location westus --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+  - name: Perform a what-if on a deployment stack from a local template, using deny settings.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --location westus --action-on-unmanage deleteResources --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+  - name: Perform a what-if on a deployment stack from a local template, apply deny settings to child scope.
+    text: az stack-whatif mg create --name StackName --management-group-id myMg --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --location westus --action-on-unmanage deleteResources --ri P5D --stack-id /providers/Microsoft.Management/myMg/providers/Microsoft.Resources/deploymentStacks/myMgStack
+"""
+
+helps['stack-whatif mg list'] = """
+type: command
+short-summary: List all deployment stacks what-if results in a management group.
+examples:
+  - name: List all stack what-if results in management group.
+    text: az stack-whatif mg list --management-group-id myMg
+"""
+
+helps['stack-whatif mg show'] = """
+type: command
+short-summary: Get a deployment stack what-if result from management group scope.
+examples:
+  - name: Get a stack what-if result by name.
+    text: az stack-whatif mg show --name ResultName --management-group-id myMg
+  - name: Get a stack what-if result by name without color.
+    text: az stack-whatif mg show --name ResultName --management-group-id myMg --no-color
+  - name: Get JSON for a stack what-if result by name.
+    text: az stack-whatif mg show --name ResultName --management-group-id myMg --no-pretty-print
+  - name: Get a stack what-if result by resource id.
+    text: az stack-whatif mg show --id /providers/Microsoft.Management/managementGroups/myMg/providers/Microsoft.Resources/deploymentStacksWhatIfResults/ResultName --management-group-id myMg
+"""
+
+helps['stack-whatif mg delete'] = """
+type: command
+short-summary: Delete a deployment stack what-if result from management group scope.
+examples:
+  - name: Delete a stack what-if result by name.
+    text: az stack-whatif mg delete --name ResultName --management-group-id myMg
+  - name: Delete a stack what-if result by resource id.
+    text: az stack-whatif mg delete --id /providers/Microsoft.Management/managementGroups/myMg/providers/Microsoft.Resources/deploymentStacksWhatIfResults/ResultName --management-group-id myMg
+"""
+
+helps['stack sub'] = """
+type: group
+short-summary: Manage Deployment stacks at subscription scope.
+"""
+
+helps['stack sub create'] = """
+type: command
+short-summary: Create or update a deployment stack at subscription scope
+examples:
+  - name: Create a deployment stack using template file and detach all resources on unmanage.
+    text: az stack sub create --name StackName --template-file simpleTemplate.json --location westus2 --description description --deny-settings-mode None --action-on-unmanage detachAll
+  - name: Create a deployment stack with parameter file and delete resources on unmanage.
+    text: az stack sub create --name StackName --action-on-unmanage deleteResources --template-file simpleTemplate.json --parameters simpleTemplateParams.json --location westus2 --description description --deny-settings-mode None
+  - name: Create a deployment stack with template spec.
+    text: az stack sub create --name StackName --template-spec TemplateSpecResourceIDWithVersion --location westus2 --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack using bicep file and delete all resources on unmanage.
+    text: az stack sub create --name StackName --action-on-unmanage deleteAll --template-file simple.bicep --location westus2 --description description --deny-settings-mode None
+  - name: Create a deployment stack at a different subscription.
+    text: az stack sub create --name StackName --template-file simpleTemplate.json --location westus2 --description description --subscription subscriptionId --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack and deploy at the resource group scope.
+    text: az stack sub create --name StackName --template-file simpleTemplate.json --location westus --deployment-resource-group ResourceGroup --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack using parameters from key/value pairs.
+    text: az stack sub create --name StackName --template-file simpleTemplate.json --location westus --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack sub create --name StackName --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --location westus --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, using deny settings.
+    text: az stack sub create --name StackName --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --location westus --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, apply deny settings to child scopes.
+    text: az stack sub create --name StackName --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --location westus --action-on-unmanage deleteResources
+"""
+
+helps['stack sub validate'] = """
+type: command
+short-summary: Validate a deployment stack at subscription scope
+examples:
+  - name: Validate a deployment stack using template file and detach all resources on unmanage.
+    text: az stack sub validate --name StackName --template-file simpleTemplate.json --location westus2 --description description --deny-settings-mode None --action-on-unmanage detachAll
+  - name: Validate a deployment stack with parameter file and delete resources on unmanage.
+    text: az stack sub validate --name StackName --action-on-unmanage deleteResources --template-file simpleTemplate.json --parameters simpleTemplateParams.json --location westus2 --description description --deny-settings-mode None
+  - name: Validate a deployment stack with template spec.
+    text: az stack sub validate --name StackName --template-spec TemplateSpecResourceIDWithVersion --location westus2 --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack using bicep file and delete all resources on unmanage.
+    text: az stack sub validate --name StackName --action-on-unmanage deleteAll --template-file simple.bicep --location westus2 --description description --deny-settings-mode None
+  - name: Validate a deployment stack at a different subscription.
+    text: az stack sub validate --name StackName --template-file simpleTemplate.json --location westus2 --description description --subscription subscriptionId --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack and deploy at the resource group scope.
+    text: az stack sub validate --name StackName --template-file simpleTemplate.json --location westus --deployment-resource-group ResourceGroup --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack using parameters from key/value pairs.
+    text: az stack sub validate --name StackName --template-file simpleTemplate.json --location westus --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack sub validate --name StackName --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --location westus --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, using deny settings.
+    text: az stack sub validate --name StackName --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --location westus --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, apply deny settings to child scopes.
+    text: az stack sub validate --name StackName --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --location westus --action-on-unmanage deleteResources
+"""
+
+helps['stack sub list'] = """
+type: command
+short-summary: List all deployment stacks in subscription
+examples:
+  - name: List all stacks
+    text: az stack sub list
+"""
+
+helps['stack sub show'] = """
+type: command
+short-summary: Get specified deployment stack from subscription scope
+examples:
+  - name: Get stack by name.
+    text: az stack sub show --name StackName
+  - name: Get stack by stack resource id.
+    text: az stack sub show --id /subscriptions/111111111111/providers/Microsoft.Resources/deploymentStacks/StackName
+"""
+
+helps['stack sub export'] = """
+type: command
+short-summary: Export the template used to create the deployment stack
+examples:
+  - name: Export template by name.
+    text: az stack sub export --name StackName
+  - name: Export template by stack resource id.
+    text: az stack sub export --id /subscriptions/111111111111/providers/Microsoft.Resources/deploymentStacks/StackName
+"""
+
+helps['stack sub delete'] = """
+type: command
+short-summary: Delete specified deployment stack from subscription scope
+examples:
+  - name: Delete stack by name.
+    text: az stack sub delete --name StackName --action-on-unmanage deleteResources
+  - name: Delete stack by stack resource id.
+    text: az stack sub delete --id /subscriptions/111111111111/providers/Microsoft.Resources/deploymentStacks/StackName --action-on-unmanage detachAll
+"""
+
+helps['stack-whatif sub'] = """
+type: group
+short-summary: Manage Deployment stacks what-if results at subscription scope.
+"""
+
+helps['stack-whatif sub create'] = """
+type: command
+short-summary: Create a deployment stack what-if result at subscription scope.
+examples:
+  - name: Perform a what-if on a deployment stack using template file and detach all resources on unmanage.
+    text: az stack-whatif sub create --name StackName --template-file simpleTemplate.json --location westus2 --description description --deny-settings-mode None --action-on-unmanage detachAll --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack with parameter file, delete resources on unmanage, and remove color from the output.
+    text: az stack-whatif sub create --name StackName --action-on-unmanage deleteResources --no-color --template-file simpleTemplate.json --parameters simpleTemplateParams.json --location westus2 --description description --deny-settings-mode None --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack with template spec.
+    text: az stack-whatif sub create --name StackName --template-spec TemplateSpecResourceIDWithVersion --location westus2 --description description --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack using bicep file and delete all resources on unmanage.
+    text: az stack-whatif sub create --name StackName --action-on-unmanage deleteAll --template-file simple.bicep --location westus2 --description description --deny-settings-mode None --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack at a different subscription.
+    text: az stack-whatif sub create --name StackName --template-file simpleTemplate.json --location westus2 --description description --subscription subscriptionId --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack and deploy at the resource group scope.
+    text: az stack-whatif sub create --name StackName --template-file simpleTemplate.json --location westus --deployment-resource-group ResourceGroup --description description --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack using parameters from key/value pairs.
+    text: az stack-whatif sub create --name StackName --template-file simpleTemplate.json --location westus --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack-whatif sub create --name StackName --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --location westus --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack from a local template, using deny settings.
+    text: az stack-whatif sub create --name StackName --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --location westus --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack from a local template, apply deny settings to child scopes.
+    text: az stack-whatif sub create --name StackName --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --location westus --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacks/mySubStack
+"""
+
+helps['stack-whatif sub list'] = """
+type: command
+short-summary: List all deployment stack what-if results in a subscription.
+examples:
+  - name: List all stack what-if results the current subscription.
+    text: az stack-whatif sub list
+"""
+
+helps['stack-whatif sub show'] = """
+type: command
+short-summary: Get a deployment stack what-if result from subscription scope.
+examples:
+  - name: Get a stack what-if result by name.
+    text: az stack-whatif sub show --name ResultName
+  - name: Get a stack what-if result by name without color.
+    text: az stack-whatif sub show --name ResultName --no-color
+  - name: Get JSON for a stack what-if result by name.
+    text: az stack-whatif sub show --name ResultName --no-pretty-print
+  - name: Get a stack what-if result by resource id.
+    text: az stack-whatif sub show --id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacksWhatIfResults/ResultName
+"""
+
+helps['stack-whatif sub delete'] = """
+type: command
+short-summary: Delete a deployment stack what-if result from subscription scope.
+examples:
+  - name: Delete a stack what-if result by name.
+    text: az stack-whatif sub delete --name StackName
+  - name: Delete a stack what-if result by resource id.
+    text: az stack-whatif sub delete --id /subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Resources/deploymentStacksWhatIfResults/ResultName
+"""
+
+helps['stack group'] = """
+type: group
+short-summary: Manage Deployment stacks at resource group scope.
+"""
+
+helps['stack group create'] = """
+type: command
+short-summary: Create or update a deployment stack at resource group scope
+examples:
+  - name: Create a deployment stack using template file and delete resources on unmanage.
+    text: az stack group create --name StackName --resource-group ResourceGroup --action-on-unmanage deleteResources --template-file simpleTemplate.json --description description --deny-settings-mode None
+  - name: Create a deployment stack with parameter file and detach all resources on unmanage.
+    text: az stack group create --name StackName --resource-group ResourceGroup --action-on-unmanage detachAll --template-file simpleTemplate.json --parameters simpleTemplateParams.json --description description --deny-settings-mode None
+  - name: Create a deployment stack with template spec and delete all resources on unmanage.
+    text: az stack group create --name StackName --resource-group ResourceGroup --action-on-unmanage deleteAll --template-spec TemplateSpecResourceIDWithVersion --description description --deny-settings-mode None
+  - name: Create a deployment stack using bicep file.
+    text: az stack group create --name StackName --resource-group ResourceGroup --template-file simple.bicep --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack at a different subscription.
+    text: az stack group create --name StackName --resource-group ResourceGroup --template-file simpleTemplate.json --description description --subscription subscriptionId --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack using parameters from key/value pairs.
+    text: az stack group create --name StackName --template-file simpleTemplate.json --resource-group ResourceGroup --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack group create --name StackName --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --resource-group ResourceGroup --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, using deny settings.
+    text: az stack group create --name StackName --resource-group ResourceGroup --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --action-on-unmanage deleteResources
+  - name: Create a deployment stack from a local template, apply deny setting to child scopes.
+    text: az stack group create --name StackName --resource-group ResourceGroup --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --action-on-unmanage deleteResources
+"""
+
+helps['stack group validate'] = """
+type: command
+short-summary: Validate a deployment stack at resource group scope
+examples:
+  - name: Validate a deployment stack using template file and delete resources on unmanage.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --action-on-unmanage deleteResources --template-file simpleTemplate.json --description description --deny-settings-mode None
+  - name: Validate a deployment stack with parameter file and detach all resources on unmanage.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --action-on-unmanage detachAll --template-file simpleTemplate.json --parameters simpleTemplateParams.json --description description --deny-settings-mode None
+  - name: Validate a deployment stack with template spec and delete all resources on unmanage.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --action-on-unmanage deleteAll --template-spec TemplateSpecResourceIDWithVersion --description description --deny-settings-mode None
+  - name: Validate a deployment stack using bicep file.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --template-file simple.bicep --description description --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack at a different subscription.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --template-file simpleTemplate.json --description description --subscription subscriptionId --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack using parameters from key/value pairs.
+    text: az stack group validate --name StackName --template-file simpleTemplate.json --resource-group ResourceGroup --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack group validate --name StackName --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --resource-group ResourceGroup --deny-settings-mode None --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, using deny settings.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --action-on-unmanage deleteResources
+  - name: Validate a deployment stack from a local template, apply deny setting to child scopes.
+    text: az stack group validate --name StackName --resource-group ResourceGroup --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --action-on-unmanage deleteResources
+"""
+
+helps['stack group list'] = """
+type: command
+short-summary: List all deployment stacks in resource group
+examples:
+  - name: List all stacks in resource group
+    text: az stack group list --resource-group ResourceGroup
+"""
+
+helps['stack group show'] = """
+type: command
+short-summary: Get specified deployment stack from resource group scope
+examples:
+  - name: Get stack by name.
+    text: az stack group show --name StackName --resource-group ResourceGroup
+  - name: Get stack by stack resource id.
+    text: az stack group show --id /subscriptions/111111111111/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/StackName
+"""
+
+helps['stack group export'] = """
+type: command
+short-summary: Export the template used to create the deployment stack from resource group scope
+examples:
+  - name: Export template by name.
+    text: az stack group export --name StackName --resource-group ResourceGroup
+  - name: Export template by stack resource id.
+    text: az stack group export --id /subscriptions/111111111111/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/StackName
+"""
+
+helps['stack group delete'] = """
+type: command
+short-summary: Delete specified deployment stack from resource group scope
+examples:
+  - name: Delete stack by name.
+    text: az stack group delete --name StackName --resource-group ResourceGroup --action-on-unmanage deleteResources
+  - name: Delete stack by stack resource id.
+    text: az stack group delete --id /subscriptions/111111111111/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/StackName --action-on-unmanage detachAll
+"""
+
+helps['stack-whatif group'] = """
+type: group
+short-summary: Manage Deployment stacks what-if results at resource group scope.
+"""
+
+helps['stack-whatif group create'] = """
+type: command
+short-summary: Create a deployment stack what-if result at resource group scope.
+examples:
+  - name: Perform a what-if on a deployment stack using template file and delete resources on unmanage.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --action-on-unmanage deleteResources --template-file simpleTemplate.json --description description --deny-settings-mode None --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack with parameter file, detach all resources on unmanage, and remove color from the output.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --no-color --action-on-unmanage detachAll --template-file simpleTemplate.json --parameters simpleTemplateParams.json --description description --deny-settings-mode None --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack with template spec and delete all resources on unmanage.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --action-on-unmanage deleteAll --template-spec TemplateSpecResourceIDWithVersion --description description --deny-settings-mode None --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack using bicep file.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --template-file simple.bicep --description description --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack at a different subscription.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --template-file simpleTemplate.json --description description --subscription subscriptionId --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack using parameters from key/value pairs.
+    text: az stack-whatif group create --name ResultName --template-file simpleTemplate.json --resource-group ResourceGroup --description description --parameters simpleTemplateParams.json value1=foo value2=bar --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack from a local template, using a parameter file, a remote parameter file, and selectively overriding key/value pairs.
+    text: az stack-whatif group create --name ResultName --template-file azuredeploy.json --parameters @params.json --parameters https://mysite/params.json --parameters MyValue=This MyArray=@array.json --resource-group ResourceGroup --deny-settings-mode None --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack from a local template, using deny settings.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-excluded-principals "test1 test2" --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+  - name: Perform a what-if on a deployment stack from a local template, apply deny setting to child scopes.
+    text: az stack-whatif group create --name ResultName --resource-group ResourceGroup --template-file azuredeploy.json --deny-settings-mode denyDelete --deny-settings-excluded-actions Microsoft.Compute/virtualMachines/write --deny-settings-apply-to-child-scopes --action-on-unmanage deleteResources --ri P5D --stack-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacks/mySubStack
+"""
+
+helps['stack-whatif group list'] = """
+type: command
+short-summary: List all deployment stack what-if results in a resource group.
+examples:
+  - name: List all stack what-if results in a resource group.
+    text: az stack-whatif group list --resource-group ResourceGroup
+"""
+
+helps['stack-whatif group show'] = """
+type: command
+short-summary: Get a deployment stack what-if result from resource group scope.
+examples:
+  - name: Get a stack what-if result by name.
+    text: az stack-whatif group show --name ResultName --resource-group ResourceGroup
+  - name: Get a stack what-if result by name without color.
+    text: az stack-whatif group show --name ResultName --resource-group ResourceGroup --no-color
+  - name: Get JSON for a stack what-if result by name.
+    text: az stack-whatif group show --name ResultName --resource-group ResourceGroup --no-pretty-print
+  - name: Get a stack what-if result by resource id.
+    text: az stack-whatif group show --id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacksWhatIfResults/ResultName
+"""
+
+helps['stack-whatif group delete'] = """
+type: command
+short-summary: Delete a deployment stack what-if result from resource group scope.
+examples:
+  - name: Delete stack what-if result by name.
+    text: az stack-whatif group delete --name ResultName --resource-group ResourceGroup
+  - name: Delete stack what-if result by resource id.
+    text: az stack-whatif group delete --id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ResourceGroup/providers/Microsoft.Resources/deploymentStacksWhatIfResults/ResultName
 """
 
 helps['bicep generate-params'] = """
@@ -2848,6 +2934,56 @@ examples:
     text: az bicep generate-params --file {bicep_file} --outfile {out_file}
   - name: Generate parameters file for a Bicep file without restoring external modules.
     text: az bicep generate-params --file {bicep_file} --no-restore
+  - name: Generate parameters file for a Bicep file with specified output format. Valid values are ( json | bicepparam ).
+    text: az bicep generate-params --file {bicep_file} --output-format {output_format} --include-params {include_params}
+"""
+
+helps['bicep lint'] = """
+type: command
+short-summary: Lint a Bicep file.
+examples:
+  - name: Lint a Bicep file.
+    text: az bicep lint --file {bicep_file}
+  - name: Lint a Bicep file without restoring external modules.
+    text: az bicep lint --file {bicep_file} --no-restore
+  - name: Lint a Bicep file with specified diagnostics format. Valid values are ( default | sarif ).
+    text: az bicep lint --file {bicep_file} --diagnostics-format {diagnostics_format}
+"""
+
+helps['bicep snapshot'] = """
+type: command
+short-summary: Capture or validate a snapshot of the resources predicted to be deployed by a .bicepparam file.
+long-summary: |
+    Compiles a .bicepparam file together with its referenced Bicep template and writes a deployment
+    snapshot (a `*.snapshot.json` file) next to the .bicepparam file. When run with `--mode Validate`,
+    the existing snapshot is compared against the current template and the command fails if they
+    differ. This command requires Bicep CLI v0.41.2 or later.
+examples:
+  - name: Capture a snapshot for a .bicepparam file.
+    text: az bicep snapshot --file main.bicepparam
+  - name: Validate that the existing snapshot still matches the current template.
+    text: az bicep snapshot --file main.bicepparam --mode Validate
+  - name: Capture a snapshot with explicit Azure context.
+    text: az bicep snapshot --file main.bicepparam --subscription-id 00000000-0000-0000-0000-000000000000 --resource-group myRg --location westus
+"""
+
+helps['bicep run'] = """
+type: command
+short-summary: Forward a raw command to the installed Bicep CLI.
+long-summary: |
+    Runs the Bicep CLI with the arguments supplied via `--command`, allowing use of Bicep CLI
+    features that do not yet have a dedicated `az bicep` wrapper. The string passed to
+    `--command` is split using shell-style quoting and forwarded to the Bicep CLI verbatim.
+    When the forwarded command itself starts with `--` (for example `--version`), use the
+    `--command=<value>` form so the CLI parser does not mistake the value for another option.
+
+    Because the value is forwarded to the Bicep CLI without validation, do not pass strings
+    derived from untrusted input.
+examples:
+  - name: Forward a build command to the Bicep CLI.
+    text: az bicep run --command "build main.bicep"
+  - name: Show the Bicep CLI help (use the --command=<value> form for option-like values).
+    text: az bicep run --command=--help
 """
 
 helps['resourcemanagement'] = """

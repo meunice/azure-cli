@@ -11,16 +11,32 @@ import unittest
 from unittest import mock
 import tempfile
 import json
+import platform
 
 from azure.cli.core.util import \
     (get_file_json, truncate_text, shell_safe_json_parse, b64_to_hex, hash_string, random_string,
      open_page_in_browser, can_launch_browser, handle_exception, ConfiguredDefaultSetter, send_raw_request,
      should_disable_connection_verify, parse_proxy_resource_id, get_az_user_agent, get_az_rest_user_agent,
-     _get_parent_proc_name, is_wsl)
+    _get_parent_proc_name, is_wsl, run_cmd, run_az_cmd, roughly_parse_command, is_same_origin,
+     get_safe_executable_path, get_latest_version_from_ame_storage)
 from azure.cli.core.mock import DummyCli
 
 
 class TestUtils(unittest.TestCase):
+
+    def _assert_headers(self, request_headers, expected_headers):
+        actual_headers = dict(request_headers)
+
+        encodings = {
+            encoding.strip().lower()
+            for encoding in actual_headers.get('Accept-Encoding', '').split(',')
+            if encoding.strip()
+        }
+        self.assertIn('gzip', encodings)
+        self.assertIn('deflate', encodings)
+
+        actual_headers.pop('Accept-Encoding', None)
+        self.assertDictEqual(actual_headers, expected_headers)
 
     def test_load_json_from_file(self):
         _, pathname = tempfile.mkstemp()
@@ -153,10 +169,10 @@ class TestUtils(unittest.TestCase):
     @mock.patch('subprocess.Popen', autospec=True)
     def test_open_page_in_browser(self, subprocess_open_mock, webbrowser_open_mock):
         platform = sys.platform.lower()
-        open_page_in_browser('http://foo')
+        open_page_in_browser("http://foo")
         if is_wsl():
             subprocess_open_mock.assert_called_once_with(['powershell.exe', '-NoProfile',
-                                                          '-Command', 'Start-Process "http://foo"'])
+                                                          '-Command', "Start-Process 'http://foo'"])
         elif platform == 'darwin':
             subprocess_open_mock.assert_called_once_with(['open', 'http://foo'])
         else:
@@ -256,7 +272,6 @@ class TestUtils(unittest.TestCase):
 
         expected_header = {
             'User-Agent': get_az_rest_user_agent(),
-            'Accept-Encoding': 'gzip, deflate',
             'Accept': '*/*',
             'Connection': 'keep-alive',
             'Content-Type': 'application/json',
@@ -268,8 +283,8 @@ class TestUtils(unittest.TestCase):
         expected_header_with_auth['Authorization'] = 'Bearer eyJ0eXAiOiJKV1'
 
         # Test basic usage
-        # Mock Put Blob https://docs.microsoft.com/en-us/rest/api/storageservices/put-blob
-        # Authenticate with service SAS https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas
+        # Mock Put Blob https://learn.microsoft.com/en-us/rest/api/storageservices/put-blob
+        # Authenticate with service SAS https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas
         sas_token = ['sv=2019-02-02', '{"srt": "s"}', "{'ss': 'bf'}"]
         send_raw_request(cli_ctx, 'PUT', 'https://myaccount.blob.core.windows.net/mycontainer/myblob?timeout=30',
                          uri_parameters=sas_token, body=test_body,
@@ -281,7 +296,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(request.url, 'https://myaccount.blob.core.windows.net/mycontainer/myblob?timeout=30&sv=2019-02-02&srt=s&ss=bf')
         self.assertEqual(request.body, '{"b1": "v1"}')
         # Verify no Authorization header
-        self.assertDictEqual(dict(request.headers), expected_header)
+        self._assert_headers(request.headers, expected_header)
         self.assertEqual(send_mock.call_args[1]["verify"], not should_disable_connection_verify())
 
         # Test Authorization header is skipped
@@ -290,7 +305,7 @@ class TestUtils(unittest.TestCase):
 
         get_raw_token_mock.assert_not_called()
         request = send_mock.call_args[0][1]
-        self.assertDictEqual(dict(request.headers), expected_header)
+        self._assert_headers(request.headers, expected_header)
 
         # Test Authorization header is already provided
         send_raw_request(cli_ctx, 'GET', full_arm_rest_url,
@@ -299,7 +314,7 @@ class TestUtils(unittest.TestCase):
 
         get_raw_token_mock.assert_not_called()
         request = send_mock.call_args[0][1]
-        self.assertDictEqual(dict(request.headers), {**expected_header, 'Authorization': 'Basic ABCDE'})
+        self._assert_headers(request.headers, {**expected_header, 'Authorization': 'Basic ABCDE'})
 
         # Test Authorization header is auto appended
         send_raw_request(cli_ctx, 'GET', full_arm_rest_url,
@@ -308,10 +323,10 @@ class TestUtils(unittest.TestCase):
 
         get_raw_token_mock.assert_called_with(mock.ANY, test_arm_active_directory_resource_id, subscription=subscription_id)
         request = send_mock.call_args[0][1]
-        self.assertDictEqual(dict(request.headers), expected_header_with_auth)
+        self._assert_headers(request.headers, expected_header_with_auth)
 
         # Test ARM Subscriptions - List
-        # https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list
+        # https://learn.microsoft.com/en-us/rest/api/resources/subscriptions/list
         # /subscriptions?api-version=2020-01-01
         send_raw_request(cli_ctx, 'GET', '/subscriptions?api-version=2020-01-01', body=test_body,
                          generated_client_request_id_name=None)
@@ -319,10 +334,10 @@ class TestUtils(unittest.TestCase):
         get_raw_token_mock.assert_called_with(mock.ANY, test_arm_active_directory_resource_id)
         request = send_mock.call_args[0][1]
         self.assertEqual(request.url, test_arm_endpoint.rstrip('/') + '/subscriptions?api-version=2020-01-01')
-        self.assertDictEqual(dict(request.headers), expected_header_with_auth)
+        self._assert_headers(request.headers, expected_header_with_auth)
 
         # Test ARM Tenants - List
-        # https://docs.microsoft.com/en-us/rest/api/resources/tenants/list
+        # https://learn.microsoft.com/en-us/rest/api/resources/tenants/list
         # /tenants?api-version=2020-01-01
         send_raw_request(cli_ctx, 'GET', '/tenants?api-version=2020-01-01', body=test_body,
                          generated_client_request_id_name=None)
@@ -330,7 +345,7 @@ class TestUtils(unittest.TestCase):
         get_raw_token_mock.assert_called_with(mock.ANY, test_arm_active_directory_resource_id)
         request = send_mock.call_args[0][1]
         self.assertEqual(request.url, test_arm_endpoint.rstrip('/') + '/tenants?api-version=2020-01-01')
-        self.assertDictEqual(dict(request.headers), expected_header_with_auth)
+        self._assert_headers(request.headers, expected_header_with_auth)
 
         # Test ARM resource ID
         # /subscriptions/00000001-0000-0000-0000-000000000000/resourcegroups/02?api-version=2019-07-01
@@ -340,7 +355,7 @@ class TestUtils(unittest.TestCase):
         get_raw_token_mock.assert_called_with(mock.ANY, test_arm_active_directory_resource_id, subscription=subscription_id)
         request = send_mock.call_args[0][1]
         self.assertEqual(request.url, full_arm_rest_url)
-        self.assertDictEqual(dict(request.headers), expected_header_with_auth)
+        self._assert_headers(request.headers, expected_header_with_auth)
 
         # Test full ARM URL
         # https://management.azure.com/subscriptions/00000001-0000-0000-0000-000000000000/resourcegroups/02?api-version=2019-07-01
@@ -359,6 +374,17 @@ class TestUtils(unittest.TestCase):
         get_raw_token_mock.assert_called_with(mock.ANY, test_arm_active_directory_resource_id, subscription=subscription_id)
         request = send_mock.call_args[0][1]
         self.assertEqual(request.url, 'https://management.azure.com:443/subscriptions/00000001-0000-0000-0000-000000000000/resourcegroups/02?api-version=2019-07-01')
+
+        # Test lookalike host is NOT mistaken for the trusted ARM endpoint via prefix matching.
+        # The access token must NOT be attached to an attacker-controlled origin.
+        for spoofed_host in ['https://management.azure.com.attacker', 'https://management.azure.com@attacker']:
+            spoofed_url = spoofed_host + arm_resource_id
+            get_raw_token_mock.reset_mock()
+            send_raw_request(cli_ctx, 'GET', spoofed_url, generated_client_request_id_name=None)
+            get_raw_token_mock.assert_not_called()
+            request = send_mock.call_args[0][1]
+
+            self.assertNotIn('Authorization', request.headers)
 
         # Test non-ARM APIs
 
@@ -385,6 +411,86 @@ class TestUtils(unittest.TestCase):
             get_raw_token_mock.assert_called_with(mock.ANY, test_arm_active_directory_resource_id, subscription=subscription_id)
             request = send_mock.call_args[0][1]
             self.assertEqual(request.headers['User-Agent'], get_az_rest_user_agent() + ' env-ua ARG-UA')
+
+    def test_is_same_origin(self):
+        endpoint = 'https://management.azure.com/'
+
+        # Same origin
+        self.assertTrue(is_same_origin('https://management.azure.com/subscriptions/01?api-version=2025-09-01', endpoint))
+        self.assertTrue(is_same_origin('https://management.azure.com', endpoint))
+        # Case-insensitive scheme and host
+        self.assertTrue(is_same_origin('HTTPS://Management.Azure.Com/path', endpoint))
+        # Default port is equivalent to an omitted port
+        self.assertTrue(is_same_origin('https://management.azure.com:443/path', endpoint))
+        self.assertTrue(is_same_origin('https://management.azure.com/path', 'https://management.azure.com:443/'))
+
+        # Prefix-matching attack: lookalike host must NOT match
+        self.assertFalse(is_same_origin('https://management.azure.com.attacker/path', endpoint))
+        self.assertFalse(is_same_origin('https://management.azure.com.attacker', endpoint))
+        # Userinfo trick: real host is the attacker
+        self.assertFalse(is_same_origin('https://management.azure.com@attacker/path', endpoint))
+        # Different scheme
+        self.assertFalse(is_same_origin('http://management.azure.com/path', endpoint))
+        # Different port
+        self.assertFalse(is_same_origin('https://management.azure.com:8443/path', endpoint))
+        # Different host
+        self.assertFalse(is_same_origin('https://graph.microsoft.com/path', endpoint))
+
+        # Malformed / non-URL inputs
+        self.assertFalse(is_same_origin('not a url', endpoint))
+        self.assertFalse(is_same_origin('', endpoint))
+        self.assertFalse(is_same_origin('https://management.azure.com/path', 'not a url'))
+
+    def test_normalize_url(self):
+        from azure.cli.core.util import normalize_url
+
+        # Already normalized URLs are unchanged
+        for url in ['https://management.azure.com/',
+                    'https://management.azure.com/subscriptions/01/resourceGroups/rg?api-version=2021-04-01']:
+            self.assertEqual(normalize_url(url), url)
+
+        # Empty path is normalized to '/'
+        self.assertEqual(normalize_url('https://management.azure.com'), 'https://management.azure.com/')
+        # Scheme and host are lowercased
+        self.assertEqual(normalize_url('HTTPS://Management.Azure.COM/Path'), 'https://management.azure.com/Path')
+        # Empty segments are collapsed, so the path can't be read as a protocol-relative URL
+        self.assertEqual(normalize_url('https://management.azure.com//attacker.example/leak'),
+                         'https://management.azure.com/attacker.example/leak')
+        # Dot segments are removed
+        self.assertEqual(normalize_url('https://management.azure.com/a/b/../c'),
+                         'https://management.azure.com/a/c')
+        self.assertEqual(normalize_url('https://management.azure.com/../..//attacker.example/leak'),
+                         'https://management.azure.com/attacker.example/leak')
+        # Backslashes in the authority belong to the path, like in WHATWG URL parsers
+        self.assertEqual(normalize_url('https://management.azure.com\\@attacker.example/leak'),
+                         'https://management.azure.com/@attacker.example/leak')
+        # Control characters are stripped
+        self.assertEqual(normalize_url('https://management.azure.com\t\r\n/path'),
+                         'https://management.azure.com/path')
+        # Percent-encoded characters are preserved as-is
+        self.assertEqual(normalize_url('https://management.azure.com/a%20b'),
+                         'https://management.azure.com/a%20b')
+        # A literal space inside the URL is preserved, only leading/trailing whitespace is trimmed
+        self.assertEqual(normalize_url('  https://management.azure.com/a b  '),
+                         'https://management.azure.com/a b')
+        # Query and fragment are preserved
+        self.assertEqual(normalize_url('https://management.azure.com/a//b?x=1//2#f//g'),
+                         'https://management.azure.com/a/b?x=1//2#f//g')
+
+    def test_is_trusted_cloud_endpoint(self):
+        from azure.cli.core.util import is_trusted_cloud_endpoint
+        from azure.cli.core.mock import DummyCli
+
+        cli_ctx = DummyCli()
+
+        self.assertTrue(is_trusted_cloud_endpoint(
+            'https://management.azure.com/subscriptions/01?api-version=2025-09-01', cli_ctx))
+        # Not a trusted host
+        self.assertFalse(is_trusted_cloud_endpoint('https://management.azure.com.attacker/path', cli_ctx))
+        # Not normalized: the path may be re-interpreted as an authority downstream
+        self.assertFalse(is_trusted_cloud_endpoint('https://management.azure.com//attacker.example/leak', cli_ctx))
+        self.assertFalse(is_trusted_cloud_endpoint('https://management.azure.com/../..//attacker.example', cli_ctx))
+        self.assertFalse(is_trusted_cloud_endpoint(None, cli_ctx))
 
     @mock.patch("psutil.Process")
     def test_get_parent_proc_name(self, mock_process_type):
@@ -421,6 +527,69 @@ class TestUtils(unittest.TestCase):
         parent2.name.return_value = "bash"
         self.assertEqual(_get_parent_proc_name(), "pwsh")
 
+    def test_cli_run_cmd(self):
+        cmd = ["echo", "abc"]
+        if platform.system().lower() == "windows":
+            cmd = ["cmd.exe", "/c"] + cmd
+        output = run_cmd(cmd, capture_output=True)
+        self.assertEqual(output.returncode, 0, "error when run cmd in shell")
+        self.assertEqual(output.stdout.decode("utf8").strip(), "abc", "unexpected output when run cmd")
+
+        output = run_cmd(cmd, capture_output=True, encoding="utf8")
+        self.assertEqual(output.returncode, 0, "error when run cmd in shell")
+        self.assertEqual(output.stdout.strip(), "abc", "unexpected output when run cmd")
+
+    def test_run_cmd_arg_error(self):
+        cmd = "echo abc"
+        if platform.system().lower() == "windows":
+            cmd = "cmd.exe /c " + cmd
+        from azure.cli.core.azclierror import ArgumentUsageError
+        with self.assertRaises(ArgumentUsageError):
+            run_cmd(cmd, check=True)
+
+    def test_run_az_cmd(self):
+        cmd = ["az", "version"]
+        output = run_az_cmd(cmd)
+        self.assertEqual(output.exit_code, 0, "unexpected exit_code when run az version")
+        self.assertEqual(output.error, None, "unexpected error when run az cmd")
+        self.assertIsInstance(output.result, dict, "unexpected cmd execution result")
+        self.assertIn("azure-cli-core", output.result, "unexpected cmd execution result")
+
+
+class TestGetLatestVersionFromAmeStorage(unittest.TestCase):
+
+    @staticmethod
+    def _response(status_code, text=''):
+        return mock.Mock(status_code=status_code, text=text)
+
+    @mock.patch('requests.get', autospec=True)
+    def test_get_version_from_pyproject(self, get_mock):
+        get_mock.return_value = self._response(
+            200, '[project]\nname = "azure-cli-core"\nversion = "2.99.0"\nrequires-python = ">=3.10"\n')
+        self.assertEqual(get_latest_version_from_ame_storage('azure-cli-core'), '2.99.0')
+        get_mock.assert_called_once_with(
+            'https://azcliprod.blob.core.windows.net/cli/azure-cli-core/pyproject.toml', timeout=10)
+
+    @mock.patch('requests.get', autospec=True)
+    def test_fallback_to_setup_py(self, get_mock):
+        get_mock.side_effect = [self._response(404),
+                                self._response(200, 'from setuptools import setup\nVERSION = "1.2.0"\n')]
+        self.assertEqual(get_latest_version_from_ame_storage('azure-cli-telemetry'), '1.2.0')
+        self.assertEqual(get_mock.call_args_list[1][0][0],
+                         'https://azcliprod.blob.core.windows.net/cli/azure-cli-telemetry/setup.py')
+
+    @mock.patch('requests.get', autospec=True)
+    def test_fallback_when_pyproject_has_no_version(self, get_mock):
+        get_mock.side_effect = [self._response(200, '[project]\nname = "azure-cli"\n'),
+                                self._response(200, 'VERSION = "2.92.0"\n')]
+        self.assertEqual(get_latest_version_from_ame_storage(), '2.92.0')
+
+    @mock.patch('requests.get', autospec=True)
+    def test_return_none_on_failure(self, get_mock):
+        get_mock.side_effect = [Exception('connection error'), self._response(500)]
+        self.assertIsNone(get_latest_version_from_ame_storage())
+        self.assertEqual(get_mock.call_count, 2)
+
 
 class TestBase64ToHex(unittest.TestCase):
 
@@ -432,6 +601,24 @@ class TestBase64ToHex(unittest.TestCase):
 
     def test_b64_to_hex_type(self):
         self.assertIsInstance(b64_to_hex(self.base64), str)
+
+
+class TestGetProperty(unittest.TestCase):
+
+    def test_getprop(self):
+        from azure.cli.core.util import getprop
+        with self.assertRaises(AttributeError):
+            getprop(self, '__class__')
+        with self.assertRaises(AttributeError):
+            getprop(self, '__init__')
+        with self.assertRaises(AttributeError):
+            getprop(self, 'assertRaises')
+        with self.assertRaises(AttributeError):
+            getprop(self, '_diffThreshold')
+        with self.assertRaises(AttributeError):
+            getprop(self, 'new_props')
+        self.assertEqual(getprop(self, 'maxDiff'), self.maxDiff)
+        self.assertEqual(getprop(self, 'new_props', "new_props"), "new_props")
 
 
 class TestHandleException(unittest.TestCase):
@@ -465,21 +652,19 @@ class TestHandleException(unittest.TestCase):
         self.assertEqual(ex_result, 1)
 
     @mock.patch('azure.cli.core.azclierror.logger.error', autospec=True)
-    def test_handle_exception_clouderror(self, mock_logger_error):
-        from msrestazure.azure_exceptions import CloudError
+    def test_handle_exception_httpresponseerror(self, mock_logger_error):
+        from azure.core.exceptions import HttpResponseError
 
-        # create test CloudError Exception
-        err_detail = "There was a Cloud Error."
-        err_msg = "CloudError"
-        mock_cloud_error = mock.MagicMock(spec=CloudError)
-        mock_cloud_error.args = (err_detail, err_msg)
+        # create test HttpResponseError Exception
+        mock_http_response_error = HttpResponseError(response=mock.MagicMock(status_code="xxx",
+                                                                             reason="There was a Http Response Error."))
 
         # call handle_exception
-        ex_result = handle_exception(mock_cloud_error)
+        ex_result = handle_exception(mock_http_response_error)
 
         # test behavior
         self.assertTrue(mock_logger_error.called)
-        self.assertIn(mock_cloud_error.args[0], mock_logger_error.call_args[0][0])
+        self.assertIn(mock_http_response_error.args[0], mock_logger_error.call_args[0][0])
         self.assertEqual(ex_result, 1)
 
     @mock.patch('azure.cli.core.azclierror.logger.error', autospec=True)
@@ -487,7 +672,7 @@ class TestHandleException(unittest.TestCase):
         # create test HttpOperationError Exception
         err_msg = "Bad Request because of some incorrect param"
         err_code = "BadRequest"
-        err = dict(error=dict(code=err_code, message=err_msg))
+        err = {"error": {"code": err_code, "message": err_msg}}
         response_text = json.dumps(err)
         mock_http_error = self._get_mock_HttpOperationError(response_text)
 
@@ -506,7 +691,7 @@ class TestHandleException(unittest.TestCase):
 
         # create test HttpOperationError Exception
         err_msg = "BadRequest"
-        err = dict(error=err_msg)
+        err = {"error": err_msg}
         response_text = json.dumps(err)
         mock_http_error = self._get_mock_HttpOperationError(response_text)
 
@@ -567,6 +752,141 @@ class TestHandleException(unittest.TestCase):
 
         return mock_http_error
 
+    def test_roughly_parse_command(self):
+        """Test roughly_parse_command function that extracts command parts and converts to lowercase"""
+        # Basic command parsing
+        self.assertEqual(roughly_parse_command(['az', 'vm', 'create']), 'az vm create')
+        self.assertEqual(roughly_parse_command(['account', 'show']), 'account show')
+        self.assertEqual(roughly_parse_command(['network', 'vnet', 'list']), 'network vnet list')
+        
+        # Test case conversion - should convert to lowercase
+        self.assertEqual(roughly_parse_command(['az', 'VM', 'CREATE']), 'az vm create')
+        self.assertEqual(roughly_parse_command(['Account', 'Show']), 'account show')
+        
+        # Test with flags - should stop at first flag and not include flag values
+        self.assertEqual(roughly_parse_command(['az', 'vm', 'create', '--name', 'secretVM']), 'az vm create')
+        self.assertEqual(roughly_parse_command(['az', 'storage', 'account', 'create', '--name', 'mystorageaccount']), 'az storage account create')
+        self.assertEqual(roughly_parse_command(['az', 'keyvault', 'create', '--resource-group', 'myRG', '--name', 'myVault']), 'az keyvault create')
+        
+        # Test with short flags
+        self.assertEqual(roughly_parse_command(['az', 'vm', 'list', '-g', 'myResourceGroup']), 'az vm list')
+        self.assertEqual(roughly_parse_command(['az', 'group', 'create', '-n', 'myGroup', '-l', 'eastus']), 'az group create')
+        
+        # Edge cases
+        self.assertEqual(roughly_parse_command([]), '')
+        self.assertEqual(roughly_parse_command(['az']), 'az')
+        self.assertEqual(roughly_parse_command(['--help']), '')  # Starts with flag
+        self.assertEqual(roughly_parse_command(['-h']), '')  # Starts with short flag
+
+class TestSafeExecutablePath(unittest.TestCase):
+    EXE = 'planted.exe' if platform.system() == 'Windows' else 'planted'
+
+    def setUp(self):
+        self._orig_cwd = os.getcwd()
+        self._tmp = tempfile.TemporaryDirectory()
+        self.cwd = self._tmp.name
+        os.chdir(self.cwd)
+        self._make_exe(self.cwd)  # decoy in the CWD
+
+    def tearDown(self):
+        os.chdir(self._orig_cwd)
+        self._tmp.cleanup()
+
+    def _make_exe(self, directory):
+        path = os.path.join(directory, self.EXE)
+        open(path, 'w').close()
+        os.chmod(path, 0o755)
+        return path
+
+    def _resolve(self, *path_dirs):
+        with mock.patch.dict(os.environ, {'PATH': os.pathsep.join(path_dirs)}):
+            return get_safe_executable_path(self.EXE)
+
+    def test_explicit_path_returned_as_is(self):
+        explicit = os.path.join('some', 'dir', 'tool')
+        self.assertEqual(get_safe_executable_path(explicit), explicit)
+
+    def test_cwd_never_resolved(self):
+        self.assertIsNone(self._resolve(self.cwd))
+        self.assertIsNone(self._resolve('.'))
+        if platform.system() == 'Windows':
+            self.assertIsNone(self._resolve(self.cwd.swapcase()))
+
+    def test_trusted_dir_used_after_cwd(self):
+        with tempfile.TemporaryDirectory() as path_dir:
+            target = self._make_exe(path_dir)
+            self.assertEqual(os.path.normcase(self._resolve(self.cwd, path_dir)), os.path.normcase(target))
+
+    def test_unknown_cwd_fails_closed(self):
+        with tempfile.TemporaryDirectory() as path_dir:
+            self._make_exe(path_dir)
+            with mock.patch('os.getcwd', side_effect=OSError):
+                self.assertIsNone(self._resolve(path_dir))
+
+    def test_executable_link_target_is_checked(self):
+        with tempfile.TemporaryDirectory() as path_dir, tempfile.TemporaryDirectory() as other_dir:
+            target = self._make_exe(path_dir)
+            realpath = os.path.realpath
+            for destination in (self.cwd, other_dir):
+                with self.subTest(destination=destination):
+                    def link_target(path):
+                        if path == target:
+                            return os.path.join(destination, self.EXE)
+                        return realpath(path)
+
+                    with mock.patch('os.path.realpath', side_effect=link_target):
+                        resolved = self._resolve(path_dir)
+                    self.assertEqual(resolved, None if destination == self.cwd else target)
+
+    def test_unverifiable_path_is_skipped(self):
+        with tempfile.TemporaryDirectory() as unavailable, tempfile.TemporaryDirectory() as trusted:
+            self._make_exe(unavailable)
+            target = self._make_exe(trusted)
+            samefile = os.path.samefile
+            for error_type in (PermissionError, ValueError):
+                for failed_check in (1, 2):
+                    with self.subTest(error_type=error_type, failed_check=failed_check):
+                        checks = []
+
+                        def directory_identity(first, second):
+                            if os.path.normcase(first) == os.path.normcase(unavailable):
+                                checks.append(first)
+                                if len(checks) == failed_check:
+                                    raise error_type('Cannot verify directory identity')
+                            return samefile(first, second)
+
+                        with mock.patch('os.path.samefile', side_effect=directory_identity):
+                            self.assertEqual(self._resolve(unavailable, trusted), target)
+
+    @unittest.skipUnless(platform.system() == 'Windows', 'Windows only')
+    def test_explicit_extension_does_not_depend_on_pathext(self):
+        with tempfile.TemporaryDirectory() as path_dir:
+            target = self._make_exe(path_dir)
+            with open(target + '.BAT', 'w'):
+                pass
+            for extensions in (None, '', '.BAT;.CMD'):
+                with self.subTest(extensions=extensions), mock.patch.dict(os.environ):
+                    if extensions is None:
+                        os.environ.pop('PATHEXT', None)
+                    else:
+                        os.environ['PATHEXT'] = extensions
+                    self.assertEqual(self._resolve(path_dir), target)
+            os.remove(target)
+            with mock.patch.dict(os.environ, {'PATHEXT': '.BAT;.CMD'}):
+                self.assertIsNone(self._resolve(path_dir))
+
+    @unittest.skipUnless(platform.system() == 'Windows', 'Windows only')
+    def test_root_relative_path_entries_are_skipped(self):
+        with tempfile.TemporaryDirectory() as relative_dir, tempfile.TemporaryDirectory() as trusted:
+            self._make_exe(relative_dir)
+            target = self._make_exe(trusted)
+            root_relative = os.path.splitdrive(relative_dir)[1]
+            self.assertEqual(self._resolve(root_relative, trusted), target)
+
+    @unittest.skipUnless(platform.system() == 'Windows', 'Windows only')
+    def test_cmd_exe_resolves_to_system32(self):
+        resolved = get_safe_executable_path('cmd.exe')
+        self.assertTrue(resolved.lower().endswith(os.path.join('system32', 'cmd.exe')))
 
 if __name__ == '__main__':
     unittest.main()

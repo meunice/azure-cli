@@ -7,8 +7,6 @@ from azure.cli.core.commands import CliCommandType
 from ._client_factory import (cf_security_tasks,
                               cf_security_alerts,
                               cf_security_alerts_suppression_rule,
-                              cf_security_settings,
-                              cf_security_contacts,
                               cf_security_auto_provisioning_settings,
                               cf_security_discovered_security_solutions,
                               cf_security_external_security_solutions,
@@ -18,9 +16,6 @@ from ._client_factory import (cf_security_tasks,
                               cf_security_topology,
                               cf_security_workspace_settings,
                               cf_security_advanced_threat_protection,
-                              cf_sql_vulnerability_assessment_scans,
-                              cf_sql_vulnerability_assessment_results,
-                              cf_sql_vulnerability_assessment_baseline,
                               cf_security_assessment,
                               cf_security_assessment_metadata,
                               cf_security_sub_assessment,
@@ -100,18 +95,6 @@ def load_command_table(self, _):
         operation_group='security_alerts_suppression_rule'
     )
 
-    security_settings_sdk = CliCommandType(
-        operations_tmpl='azure.mgmt.security.operations#SettingsOperations.{}',
-        client_factory=cf_security_settings,
-        operation_group='security_settings'
-    )
-
-    security_contacts_sdk = CliCommandType(
-        operations_tmpl='azure.mgmt.security.operations#SecurityContactsOperations.{}',
-        client_factory=cf_security_contacts,
-        operation_group='security_contacts'
-    )
-
     security_auto_provisioning_settings_sdk = CliCommandType(
         operations_tmpl='azure.mgmt.security.operations#AutoProvisioningSettingsOperations.{}',
         client_factory=cf_security_auto_provisioning_settings,
@@ -163,21 +146,6 @@ def load_command_table(self, _):
     security_advanced_threat_protection_sdk = CliCommandType(
         operations_tmpl='azure.mgmt.security.operations#AdvancedThreatProtectionOperations.{}',
         client_factory=cf_security_advanced_threat_protection
-    )
-
-    security_sql_vulnerability_assessment_scans_sdk = CliCommandType(
-        operations_tmpl='azure.mgmt.security.operations#SqlVulnerabilityAssessmentScansOperations.{}',
-        client_factory=cf_sql_vulnerability_assessment_scans
-    )
-
-    security_sql_vulnerability_assessment_results_sdk = CliCommandType(
-        operations_tmpl='azure.mgmt.security.operations#SqlVulnerabilityAssessmentScanResultsOperations.{}',
-        client_factory=cf_sql_vulnerability_assessment_results
-    )
-
-    security_sql_vulnerability_assessment_baseline_sdk = CliCommandType(
-        operations_tmpl='azure.mgmt.security.operations#SqlVulnerabilityAssessmentBaselineRulesOperations.{}',
-        client_factory=cf_sql_vulnerability_assessment_baseline
     )
 
     security_assessment_sdk = CliCommandType(
@@ -307,48 +275,12 @@ def load_command_table(self, _):
             g.custom_show_command('show', f"get_{scope}_atp_setting")
             g.custom_command('update', f"update_{scope}_atp_setting")
 
-    with self.command_group('security va sql scans',
-                            security_sql_vulnerability_assessment_scans_sdk,
-                            client_factory=cf_sql_vulnerability_assessment_scans) as g:
-        g.custom_show_command('show', 'get_va_sql_scan')
-        g.custom_command('list', 'list_va_sql_scans')
-
-    with self.command_group('security va sql results',
-                            security_sql_vulnerability_assessment_results_sdk,
-                            client_factory=cf_sql_vulnerability_assessment_results) as g:
-        g.custom_show_command('show', 'get_va_sql_result')
-        g.custom_command('list', 'list_va_sql_results')
-
-    with self.command_group('security va sql baseline',
-                            security_sql_vulnerability_assessment_baseline_sdk,
-                            client_factory=cf_sql_vulnerability_assessment_baseline) as g:
-        g.custom_show_command('show', 'get_va_sql_baseline')
-        g.custom_command('list', 'list_va_sql_baseline')
-        g.custom_command('delete', 'delete_va_sql_baseline')
-        g.custom_command('update', 'update_va_sql_baseline')
-        g.custom_command('set', 'set_va_sql_baseline')
-
     with self.command_group('security alert',
                             security_alerts_sdk,
                             client_factory=cf_security_alerts) as g:
         g.custom_command('list', 'list_security_alerts')
         g.custom_show_command('show', 'get_security_alert')
         g.custom_command('update', 'update_security_alert')
-
-    with self.command_group('security setting',
-                            security_settings_sdk,
-                            client_factory=cf_security_settings) as g:
-        g.custom_command('list', 'list_security_settings')
-        g.custom_show_command('show', 'get_security_setting')
-        g.custom_command('update', 'update_security_setting')
-
-    with self.command_group('security contact',
-                            security_contacts_sdk,
-                            client_factory=cf_security_contacts) as g:
-        g.custom_command('list', 'list_security_contacts')
-        g.custom_show_command('show', 'get_security_contact')
-        g.custom_command('create', 'create_security_contact')
-        g.custom_command('delete', 'delete_security_contact')
 
     with self.command_group('security auto-provisioning-setting',
                             security_auto_provisioning_settings_sdk,

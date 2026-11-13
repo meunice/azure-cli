@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-# pylint: disable=protected-access
+# pylint: disable=protected-access, too-few-public-methods
 
 import copy
 import os
@@ -11,16 +11,35 @@ from argparse import Action
 from collections import OrderedDict
 
 from knack.log import get_logger
+from knack.prompting import NoTTYException
 
 from azure.cli.core import azclierror
 from ._base import AAZUndefined, AAZBlankArgValue
 from ._help import AAZShowHelp
 from ._utils import AAZShortHandSyntaxParser
+from ._prompt import AAZPromptInput
 from .exceptions import AAZInvalidShorthandSyntaxError, AAZInvalidValueError, AAZUnknownFieldError
 
 logger = get_logger(__name__)
 
 _ELEMENT_APPEND_KEY = "_+_"  # used for list append
+
+
+class AAZPromptInputOperation:
+
+    def __init__(self, prompt: AAZPromptInput, action_cls):
+        self.prompt = prompt
+        self.action_cls = action_cls
+
+    def __call__(self, *args, **kwargs):
+        try:
+            data = self.prompt()
+        except NoTTYException:
+            raise AAZInvalidValueError("argument value cannot be blank in non-interactive mode.")
+        try:
+            return self.action_cls.format_data(data)
+        except (ValueError, KeyError) as ex:
+            raise azclierror.InvalidArgumentValueError(f"Failed to parse value: {ex}") from ex
 
 
 class AAZArgActionOperations:
@@ -34,6 +53,8 @@ class AAZArgActionOperations:
 
     def apply(self, args, dest):
         for keys, data in self._ops:
+            if isinstance(data, AAZPromptInputOperation):
+                data = data()
             self._assign_data(args, data, dest, *keys)
 
     @staticmethod
@@ -123,7 +144,19 @@ class AAZSimpleTypeArgAction(AAZArgAction):
         if data == AAZBlankArgValue:
             if cls._schema._blank == AAZUndefined:
                 raise AAZInvalidValueError("argument value cannot be blank")
+            if isinstance(cls._schema._blank, AAZPromptInput):
+                # Postpone the prompt input when apply the operation.
+                # In order not to break the logic of displaying help or validating other parameters.
+                return AAZPromptInputOperation(prompt=cls._schema._blank, action_cls=cls)
             data = copy.deepcopy(cls._schema._blank)
+
+        if data is None:
+            if cls._schema._nullable:
+                return data
+            raise AAZInvalidValueError("field is not nullable")
+
+        if cls._schema.DataType == str and isinstance(data, (int, bool, float)):
+            data = str(data).lower()  # convert to json raw values
 
         if isinstance(data, str):
             # transfer string into correct data
@@ -134,12 +167,86 @@ class AAZSimpleTypeArgAction(AAZArgAction):
         if isinstance(data, cls._schema.DataType):
             return data
 
+        if isinstance(data, int) and cls._schema.DataType == float:
+            return data
+
+        raise AAZInvalidValueError(f"{cls._schema.DataType} type value expected, got '{data}'({type(data)})")
+
+
+class AAZAnyTypeArgAction(AAZArgAction):
+
+    @classmethod
+    def setup_operations(cls, dest_ops, values, prefix_keys=None):
+        if prefix_keys is None:
+            prefix_keys = []
+        if values is None:
+            data = AAZBlankArgValue  # use blank data when values string is None
+        else:
+            if isinstance(values, list):
+                assert prefix_keys  # the values will be input as an list when parse singular option of a list argument
+                if len(values) != 1:
+                    raise AAZInvalidValueError(f"only support 1 value, got {len(values)}: {values}")
+                values = values[0]
+
+            if isinstance(values, str) and len(values) > 0:
+                try:
+                    data = cls.decode_str(values)
+                except AAZShowHelp as aaz_help:
+                    aaz_help.schema = cls._schema
+                    raise aaz_help
+            else:
+                data = values
+        data = cls.format_data(data)
+        dest_ops.add(data, *prefix_keys)
+
+    @classmethod
+    def decode_str(cls, value):
+        from azure.cli.core.util import get_file_json, shell_safe_json_parse, get_file_yaml
+
+        # check if the value is a partial value
+        key, _, v = cls._str_parser.split_partial_value(value)
+        if key is not None:
+            raise AAZInvalidValueError(
+                "AnyType args only support full value shorthand syntax, "
+                "please don't use partial value shorthand syntax. "
+                "If it's a simple string, please wrap it with single quotes.")
+
+        # read from file
+        path = os.path.expanduser(value)
+        if os.path.exists(path):
+            if path.endswith('.yml') or path.endswith('.yaml'):
+                # read from yaml file
+                v = get_file_yaml(path)
+            else:
+                # read from json file
+                v = get_file_json(path, preserve_order=True)
+        else:
+            try:
+                v = cls._str_parser(value)
+            except AAZInvalidShorthandSyntaxError as shorthand_ex:
+                try:
+                    v = shell_safe_json_parse(value, True)
+                except Exception as ex:
+                    logger.debug(ex)  # log parse json failed expression
+                    raise shorthand_ex  # raise shorthand syntax exception
+        return v
+
+    @classmethod
+    def format_data(cls, data):
+        if data == AAZBlankArgValue:
+            if cls._schema._blank == AAZUndefined:
+                raise AAZInvalidValueError("argument value cannot be blank")
+            if isinstance(cls._schema._blank, AAZPromptInput):
+                # Postpone the prompt input when apply the operation.
+                # In order not to break the logic of displaying help or validating other parameters.
+                return AAZPromptInputOperation(prompt=cls._schema._blank, action_cls=cls)
+            data = copy.deepcopy(cls._schema._blank)
+
         if data is None:
             if cls._schema._nullable:
                 return data
             raise AAZInvalidValueError("field is not nullable")
-
-        raise AAZInvalidValueError(f"{cls._schema.DataType} type value expected, got '{data}'({type(data)})")
+        return data
 
 
 class AAZCompoundTypeArgAction(AAZArgAction):  # pylint: disable=abstract-method
@@ -148,9 +255,11 @@ class AAZCompoundTypeArgAction(AAZArgAction):  # pylint: disable=abstract-method
     def setup_operations(cls, dest_ops, values, prefix_keys=None):
         if prefix_keys is None:
             prefix_keys = []
-        if values is None:
+        if values is None or values == []:
             if cls._schema._blank == AAZUndefined:
                 raise AAZInvalidValueError("argument cannot be blank")
+            assert not isinstance(cls._schema._blank, AAZPromptInput), "Prompt input is not supported in " \
+                                                                       "CompoundType args."
             dest_ops.add(copy.deepcopy(cls._schema._blank), *prefix_keys)
         else:
             assert isinstance(values, list)
@@ -218,7 +327,7 @@ class AAZCompoundTypeArgAction(AAZArgAction):  # pylint: disable=abstract-method
             # simple type
             v = cls._str_parser(value, is_simple=True)
         else:
-            # compound type
+            # compound type or any type
             # read from file
             path = os.path.expanduser(value)
             if os.path.exists(path):
@@ -237,7 +346,6 @@ class AAZCompoundTypeArgAction(AAZArgAction):  # pylint: disable=abstract-method
                     except Exception as ex:
                         logger.debug(ex)  # log parse json failed expression
                         raise shorthand_ex  # raise shorthand syntax exception
-
         return v
 
 
@@ -248,6 +356,7 @@ class AAZObjectArgAction(AAZCompoundTypeArgAction):
         if data == AAZBlankArgValue:
             if cls._schema._blank == AAZUndefined:
                 raise AAZInvalidValueError("argument value cannot be blank")
+            assert not isinstance(cls._schema._blank, AAZPromptInput), "Prompt input is not supported in Object args."
             data = copy.deepcopy(cls._schema._blank)
 
         if data is None:
@@ -275,6 +384,7 @@ class AAZDictArgAction(AAZCompoundTypeArgAction):
         if data == AAZBlankArgValue:
             if cls._schema._blank == AAZUndefined:
                 raise AAZInvalidValueError("argument value cannot be blank")
+            assert not isinstance(cls._schema._blank, AAZPromptInput), "Prompt input is not supported in Dict args."
             data = copy.deepcopy(cls._schema._blank)
 
         if data is None:
@@ -291,50 +401,6 @@ class AAZDictArgAction(AAZCompoundTypeArgAction):
                 except AAZInvalidValueError as ex:
                     raise AAZInvalidValueError(f"Invalid '{key}' : {ex}") from ex
             return result
-
-        raise AAZInvalidValueError(f"dict type value expected, got '{data}'({type(data)})")
-
-
-class AAZFreeFormDictArgAction(AAZSimpleTypeArgAction):
-
-    @classmethod
-    def decode_str(cls, value):
-        from azure.cli.core.util import get_file_json, shell_safe_json_parse, get_file_yaml
-
-        if len(value) == 0:
-            # the express "a=" will return the blank value of schema 'a'
-            return AAZBlankArgValue
-
-        path = os.path.expanduser(value)
-        if os.path.exists(path):
-            if path.endswith('.yml') or path.endswith('.yaml'):
-                # read from yaml file
-                v = get_file_yaml(path)
-            else:
-                # read from json file
-                v = get_file_json(path, preserve_order=True)
-        else:
-            try:
-                v = shell_safe_json_parse(value, True)
-            except Exception as ex:
-                logger.debug(ex)  # log parse json failed expression
-                raise
-        return v
-
-    @classmethod
-    def format_data(cls, data):
-        if data == AAZBlankArgValue:
-            if cls._schema._blank == AAZUndefined:
-                raise AAZInvalidValueError("argument value cannot be blank")
-            data = copy.deepcopy(cls._schema._blank)
-
-        if isinstance(data, dict):
-            return data
-
-        if data is None:
-            if cls._schema._nullable:
-                return data
-            raise AAZInvalidValueError("field is not nullable")
 
         raise AAZInvalidValueError(f"dict type value expected, got '{data}'({type(data)})")
 
@@ -371,9 +437,10 @@ class AAZListArgAction(AAZCompoundTypeArgAction):
     def setup_operations(cls, dest_ops, values, prefix_keys=None):
         if prefix_keys is None:
             prefix_keys = []
-        if values is None:
+        if values is None or values == []:
             if cls._schema._blank == AAZUndefined:
                 raise AAZInvalidValueError("argument cannot be blank")
+            assert not isinstance(cls._schema._blank, AAZPromptInput), "Prompt input is not supported in List args."
             dest_ops.add(copy.deepcopy(cls._schema._blank), *prefix_keys)
         else:
             assert isinstance(values, list)
@@ -430,6 +497,7 @@ class AAZListArgAction(AAZCompoundTypeArgAction):
         if data == AAZBlankArgValue:
             if cls._schema._blank == AAZUndefined:
                 raise AAZInvalidValueError("argument value cannot be blank")
+            assert not isinstance(cls._schema._blank, AAZPromptInput), "Prompt input is not supported in List args."
             data = copy.deepcopy(cls._schema._blank)
 
         if data is None:

@@ -2,33 +2,60 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
+# pylint: disable=protected-access, line-too-long
 
 
-def process_condition_parameter(namespace):
-    from azure.mgmt.monitor.models import AlertRuleAllOfCondition
-    from knack.util import CLIError
-
+def _get_alert_settings_for_alert(cmd, resource_group_name, activity_log_alert_name, throw_if_missing=True):
+    from azure.core.exceptions import HttpResponseError
+    from azure.cli.core.azclierror import ValidationError
+    from ..aaz.latest.monitor.activity_log.alert._show import Show as ActivityLogAlertGet
     try:
-        expression = namespace.condition
-        if expression is None:
-            return
-    except AttributeError:
+        return ActivityLogAlertGet(cli_ctx=cmd.cli_ctx)(command_args={
+            "resource_group": resource_group_name,
+            "activity_log_alert_name": activity_log_alert_name
+        })
+    except HttpResponseError as ex:
+        if ex.status_code == 404:
+            if throw_if_missing:
+                raise ValidationError('Can\'t find activity log alert {} in resource group {}.'.format(
+                    activity_log_alert_name, resource_group_name))
+            return None
+        raise ValidationError(ex.message)
+
+
+# pylint: disable=inconsistent-return-statements
+def _normalize_condition_for_alert(condition_instance):
+    if isinstance(condition_instance, str):
+        try:
+            field, value = condition_instance.split('=')
+            condition = {
+                "field": field,
+                "equals": value,
+            }
+            return '{}={}'.format(field.lower(), value), condition
+        except ValueError:
+            # too many values to unpack or not enough values to unpack
+            raise ValueError('Condition "{}" does not follow format FIELD=VALUE'.format(condition_instance))
+
+
+def process_condition_parameter_for_alert(args):
+    from azure.cli.core.aaz import has_value
+    from azure.cli.core.azclierror import ValidationError
+
+    if not has_value(args.condition):
         return
-
+    expression = args.condition.to_serialized_data()
     error = 'incorrect usage: --condition requires an expression in the form of FIELD=VALUE[ and FIELD=VALUE...]'
-
-    if not expression:
-        raise CLIError(error)
 
     if len(expression) == 1:
         expression = [each.strip() for each in expression[0].split(' ')]
     elif isinstance(expression, list):
         expression = [each.strip() for each in expression]
     else:
-        raise CLIError(error)
+        raise ValidationError(error)
 
-    if not expression or not len(expression) % 2:
-        raise CLIError(error)
+    if len(expression) == 0 or not len(expression) % 2:
+        raise ValidationError(error)
 
     # This is a temporary approach built on the assumption that there is only AND operators. Eventually, a proper
     # YACC will be created to parse complex condition expression.
@@ -36,161 +63,35 @@ def process_condition_parameter(namespace):
     # Ensure all the string at even options are AND operator
     operators = [expression[i] for i in range(1, len(expression), 2)]
     if any(op != 'and' for op in operators):
-        raise CLIError(error)
+        raise ValidationError(error)
 
     # Pick the strings at odd position and convert them into condition leaf.
-    conditions = dict(_normalize_condition(expression[i]) for i in range(0, len(expression), 2))
-    setattr(namespace, 'condition', AlertRuleAllOfCondition(all_of=list(conditions.values())))
+    conditions = dict(_normalize_condition_for_alert(expression[i]) for i in range(0, len(expression), 2))
+    for cond in list(conditions.values()):
+        args.all_of.append(cond)
 
 
-def list_activity_logs_alert(client, resource_group_name=None):
-    if resource_group_name:
-        return client.list_by_resource_group(resource_group_name)
+def process_webhook_properties(args):
+    from azure.cli.core.aaz import has_value
 
-    return client.list_by_subscription_id()
+    result = {}
+    if not has_value(args.webhook_properties_list):
+        return result
+    for each in args.webhook_properties_list:
 
-
-def create(cmd, client, resource_group_name, activity_log_alert_name, scopes=None, condition=None,
-           action_groups=frozenset(), tags=None, disable=False, description=None, webhook_properties=None):
-    from msrestazure.tools import resource_id
-    from azure.mgmt.monitor.models import (ActivityLogAlertResource, AlertRuleAllOfCondition,
-                                           AlertRuleLeafCondition, ActionList)
-    from azure.mgmt.monitor.models import ActionGroup
-    from azure.cli.core.commands.client_factory import get_subscription_id
-    from knack.util import CLIError
-
-    if not scopes:
-        scopes = [resource_id(subscription=get_subscription_id(cmd.cli_ctx), resource_group=resource_group_name)]
-
-    if _get_alert_settings(client, resource_group_name, activity_log_alert_name, throw_if_missing=False):
-        raise CLIError('The activity log alert {} already exists in resource group {}.'.format(activity_log_alert_name,
-                                                                                               resource_group_name))
-
-    # Add alert conditions
-    condition = condition or AlertRuleAllOfCondition(
-        all_of=[AlertRuleLeafCondition(field='category', equals='ServiceHealth')])
-
-    # Add action groups
-    action_group_rids = _normalize_names(cmd.cli_ctx, action_groups, resource_group_name, 'microsoft.insights',
-                                         'actionGroups')
-    action_groups = [ActionGroup(action_group_id=i, webhook_properties=webhook_properties) for i in action_group_rids]
-    alert_actions = ActionList(action_groups=action_groups)
-
-    settings = ActivityLogAlertResource(location='global', scopes=scopes, condition=condition,
-                                        actions=alert_actions, enabled=not disable, description=description, tags=tags)
-
-    return client.create_or_update(resource_group_name=resource_group_name,
-                                   activity_log_alert_name=activity_log_alert_name, activity_log_alert=settings)
+        if has_value(each):
+            if '=' in each.to_serialized_data():
+                key, value = each.to_serialized_data().split('=', 1)
+            else:
+                key, value = each, ''
+            result[key] = value
+    return result
 
 
-def add_scope(client, resource_group_name, activity_log_alert_name, scopes, reset=False):
-    settings = _get_alert_settings(client, resource_group_name, activity_log_alert_name)
-
-    new_scopes = set() if reset else set(settings.scopes)
-    for scope in scopes:
-        new_scopes.add(scope)
-
-    settings.scopes = list(new_scopes)
-    return client.create_or_update(resource_group_name=resource_group_name,
-                                   activity_log_alert_name=activity_log_alert_name,
-                                   activity_log_alert=settings)
-
-
-def remove_scope(client, resource_group_name, activity_log_alert_name, scopes):
-    settings = _get_alert_settings(client, resource_group_name, activity_log_alert_name)
-
-    new_scopes = set(settings.scopes)
-    for scope in scopes:
-        try:
-            new_scopes.remove(scope)
-        except KeyError:
-            pass
-
-    settings.scopes = list(new_scopes)
-    return client.create_or_update(resource_group_name=resource_group_name,
-                                   activity_log_alert_name=activity_log_alert_name,
-                                   activity_log_alert=settings)
-
-
-def add_action_group(cmd, client, resource_group_name, activity_log_alert_name, action_group_ids, reset=False,
-                     webhook_properties=None, strict=False):
-    from azure.mgmt.monitor.models import ActionGroup
-
-    settings = _get_alert_settings(client, resource_group_name, activity_log_alert_name)
-
-    # normalize the action group ids
-    rids = _normalize_names(cmd.cli_ctx, action_group_ids, resource_group_name, 'microsoft.insights', 'actionGroups')
-
-    if reset:
-        action_groups = [ActionGroup(action_group_id=rid, webhook_properties=webhook_properties) for rid in rids]
-    else:
-        action_groups = dict((each.action_group_id, each) for each in settings.actions.action_groups)
-
-        for rid in rids:
-            if rid in action_groups and webhook_properties != action_groups[rid].webhook_properties and strict:
-                raise ValueError('Fails to override webhook properties of action group {} in strict mode.'.format(rid))
-
-            action_groups[rid] = ActionGroup(action_group_id=rid, webhook_properties=webhook_properties)
-        action_groups = list(action_groups.values())
-
-    settings.actions.action_groups = action_groups
-    return client.create_or_update(resource_group_name=resource_group_name,
-                                   activity_log_alert_name=activity_log_alert_name,
-                                   activity_log_alert=settings)
-
-
-def remove_action_group(cmd, client, resource_group_name, activity_log_alert_name, action_group_ids):
-    settings = _get_alert_settings(client, resource_group_name, activity_log_alert_name)
-
-    if len(action_group_ids) == 1 and action_group_ids[0] == '*':
-        settings.actions.action_groups = []
-    else:
-        # normalize the action group ids
-        rids = _normalize_names(cmd.cli_ctx, action_group_ids, resource_group_name, 'microsoft.insights',
-                                'actionGroups')
-        action_groups = [each for each in settings.actions.action_groups if each.action_group_id not in rids]
-        settings.actions.action_groups = action_groups
-
-    return client.create_or_update(resource_group_name=resource_group_name,
-                                   activity_log_alert_name=activity_log_alert_name,
-                                   activity_log_alert=settings)
-
-
-def update(instance, condition=None, enabled=None, tags=None, description=None):
-    if tags:
-        instance.tags = tags
-
-    if description:
-        instance.description = description
-
-    if enabled is not None:
-        instance.enabled = enabled
-
-    if condition is not None:
-        instance.condition = condition
-
-    return instance
-
-
-# pylint: disable=inconsistent-return-statements
-def _normalize_condition(condition_instance):
-    from azure.mgmt.monitor.models import AlertRuleLeafCondition
-
-    if isinstance(condition_instance, str):
-        try:
-            field, value = condition_instance.split('=')
-            return '{}={}'.format(field.lower(), value), AlertRuleLeafCondition(field=field, equals=value)
-        except ValueError:
-            # too many values to unpack or not enough values to unpack
-            raise ValueError('Condition "{}" does not follow format FIELD=VALUE'.format(condition_instance))
-    elif isinstance(condition_instance, AlertRuleLeafCondition):
-        return '{}={}'.format(condition_instance.field.lower(), condition_instance.equals), condition_instance
-
-
-def _normalize_names(cli_ctx, resource_names, resource_group, namespace, resource_type):
+def normalize_names(cli_ctx, resource_names, resource_group, namespace, resource_type):
     """Normalize a group of resource names. Returns a set of resource ids. Throws if any of the name can't be correctly
     converted to a resource id."""
-    from msrestazure.tools import is_valid_resource_id, resource_id
+    from azure.mgmt.core.tools import is_valid_resource_id, resource_id
     from azure.cli.core.commands.client_factory import get_subscription_id
 
     rids = set()
@@ -209,18 +110,3 @@ def _normalize_names(cli_ctx, resource_names, resource_group, namespace, resourc
             rids.add(rid)
 
     return rids
-
-
-def _get_alert_settings(client, resource_group_name, activity_log_alert_name, throw_if_missing=True):
-    from azure.core.exceptions import HttpResponseError
-
-    try:
-        return client.get(resource_group_name=resource_group_name, activity_log_alert_name=activity_log_alert_name)
-    except HttpResponseError as ex:
-        from knack.util import CLIError
-        if ex.status_code == 404:
-            if throw_if_missing:
-                raise CLIError('Can\'t find activity log alert {} in resource group {}.'.format(activity_log_alert_name,
-                                                                                                resource_group_name))
-            return None
-        raise CLIError(ex.message)

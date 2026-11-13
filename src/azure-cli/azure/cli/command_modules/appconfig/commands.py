@@ -7,15 +7,18 @@
 
 from azure.cli.core.commands import CliCommandType
 
-from ._client_factory import cf_configstore, cf_configstore_operations, cf_replicas
+from ._client_factory import cf_configstore, cf_configstore_operations, cf_replicas, cf_nsp_configurations
 from ._format import (configstore_credential_format,
                       configstore_identity_format,
                       configstore_output_format,
                       keyvalue_entry_format,
                       featureflag_entry_format,
+                      enhanced_featureflag_entry_format,
                       featurefilter_entry_format,
                       deleted_configstore_output_format,
-                      configstore_replica_output_format)
+                      configstore_replica_output_format,
+                      configstore_snapshot_output_format,
+                      configstore_nsp_output_format)
 
 
 def load_command_table(self, _):
@@ -50,6 +53,22 @@ def load_command_table(self, _):
         client_factory=cf_replicas
     )
 
+    configstore_snapshot_util = CliCommandType(
+        operations_tmpl='azure.cli.command_modules.appconfig.snapshot#{}',
+        table_transformer=configstore_snapshot_output_format
+    )
+
+    configstore_nsp_util = CliCommandType(
+        operations_tmpl='azure.cli.command_modules.appconfig.network_security_perimeter#{}',
+        table_transformer=configstore_nsp_output_format,
+        client_factory=cf_nsp_configurations
+    )
+
+    configstore_enhanced_featureflag_util = CliCommandType(
+        operations_tmpl='azure.cli.command_modules.appconfig.enhanced_feature#{}',
+        table_transformer=enhanced_featureflag_entry_format
+    )
+
     def get_custom_sdk(custom_module, client_factory, table_transformer):
         """Returns a CliCommandType instance with specified operation template based on the given custom module name.
         This is useful when the command is not defined in the default 'custom' module but instead in a module under
@@ -72,10 +91,10 @@ def load_command_table(self, _):
         g.show_command('show', 'show_configstore')
         g.show_command('show-deleted', 'show_deleted_configstore', table_transformer=deleted_configstore_output_format)
 
-    with self.command_group('appconfig replica', configstore_replica_util, is_preview=True) as g:
+    with self.command_group('appconfig replica', configstore_replica_util) as g:
         g.command('list', 'list_replica')
         g.command('create', 'create_replica')
-        g.command('delete', 'delete_replica', confirmation=True)
+        g.command('delete', 'delete_replica')
         g.show_command('show', 'show_replica')
 
     with self.command_group('appconfig credential', configstore_credential_util) as g:
@@ -102,6 +121,7 @@ def load_command_table(self, _):
         g.command('import', 'import_config')
         g.command('export', 'export_config')
         g.command('set-keyvault', 'set_keyvault')
+        g.command('set-snapshot-reference', 'set_snapshot_reference')
 
     # FeatureManagement Commands
     with self.command_group('appconfig feature',
@@ -122,7 +142,31 @@ def load_command_table(self, _):
                                                                cf_configstore_operations,
                                                                featurefilter_entry_format)) as g:
         g.custom_command('add', 'add_filter')
-        g.custom_command('update', 'update_filter', is_preview=True)
+        g.custom_command('update', 'update_filter')
         g.custom_command('delete', 'delete_filter')
         g.custom_show_command('show', 'show_filter')
         g.custom_command('list', 'list_filter')
+
+    # Enhanced FeatureManagement Commands
+    with self.command_group('appconfig enhanced-feature-flag',
+                            custom_command_type=configstore_enhanced_featureflag_util, is_preview=True) as g:
+        g.custom_command('set', 'set_feature')
+        g.custom_command('delete', 'delete_feature')
+        g.custom_show_command('show', 'show_feature')
+        g.custom_command('list', 'list_feature')
+        g.custom_command('enable', 'enable_feature')
+        g.custom_command('disable', 'disable_feature')
+
+    # Snapshot Commands
+    with self.command_group('appconfig snapshot', configstore_snapshot_util) as g:
+        g.command('create', 'create_snapshot')
+        g.show_command('show', 'show_snapshot')
+        g.command('list', 'list_snapshots')
+        g.command('archive', 'archive_snapshot')
+        g.command('recover', 'recover_snapshot')
+
+    # NSP Commands
+    with self.command_group('appconfig network-security-perimeter-configuration', configstore_nsp_util, is_preview=True) as g:
+        g.command('list', 'list_nsp_configurations')
+        g.show_command('show', 'show_nsp_configuration')
+        g.command('reconcile', 'reconcile_nsp_configuration')

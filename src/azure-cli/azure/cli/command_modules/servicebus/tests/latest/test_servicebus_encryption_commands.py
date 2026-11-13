@@ -61,7 +61,7 @@ class SBNamespaceMSITesting(ScenarioTest):
         identity4 = self.cmd('identity create --name {identity4} --resource-group {rg}').get_output_in_json()
         self.kwargs.update({'id4': identity4['id']})
 
-        keyvaultcreate = self.cmd('keyvault create --resource-group {rg} --name {kv_name} --location {loc} --enable-purge-protection --retention-days 7').get_output_in_json()
+        keyvaultcreate = self.cmd('keyvault create --resource-group {rg} --name {kv_name} --location {loc} --enable-purge-protection --enable-rbac-authorization false --retention-days 7').get_output_in_json()
 
         self.kwargs.update({
             'id1object': identity1['principalId'],
@@ -85,7 +85,7 @@ class SBNamespaceMSITesting(ScenarioTest):
         self.cmd('keyvault key create -n {key3} --vault-name {kv_name}')
 
         namespace = self.cmd(
-            'servicebus namespace create --resource-group {rg} --name {namespacename1} --sku {sku} --location {loc} --mi-system-assigned'
+            'servicebus namespace create --resource-group {rg} --name {namespacename1} --sku {sku} --location {loc} --disable-local-auth true --mi-system-assigned'
         ).get_output_in_json()
 
         self.kwargs.update({'pId': namespace['identity']['principalId']})
@@ -102,7 +102,7 @@ class SBNamespaceMSITesting(ScenarioTest):
         self.assertEqual(True, namespace['encryption']['requireInfrastructureEncryption'])
 
         namespace = self.cmd(
-            'servicebus namespace create --resource-group {rg} --name {namespacename} --sku {sku} --location {loc} --mi-system-assigned --mi-user-assigned {id1} {id2}' +
+            'servicebus namespace create --resource-group {rg} --name {namespacename} --sku {sku} --location {loc} --disable-local-auth true --mi-system-assigned --mi-user-assigned {id1} {id2}' +
             ' --encryption-config key-name={key1} key-vault-uri={key_uri} user-assigned-identity={id1}' +
             ' --encryption-config key-name={key2} key-vault-uri={key_uri} user-assigned-identity={id1}' +
             ' --encryption-config key-name={key3} key-vault-uri={key_uri} user-assigned-identity={id1}'

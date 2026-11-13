@@ -3,6 +3,268 @@
 Release History
 ===============
 
+2.93.0
+++++++
+* Upgrade bundled Python to 3.14.10 for Windows and Debian packages (#34326)
+* Bump `pymsalruntime` to 0.20.7 on Windows and macOS (#34359)
+* Improve executable lookup consistency on Windows (#34329)
+* Fix removal of a single specified user-assigned identity incorrectly removing all user-assigned identities (#34383)
+
+2.92.0
+++++++
+* Add `get_safe_executable_path` to prevent binary planting when spawning subprocess (#34212)
+* Resolve GHSA-6q48-6c7w-9gw2 (#34250)
+* Add `core.output_newline` config (native|lf) and default to LF line endings on stdout when run from WSL or Git Bash on Windows (#34236)
+* Resolve OpenSSL and Certifi related vulnerabilities (#34275)
+
+2.91.0
+++++++
+* Remove AzureGermanCloud from hard-coded cloud list (#34042)
+* PREVIEW: Enable broker-based authentication on macOS (opt-in via `az config set core.enable_broker_on_mac=true`) (#33376)
+
+2.90.0
+++++++
+* Minor fixes
+
+2.89.1
+++++++
+* Allow SSH certificate flow in Cloud Shell (#33860)
+
+2.89.0
+++++++
+* Minor fixes
+
+2.88.0
+++++++
+* Resolve CVE-2026-48526 (#33562)
+* Update global policy argument `--acquire-policy-token` to pick up new api-version and propagate correlation-id (#33661)
+
+2.87.0
+++++++
+* Resolve CVE-2026-44431 (#33351)
+* Resolve CVE-2026-44432 (#33351)
+* `az login`: Support Entra agentic session differentiation for Copilot agent requests (#33309)
+* Resolve CVE-2026-45409 (#33401)
+
+2.86.0
+++++++
+* Resolve CVE-2025-15467 (#33201)
+* Resolve CVE-2025-69419 (#33201)
+* Resolve CVE-2026-39892 (#33154)
+
+2.85.0
+++++++
+* Resolve CVE-2026-26007 (#32879)
+* `az *`: Make `--acquire-policy-token` and `--change-reference` global arguments available by default, removing the need for `core.enable_policy_token` configuration (#32883)
+* Resolve CVE-2026-27448 (#33035)
+* Resolve CVE-2026-27459 (#33035)
+* Resolve CVE-2026-32597 (#33034)
+* Resolve CVE-2026-25645 (#33081)
+* Resolve CVE-2026-34073 (#33099)
+
+2.84.0
+++++++
+* Minor fixes
+
+2.83.0
+++++++
+* Resolve CVE-2025-69277 (#32610)
+* Resolve CVE-2026-21441 (#32617)
+* Resolve CVE-2025-12084 (#32662)
+* Resolve CVE-2026-21226 (#32635)
+* Replace GitHub URLs with AME Storage for network isolated requirements (#32677)
+
+2.82.0
+++++++
+* Resolve CVE-2025-66418 (#32506)
+* Resolve CVE-2025-66471 (#32506)
+
+2.81.0
+++++++
+* Minor fixes
+
+2.80.0
+++++++
+* Minor fixes
+
+2.79.0
+++++++
+* Resolve CVE-2025-9230 (#32315)
+* Resolve CVE-2025-9232 (#32315)
+
+2.78.0
+++++++
+* Minor fixes
+
+2.77.0
+++++++
+* Resolve CVE-2025-4517 (#31928)
+* Add global policy arguments `--acquire-policy-token` and `--change-reference` to support Change Safety feature (#31741)
+
+2.76.0
+++++++
+* Resolve CVE-2024-47081 (#31708)
+* Provide actionable error recommendation when a command fails because of Multi-Factor Authentication (MFA) policy violation (#31699)
+
+2.75.0
+++++++
+* Resolve CVE-2025-50181 (#31669)
+* Resolve CVE-2025-50182 (#31669)
+
+2.74.0
+++++++
+* Resolve CVE-2024-13176 (#31503)
+* Resolve CVE-2024-9143 (#31503)
+
+2.73.0
+++++++
+* [BREAKING CHANGE] Remove azure stack profiles `2020-09-01-hybrid`, `2019-03-01-hybrid`, `2018-03-01-hybrid` and `2017-03-09-profile` (#31307)
+* Use MSAL for managed identity authentication (#25959)
+
+2.72.0
+++++++
+* Minor fixes
+
+2.71.0
+++++++
+* PREVIEW: Support managed identity authentication with MSAL. Run `az config set core.use_msal_managed_identity=true` or set environment variable `AZURE_CORE_USE_MSAL_MANAGED_IDENTITY` to enable it (#31092)
+
+2.70.0
+++++++
+* Resolve CVE-2024-12797 (#30816)
+* Drop Track 1 SDK authentication (#29631)
+* `aaz`: Add cross tenants control for `AAZResourceIdArgFormat` (#30817)
+* `aaz`: Support `Any` type with full value shorthand syntax allowed (#30868)
+
+2.69.0
+++++++
+* `aaz`: Support simple type parsed from string value (#30623)
+
+2.68.0
+++++++
+* PREVIEW: Support managed identity on Azure Arc-enabled Linux server (#30267)
+* Drop old Track 2 SDK authentication support (#29690)
+* Resolve CVE-2024-50602 (#30533)
+
+2.67.0
+++++++
+* PREVIEW: Support managed identity on Azure Arc-enabled Windows server (#29187)
+
+2.66.0
+++++++
+* `aaz`: Support managed identity (#29953)
+* Resolve CVE-2024-6119 (#29887)
+* Resolve CVE-2024-5535 (#29887)
+* Resolve CVE-2024-4741 (#29887)
+* Resolve CVE-2024-4603 (#29887)
+* Resolve CVE-2024-2511 (#29887)
+* Use MSAL for Cloud Shell authentication (#29637)
+
+2.65.0
+++++++
+* Minor fixes
+
+2.64.0
+++++++
+* Minor fixes
+
+2.63.0
+++++++
+* Resolve CVE-2024-39689 (#29320)
+* Support `az config set extension.dynamic_install_allow_preview` for extension dynamic installation configuration (#29413)
+* Resolve CVE-2024-6345 (#29433)
+* `az logout`: Remove service principal access tokens from token cache (#29441)
+
+2.62.0
+++++++
+* Fix #28997: Fix error "User cancelled the Accounts Control Operation" when logging in with WAM as Administrator (#29088)
+* Resolve CVE-2024-37891 (#29194)
+* Resolve CVE-2024-35195 (#29186)
+* `aaz`: Add argument completer support (#29204)
+
+2.61.0
+++++++
+* Resolve CVE-2024-34064 (#28895)
+* [BREAKING CHANGE] `az login`: Use WAM as the default authentication method on Windows. For more details, see https://go.microsoft.com/fwlink/?linkid=2271136 (#28841)
+* `aaz`: Support extended values in `AAZArgEnum` (#28850)
+* Add `tenantDefaultDomain` and `tenantDisplayName` properties to login contexts (shown by `az account list`) (#28910)
+* Prompt for interactive authentication for all silent authentication failures (#28966)
+
+2.60.0
+++++++
+* Fix #28737: Fix token cache for service principal authentication (#28747)
+* Resolve CVE-2023-3651 (#28735)
+
+2.59.0
+++++++
+* Minor fixes
+
+2.58.0
+++++++
+* [BREAKING CHANGE] `az login`: Replace `allow_broker` with `enable_broker_on_windows` (#27726)
+
+2.57.0
+++++++
+* `aaz`: Handle null value when deserialize output (#28253)
+* Add warning for customers when there're credentials in cli output if this feature has been turned on through `az config set clients.show_secrets_warning=True` (#27929)
+
+2.56.0
+++++++
+* Minor fixes
+
+2.55.0
+++++++
+* Minor fixes
+
+2.54.0
+++++++
+* `aaz`: Support data-plane clients (#27617)
+* [PREVIEW] Support disabling instance discovery by running `az config set core.instance_discovery=false` (#27494)
+
+2.53.1
+++++++
+* No changes
+
+2.53.0
+++++++
+* `aaz`: Fix command name case issue for aaz command table lazy load (#27344)
+
+2.52.0
+++++++
+* `aaz`: Support `configured_default` for `AAZBaseArg` (#27205)
+
+2.51.0
+++++++
+* `aaz`: Add `--max-items` and `--next-token` for pagination (#26710)
+* `aaz`: Support paginating calculation (#26713)
+* `aaz`: Support blank input for compound argument types (#26870)
+* Drop client telemetry cache strategy (#26854)
+
+2.50.0
+++++++
+* `aaz`: Add short summary for `--location` when its default value comes from resource group (#26584)
+* `aaz`: Handle null property in error response (#26605)
+* `aaz`: Explicitly raise TypeError exception during LRO (#26634)
+* `aaz`: Parse and re-serialize query parameters within next link (#26768)
+
+2.49.0
+++++++
+* Dynamically install extensions without prompt when not in a TTY (#26219)
+
+2.48.1
+++++++
+* No changes
+
+2.48.0
+++++++
+* `aaz`: Support hidden secret properties of response in output (#26102)
+* `aaz`: Support `AAZPasswordArg` (#26134)
+* `aaz`: Support argument prompt input for simple type args (#26134)
+
+2.47.0
+++++++
+* `aaz`: Add support for changing subscription of `AAZCommand` in customization code (#25745)
+
 2.46.0
 ++++++
 * Add announcement for WAM-based login (#25416)

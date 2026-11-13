@@ -15,13 +15,12 @@ interactions:
       ParameterSetName:
       - -g -n
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/listKeys?api-version=2022-09-01&$expand=kerb
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/listKeys?api-version=2026-09-01&$expand=kerb
   response:
     body:
-      string: '{"keys":[{"creationTime":"2022-11-17T09:36:03.6398018Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2022-11-17T09:36:03.6398018Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
+      string: '{"keys":[{"creationTime":"2026-05-14T08:26:27.9399096Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2026-05-14T08:26:27.9399096Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
     headers:
       cache-control:
       - no-cache
@@ -30,7 +29,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 09:36:24 GMT
+      - Thu, 14 May 2026 08:26:56 GMT
       expires:
       - '-1'
       pragma:
@@ -39,14 +38,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/e0d12932-ef3e-4d5f-b780-e7ca3efb8490
       x-ms-ratelimit-remaining-subscription-resource-requests:
-      - '11998'
+      - '799'
+      x-ms-throttling-version:
+      - v1
     status:
       code: 200
       message: OK
@@ -68,13 +67,12 @@ interactions:
       ParameterSetName:
       - -g -n --key
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/regenerateKey?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/regenerateKey?api-version=2026-09-01
   response:
     body:
-      string: '{"keys":[{"creationTime":"2022-11-17T09:36:24.9057455Z","keyName":"key1","value":"1sRGBErOfQHnay/3jCCJIBLTXQ02vlDEtYSluC87VUrPas0y8lugv0kkbrjYJe1psMh4D/0G3qDZ+ASt0/HpBQ==","permissions":"FULL"},{"creationTime":"2022-11-17T09:36:03.6398018Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
+      string: '{"keys":[{"creationTime":"2026-05-14T08:26:59.5796479Z","keyName":"key1","value":"***","permissions":"FULL"},{"creationTime":"2026-05-14T08:26:27.9399096Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
     headers:
       cache-control:
       - no-cache
@@ -83,7 +81,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 09:36:24 GMT
+      - Thu, 14 May 2026 08:26:58 GMT
       expires:
       - '-1'
       pragma:
@@ -92,14 +90,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/11547817-11a9-4a06-a05c-a78ceb06b22f
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '198'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -121,22 +119,23 @@ interactions:
       ParameterSetName:
       - -g -n --key
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/regenerateKey?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/regenerateKey?api-version=2026-09-01
   response:
     body:
-      string: '{"keys":[{"creationTime":"2022-11-17T09:36:24.9057455Z","keyName":"key1","value":"1sRGBErOfQHnay/3jCCJIBLTXQ02vlDEtYSluC87VUrPas0y8lugv0kkbrjYJe1psMh4D/0G3qDZ+ASt0/HpBQ==","permissions":"FULL"},{"creationTime":"2022-11-17T09:36:25.4057288Z","keyName":"key2","value":"nMCOQMes9oBPE7E5UJ/bYNfIN2Hdv5b42sSCvR+O43mbr83ZGX/C/b/nzDcgi38LOZfmg41dj/YH+ASt4ZsSGA==","permissions":"FULL"}]}'
+      string: '{"keys":[{"creationTime":"2026-05-14T08:26:59.5796479Z","keyName":"key1","value":"***","permissions":"FULL"},{"creationTime":"2026-05-14T08:27:02.2700024Z","keyName":"key2","value":"***","permissions":"FULL"}]}'
     headers:
       cache-control:
       - no-cache
+      connection:
+      - close
       content-length:
       - '380'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 09:36:25 GMT
+      - Thu, 14 May 2026 08:27:01 GMT
       expires:
       - '-1'
       pragma:
@@ -145,14 +144,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/27ce6053-07bc-422b-bf1b-bd0567e06472
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '199'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK

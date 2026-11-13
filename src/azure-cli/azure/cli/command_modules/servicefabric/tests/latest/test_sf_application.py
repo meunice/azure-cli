@@ -11,7 +11,7 @@ from azure.cli.testsdk import ScenarioTest, LiveScenarioTest, ResourceGroupPrepa
 class ServiceFabricApplicationTests(ScenarioTest):
     def _app_type_test(self):
         self.cmd('az sf application-type list -g {rg} -c {cluster_name}',
-                 checks=[self.check('length(value)', 0)])
+                 checks=[self.is_empty()])
         app_type = self.cmd('az sf application-type create -g {rg} -c {cluster_name} --application-type-name {app_type_name}',
                             checks=[self.check('provisioningState', 'Succeeded')]).get_output_in_json()
         self.cmd('az sf application-type show -g {rg} -c {cluster_name} --application-type-name {app_type_name}',
@@ -24,7 +24,7 @@ class ServiceFabricApplicationTests(ScenarioTest):
 
     def _app_type_version_test(self):
         self.cmd('az sf application-type version list -g {rg} -c {cluster_name} --application-type-name {app_type_name}',
-                 checks=[self.check('length(value)', 0)])
+                 checks=[self.is_empty()])
         app_type_version = self.cmd('az sf application-type version create -g {rg} -c {cluster_name} '
                                     '--application-type-name {app_type_name} --version {v1} --package-url {app_package_v1}',
                                     checks=[self.check('provisioningState', 'Succeeded')]).get_output_in_json()
@@ -38,10 +38,9 @@ class ServiceFabricApplicationTests(ScenarioTest):
 
     def _app_service_test(self):
         self.cmd('az sf application list -g {rg} -c {cluster_name}',
-                 checks=[self.check('length(value)', 0)])
+                 checks=[self.is_empty()])
         app = self.cmd('az sf application create -g {rg} -c {cluster_name} --application-name {app_name} '
-                       '--application-type-name {app_type_name} --application-type-version {v1} --package-url {app_package_v1} '
-                       '--application-parameters Mode=binary',
+                       '--application-type-name {app_type_name} --application-type-version {v1} --package-url {app_package_v1} ',
                        checks=[self.check('provisioningState', 'Succeeded')]).get_output_in_json()
         self.cmd('az sf application show -g {rg} -c {cluster_name} --application-name {app_name}',
                  checks=[self.check('id', app['id'])])
@@ -58,12 +57,10 @@ class ServiceFabricApplicationTests(ScenarioTest):
                  checks=[self.check('provisioningState', 'Succeeded')])
 
         self.cmd('az sf application update -g {rg} -c {cluster_name} --application-name {app_name} --application-type-version {v2} '
-                 '--application-parameters Precision=3 --health-check-stable-duration 0 --health-check-wait-duration 0 --health-check-retry-timeout 0 '
-                 '--upgrade-domain-timeout 5000 --upgrade-timeout 7000 --failure-action Rollback --upgrade-replica-set-check-timeout 300 --force-restart',
+                 '--health-check-stable-duration 0 --health-check-wait-duration 0 --health-check-retry-timeout 0 '
+                 '--upgrade-domain-timeout 5000 --upgrade-timeout 7000 --failure-action Rollback --replica-check-timeout 300 --force-restart',
                  checks=[self.check('provisioningState', 'Succeeded'),
                          self.check('typeVersion', '{v2}'),
-                         self.check('parameters.Mode', 'binary'),
-                         self.check('parameters.Precision', '3'),
                          self.check('upgradePolicy.forceRestart', True),
                          self.check('upgradePolicy.upgradeReplicaSetCheckTimeout', '00:05:00'),
                          self.check('upgradePolicy.rollingUpgradeMonitoringPolicy.healthCheckRetryTimeout', '00:00:00'),
@@ -96,13 +93,13 @@ class ServiceFabricApplicationTests(ScenarioTest):
             'cert_name': self.create_random_name('sfrp-cli-', 24),
             'cluster_name': self.create_random_name('sfrp-cli-', 24),
             'vm_password': self.create_random_name('Pass@', 9),
-            'app_type_name': 'CalcServiceApp',
-            'v1': '1.0',
-            'app_package_v1': 'https://sfrpserviceclienttesting.blob.core.windows.net/test-apps/CalcApp_1.0.sfpkg',
-            'v2': '1.2',
-            'app_package_v2': 'https://sfrpserviceclienttesting.blob.core.windows.net/test-apps/CalcApp_1.2.sfpkg',
+            'app_type_name': 'VotingType',
+            'v1': '1.0.0',
+            'app_package_v1': 'https://sftestappstorage.blob.core.windows.net/managed-application-deployment/Voting.sfpkg?sp=r&st=2025-08-04T20:27:02Z&se=2025-08-05T04:42:02Z&skoid=d078218f-29d9-4be8-9eb5-7325194a81e9&sktid=72f988bf-86f1-41af-91ab-2d7cd011db47&skt=2025-08-04T20:27:02Z&ske=2025-08-05T04:42:02Z&sks=b&skv=2024-11-04&spr=https&sv=2024-11-04&sr=b&sig=******',
+            'v2': '2.0.0',
+            'app_package_v2': 'https://sftestappstorage.blob.core.windows.net/managed-application-deployment/Voting.2.0.0.sfpkg?sp=r&st=2025-08-04T20:27:21Z&se=2025-08-05T04:42:21Z&skoid=d078218f-29d9-4be8-9eb5-7325194a81e9&sktid=72f988bf-86f1-41af-91ab-2d7cd011db47&skt=2025-08-04T20:27:21Z&ske=2025-08-05T04:42:21Z&sks=b&skv=2024-11-04&spr=https&sv=2024-11-04&sr=b&sig=*****',
             'app_name': self.create_random_name('testApp', 11),
-            'service_type': 'CalcServiceType'
+            'service_type': 'VotingWebType'
         })
 
         _create_cluster_with_separate_kv(self, self.kwargs)

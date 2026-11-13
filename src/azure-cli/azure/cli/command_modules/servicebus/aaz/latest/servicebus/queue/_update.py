@@ -19,9 +19,9 @@ class Update(AAZCommand):
     """
 
     _aaz_info = {
-        "version": "2022-01-01-preview",
+        "version": "2026-07-01-preview",
         "resources": [
-            ["mgmt-plane", "/subscriptions/{}/resourcegroups/{}/providers/microsoft.servicebus/namespaces/{}/queues/{}", "2022-01-01-preview"],
+            ["mgmt-plane", "/subscriptions/{}/resourcegroups/{}/providers/microsoft.servicebus/namespaces/{}/queues/{}", "2026-07-01-preview"],
         ]
     }
 
@@ -166,6 +166,12 @@ class Update(AAZCommand):
             nullable=True,
             enum={"Active": "Active", "Creating": "Creating", "Deleting": "Deleting", "Disabled": "Disabled", "ReceiveDisabled": "ReceiveDisabled", "Renaming": "Renaming", "Restoring": "Restoring", "SendDisabled": "SendDisabled", "Unknown": "Unknown"},
         )
+        _args_schema.user_metadata = AAZStrArg(
+            options=["--user-metadata"],
+            arg_group="Properties",
+            help="Gets and Sets Metadata of User.",
+            nullable=True,
+        )
         return cls._args_schema
 
     def _execute_operations(self):
@@ -250,7 +256,7 @@ class Update(AAZCommand):
         def query_parameters(self):
             parameters = {
                 **self.serialize_query_param(
-                    "api-version", "2022-01-01-preview",
+                    "api-version", "2026-07-01-preview",
                     required=True,
                 ),
             }
@@ -337,7 +343,7 @@ class Update(AAZCommand):
         def query_parameters(self):
             parameters = {
                 **self.serialize_query_param(
-                    "api-version", "2022-01-01-preview",
+                    "api-version", "2026-07-01-preview",
                     required=True,
                 ),
             }
@@ -415,6 +421,7 @@ class Update(AAZCommand):
                 properties.set_prop("requiresDuplicateDetection", AAZBoolType, ".enable_duplicate_detection")
                 properties.set_prop("requiresSession", AAZBoolType, ".enable_session")
                 properties.set_prop("status", AAZStrType, ".status")
+                properties.set_prop("userMetadata", AAZStrType, ".user_metadata")
 
             return _instance_value
 
@@ -476,6 +483,7 @@ class _UpdateHelper:
         )
         properties.count_details = AAZObjectType(
             serialized_name="countDetails",
+            flags={"read_only": True},
         )
         properties.created_at = AAZStrType(
             serialized_name="createdAt",
@@ -535,6 +543,9 @@ class _UpdateHelper:
         properties.updated_at = AAZStrType(
             serialized_name="updatedAt",
             flags={"read_only": True},
+        )
+        properties.user_metadata = AAZStrType(
+            serialized_name="userMetadata",
         )
 
         count_details = _schema_sb_queue_read.properties.count_details

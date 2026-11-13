@@ -6,11 +6,11 @@
 # pylint: disable=line-too-long
 from knack.util import CLIError
 from knack.log import get_logger
-from msrestazure.tools import is_valid_resource_id
+from azure.mgmt.core.tools import is_valid_resource_id
 
 
 def validate_storage_account(namespace):
-    from msrestazure.tools import parse_resource_id
+    from azure.mgmt.core.tools import parse_resource_id
     if is_valid_resource_id(namespace.storage_account):
         parsed_storage = parse_resource_id(namespace.storage_account)
         storage_name = parsed_storage['resource_name']
@@ -21,7 +21,7 @@ def example_name_or_id_validator(cmd, namespace):
     # Example of a storage account name or ID validator.
     # See: https://github.com/Azure/azure-cli/blob/dev/doc/authoring_command_modules/authoring_commands.md#supporting-name-or-id-parameters
     from azure.cli.core.commands.client_factory import get_subscription_id
-    from msrestazure.tools import resource_id
+    from azure.mgmt.core.tools import resource_id
     if namespace.storage_account:
         if not is_valid_resource_id(namespace.RESOURCE):
             namespace.storage_account = resource_id(
@@ -56,11 +56,21 @@ def validate_audit_policy_arguments(namespace):
 
 def validate_repository_type(namespace):
     logger = get_logger(__name__)
-    repository_config_args = ['--host-name', '--account-name', '--collaboration-branch', '--repository-name', '--root-folder'
-                              '--project-name', '--tenant-id']
-    if namespace.repository_type is None:
-        logger.warning('Parameter --repository-type is missing, the following arguments are ignored: %s. Repository configuration will not work.',
-                       ' ,'.join(repository_config_args))
+    repository_config_args = ['--host-name', '--account-name', '--collaboration-branch',
+                              '--repository-name', '--root-folder', '--project-name', '--tenant-id',
+                              '--last-commit-id']
+    repo_args_values = [getattr(namespace, 'host_name', None),
+                        getattr(namespace, 'account_name', None),
+                        getattr(namespace, 'collaboration_branch', None),
+                        getattr(namespace, 'repository_name', None),
+                        getattr(namespace, 'root_folder', None),
+                        getattr(namespace, 'project_name', None),
+                        getattr(namespace, 'tenant_id', None),
+                        getattr(namespace, 'last_commit_id', None)]
+    if namespace.repository_type is None and any(arg is not None for arg in repo_args_values):
+        logger.warning('Parameter --repository-type is missing, the following arguments are ignored: %s. '
+                       'Repository configuration will not work.',
+                       ', '.join(repository_config_args))
 
 
 def add_progress_callback(cmd, namespace):

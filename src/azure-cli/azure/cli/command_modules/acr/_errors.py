@@ -69,18 +69,6 @@ HELM_VERSION_ERROR = ErrorClass(
 )
 
 
-# NOTARY ERRORS
-NOTARY_COMMAND_ERROR = ErrorClass(
-    "NOTARY_COMMAND_ERROR",
-    "Please verify if notary is installed."
-)
-
-NOTARY_VERSION_ERROR = ErrorClass(
-    "NOTARY_VERSION_ERROR",
-    "An error occurred while retrieving notary version. Please make sure that you have the latest Azure CLI version, and that you are using the recommended notary version."
-)
-
-
 # CONNECTIVITY ERRORS
 CONNECTIVITY_DNS_ERROR = ErrorClass(
     "CONNECTIVITY_DNS_ERROR",
@@ -90,7 +78,7 @@ CONNECTIVITY_DNS_ERROR = ErrorClass(
 
 CONNECTIVITY_FORBIDDEN_ERROR = ErrorClass(
     "CONNECTIVITY_FORBIDDEN_ERROR",
-    "Looks like you don't have access to registry '{}'. To see configured firewall rules, run 'az acr show --query networkRuleSet --name {}'. Details: https://docs.microsoft.com/azure/container-registry/container-registry-health-error-reference#connectivity_forbidden_error"
+    "Looks like you don't have access to registry '{}'. To see configured firewall rules, run 'az acr show --query networkRuleSet --name {}'. Details: https://learn.microsoft.com/azure/container-registry/container-registry-health-error-reference#connectivity_forbidden_error"
 )
 
 
@@ -112,6 +100,12 @@ CONNECTIVITY_WWW_AUTHENTICATE_ERROR = ErrorClass(
 )
 
 
+CONNECTIVITY_UNTRUSTED_REALM_ERROR = ErrorClass(
+    "CONNECTIVITY_UNTRUSTED_REALM_ERROR",
+    "Registry '{}' returned an authentication challenge with an untrusted token endpoint. The endpoint must use HTTPS and match the registry login server. Authentication was stopped before sending credentials to the token endpoint."
+)
+
+
 CONNECTIVITY_REFRESH_TOKEN_ERROR = ErrorClass(
     "CONNECTIVITY_REFRESH_TOKEN_ERROR",
     "Access to registry '{}' was denied. Response code: {}. Please try running 'az login' again to refresh permissions."
@@ -129,6 +123,10 @@ CONNECTIVITY_ACCESS_TOKEN_ERROR = ErrorClass(
     "Access to registry '{}' was denied. Response code: {}. Please try running 'az login' again to refresh permissions."
 )
 
+CONNECTIVITY_ACCESS_TOKEN_PERMISSIONS_ERROR = ErrorClass(
+    "CONNECTIVITY_ACCESS_TOKEN_ERROR",
+    "You have {} permissions to the repository. You are lacking {} repository permissions. Please verify if you have full read, write, and delete permissions to the repository in the registry."
+)
 
 CONNECTIVITY_SSL_ERROR = ErrorClass(
     "CONNECTIVITY_SSL_ERROR",

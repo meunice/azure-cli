@@ -6,34 +6,34 @@
 # pylint: disable=unused-argument, line-too-long, import-outside-toplevel, raise-missing-from
 import datetime as dt
 from datetime import datetime
+import errno
+import json
 import os
 import random
 import subprocess
 import secrets
 import string
+import sys
 import yaml
 from knack.log import get_logger
 from knack.prompting import prompt_y_n, NoTTYException
-from msrestazure.tools import parse_resource_id
-from msrestazure.azure_exceptions import CloudError
-from azure.cli.core.util import CLIError
-from azure.cli.core.azclierror import AuthenticationError
+from azure.mgmt.core.tools import parse_resource_id
+from azure.cli.core.util import CLIError, get_safe_executable_path, run_cmd as core_run_cmd
+from azure.cli.core.azclierror import AuthenticationError, ClientRequestError
 from azure.core.exceptions import HttpResponseError
 from azure.core.paging import ItemPaged
 from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.cli.core.commands import LongRunningOperation, _is_poller
 from azure.cli.core.azclierror import RequiredArgumentMissingError, InvalidArgumentValueError
 from azure.cli.command_modules.role.custom import create_service_principal_for_rbac
-from azure.mgmt.rdbms import mysql_flexibleservers, postgresql_flexibleservers
+from azure.mgmt.rdbms import mysql_flexibleservers
 from azure.mgmt.resource.resources.models import ResourceGroup
 from ._client_factory import resource_client_factory, cf_mysql_flexible_location_capabilities
 
 logger = get_logger(__name__)
 
-DEFAULT_LOCATION_PG = 'eastus'  # For testing: 'eastus2euap'
 DEFAULT_LOCATION_MySQL = 'westus2'
 AZURE_CREDENTIALS = 'AZURE_CREDENTIALS'
-AZURE_POSTGRESQL_CONNECTION_STRING = 'AZURE_POSTGRESQL_CONNECTION_STRING'
 AZURE_MYSQL_CONNECTION_STRING = 'AZURE_MYSQL_CONNECTION_STRING'
 GITHUB_ACTION_PATH = '/.github/workflows/'
 
@@ -62,7 +62,7 @@ def generate_missing_parameters(cmd, location, resource_group_name, server_name,
     # set location to be same as RG's if not specified
     if not resource_group_exists:
         if not location:
-            location = DEFAULT_LOCATION_PG if db_engine == 'postgres' else DEFAULT_LOCATION_MySQL
+            location = DEFAULT_LOCATION_MySQL
         resource_group_name = _create_resource_group(cmd, location, resource_group_name)
     else:
         resource_group_client = resource_client_factory(cmd.cli_ctx).resource_groups
@@ -153,22 +153,6 @@ def get_mysql_tiers(sku_info):
     return list(sku_info.keys())
 
 
-def get_postgres_versions(sku_info, tier):
-    return _get_available_values(sku_info, 'versions', tier)
-
-
-def get_postgres_skus(sku_info, tier):
-    return _get_available_values(sku_info, 'skus', tier)
-
-
-def get_postgres_storage_sizes(sku_info, tier):
-    return _get_available_values(sku_info, 'storage_sizes', tier)
-
-
-def get_postgres_tiers(sku_info):
-    return list(sku_info.keys())
-
-
 def get_mysql_list_skus_info(cmd, location, server_name=None):
     list_skus_client = cf_mysql_flexible_location_capabilities(cmd.cli_ctx, '_')
     params = {'serverName': server_name} if server_name else None
@@ -215,8 +199,8 @@ def _mysql_parse_list_skus(result):
 
 
 def _get_available_values(sku_info, argument, tier=None):
-    result = {key: val[argument] for key, val in sku_info.items()}
-    return result[tier]
+    result = {key.lower(): val[argument] for key, val in sku_info.items()}
+    return result[tier.lower()]
 
 
 def _get_list_from_paged_response(obj_list):
@@ -252,15 +236,15 @@ def _check_resource_group_existence(cmd, resource_group_name, resource_client=No
 # Map day_of_week string to integer to day of week
 # Possible values can be 0 - 6
 def _map_maintenance_window(day_of_week):
-    options = {"Mon": 1,
-               "Tue": 2,
-               "Wed": 3,
-               "Thu": 4,
-               "Fri": 5,
-               "Sat": 6,
-               "Sun": 0,
+    options = {"mon": 1,
+               "tue": 2,
+               "wed": 3,
+               "thu": 4,
+               "fri": 5,
+               "sat": 6,
+               "sun": 0,
                }
-    return options[day_of_week]
+    return options[day_of_week.lower()]
 
 
 def get_current_time():
@@ -306,6 +290,8 @@ def _resolve_api_version(client, provider_namespace, resource_type, parent_path)
           if t.resource_type.lower() == resource_type_str.lower()]
     if not rt:
         raise InvalidArgumentValueError('Resource type {} not found.'.format(resource_type_str))
+    if len(rt) == 1 and rt[0].default_api_version not in (None, ''):
+        return rt[0].default_api_version
     if len(rt) == 1 and rt[0].api_versions:
         npv = [v for v in rt[0].api_versions if 'preview' not in v.lower()]
         return npv[0] if npv else rt[0].api_versions[0]
@@ -314,29 +300,45 @@ def _resolve_api_version(client, provider_namespace, resource_type, parent_path)
         .format(resource_type))
 
 
-def run_subprocess(command, stdout_show=None):
+def resolve_executable(executable):
+    """Bind Windows tool launches to installed executables without changing Unix lookup."""
+    if sys.platform != 'win32' or os.path.dirname(executable):
+        return executable
+    name = executable if os.path.splitext(executable)[1] else executable + '.exe'
+    resolved = get_safe_executable_path(name)
+    if resolved is None:
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), executable)
+    return resolved
+
+
+def run_cmd(args, **kwargs):
+    if isinstance(args, list) and args:
+        args = [resolve_executable(args[0]), *args[1:]]
+    return core_run_cmd(args, **kwargs)
+
+
+def run_subprocess(command, stdout_show=None, input_data=None):
+    commands = list(command)
+    commands[0] = resolve_executable(commands[0])
+    if input_data is not None:
+        # Keep caller-provided input out of subprocess diagnostics.
+        process = subprocess.run(commands, input=input_data, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if process.returncode:
+            raise ClientRequestError("Command '{}' failed with exit code {}.".format(commands[0], process.returncode))
+        return
     if stdout_show:
-        process = subprocess.Popen(command, shell=True)
+        process = subprocess.Popen(commands)
     else:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     process.wait()
     if process.returncode:
         logger.warning(process.stderr.read().strip().decode('UTF-8'))
-
-
-def run_subprocess_get_output(command):
-    commands = command.split()
-    process = subprocess.Popen(commands, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    process.wait()
-    return process
 
 
 def register_credential_secrets(cmd, database_engine, server, repository):
     logger.warning('Adding secret "AZURE_CREDENTIALS" to github repository')
     resource_group = parse_resource_id(server.id)["resource_group"]
     provider = "DBforMySQL"
-    if database_engine == "postgresql":
-        provider = "DBforPostgreSQL"
     scope = "/subscriptions/{}/resourceGroups/{}/providers/Microsoft.{}/flexibleServers/{}".format(get_subscription_id(cmd.cli_ctx), resource_group, provider, server.name)
 
     app = create_service_principal_for_rbac(cmd, display_name=server.name, role='contributor', scopes=[scope])
@@ -345,27 +347,15 @@ def register_credential_secrets(cmd, database_engine, server, repository):
     app.pop('displayName')
     app.pop('name')
 
-    app_key_val = []
-    for key, val in app.items():
-        app_key_val.append('"{}": "{}"'.format(key, val))
-
-    app_json = ',\n  '.join(app_key_val)
-    app_json = '{\n  ' + app_json + '\n}'
-    credential_file = "./temp_app_credential.txt"
-    with open(credential_file, "w") as f:
-        f.write(app_json)
-    run_subprocess('gh secret set {} --repo {} < {}'.format(AZURE_CREDENTIALS, repository, credential_file))
-    os.remove(credential_file)
+    run_subprocess(['gh', 'secret', 'set', AZURE_CREDENTIALS, '--repo', repository],
+                   input_data=json.dumps(app).encode('utf-8'))
 
 
 def register_connection_secrets(cmd, database_engine, server, database_name, administrator_login, administrator_login_password, repository, connection_string_name):
+    connection_string = "Server={}; Port=3306; Database={}; Uid={}; Pwd={}; SslMode=Preferred;".format(server.fully_qualified_domain_name, database_name, administrator_login, administrator_login_password)
+    run_subprocess(['gh', 'secret', 'set', connection_string_name, '--repo', repository],
+                   input_data=connection_string.encode('utf-8'))
     logger.warning("Added secret %s to github repository", connection_string_name)
-    if database_engine == 'postgresql':
-        connection_string = "host={} port=5432 dbname={} user={} password={} sslmode=require".format(server.fully_qualified_domain_name, database_name, administrator_login, administrator_login_password)
-        run_subprocess('gh secret set {} --repo {} -b"{}"'.format(connection_string_name, repository, connection_string))
-    elif database_engine == 'mysql':
-        connection_string = "Server={}; Port=3306; Database={}; Uid={}; Pwd={}; SslMode=Preferred;".format(server.fully_qualified_domain_name, database_name, administrator_login, administrator_login_password)
-        run_subprocess('gh secret set {} --repo {} -b"{}"'.format(connection_string_name, repository, connection_string))
 
 
 def fill_action_template(cmd, database_engine, server, database_name, administrator_login, administrator_login_password, file_name, action_name, repository):
@@ -374,9 +364,8 @@ def fill_action_template(cmd, database_engine, server, database_name, administra
     if not os.path.exists(action_dir):
         os.makedirs(action_dir)
 
-    process = run_subprocess_get_output("gh secret list --repo {}".format(repository))
-    github_secrets = process.stdout.read().strip().decode('UTF-8')
-    # connection_string = AZURE_POSTGRESQL_CONNECTION_STRING if database_engine == 'postgresql' else AZURE_MYSQL_CONNECTION_STRING
+    process = run_cmd(["gh", "secret", "list", "--repo", repository], capture_output=True)
+    github_secrets = process.stdout.strip().decode('UTF-8')
 
     if AZURE_CREDENTIALS not in github_secrets:
         try:
@@ -384,7 +373,7 @@ def fill_action_template(cmd, database_engine, server, database_name, administra
                                         database_engine=database_engine,
                                         server=server,
                                         repository=repository)
-        except CloudError:
+        except HttpResponseError:
             raise AuthenticationError('You do not have authorization to create a service principal to run azure service in github actions. \n'
                                       'Please create a service principal that has access to the database server and add "AZURE_CREDENTIALS" secret to your github repository. \n'
                                       'Follow the instruction here "aka.ms/github-actions-azure-credentials".')
@@ -405,10 +394,7 @@ def fill_action_template(cmd, database_engine, server, database_name, administra
     with open(current_location + "/templates/" + database_engine + "_githubaction_template.yaml", "r") as template_file:
         template = yaml.safe_load(template_file)
         template['jobs']['build']['steps'][2]['with']['server-name'] = server.fully_qualified_domain_name
-        if database_engine == 'postgresql':
-            template['jobs']['build']['steps'][2]['with']['plsql-file'] = file_name
-        else:
-            template['jobs']['build']['steps'][2]['with']['sql-file'] = file_name
+        template['jobs']['build']['steps'][2]['with']['sql-file'] = file_name
         template['jobs']['build']['steps'][2]['with']['connection-string'] = "${{ secrets." + connection_string_name + " }}"
         with open(action_dir + action_name + '.yml', 'w', encoding='utf8') as yml_file:
             yml_file.write("on: [workflow_dispatch]\n")
@@ -416,8 +402,8 @@ def fill_action_template(cmd, database_engine, server, database_name, administra
 
 
 def get_git_root_dir():
-    process = run_subprocess_get_output("git rev-parse --show-toplevel")
-    return process.stdout.read().strip().decode('UTF-8')
+    process = run_cmd(["git", "rev-parse", "--show-toplevel"], capture_output=True)
+    return process.stdout.strip().decode('UTF-8')
 
 
 def get_user_confirmation(message, yes=False):
@@ -434,10 +420,10 @@ def get_user_confirmation(message, yes=False):
 
 def replace_memory_optimized_tier(result):
     result = _get_list_from_paged_response(result)
-    for capability_idx, capability in enumerate(result):
+    for capability in result:
         for edition_idx, edition in enumerate(capability.supported_flexible_server_editions):
             if edition.name == 'MemoryOptimized':
-                result[capability_idx].supported_flexible_server_editions[edition_idx].name = 'BusinessCritical'
+                capability.supported_flexible_server_editions[edition_idx].name = 'BusinessCritical'
 
     return result
 
@@ -449,33 +435,32 @@ def _is_resource_name(resource):
 
 
 def build_identity_and_data_encryption(db_engine, byok_identity=None, backup_byok_identity=None,
-                                       byok_key=None, backup_byok_key=None):
+                                       byok_key=None, backup_byok_key=None, instance=None):
     identity, data_encryption = None, None
 
-    if byok_identity and byok_key:
-        identities = {byok_identity: {}}
+    primary_user_assigned_identity_id = byok_identity
+    primary_key_uri = byok_key
+    geo_backup_user_assigned_identity_id = backup_byok_identity
+    geo_backup_key_uri = backup_byok_key
+    if (instance is not None) and (byok_identity is None) and (backup_byok_identity is not None):
+        primary_user_assigned_identity_id = instance.data_encryption.primary_user_assigned_identity_id
+        primary_key_uri = instance.data_encryption.primary_key_uri
 
-        if backup_byok_identity:
-            identities[backup_byok_identity] = {}
+    if primary_user_assigned_identity_id and primary_key_uri:
+        identities = {primary_user_assigned_identity_id: {}}
 
-        if db_engine == 'mysql':
-            identity = mysql_flexibleservers.models.Identity(user_assigned_identities=identities,
-                                                             type="UserAssigned")
+        if geo_backup_user_assigned_identity_id:
+            identities[geo_backup_user_assigned_identity_id] = {}
 
-            data_encryption = mysql_flexibleservers.models.DataEncryption(
-                primary_user_assigned_identity_id=byok_identity,
-                primary_key_uri=byok_key,
-                geo_backup_user_assigned_identity_id=backup_byok_identity,
-                geo_backup_key_uri=backup_byok_key,
-                type="AzureKeyVault")
-        else:
-            identity = postgresql_flexibleservers.models.UserAssignedIdentity(user_assigned_identities=identities,
-                                                                              type="UserAssigned")
+        identity = mysql_flexibleservers.models.Identity(user_assigned_identities=identities,
+                                                         type="UserAssigned")
 
-            data_encryption = postgresql_flexibleservers.models.DataEncryption(
-                primary_user_assigned_identity_id=byok_identity,
-                primary_key_uri=byok_key,
-                type="AzureKeyVault")
+        data_encryption = mysql_flexibleservers.models.DataEncryption(
+            primary_user_assigned_identity_id=primary_user_assigned_identity_id,
+            primary_key_uri=primary_key_uri,
+            geo_backup_user_assigned_identity_id=geo_backup_user_assigned_identity_id,
+            geo_backup_key_uri=geo_backup_key_uri,
+            type="AzureKeyVault")
 
     return identity, data_encryption
 
@@ -500,3 +485,17 @@ def get_tenant_id():
     profile = Profile()
     sub = profile.get_subscription()
     return sub['tenantId']
+
+
+def get_case_insensitive_key_value(case_insensitive_key, list_of_keys, dictionary):
+    for key in list_of_keys:
+        if key.lower() == case_insensitive_key.lower():
+            return dictionary[key]
+    return None
+
+
+def get_enum_value_true_false(value, key):
+    if value is not None and value.lower() != 'true' and value.lower() != 'false':
+        raise CLIError("Value of Key {} must be either 'True' or 'False'".format(key))
+
+    return "False" if value is None or value.lower() == 'false' else "True"

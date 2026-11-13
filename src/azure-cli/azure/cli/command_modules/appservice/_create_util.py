@@ -9,6 +9,7 @@ from random import randint
 from knack.util import CLIError
 from knack.log import get_logger
 from azure.cli.core.commands.client_factory import get_mgmt_service_client
+from azure.cli.core.commands import LongRunningOperation
 from azure.cli.core.util import get_file_json
 from azure.mgmt.web.models import SkuDescription
 
@@ -28,6 +29,11 @@ def _resource_client_factory(cli_ctx, **_):
 def web_client_factory(cli_ctx, **_):
     from azure.mgmt.web import WebSiteManagementClient
     return get_mgmt_service_client(cli_ctx, WebSiteManagementClient)
+
+
+def log_analytics_client_factory(cli_ctx, **_):
+    from azure.mgmt.loganalytics import LogAnalyticsManagementClient
+    return get_mgmt_service_client(cli_ctx, LogAnalyticsManagementClient)
 
 
 def zip_contents_from_dir(dirPath, lang):
@@ -61,6 +67,10 @@ def zip_contents_from_dir(dirPath, lang):
 
                 for filename in files:
                     absname = os.path.abspath(os.path.join(dirname, filename))
+
+                    if os.path.islink(absname):
+                        logger.info("Skipping symbolic link: %s", absname)
+                        continue
                     arcname = absname[len(abs_src) + 1:]
                     zf.write(absname, arcname)
 
@@ -71,7 +81,7 @@ def zip_contents_from_dir(dirPath, lang):
                 zip_dotnet_project_references(abs_src, "{}".format(zip_file_path))
             except (OSError, ValueError, TypeError, ParseError, BadZipFile, LargeZipFile):
                 logger.warning("Analysing and bundling dotnet project references have failed.")
-    except IOError as e:
+    except OSError as e:
         if e.errno == 13:
             raise CLIError('Insufficient permissions to create a zip in current directory. '
                            'Please re-run the command with administrator privileges')
@@ -299,8 +309,7 @@ def find_key_in_json(json_data, key):
         if key in k:
             yield v
         elif isinstance(v, dict):
-            for id_val in find_key_in_json(v, key):
-                yield id_val
+            yield from find_key_in_json(v, key)
 
 
 def set_location(cmd, sku, location):
@@ -318,8 +327,33 @@ def set_location(cmd, sku, location):
 
 def get_site_availability(cmd, name):
     """ This is used by az webapp up to verify if a site needs to be created or should just be deployed"""
+    from azure.mgmt.web.models import ResourceNameAvailabilityRequest
     client = web_client_factory(cmd.cli_ctx)
-    availability = client.check_name_availability(name, 'Site')
+    request = ResourceNameAvailabilityRequest(name=name, type='Site')
+    availability = client.check_name_availability(request)
+
+    # check for "." in app name. it is valid for hostnames to contain it, but not allowed for webapp names
+    if "." in name:
+        availability.name_available = False
+        availability.reason = "Invalid"
+        availability.message = ("Site names only allow alphanumeric characters and hyphens, "
+                                "cannot start or end in a hyphen, and must be less than 64 chars.")
+    return availability
+
+
+def get_regional_site_availability(cmd, location, name, resource_group_name=None,  # pylint: disable=unused-argument
+                                   auto_generated_domain_name_label_scope=None):  # pylint: disable=unused-argument
+    """ This is used by az webapp up to verify if a site needs to be created or should just be deployed
+      (regional check)"""
+    from azure.mgmt.web.models import ResourceNameAvailabilityRequest
+    client = web_client_factory(cmd.cli_ctx)
+    # Note: In azure-mgmt-web 11.0.0+, resource_group_name and auto_generated_domain_name_label_scope
+    # are no longer supported parameters for ResourceNameAvailabilityRequest
+    request = ResourceNameAvailabilityRequest(
+        name=name,
+        type="Site"
+    )
+    availability = client.regional_check_name_availability(location, request)
 
     # check for "." in app name. it is valid for hostnames to contain it, but not allowed for webapp names
     if "." in name:
@@ -476,6 +510,53 @@ def generate_default_app_name(cmd):
     return generated_name
 
 
+def get_region_mapping(location):
+    import requests
+    region_mapping_url = 'https://appinsights.azureedge.net/portal/regionMapping.json'
+    response = requests.get(region_mapping_url)
+    res_dict = response.json()
+    return res_dict.get('regions').get(location).get('laRegionCode')
+
+
+def get_resource_group(cmd, name):
+    rcf = _resource_client_factory(cmd.cli_ctx)
+    resource_groups = rcf.resource_groups.list()
+    return next((rg for rg in resource_groups if rg.name == name), None)
+
+
+def get_or_create_default_resource_group(cmd, location):
+    region_code = get_region_mapping(location)
+    resource_group_name = "DefaultResourceGroup-{}".format(region_code)
+    resource_group = get_resource_group(cmd, resource_group_name)
+    if resource_group is None:
+        resource_group = create_resource_group(cmd, resource_group_name, location)
+    return resource_group
+
+
+def get_workspace(cmd, name):
+    log_client = log_analytics_client_factory(cmd.cli_ctx)
+    workspaces = log_client.workspaces.list()
+    return next((w for w in workspaces if w.name == name), None)
+
+
+def get_or_create_default_workspace(cmd, location, resource_group):
+    from azure.cli.core.commands.client_factory import get_subscription_id
+    from azure.core.exceptions import HttpResponseError
+    log_client = log_analytics_client_factory(cmd.cli_ctx)
+    sub_id = get_subscription_id(cmd.cli_ctx)
+    region_code = get_region_mapping(location)
+    workspace_name = "DefaultWorkspace-{}-{}".format(sub_id, region_code)
+    try:
+        workspace = log_client.workspaces.get(resource_group, workspace_name)
+    except HttpResponseError:
+        workspace_properties = {
+            "location": location
+        }
+        poller = log_client.workspaces.begin_create_or_update(resource_group, workspace_name, workspace_properties)
+        workspace = LongRunningOperation(cmd.cli_ctx)(poller)
+    return workspace
+
+
 # region Add the project references for dotnet webapp in zip archive
 # Get the .csproj path for the main project
 def _get_dotnet_main_project_csproj(dirPath):
@@ -484,7 +565,7 @@ def _get_dotnet_main_project_csproj(dirPath):
     if len(ll) == 1:
         csproj_path = os.path.join(dirPath, ll[0])
     else:
-        raise Exception('{} should contain only one .csproj file'.format(dirPath))
+        raise Exception('{} should contain only one .csproj file'.format(dirPath))  # pylint: disable=broad-exception-raised
 
     return csproj_path
 
@@ -580,8 +661,8 @@ def zip_dotnet_project_references(dirPath, zip_file_path):
             csproj_content = csproj_file.read()
             new_csproj_content = str(csproj_content)
 
-            for include in replace_dict:
-                new_csproj_content = str(new_csproj_content).replace(include, replace_dict[include])
+            for k, v in replace_dict.items():
+                new_csproj_content = str(new_csproj_content).replace(k, v)
 
         # Step 3: append transitive project references to .zip.tmp
         transitives_references = _get_dotnet_transitive_missing_references(abs_references)

@@ -3,13 +3,19 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+import typing as t
+import json
 from itertools import groupby
 
-from azure.mgmt.resource.resources.models import ChangeType, PropertyChangeType
+import azure.mgmt.resource.deployments.models as DeploymentModels
 
 from ._symbol import Symbol
 from ._color import Color, ColoredStringBuilder
 from ._utils import split_resource_id
+
+ChangeType = DeploymentModels.ChangeType
+PropertyChangeType = DeploymentModels.PropertyChangeType
+Level = DeploymentModels.Level
 
 _change_type_to_color = {
     ChangeType.create: Color.GREEN,
@@ -28,6 +34,12 @@ _property_change_type_to_color = {
     PropertyChangeType.modify: Color.PURPLE,
     PropertyChangeType.array: Color.PURPLE,
     PropertyChangeType.no_effect: Color.GRAY,
+}
+
+_diagnostic_level_to_color = {
+    Level.ERROR: Color.RED,
+    Level.WARNING: Color.DARK_YELLOW,
+    Level.INFO: Color.RESET,
 }
 
 _change_type_to_symbol = {
@@ -69,24 +81,42 @@ _property_change_type_to_weight = {
 }
 
 
-def format_what_if_operation_result(what_if_operation_result, enable_color=True):
+def format_what_if_operation_result(
+    what_if_operation_result: DeploymentModels.WhatIfOperationResult,
+    enable_color=True
+):
     builder = ColoredStringBuilder(enable_color)
     _format_noise_notice(builder)
     _format_change_type_legend(builder, what_if_operation_result.changes)
-    _format_resource_changes(builder, what_if_operation_result.changes)
-    _format_resource_changes_stats(builder, what_if_operation_result.changes)
+    _format_resource_changes(builder,
+                             what_if_operation_result.changes,
+                             definite_changes=True)
+    _format_resource_changes_stats(builder,
+                                   what_if_operation_result.changes,
+                                   definite_changes=True)
+    _format_resource_changes(builder,
+                             what_if_operation_result.potential_changes,
+                             definite_changes=False)
+    _format_resource_changes_stats(builder,
+                                   what_if_operation_result.potential_changes,
+                                   definite_changes=False)
+    _format_diagnostics(builder,
+                        what_if_operation_result.changes,
+                        what_if_operation_result.potential_changes,
+                        what_if_operation_result.diagnostics)
     return builder.build()
 
 
 def _format_noise_notice(builder):
     builder.append_line(
         """Note: The result may contain false positive predictions (noise).
-You can help us improve the accuracy of the result by opening an issue here: https://aka.ms/WhatIfIssues"""
+You can help us improve the accuracy of the result by opening an issue here: https://aka.ms/WhatIfIssues
+NOTICE! - Want to get What-if without noise? Move to Deployment Stacks What-If https://aka.ms/stackswhatifGA"""
     )
     builder.append_line()
 
 
-def _format_change_type_legend(builder, resource_changes):
+def _format_change_type_legend(builder, resource_changes: t.Optional[list[DeploymentModels.WhatIfChange]]):
     if not resource_changes:
         return
 
@@ -120,20 +150,28 @@ def _format_change_type_legend(builder, resource_changes):
         builder.append_line(change_type.title())
 
 
-def _format_resource_changes_stats(builder, resource_changes):
-    builder.append_line().append("Resource changes: ")
+def _format_resource_changes_stats(
+    builder,
+    resource_changes: t.Optional[list[DeploymentModels.WhatIfChange]],
+    definite_changes=True
+):
+    if definite_changes:
+        builder.append_line().append("Resource changes: ")
 
-    if not resource_changes:
-        builder.append("no change.")
-        return
+        if not resource_changes:
+            builder.append("no change.")
+            return
+    elif resource_changes:
+        builder.append_line().append("Potential changes: ")
 
-    sorted_resource_changes = sorted(resource_changes, key=lambda x: _change_type_to_weight[x.change_type])
-    resource_changes_by_change_type = groupby(sorted_resource_changes, lambda x: x.change_type)
-    count_by_change_type = map(lambda x: (x[0], len(list(x[1]))), resource_changes_by_change_type)
-    count_by_change_type = filter(lambda x: x[1] > 0, count_by_change_type)
-    change_type_stats = map(lambda x: _format_change_type_count(x[0], x[1]), count_by_change_type)
+    if resource_changes:
+        sorted_resource_changes = sorted(resource_changes, key=lambda x: _change_type_to_weight[x.change_type])
+        resource_changes_by_change_type = groupby(sorted_resource_changes, lambda x: x.change_type)
+        count_by_change_type = map(lambda x: (x[0], len(list(x[1]))), resource_changes_by_change_type)
+        count_by_change_type = filter(lambda x: x[1] > 0, count_by_change_type)
+        change_type_stats = map(lambda x: _format_change_type_count(x[0], x[1]), count_by_change_type)
 
-    builder.append(", ".join(change_type_stats)).append(".")
+        builder.append(", ".join(change_type_stats)).append(".")
 
 
 def _format_change_type_count(change_type, count):  # pylint: disable=too-many-return-statements
@@ -155,7 +193,40 @@ def _format_change_type_count(change_type, count):  # pylint: disable=too-many-r
     raise ValueError(f"Invalid ChangeType: {change_type}")
 
 
-def _format_resource_changes(builder, resource_changes):
+def _format_diagnostics(builder, resource_changes, potential_changes, diagnostics):
+    short_circuited_resources = [r for r in (resource_changes or []) + (potential_changes or [])
+                                 if r.change_type == ChangeType.UNSUPPORTED]
+
+    diags = diagnostics or []
+
+    if len(short_circuited_resources) + len(diags) > 0:
+        builder.append_line()
+        builder.append_line()
+        builder.append(f"Diagnostics ({len(short_circuited_resources) + len(diags)}): ")
+        builder.append_line()
+
+        for change in short_circuited_resources:
+            with builder.new_color_scope(_diagnostic_level_to_color[Level.WARNING]):
+                builder.append(change.resource_id)
+                builder.append(" (Unsupported) ")
+                builder.append(change.unsupported_reason)
+                builder.append_line()
+
+        for diag in diags:
+            with builder.new_color_scope(_diagnostic_level_to_color[diag.level]):
+                builder.append(diag.target)
+                builder.append(" (")
+                builder.append(diag.code)
+                builder.append(") ")
+                builder.append(diag.message)
+                builder.append_line()
+
+
+def _format_resource_changes(
+    builder,
+    resource_changes: t.Optional[list[DeploymentModels.WhatIfChange]],
+    definite_changes=True
+):
     if not resource_changes:
         return
 
@@ -163,7 +234,12 @@ def _format_resource_changes(builder, resource_changes):
     resource_changes_by_scope = groupby(sorted(resource_changes, key=_get_scope_uppercase), _get_scope_uppercase)
 
     builder.append_line()
-    builder.append_line(f"The deployment will update the following {'scope:' if num_scopes == 1 else 'scopes'}")
+    if definite_changes:
+        builder.append("The deployment will update the following ")
+    else:
+        builder.append("The following change MAY OR MAY NOT be deployed to the following ")
+
+    builder.append_line('scope:' if num_scopes == 1 else 'scopes:')
 
     for _, resource_changes_in_scope in resource_changes_by_scope:
         resource_changes_in_scope_list = list(resource_changes_in_scope)
@@ -187,9 +263,12 @@ def _format_resource_changes_in_scope(builder, scope, resource_changes_in_scope)
                 _format_resource_change(builder, resource_change, is_last)
 
 
-def _format_resource_change(builder, resource_change, is_last):
-    change_type = resource_change.change_type
+def _format_resource_change(builder, resource_change: DeploymentModels.WhatIfChange, is_last):
     relative_resource_id = _get_relative_resource_id(resource_change)
+    if relative_resource_id is None:
+        return
+
+    change_type = resource_change.change_type
     api_version = _get_api_version(resource_change)
 
     builder.append_line()
@@ -353,6 +432,36 @@ def _format_property_modify(builder, before, after, children, indent_level):
             builder.append_line()
 
 
+def _parse_array_item_path(path):
+    """Return (sort_key, display_path) for a what-if array-item path.
+
+    The service historically returned numeric paths like "0". Newer responses
+    use an underscored form like "_0", which breaks ``int(path)`` used for
+    sorting. Non-numeric paths keep service order (stable sort) and are
+    displayed unchanged.
+    """
+    if path is None:
+        return (float('inf'), '')
+    text = str(path)
+    candidate = text[1:] if text.startswith('_') else text
+    try:
+        return (int(candidate), candidate)
+    except (TypeError, ValueError):
+        return (float('inf'), text)
+
+
+def _array_item_sort_key(property_change):
+    """Sort array-item changes by numeric index, then by change type.
+
+    Non-numeric paths share a constant key, so the stable sort keeps them in
+    service order after the numeric items.
+    """
+    index, _ = _parse_array_item_path(property_change.path)
+    if index == float('inf'):
+        return (index, 0)
+    return (index, _property_change_type_to_weight[property_change.property_change_type])
+
+
 def _format_property_array_change(builder, parent_property_change, property_changes, indent_level):
     if not parent_property_change.path:
         # The parent change doesn't have a path, which means the current
@@ -370,7 +479,7 @@ def _format_property_array_change(builder, parent_property_change, property_chan
 
     _format_property_changes(
         builder,
-        sorted(property_changes, key=lambda x: (int(x.path), _property_change_type_to_weight[x.property_change_type])),
+        sorted(property_changes, key=_array_item_sort_key),
         indent_level,
     )
 
@@ -379,7 +488,7 @@ def _format_property_array_change(builder, parent_property_change, property_chan
     builder.append(Symbol.RIGHT_SQUARE_BRACKET)
 
 
-def _get_api_version(resource_change):
+def _get_api_version(resource_change: DeploymentModels.WhatIfChange):
     if resource_change.before:
         return resource_change.before.get("apiVersion")
     if resource_change.after:
@@ -387,18 +496,25 @@ def _get_api_version(resource_change):
     return None
 
 
-def _get_scope(resource_change):
-    scope, _ = split_resource_id(resource_change.resource_id)
-    return scope
+def _get_scope(resource_change: DeploymentModels.WhatIfChange):
+    if resource_change.resource_id:
+        return split_resource_id(resource_change.resource_id)[0]
+    if resource_change.extension:
+        # TODO: eventually this should include the extension config with key=value pairs
+        return f"{resource_change.extension.name}@{resource_change.extension.version}"
+    return "Unknown"
 
 
-def _get_scope_uppercase(resource_change):
+def _get_scope_uppercase(resource_change: DeploymentModels.WhatIfChange):
     return _get_scope(resource_change).upper()
 
 
-def _get_relative_resource_id(resource_change):
-    _, relative_resource_id = split_resource_id(resource_change.resource_id)
-    return relative_resource_id
+def _get_relative_resource_id(resource_change: DeploymentModels.WhatIfChange):
+    if resource_change.resource_id:
+        return split_resource_id(resource_change.resource_id)[1]
+    if resource_change.identifiers:
+        return _format_ext_resource_identifiers(resource_change.identifiers)
+    return None
 
 
 def _get_max_path_length_from_property_changes(property_changes):
@@ -581,3 +697,12 @@ def _is_non_empty_array(value):
 
 def _is_non_empty_object(value):
     return isinstance(value, dict) and value
+
+
+def _format_ext_resource_identifiers(identifiers: t.Optional[dict[str, t.Any]]) -> str:
+    if not identifiers:
+        return ""
+
+    sorted_items = sorted(identifiers.items(), key=lambda x: x[0])
+
+    return ", ".join(f"{key}={json.dumps(value)}" for key, value in sorted_items)

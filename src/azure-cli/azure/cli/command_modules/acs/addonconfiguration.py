@@ -5,6 +5,7 @@
 import json
 import os
 import re
+import time
 
 from azure.cli.command_modules.acs._client_factory import get_resource_groups_client, get_resources_client
 from azure.cli.core.util import get_file_json
@@ -15,18 +16,22 @@ from azure.cli.command_modules.acs._consts import (
     CONST_INGRESS_APPGW_SUBNET_ID,
     CONST_MONITORING_ADDON_NAME,
     CONST_MONITORING_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID,
+    CONST_MONITORING_USING_AAD_MSI_AUTH,
     CONST_VIRTUAL_NODE_ADDON_NAME,
 )
 from azure.cli.command_modules.acs._resourcegroup import get_rg_location
 from azure.cli.command_modules.acs._roleassignments import add_role_assignment
-from azure.cli.core.azclierror import AzCLIError, ClientRequestError, CLIError, InvalidArgumentValueError
+from azure.cli.command_modules.acs._helpers import safe_lower
+from azure.cli.core.azclierror import AzCLIError, CLIError, InvalidArgumentValueError, ArgumentUsageError
 from azure.cli.core.profiles import ResourceType
 from azure.cli.core.util import send_raw_request
 from azure.core.exceptions import HttpResponseError
+from azure.mgmt.core.tools import parse_resource_id, resource_id
 from knack.log import get_logger
-from msrestazure.tools import parse_resource_id, resource_id
 
 logger = get_logger(__name__)
+_DCR_TABLE_READINESS_MAX_RETRIES = 5
+_DCR_TABLE_READINESS_RETRY_DELAY_SECONDS = 15
 # mapping for azure public cloud
 # log analytics workspaces cannot be created in WCUS region due to capacity limits
 # so mapped to EUS per discussion with log analytics team
@@ -77,6 +82,25 @@ AzureCloudLocationToOmsRegionCodeMap = {
     "westus2": "WUS2",
     "westus3": "USW3",
 }
+
+
+def _create_or_update_dcr_with_table_readiness_retry(resources, dcr_resource_id, api_version, body):
+    general_attempts = 0
+    readiness_retries = 0
+    while True:
+        try:
+            return resources.begin_create_or_update_by_id(dcr_resource_id, api_version, body)
+        except (CLIError, HttpResponseError) as ex:
+            if "invalidoutputtable" in str(ex).casefold():
+                if readiness_retries >= _DCR_TABLE_READINESS_MAX_RETRIES:
+                    raise
+                readiness_retries += 1
+                time.sleep(_DCR_TABLE_READINESS_RETRY_DELAY_SECONDS)
+                continue
+
+            general_attempts += 1
+            if general_attempts >= 3:
+                raise
 
 
 AzureCloudRegionToOmsRegionMap = {
@@ -163,12 +187,74 @@ AzureFairfaxRegionToOmsRegionMap = {
 }
 
 
+# mapping for azure us nat cloud
+AzureUSNatLocationToOmsRegionCodeMap = {
+    "usnatwest": "USNW",
+    "usnateast": "USNE",
+}
+
+AzureUSNatRegionToOmsRegionMap = {
+    "usnatwest": "usnatwest",
+    "usnateast": "usnateast",
+}
+
+# mapping for azure us sec cloud
+AzureUSSecLocationToOmsRegionCodeMap = {
+    "usseceast": "USSE",
+    "ussecwest": "USSW",
+}
+
+AzureUSSecRegionToOmsRegionMap = {
+    "usseceast": "usseceast",
+    "ussecwest": "ussecwest",
+}
+
+# mapping for azure bleu cloud
+AzureBleuLocationToOmsRegionCodeMap = {
+    "bleufrancecentral": "BLEUC",
+    "bleufrancesouth": "BLEUS",
+}
+
+AzureBleuRegionToOmsRegionMap = {
+    "bleufrancecentral": "bleufrancecentral",
+    "bleufrancesouth": "bleufrancesouth",
+}
+
+# mapping for azure delos cloud
+AzureDelosLocationToOmsRegionCodeMap = {
+    "deloscloudgermanycentral": "DELOSC",
+    "deloscloudgermanynorth": "DELOSN",
+}
+
+AzureDelosRegionToOmsRegionMap = {
+    "deloscloudgermanycentral": "deloscloudgermanycentral",
+    "deloscloudgermanynorth": "deloscloudgermanynorth",
+}
+
+ContainerInsightsStreams = [
+    "Microsoft-ContainerLog",
+    "Microsoft-ContainerLogV2-HighScale",
+    "Microsoft-KubeEvents",
+    "Microsoft-KubePodInventory",
+    "Microsoft-KubeNodeInventory",
+    "Microsoft-KubePVInventory",
+    "Microsoft-KubeServices",
+    "Microsoft-KubeMonAgentEvents",
+    "Microsoft-InsightsMetrics",
+    "Microsoft-ContainerInventory",
+    "Microsoft-ContainerNodeInventory",
+    "Microsoft-Perf",
+    "Microsoft-ContainerNetworkLogs",
+]
+
+
 # pylint: disable=too-many-locals
 def ensure_default_log_analytics_workspace_for_monitoring(
     cmd, subscription_id, resource_group_name
 ):
     rg_location = get_rg_location(cmd.cli_ctx, resource_group_name)
     cloud_name = cmd.cli_ctx.cloud.name
+    workspace_region_code = "EUS"
 
     if cloud_name.lower() == "azurecloud":
         workspace_region = AzureCloudRegionToOmsRegionMap.get(
@@ -190,6 +276,34 @@ def ensure_default_log_analytics_workspace_for_monitoring(
         )
         workspace_region_code = AzureFairfaxLocationToOmsRegionCodeMap.get(
             workspace_region, "USGV"
+        )
+    elif cloud_name.lower() == "usnat":
+        workspace_region = AzureUSNatRegionToOmsRegionMap.get(
+            rg_location, "usnatwest"
+        )
+        workspace_region_code = AzureUSNatLocationToOmsRegionCodeMap.get(
+            workspace_region, "USNW"
+        )
+    elif cloud_name.lower() == "ussec":
+        workspace_region = AzureUSSecRegionToOmsRegionMap.get(
+            rg_location, "ussecwest"
+        )
+        workspace_region_code = AzureUSSecLocationToOmsRegionCodeMap.get(
+            workspace_region, "USSW"
+        )
+    elif cloud_name.lower() == "azurebleucloud":
+        workspace_region = AzureBleuRegionToOmsRegionMap.get(
+            rg_location, "bleufrancecentral"
+        )
+        workspace_region_code = AzureBleuLocationToOmsRegionCodeMap.get(
+            workspace_region, "BLEUC"
+        )
+    elif cloud_name.lower() == "azuredeloscloud":
+        workspace_region = AzureDelosRegionToOmsRegionMap.get(
+            rg_location, "deloscloudgermanycentral"
+        )
+        workspace_region_code = AzureDelosLocationToOmsRegionCodeMap.get(
+            workspace_region, "DELOSC"
         )
     else:
         logger.error(
@@ -258,6 +372,83 @@ def sanitize_loganalytics_ws_resource_id(workspace_resource_id):
     return workspace_resource_id
 
 
+def get_existing_container_insights_extension_dcr(cmd, dcr_url):
+    """Fetch the Container Insights extension DCR that already exists, or {} if there is none."""
+    _MAX_RETRY_TIMES = 3
+    for retry_count in range(0, _MAX_RETRY_TIMES):
+        try:
+            resp = send_raw_request(
+                cmd.cli_ctx, "GET", dcr_url
+            )
+            return json.loads(resp.text)
+        except CLIError as e:
+            if "ResourceNotFound" in str(e):
+                break
+            if retry_count >= (_MAX_RETRY_TIMES - 1):
+                raise e
+    return {}
+
+
+def get_existing_data_collection_endpoint(cmd, dce_resource_id):
+    """Fetch the data collection endpoint that already exists, or {} if there is none."""
+    dce_url = cmd.cli_ctx.cloud.endpoints.resource_manager + \
+        f"{dce_resource_id}?api-version=2022-06-01"
+    _MAX_RETRY_TIMES = 3
+    for retry_count in range(0, _MAX_RETRY_TIMES):
+        try:
+            resp = send_raw_request(cmd.cli_ctx, "GET", dce_url)
+            return json.loads(resp.text)
+        except CLIError as e:
+            if "ResourceNotFound" in str(e):
+                break
+            if retry_count >= (_MAX_RETRY_TIMES - 1):
+                raise e
+    return {}
+
+
+def _resolve_dcr_settings_from_existing(
+    existing_dcr, enable_syslog, data_collection_settings, enable_high_log_scale_mode
+):
+    """Carry over DCR settings the caller did not specify from the DCR that already exists.
+
+    The DCR is rebuilt from scratch on every reconfiguration, so a setting that is not supplied on
+    the command line is otherwise silently dropped: 'az aks update --enable-syslog' on a cluster
+    using high log scale mode would rebuild the DCR without the high scale streams, its custom data
+    collection settings and its ingestion DCE, and '--data-collection-settings' on its own would
+    drop syslog. Only explicitly supplied settings should change anything.
+
+    None means "not specified"; an explicit True or False always wins. Returns the resolved
+    (enable_syslog, existing_data_collection_settings, enable_high_log_scale_mode), where the
+    middle value is an already-parsed settings dict to fall back on, or None.
+    """
+    properties = (existing_dcr or {}).get("properties") or {}
+    data_sources = properties.get("dataSources") or {}
+    ci_extension = next(
+        (
+            extension
+            for extension in (data_sources.get("extensions") or [])
+            if extension.get("extensionName") == "ContainerInsights"
+        ),
+        {},
+    )
+
+    if enable_syslog is None:
+        enable_syslog = bool(data_sources.get("syslog"))
+
+    if enable_high_log_scale_mode is None:
+        enable_high_log_scale_mode = "Microsoft-ContainerLogV2-HighScale" in (
+            ci_extension.get("streams") or []
+        )
+
+    existing_data_collection_settings = None
+    if data_collection_settings is None:
+        existing_data_collection_settings = (
+            ci_extension.get("extensionSettings") or {}
+        ).get("dataCollectionSettings") or None
+
+    return enable_syslog, existing_data_collection_settings, enable_high_log_scale_mode
+
+
 def get_existing_container_insights_extension_dcr_tags(cmd, dcr_url):
     tags = {}
     _MAX_RETRY_TIMES = 3
@@ -278,6 +469,28 @@ def get_existing_container_insights_extension_dcr_tags(cmd, dcr_url):
     return tags
 
 
+def warn_on_legacy_monitoring_auth(enable_msi_auth_for_monitoring, addons):
+    """Warn when the user explicitly opts into legacy shared key authentication for monitoring.
+
+    The argument level deprecation already fires for any explicit use of
+    --enable-msi-auth-for-monitoring. This adds the migration pointer for the value that actually
+    leaves the cluster on shared key authentication, which is also the state that later blocks
+    --enable-azure-monitor-logs.
+    """
+    if enable_msi_auth_for_monitoring is not False:
+        return
+    requested_addons = {addon.strip().lower() for addon in (addons or "").split(",")}
+    if "monitoring" not in requested_addons:
+        return
+    logger.warning(
+        "--enable-msi-auth-for-monitoring false configures Container Insights with legacy shared "
+        "key authentication. Managed identity authentication is recommended, and is required by "
+        "'--enable-azure-monitor-logs'. See "
+        "https://learn.microsoft.com/en-us/azure/azure-monitor/containers/"
+        "container-insights-authentication?tabs=cli#migrate-to-managed-identity-authentication"
+    )
+
+
 # pylint: disable=too-many-locals,too-many-branches,too-many-statements,line-too-long
 def ensure_container_insights_for_monitoring(
     cmd,
@@ -291,7 +504,11 @@ def ensure_container_insights_for_monitoring(
     create_dcr=False,
     create_dcra=False,
     enable_syslog=False,
-    data_collection_settings=None
+    data_collection_settings=None,
+    is_private_cluster=False,
+    ampls_resource_id=None,
+    enable_high_log_scale_mode=False,
+    preserve_existing_dcr_settings=False,
 ):
     """
     Either adds the ContainerInsights solution to a LA Workspace OR sets up a DCR (Data Collection Rule) and DCRA
@@ -307,6 +524,13 @@ def ensure_container_insights_for_monitoring(
     """
     if not addon.enabled:
         return None
+
+    if (not is_private_cluster or not aad_route) and ampls_resource_id is not None:
+        raise ArgumentUsageError("--ampls-resource-id can only be used with private cluster in MSI mode.")
+
+    is_use_ampls = False
+    if ampls_resource_id is not None:
+        is_use_ampls = True
 
     # workaround for this addon key which has been seen lowercased in the wild
     for key in list(addon.config):
@@ -325,12 +549,19 @@ def ensure_container_insights_for_monitoring(
         workspace_resource_id
     )
 
-    # extract subscription ID and resource group from workspace_resource_id URL
+    # extract subscription ID and workspace name from workspace_resource_id
     try:
         subscription_id = workspace_resource_id.split("/")[2]
     except IndexError:
         raise AzCLIError(
-            "Could not locate resource group in workspace-resource-id URL."
+            "Could not locate resource group in workspace-resource-id."
+        )
+
+    try:
+        workspace_name = workspace_resource_id.split("/")[8]
+    except IndexError:
+        raise AzCLIError(
+            "Could not locate workspace name in --workspace-resource-id."
         )
 
     location = ""
@@ -347,18 +578,63 @@ def ensure_container_insights_for_monitoring(
         except HttpResponseError as ex:
             raise ex
 
-    if aad_route:
+    if aad_route:  # pylint: disable=too-many-nested-blocks
         cluster_resource_id = (
             f"/subscriptions/{cluster_subscription}/resourceGroups/{cluster_resource_group_name}/"
             f"providers/Microsoft.ContainerService/managedClusters/{cluster_name}"
         )
         dataCollectionRuleName = f"MSCI-{location}-{cluster_name}"
         # Max length of the DCR name is 64 chars
-        dataCollectionRuleName = dataCollectionRuleName[0:64]
+        dataCollectionRuleName = _trim_suffix_if_needed(dataCollectionRuleName[0:64])
         dcr_resource_id = (
             f"/subscriptions/{cluster_subscription}/resourceGroups/{cluster_resource_group_name}/"
             f"providers/Microsoft.Insights/dataCollectionRules/{dataCollectionRuleName}"
         )
+        dcr_url = cmd.cli_ctx.cloud.endpoints.resource_manager + \
+            f"{dcr_resource_id}?api-version=2022-06-01"
+
+        existing_dcr = {}
+        existing_data_collection_settings = None
+        if create_dcr:
+            # The DCR is rebuilt from scratch below, so read the one that already exists to keep
+            # customer-added tags.
+            existing_dcr = get_existing_container_insights_extension_dcr(cmd, dcr_url)
+            if preserve_existing_dcr_settings:
+                # Reconfiguring a cluster that is already onboarded: carry over any setting the
+                # caller did not supply instead of dropping it. A fresh onboarding deliberately
+                # skips this. Disabling monitoring leaves the DCR behind, so inheriting from it
+                # would make re-enabling pick up the previous onboarding's syslog, high log scale
+                # mode and custom data collection settings, when re-enabling is meant to start
+                # from the documented defaults just like the container insights profile does.
+                (
+                    enable_syslog,
+                    existing_data_collection_settings,
+                    enable_high_log_scale_mode,
+                ) = _resolve_dcr_settings_from_existing(
+                    existing_dcr, enable_syslog, data_collection_settings, enable_high_log_scale_mode
+                )
+        existing_tags = existing_dcr.get("tags") or {}
+
+        # ingestion DCE MUST be in workspace region
+        ingestionDataCollectionEndpointName = f"MSCI-ingest-{location}-{cluster_name}"
+        # Max length of the DCE name is 44 chars
+        ingestionDataCollectionEndpointName = _trim_suffix_if_needed(ingestionDataCollectionEndpointName[0:43])
+        ingestion_dce_resource_id = None
+
+        # config DCE MUST be in cluster region
+        configDataCollectionEndpointName = f"MSCI-config-{cluster_region}-{cluster_name}"
+        # Max length of the DCE name is 44 chars
+        configDataCollectionEndpointName = _trim_suffix_if_needed(configDataCollectionEndpointName[0:43])
+        config_dce_resource_id = None
+
+        # create ingestion DCE if high log scale mode enabled
+        if enable_high_log_scale_mode:
+            ingestion_dce_resource_id = create_data_collection_endpoint(cmd, cluster_subscription, cluster_resource_group_name, location, ingestionDataCollectionEndpointName, is_use_ampls)
+
+        # create config DCE if AMPLS resource specified
+        if is_use_ampls:
+            config_dce_resource_id = create_data_collection_endpoint(cmd, cluster_subscription, cluster_resource_group_name, cluster_region, configDataCollectionEndpointName, is_use_ampls)
+
         if create_dcr:
             # first get the association between region display names and region IDs (because for some reason
             # the "which RPs are available in which regions" check returns region display names)
@@ -384,56 +660,58 @@ def ensure_container_insights_for_monitoring(
                     "name"
                 ]
 
-            # check if region supports DCRs and DCR-A
-            for _ in range(3):
-                try:
-                    feature_check_url = cmd.cli_ctx.cloud.endpoints.resource_manager + \
-                        f"/subscriptions/{cluster_subscription}/providers/Microsoft.Insights?api-version=2020-10-01"
-                    r = send_raw_request(cmd.cli_ctx, "GET", feature_check_url)
-                    error = None
-                    break
-                except AzCLIError as e:
-                    error = e
-            else:
-                raise error
-            json_response = json.loads(r.text)
-            for resource in json_response["resourceTypes"]:
-                if resource["resourceType"].lower() == "datacollectionrules":
-                    region_ids = map(
-                        lambda x: region_names_to_id[x], resource["locations"])
-                    if location not in region_ids:
-                        raise ClientRequestError(
-                            f"Data Collection Rules are not supported for LA workspace region {location}")
-                if resource["resourceType"].lower() == "datacollectionruleassociations":
-                    region_ids = map(
-                        lambda x: region_names_to_id[x], resource["locations"])
-                    if cluster_region not in region_ids:
-                        raise ClientRequestError(
-                            f"Data Collection Rule Associations are not supported for cluster region {cluster_region}")
-            dcr_url = cmd.cli_ctx.cloud.endpoints.resource_manager + \
-                f"{dcr_resource_id}?api-version=2021-04-01"
-            # get existing tags on the container insights extension DCR if the customer added any
-            existing_tags = get_existing_container_insights_extension_dcr_tags(
-                cmd, dcr_url)
             # get data collection settings
             extensionSettings = {}
+            cistreams = ["Microsoft-ContainerInsights-Group-Default"]
+            if enable_high_log_scale_mode:
+                cistreams = list(ContainerInsightsStreams)
             if data_collection_settings is not None:
                 dataCollectionSettings = _get_data_collection_settings(data_collection_settings)
                 validate_data_collection_settings(dataCollectionSettings)
+                dataCollectionSettings.setdefault("enableContainerLogV2", True)
                 extensionSettings["dataCollectionSettings"] = dataCollectionSettings
+                cistreams = dataCollectionSettings["streams"]
+            elif existing_data_collection_settings is not None:
+                # inherited from the existing DCR, which was validated when it was first written
+                dataCollectionSettings = dict(existing_data_collection_settings)
+                dataCollectionSettings.setdefault("enableContainerLogV2", True)
+                if dataCollectionSettings.get("streams"):
+                    # the stored streams were rewritten to match the high log scale mode the DCR
+                    # was written with, so normalise them back to whichever mode applies now
+                    inherited_streams = list(dataCollectionSettings["streams"])
+                    if not enable_high_log_scale_mode:
+                        inherited_streams = [
+                            "Microsoft-ContainerLogV2"
+                            if stream == "Microsoft-ContainerLogV2-HighScale"
+                            else stream
+                            for stream in inherited_streams
+                        ]
+                    dataCollectionSettings["streams"] = inherited_streams
+                    cistreams = inherited_streams
+                extensionSettings["dataCollectionSettings"] = dataCollectionSettings
+            else:
+                # If data_collection_settings is None, set default dataCollectionSettings
+                dataCollectionSettings = {
+                    "enableContainerLogV2": True
+                }
+                extensionSettings["dataCollectionSettings"] = dataCollectionSettings
+
+            if enable_high_log_scale_mode:
+                for i, v in enumerate(cistreams):
+                    if v == "Microsoft-ContainerLogV2":
+                        cistreams[i] = "Microsoft-ContainerLogV2-HighScale"
             # create the DCR
             dcr_creation_body_without_syslog = json.dumps(
                 {
                     "location": location,
                     "tags": existing_tags,
+                    "kind": "Linux",
                     "properties": {
                         "dataSources": {
                             "extensions": [
                                 {
                                     "name": "ContainerInsightsExtension",
-                                    "streams": [
-                                        "Microsoft-ContainerInsights-Group-Default"
-                                    ],
+                                    "streams": cistreams,
                                     "extensionName": "ContainerInsights",
                                     "extensionSettings": extensionSettings,
                                 }
@@ -441,9 +719,7 @@ def ensure_container_insights_for_monitoring(
                         },
                         "dataFlows": [
                             {
-                                "streams": [
-                                    "Microsoft-ContainerInsights-Group-Default"
-                                ],
+                                "streams": cistreams,
                                 "destinations": ["la-workspace"],
                             }
                         ],
@@ -455,6 +731,7 @@ def ensure_container_insights_for_monitoring(
                                 }
                             ]
                         },
+                        "dataCollectionEndpointId": ingestion_dce_resource_id
                     },
                 }
             )
@@ -463,6 +740,7 @@ def ensure_container_insights_for_monitoring(
                 {
                     "location": location,
                     "tags": existing_tags,
+                    "kind": "Linux",
                     "properties": {
                         "dataSources": {
                             "syslog": [
@@ -508,9 +786,7 @@ def ensure_container_insights_for_monitoring(
                             "extensions": [
                                 {
                                     "name": "ContainerInsightsExtension",
-                                    "streams": [
-                                        "Microsoft-ContainerInsights-Group-Default"
-                                    ],
+                                    "streams": cistreams,
                                     "extensionName": "ContainerInsights",
                                     "extensionSettings": extensionSettings,
                                 }
@@ -518,8 +794,11 @@ def ensure_container_insights_for_monitoring(
                         },
                         "dataFlows": [
                             {
+                                "streams": cistreams,
+                                "destinations": ["la-workspace"],
+                            },
+                            {
                                 "streams": [
-                                    "Microsoft-ContainerInsights-Group-Default",
                                     "Microsoft-Syslog"
                                 ],
                                 "destinations": ["la-workspace"],
@@ -533,64 +812,221 @@ def ensure_container_insights_for_monitoring(
                                 }
                             ]
                         },
+                        "dataCollectionEndpointId": ingestion_dce_resource_id
                     },
                 }
             )
 
-            for _ in range(3):
-                try:
-                    if enable_syslog:
-                        send_raw_request(
-                            cmd.cli_ctx, "PUT", dcr_url, body=dcr_creation_body_with_syslog
-                        )
-                    else:
-                        send_raw_request(
-                            cmd.cli_ctx, "PUT", dcr_url, body=dcr_creation_body_without_syslog
-                        )
-                    error = None
-                    break
-                except AzCLIError as e:
-                    error = e
-            else:
-                raise error
+            resources = get_resources_client(cmd.cli_ctx, cluster_subscription)
+            dcr_creation_body = (
+                dcr_creation_body_with_syslog
+                if enable_syslog
+                else dcr_creation_body_without_syslog
+            )
+            _create_or_update_dcr_with_table_readiness_retry(
+                resources,
+                dcr_resource_id,
+                "2022-06-01",
+                json.loads(dcr_creation_body),
+            )
 
         if create_dcra:
             # only create or delete the association between the DCR and cluster
-            association_body = json.dumps(
-                {
-                    "location": cluster_region,
-                    "properties": {
-                        "dataCollectionRuleId": dcr_resource_id,
-                        "description": "routes monitoring data to a Log Analytics workspace",
-                    },
-                }
+            create_or_delete_dcr_association(cmd, cluster_region, remove_monitoring, cluster_resource_id, dcr_resource_id)
+            if is_use_ampls:
+                # associate config DCE to the cluster
+                create_dce_association(cmd, cluster_region, cluster_resource_id, config_dce_resource_id)
+                # link config DCE to AMPLS
+                create_ampls_scope(cmd, ampls_resource_id, configDataCollectionEndpointName, config_dce_resource_id)
+                # link workspace to AMPLS
+                create_ampls_scope(cmd, ampls_resource_id, workspace_name, workspace_resource_id)
+                # link ingest DCE to AMPLS
+                if enable_high_log_scale_mode:
+                    create_ampls_scope(cmd, ampls_resource_id, ingestionDataCollectionEndpointName, ingestion_dce_resource_id)
+
+
+def create_dce_association(cmd, cluster_region, cluster_resource_id, config_dce_resource_id):
+    association_body = json.dumps(
+        {
+            "location": cluster_region,
+            "properties": {
+                "dataCollectionEndpointId": config_dce_resource_id,
+                "description": "associates config dataCollectionEndpoint to AKS cluster resource",
+            },
+        }
+    )
+    resources = get_resources_client(cmd.cli_ctx, cmd.cli_ctx.data.get('subscription_id'))
+    association_id = f"{cluster_resource_id}/providers/Microsoft.Insights/dataCollectionRuleAssociations/configurationAccessEndpoint"
+    for _ in range(3):
+        try:
+            resources.begin_create_or_update_by_id(
+                association_id,
+                "2022-06-01",
+                json.loads(association_body)
             )
-            association_url = cmd.cli_ctx.cloud.endpoints.resource_manager + \
-                f"{cluster_resource_id}/providers/Microsoft.Insights/dataCollectionRuleAssociations/ContainerInsightsExtension?api-version=2021-04-01"
-            for _ in range(3):
-                try:
-                    send_raw_request(
-                        cmd.cli_ctx,
-                        "PUT" if not remove_monitoring else "DELETE",
-                        association_url,
-                        body=association_body,
-                    )
-                    error = None
-                    break
-                except AzCLIError as e:
-                    error = e
+            error = None
+            break
+        except CLIError as e:
+            error = e
+    else:
+        raise error
+
+
+def create_or_delete_dcr_association(cmd, cluster_region, remove_monitoring, cluster_resource_id, dcr_resource_id):
+    association_body = json.dumps(
+        {
+            "location": cluster_region,
+            "properties": {
+                "dataCollectionRuleId": dcr_resource_id,
+                "description": "associates dataCollectionRule to the AKS",
+            },
+        }
+    )
+    resources = get_resources_client(cmd.cli_ctx, cmd.cli_ctx.data.get('subscription_id'))
+    association_id = f"{cluster_resource_id}/providers/Microsoft.Insights/dataCollectionRuleAssociations/ContainerInsightsExtension"
+    for _ in range(3):
+        try:
+            if not remove_monitoring:
+                resources.begin_create_or_update_by_id(
+                    association_id,
+                    "2022-06-01",
+                    json.loads(association_body)
+                )
             else:
-                raise error
+                resources.begin_delete_by_id(
+                    association_id,
+                    "2022-06-01"
+                )
+            error = None
+            break
+        except CLIError as e:
+            error = e
+    else:
+        raise error
+
+
+def is_ampls_scoped_exist(cmd, ampls_resource_id, scoped_resource_id):
+    """
+    Check if the specified resource is already scoped (linked) to the AMPLS by iterating through all scoped resources.
+
+    Args:
+        cmd: Command context
+        ampls_resource_id: Full resource ID of the AMPLS
+        scoped_resource_id: Full resource ID of the resource to be linked
+
+    Returns:
+        bool: True if the resource is already scoped to the AMPLS, False otherwise
+    """
+    try:
+        # Get all scoped resources for this AMPLS
+        ampls_scoped_resources_url = f"{cmd.cli_ctx.cloud.endpoints.resource_manager}{ampls_resource_id}/scopedresources?api-version=2021-07-01-preview"
+        response = send_raw_request(cmd.cli_ctx, "GET", ampls_scoped_resources_url)
+        scoped_resources_data = json.loads(response.text)
+
+        # Check if any scoped resource has the same linkedResourceId
+        for scoped_resource in scoped_resources_data.get('value', []):
+            properties = scoped_resource.get('properties', {})
+            linked_resource_id = properties.get('linkedResourceId', '')
+            scoped_resource_name = scoped_resource.get('name', 'unknown')
+            # Compare case-insensitively since Azure resource IDs can have case variations
+            if linked_resource_id.lower() == scoped_resource_id.lower():
+                logger.info("Resource already scoped in AMPLS. Scoped resource name: %s, LinkedResourceId: %s", scoped_resource_name, linked_resource_id)
+                return True
+
+        logger.info("No matching linkedResourceId found. Resource is not yet scoped.")
+        return False
+
+    except CLIError as e:
+        logger.warning("Error checking AMPLS scoped resources: %s", str(e))
+        return False
+
+
+def create_ampls_scope(cmd, ampls_resource_id, scoped_resource_name, scoped_resource_id):
+    # Check if the resource is already scoped to the AMPLS
+    if is_ampls_scoped_exist(cmd, ampls_resource_id, scoped_resource_id):
+        return
+
+    scoped_resource_ampls_body = json.dumps(
+        {
+            "properties": {
+                "linkedResourceId": scoped_resource_id,
+            },
+        }
+    )
+
+    resources = get_resources_client(cmd.cli_ctx, cmd.cli_ctx.data.get('subscription_id'))
+    ampls_scope_id = f"{ampls_resource_id}/scopedresources/{scoped_resource_name}-connection"
+
+    for _ in range(3):
+        try:
+            resources.begin_create_or_update_by_id(
+                ampls_scope_id,
+                "2021-07-01-preview",
+                json.loads(scoped_resource_ampls_body)
+            )
+            error = None
+            break
+        except CLIError as e:
+            error = e
+    else:
+        raise error
+
+
+def create_data_collection_endpoint(cmd, subscription, resource_group, region, endpoint_name, is_ampls):
+    dce_resource_id = (
+        f"/subscriptions/{subscription}/resourceGroups/{resource_group}/"
+        f"providers/Microsoft.Insights/dataCollectionEndpoints/{endpoint_name}"
+    )
+    public_network_access = "Disabled" if is_ampls else "Enabled"
+    if not is_ampls:
+        # This is a create_or_update, and an endpoint that is already private has to stay private.
+        # --ampls-resource-id is only supplied on the command that links the scope, so any later
+        # reconfiguration of an onboarded cluster ('az aks update --enable-syslog', for example)
+        # arrives here with is_ampls False and would otherwise reopen public network access on an
+        # existing private ingestion endpoint. The network configuration is only changed when the
+        # caller explicitly asks for it.
+        existing_dce = get_existing_data_collection_endpoint(cmd, dce_resource_id)
+        existing_network_acls = (existing_dce.get("properties") or {}).get("networkAcls") or {}
+        existing_public_network_access = existing_network_acls.get("publicNetworkAccess")
+        if existing_public_network_access:
+            public_network_access = existing_public_network_access
+
+    # create the DCE
+    dce_creation_body_common = {
+        "location": region,
+        "kind": "Linux",
+        "properties": {
+            "networkAcls": {
+                "publicNetworkAccess": public_network_access
+            }
+        }
+    }
+    dce_creation_body_ = json.dumps(dce_creation_body_common)
+    resources = get_resources_client(cmd.cli_ctx, subscription)
+    for _ in range(3):
+        try:
+            resources.begin_create_or_update_by_id(
+                dce_resource_id,
+                "2022-06-01",
+                json.loads(dce_creation_body_)
+            )
+            error = None
+            break
+        except CLIError as e:
+            error = e
+    else:
+        raise error
+    return dce_resource_id
 
 
 def validate_data_collection_settings(dataCollectionSettings):
     if 'interval' in dataCollectionSettings.keys():
         intervalValue = dataCollectionSettings["interval"]
-    if (bool(re.match(r'^[0-9]+[m]$', intervalValue))) is False:
-        raise InvalidArgumentValueError('interval format must be in <number>m')
-    intervalValue = int(intervalValue.rstrip("m"))
-    if intervalValue <= 0 or intervalValue > 30:
-        raise InvalidArgumentValueError('interval value MUST be in the range from 1m to 30m')
+        if (bool(re.match(r'^[0-9]+[m]$', intervalValue))) is False:  # pylint: disable=used-before-assignment
+            raise InvalidArgumentValueError('interval format must be in <number>m')
+        intervalValue = int(intervalValue.rstrip("m"))
+        if intervalValue <= 0 or intervalValue > 30:
+            raise InvalidArgumentValueError('interval value MUST be in the range from 1m to 30m')
     if 'namespaceFilteringMode' in dataCollectionSettings.keys():
         namespaceFilteringModeValue = dataCollectionSettings["namespaceFilteringMode"].lower()
         if namespaceFilteringModeValue not in ["off", "exclude", "include"]:
@@ -599,21 +1035,28 @@ def validate_data_collection_settings(dataCollectionSettings):
         namspaces = dataCollectionSettings["namespaces"]
         if isinstance(namspaces, list) is False:
             raise InvalidArgumentValueError('namespaces must be an array type')
+    if 'enableContainerLogV2' in dataCollectionSettings.keys():
+        enableContainerLogV2Value = dataCollectionSettings["enableContainerLogV2"]
+        if not isinstance(enableContainerLogV2Value, bool):
+            raise InvalidArgumentValueError('enableContainerLogV2Value value must be either true or false')
+    if 'streams' in dataCollectionSettings.keys():
+        streams = dataCollectionSettings["streams"]
+        if isinstance(streams, list) is False:
+            raise InvalidArgumentValueError('streams must be an array type')
 
 
 def add_monitoring_role_assignment(result, cluster_resource_id, cmd):
     service_principal_msi_id = None
     is_useAADAuth = False
+    addon_profiles = getattr(result, "addon_profiles", None) or {}
+    monitoring_addon = addon_profiles.get(CONST_MONITORING_ADDON_NAME)
+    monitoring_config = getattr(monitoring_addon, "config", None)
     # Check if monitoring addon enabled with useAADAuth = True, if it does, ignore role assignment
     # Check if service principal exists, if it does, assign permissions to service principal
     # Else, provide permissions to MSI
-    if (
-        (hasattr(result, "addon_profiles")) and
-        (CONST_MONITORING_ADDON_NAME in result.addon_profiles) and
-        hasattr(result.addon_profiles[CONST_MONITORING_ADDON_NAME], "config") and
-        hasattr(result.addon_profiles[CONST_MONITORING_ADDON_NAME].config, "useAADAuth") and
-        result.addon_profiles[CONST_MONITORING_ADDON_NAME].config.useAADAuth
-    ):
+    if monitoring_config and safe_lower(
+        monitoring_config.get(CONST_MONITORING_USING_AAD_MSI_AUTH)
+    ) == "true":
         is_useAADAuth = True
     elif (
         hasattr(result, "service_principal_profile") and
@@ -623,25 +1066,11 @@ def add_monitoring_role_assignment(result, cluster_resource_id, cmd):
         logger.info("valid service principal exists, using it")
         service_principal_msi_id = result.service_principal_profile.client_id
         is_service_principal = True
-    elif (
-        (hasattr(result, "addon_profiles")) and
-        (CONST_MONITORING_ADDON_NAME in result.addon_profiles) and
-        (
-            hasattr(
-                result.addon_profiles[CONST_MONITORING_ADDON_NAME], "identity"
-            )
-        ) and
-        (
-            hasattr(
-                result.addon_profiles[CONST_MONITORING_ADDON_NAME].identity,
-                "object_id",
-            )
-        )
+    elif hasattr(monitoring_addon, "identity") and hasattr(
+        monitoring_addon.identity, "object_id"
     ):
         logger.info("omsagent MSI exists, using it")
-        service_principal_msi_id = result.addon_profiles[
-            CONST_MONITORING_ADDON_NAME
-        ].identity.object_id
+        service_principal_msi_id = monitoring_addon.identity.object_id
         is_service_principal = False
 
     if is_useAADAuth:
@@ -652,7 +1081,7 @@ def add_monitoring_role_assignment(result, cluster_resource_id, cmd):
             cmd,
             "Monitoring Metrics Publisher",
             service_principal_msi_id,
-            is_service_principal,
+            is_service_principal,  # pylint: disable=used-before-assignment
             scope=cluster_resource_id,
         ):
             logger.warning(
@@ -661,7 +1090,7 @@ def add_monitoring_role_assignment(result, cluster_resource_id, cmd):
             )
     else:
         logger.warning(
-            "Could not find service principal or user assigned MSI for role"
+            "Could not find service principal or user assigned MSI for role "
             "assignment"
         )
 
@@ -709,7 +1138,7 @@ def add_ingress_appgw_addon_role_assignment(result, cmd):
             )
             if not add_role_assignment(
                 cmd,
-                "Contributor",
+                "Network Contributor",
                 service_principal_msi_id,
                 is_service_principal,
                 scope=appgw_group_id,
@@ -751,7 +1180,7 @@ def add_ingress_appgw_addon_role_assignment(result, cmd):
                 )
                 if not add_role_assignment(
                     cmd,
-                    "Contributor",
+                    "Network Contributor",
                     service_principal_msi_id,
                     is_service_principal,
                     scope=vnet_id,
@@ -823,3 +1252,9 @@ def _get_data_collection_settings(file_path):
         msg = "Error reading data_collection_settings."
         raise InvalidArgumentValueError(msg.format(file_path))
     return data_collection_settings
+
+
+def _trim_suffix_if_needed(s, suffix="-"):
+    if s.endswith(suffix):
+        s = s[:-len(suffix)]
+    return s

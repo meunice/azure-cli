@@ -38,6 +38,8 @@ def transform_acl_edit(result):
 
 
 def transform_acl_datetime(result):
+    if result is None:
+        return result
     result = todict(result)
     if result['start']:
         result['start'] = result["start"].split('.')[0] + '+00:00'
@@ -288,7 +290,7 @@ def transform_immutability_policy(result):
 
 def transform_restore_policy_output(result):
     if hasattr(result, 'restore_policy') and hasattr(result.restore_policy, 'last_enabled_time'):
-        del result.restore_policy.last_enabled_time
+        result.restore_policy.last_enabled_time = None
     return result
 
 
@@ -306,13 +308,6 @@ def transform_share_rm_output(result):
         snapshot = result.snapshot_time
         result.snapshot_time = snapshot.strftime("%Y-%m-%dT%H:%M:%S.%f0Z")
     return result
-
-
-def transform_share_rm_list_output(result):
-    new_result = []
-    for item in result:
-        new_result.append(transform_share_rm_output(item))
-    return new_result
 
 
 def delete_blob_output_key(_, result):
@@ -408,6 +403,8 @@ def transform_queue_policy_json_output(result):
 
 
 def transform_queue_policy_output(result):
+    if not result:
+        return result
     result = todict(result)
     if result['start']:
         result['start'] = parser.parse(result['start'])

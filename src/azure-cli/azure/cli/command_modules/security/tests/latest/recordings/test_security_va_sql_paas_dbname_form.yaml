@@ -1,0 +1,2217 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - ad signed-in-user show
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python/3.14.7 (Windows-11-10.0.26300-SP0) AZURECLI/2.92.0
+    method: GET
+    uri: https://graph.microsoft.com/v1.0/me
+  response:
+    body:
+      string: '{"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users/$entity","businessPhones":[],"displayName":"Janardhan
+        Hungund","givenName":"Janardhan","jobTitle":"Senior Software Engineer","mail":"test@example.com","mobilePhone":null,"officeLocation":"PUNE-COMMERZONE-MIRPL/Mobile","preferredLanguage":null,"surname":"Hungund","userPrincipalName":"test@example.com","id":"99545ea9-828b-43fa-8f98-d5d7b8c82b6a"}'
+    headers:
+      cache-control:
+      - no-cache
+      connection:
+      - keep-alive
+      content-length:
+      - '414'
+      content-type:
+      - application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:47:44 GMT
+      odata-version:
+      - '4.0'
+      request-id:
+      - 665ea670-f589-4a4b-bba7-51eb9844ad54
+      strict-transport-security:
+      - max-age=31536000
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-ms-ags-diagnostic:
+      - '{"ServerInfo":{"DataCenter":"Central India","Slice":"E","Ring":"3","ScaleUnit":"001","RoleInstance":"PN3PEPF00000A71"}}'
+      x-ms-resource-unit:
+      - '1'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - group update
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -n --tags
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_va_sql_dbname_000001?api-version=2024-11-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001","name":"cli_test_va_sql_dbname_000001","type":"Microsoft.Resources/resourceGroups","location":"eastus","tags":{"product":"azurecli","cause":"automation","test":"test_security_va_sql_paas_dbname_form","date":"2026-10-30T09:47:37Z","module":"security"},"properties":{"provisioningState":"Succeeded"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '403'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:47:45 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 5FA6106767B04462B4A2D59380015005 Ref B: PNQ231110907052 Ref C: 2026-10-30T09:47:44Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"properties": {}, "location": "eastus", "tags": {"AllowSqlServersWithAllNetworksEnabled":
+      "true"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - group update
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '99'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -n --tags
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_va_sql_dbname_000001?api-version=2024-11-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001","name":"cli_test_va_sql_dbname_000001","type":"Microsoft.Resources/resourceGroups","location":"eastus","tags":{"AllowSqlServersWithAllNetworksEnabled":"true"},"properties":{"provisioningState":"Succeeded"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '311'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:47:46 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: C01D8BADD2D147F3BF39FBEEC301D0C9 Ref B: PNQ231110907025 Ref C: 2026-10-30T09:47:45Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_va_sql_dbname_000001?api-version=2024-11-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001","name":"cli_test_va_sql_dbname_000001","type":"Microsoft.Resources/resourceGroups","location":"eastus","tags":{"AllowSqlServersWithAllNetworksEnabled":"true"},"properties":{"provisioningState":"Succeeded"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '311'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:47:47 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 3AF4187A1DCC4F589D287937943284B5 Ref B: PNQ241100405029 Ref C: 2026-10-30T09:47:47Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"location": "eastus", "properties": {"createMode": "Normal", "minimalTlsVersion":
+      "1.2", "administrators": {"principalType": "User", "login": "test@example.com",
+      "sid": "99545ea9-828b-43fa-8f98-d5d7b8c82b6a", "azureADOnlyAuthentication":
+      true, "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"}}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '298'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"operation":"UpsertLogicalServer","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+      cache-control:
+      - no-cache
+      content-length:
+      - '74'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:47:57 GMT
+      expires:
+      - '-1'
+      location:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverOperationResults/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775937497&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=D9loX7z6GblaoXOEmYk4MiYmquarKHlQuhrCtbB6_8vhF2Xh5ygQ9_DrMOUCG5E7yTTJEqnobq4dOGSiSPY-ueZQaLM5zWZ4uUetuOjjHsYi216RY5oPtUypko0X7it6ytueEuA1L3gzTrjQrC-EMfkVdfAuuLAKN6CKvHvDj_DS67c_OUVZLV8JvN3pabXz4GFbMiA8FiReHKnHBeHQoucTlDToOreNQTjNjiIZJc-G2u523hKfy35q17weSmM9KPpXUpkqCw2sD5XIo0qBaqlJcv7zBMVCcksP_N6oTQyLz6rkgrjRWtZwixpnC_2h9dx8kjH41CFt6fpyQ16c1w&h=N8cdjNyKA8eisJ7c_gBOftJRl1f-ZQob4DvbiDgL3eo
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/westindia/3b467ff6-7454-4cc1-86f8-e596d988693e
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: 22A47EE6B48E45CB92BB0F81F7508864 Ref B: PNQ241100401052 Ref C: 2026-10-30T09:47:53Z'
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+  response:
+    body:
+      string: '{"name":"7f4e28c4-2d28-4604-84a6-012f9712f366","status":"InProgress","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:47:57 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/04547070-4fc7-4155-b020-50eabaab011b
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 77A9632934B4439F81C001902DF30F19 Ref B: PNQ241100405036 Ref C: 2026-10-30T09:47:58Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+  response:
+    body:
+      string: '{"name":"7f4e28c4-2d28-4604-84a6-012f9712f366","status":"InProgress","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:48:00 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/southindia/4fbc6b12-7994-4e78-9ec3-1379d4f3f971
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: CEE88A9815B049CF9309C5B8299386CA Ref B: PNQ231110909040 Ref C: 2026-10-30T09:48:00Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+  response:
+    body:
+      string: '{"name":"7f4e28c4-2d28-4604-84a6-012f9712f366","status":"InProgress","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:48:03 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/31b85caf-57fe-44e7-8de1-149f1b51a6f5
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: F95A417FF183465BB858A4D5CF0A0C8D Ref B: PNQ241100404034 Ref C: 2026-10-30T09:48:02Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+  response:
+    body:
+      string: '{"name":"7f4e28c4-2d28-4604-84a6-012f9712f366","status":"InProgress","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:48:24 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/fd9db286-058c-4cd7-a0b3-464a9f2970a7
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 2577A39D1E3247DF98A15762F25A15E2 Ref B: PNQ241100401034 Ref C: 2026-10-30T09:48:24Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+  response:
+    body:
+      string: '{"name":"7f4e28c4-2d28-4604-84a6-012f9712f366","status":"InProgress","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:48:45 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/28ce23ae-30fa-4be5-a33a-a5dbc6cd1229
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 0A9EEB3FE9DF4083BBD9FAA14BCFD52C Ref B: PNQ241100403052 Ref C: 2026-10-30T09:48:45Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/serverAzureAsyncOperation/7f4e28c4-2d28-4604-84a6-012f9712f366?api-version=2026-08-01-preview&t=639289504775781568&c=MIIIJzCCBw-gAwIBAgIRAIj-jhYgLbfUUbx2jC_SNIowDQYJKoZIhvcNAQELBQAwNjE0MDIGA1UEAxMrQ0NNRSBHMSBUTFMgUlNBIDIwNDggU0hBMjU2IDIwNDkgV0NVUyBDQSAwMTAeFw0yNjA5MjMwNTA1MjdaFw0yNjEyMTgxMTA1MjdaMEAxPjA8BgNVBAMTNWFzeW5jb3BlcmF0aW9uc2lnbmluZ2NlcnRpZmljYXRlLm1hbmFnZW1lbnQuYXp1cmUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyeA8ekCN9dx_H_hpaGg0NqW7Rpf7WElPTivJEXFiEUUmlDxXmilSjXjGSNwDU0ErGMVo0Chf6Fmy72cNUM_kQuAJ3NolMdTWbVSxzJ0bLkgC1JhpgihlZ7PTw21un2NfJugcLOiZe7Kj4RKErCelQjBHkTD6U7w-ceLspcQ6mCRX6luV9c8WVX31YmRIb8GZPdRP_V9JDXRW7c_yDsOqMreuRXF6cf4xlPIvaO7P34tP2C1k1rv1J8qH9if8Mn5WsckL0oLpC0ocM9YaA6z-85bY5baDtaCriWIXdPlrZ890yWcz2NnQ_2rw4WifBW1WvMk321JJpfzXuNkkYpOA9QIDAQABo4IFJDCCBSAwgZ0GA1UdIASBlTCBkjAMBgorBgEEAYI3ewEBMGYGCisGAQQBgjd7AgIwWDBWBggrBgEFBQcCAjBKHkgAMwAzAGUAMAAxADkAMgAxAC0ANABkADYANAAtADQAZgA4AGMALQBhADAANQA1AC0ANQBiAGQAYQBmAGYAZAA1AGUAMwAzAGQwDAYKKwYBBAGCN3sDAjAMBgorBgEEAYI3ewQCMAwGA1UdEwEB_wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIFoDAdBgNVHQ4EFgQUVpuFQHfLHlrFfGMCLWc2_DZNu1cwHwYDVR0jBBgwFoAUFNI34PbWfX7djbq6ZasElCXglh0wggH7BgNVHR8EggHyMIIB7jB7oHmgd4Z1aHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMH2ge6B5hndodHRwOi8vc2Vjb25kYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NybHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS82MS9jdXJyZW50LmNybDBsoGqgaIZmaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIGBoH-gfYZ7aHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzYxL2N1cnJlbnQuY3JsMIICAAYIKwYBBQUHAQEEggHyMIIB7jB-BggrBgEFBQcwAoZyaHR0cDovL3ByaW1hcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMIGABggrBgEFBQcwAoZ0aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIwbwYIKwYBBQUHMAKGY2h0dHA6Ly9jcmwubWljcm9zb2Z0LmNvbS93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjB4BggrBgEFBQcwAoZsaHR0cDovL2NjbWV3ZXN0Y2VudHJhbHVzcGtpLndlc3RjZW50cmFsdXMucGtpLmNvcmUud2luZG93cy5uZXQvY2VydGlmaWNhdGVBdXRob3JpdGllcy9jY21ld2VzdGNlbnRyYWx1c2ljYTAxMA0GCSqGSIb3DQEBCwUAA4IBAQBJa_KUCNG-f7XUiiUuDBrvYZS2Z8FofSyp6uKYLKfF9mxmD4Zy0ksWftADl_qfVGCbq-dpyuVfUjgpc2tr6XAn80Z4GKb2k0wYYO4voOJXoWOqPEpYw8SLA6tzu7AhC3bAAVZM3m-LhotavMCbONvJphXH30312kxl4AvbUBnY3wVpwm-kbibwU1os1qVnTsOCPQT_zhENQC_xt5NIu63Vv2qZzhXb7rH10GKhkqHyYSBF99cYRho7mW4CGR-b_vV4wYatAQm1AdLWZ0WH6UMh8HMgnuEVnJ1HOdWVxuk6BK5g016SXjAJk66KjOH36fAl01_LmtwI5nli8nTadkb3&s=u1wPps2Yn7FYLyjzRfYA-GD-1-zeh5pD4YBg32EMqxfLa1fBuXPoJxQ8H8Z9DzDzFSMH9rgbmTPgQ7amuJyX3Ex9wu2uxQoXn3nes01-U0lj88Moh7pOlIMNlk5ATJUafsXSs4AKmpuF9Mc2uRjgWZh6u-ESzEHukYO7BcnggpZW4E3jEF9Uei2aGqLbqa3SDDoTvSIprkRLFEriOZs00SAil4Jq6cVF9E8g06gz0BNyioKXumxOGo6i5vafqUfgTb_FfTxnXMrQIyvOse1iW47kiGzd_n8-P3jpYJupsCpXKzhY_t2p1FQ06FfAF-zUWC5VQJU-yCbdZ_CqL_qbEQ&h=uO-ZBu7FvtJg_N7RUHR-gwbbswuCYn2BbCsEhYAGXXY
+  response:
+    body:
+      string: '{"name":"7f4e28c4-2d28-4604-84a6-012f9712f366","status":"Succeeded","startTime":"2026-10-30T09:47:56.867Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '107'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:06 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/dd477a0c-b8d3-46b2-a8d7-ef1f2d734d6a
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: F9AE08E230D54CBBA18CA251DD0A06C1 Ref B: PNQ241100403029 Ref C: 2026-10-30T09:49:06Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --enable-ad-only-auth --external-admin-principal-type --external-admin-name
+        --external-admin-sid
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"kind":"v12.0","properties":{"administratorLogin":"CloudSAafc9b0ed","version":"12.0","state":"Ready","fullyQualifiedDomainName":"vasqlsrv000002.database.windows.net","privateEndpointConnections":[],"minimalTlsVersion":"1.2","publicNetworkAccess":"Enabled","administrators":{"administratorType":"ActiveDirectory","principalType":"User","login":"test@example.com","sid":"99545ea9-828b-43fa-8f98-d5d7b8c82b6a","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","azureADOnlyAuthentication":true},"restrictOutboundNetworkAccess":"Disabled","externalGovernanceStatus":"Disabled","retentionDays":-1},"location":"eastus","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002","name":"vasqlsrv000002","type":"Microsoft.Sql/servers"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '819'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:07 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: EB5244508BA84203BB3D643350E82909 Ref B: PNQ241100402031 Ref C: 2026-10-30T09:49:06Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"properties": {"endIpAddress": "0.0.0.0", "startIpAddress": "0.0.0.0"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql server firewall-rule create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '72'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g --server --name --start-ip-address --end-ip-address
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/firewallRules/AllowAzureServices?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"properties":{"startIpAddress":"0.0.0.0","endIpAddress":"0.0.0.0"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/firewallRules/AllowAzureServices","name":"AllowAzureServices","type":"Microsoft.Sql/servers/firewallRules"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '325'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:09 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/133c8398-cc87-45b5-9e19-a260af181347
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: D8B09A08B5834DA4AD2629EA33F2A1A0 Ref B: PNQ231110906025 Ref C: 2026-10-30T09:49:07Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"kind":"v12.0","properties":{"administratorLogin":"CloudSAafc9b0ed","version":"12.0","state":"Ready","fullyQualifiedDomainName":"vasqlsrv000002.database.windows.net","privateEndpointConnections":[],"minimalTlsVersion":"1.2","publicNetworkAccess":"Enabled","administrators":{"administratorType":"ActiveDirectory","principalType":"User","login":"test@example.com","sid":"99545ea9-828b-43fa-8f98-d5d7b8c82b6a","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","azureADOnlyAuthentication":true},"restrictOutboundNetworkAccess":"Disabled","externalGovernanceStatus":"Disabled","retentionDays":-1},"location":"eastus","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002","name":"vasqlsrv000002","type":"Microsoft.Sql/servers"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '819'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:09 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: DB7DE2469E77439FAC0B36F7FD0F4D26 Ref B: PNQ231110907060 Ref C: 2026-10-30T09:49:09Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"kind":"v12.0","properties":{"administratorLogin":"CloudSAafc9b0ed","version":"12.0","state":"Ready","fullyQualifiedDomainName":"vasqlsrv000002.database.windows.net","privateEndpointConnections":[],"minimalTlsVersion":"1.2","publicNetworkAccess":"Enabled","administrators":{"administratorType":"ActiveDirectory","principalType":"User","login":"test@example.com","sid":"99545ea9-828b-43fa-8f98-d5d7b8c82b6a","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","azureADOnlyAuthentication":true},"restrictOutboundNetworkAccess":"Disabled","externalGovernanceStatus":"Disabled","retentionDays":-1},"location":"eastus","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002","name":"vasqlsrv000002","type":"Microsoft.Sql/servers"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '819'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:10 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: B07A79E2263648B9A814526C4F591738 Ref B: PNQ231110908040 Ref C: 2026-10-30T09:49:10Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"location": "eastus", "sku": {"name": "S0"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '45'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/databases/vasqldb000003?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"operation":"CreateLogicalDatabase","startTime":"2026-10-30T09:49:11.727Z"}'
+    headers:
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseAzureAsyncOperation/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505517855307&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=pohDzJZ0eMgIzOIePy1gUZCg_X2LsQCvpiWtdRSC3hW7HgDO0JZ62Btl0Sk11PitdT4JgwZx6HaroRbbkXnOKtiyt19_R3S1GCYe1Whm3wZcifefpaOMrBtxf3ysXc_8hizTYdn5W8dfGZOD3GgMnIRndaRKF7YHwIIn3jmJ3eWUFtXkFc4g05XlWSYPK4plj4_JsCKon9PJYwI15r2_yKGJQTj6KvokSFvJs2LqwzIoc2HhagpDfPTBgeW_poUSLr4XzOBiTzv_Yv-OemChpYGgG_3TgXAjkQVi2rJ4AEseo9EmF6h1-2XIGrgR7o1t8HuW3dBc150JnO_iOZCMwA&h=5IvN42kuNqVVly_Y5dxB6kdEPbBDCMVvtfzZnWaHz-U
+      cache-control:
+      - no-cache
+      content-length:
+      - '76'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:11 GMT
+      expires:
+      - '-1'
+      location:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseOperationResults/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505518011564&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=PrnGTchVjgVpjTlUvtHm8xzej9yHugshqVmce_vAwblN4GF-dKBEDW1YmRthRlxiWv3nIOssC52tRe4UAjS_VQki0NpXipz2FiOgdsiaf62GkFz7nXgXiRaxGxCdkKJMCMoGnWnnNE5X2vBMEW2ayp-IHBxwdDp_LpjFOEBy-qH0gRCrnAwDHoGFtJs8LBSOi-MSJ8Joq_czSSfitm35WMznFTzogrCLgJxICnemBPMxKrH1fSnBrMufPtGSnGrVYEZxui3fYVSKKrXXcm9KqiIAZYzKOPmN8fqcwYb_6ZQHW0qGG1XCD4UTMpTtQmVQ3Sk-MU5WUAWAx2vwu1ZNSw&h=hYhKoEZFOsrdofalEhqHGBmfzGz7Dh9VKA-DrQgTsxM
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/f30c6353-69ba-4f19-878b-49e9793feb64
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: 6D88FEA1C17C406980ABB8620F88ECAD Ref B: PNQ241100401031 Ref C: 2026-10-30T09:49:10Z'
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseAzureAsyncOperation/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505517855307&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=pohDzJZ0eMgIzOIePy1gUZCg_X2LsQCvpiWtdRSC3hW7HgDO0JZ62Btl0Sk11PitdT4JgwZx6HaroRbbkXnOKtiyt19_R3S1GCYe1Whm3wZcifefpaOMrBtxf3ysXc_8hizTYdn5W8dfGZOD3GgMnIRndaRKF7YHwIIn3jmJ3eWUFtXkFc4g05XlWSYPK4plj4_JsCKon9PJYwI15r2_yKGJQTj6KvokSFvJs2LqwzIoc2HhagpDfPTBgeW_poUSLr4XzOBiTzv_Yv-OemChpYGgG_3TgXAjkQVi2rJ4AEseo9EmF6h1-2XIGrgR7o1t8HuW3dBc150JnO_iOZCMwA&h=5IvN42kuNqVVly_Y5dxB6kdEPbBDCMVvtfzZnWaHz-U
+  response:
+    body:
+      string: '{"name":"1cf6dac1-d78e-4436-9679-c41d7ca52fec","status":"InProgress","startTime":"2026-10-30T09:49:11.727Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:12 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/0d63d6fd-e1ce-4f64-a14a-ecb8548acfa7
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 41AA5840358C428C8B2BCEC3A249239E Ref B: PNQ231110908062 Ref C: 2026-10-30T09:49:12Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseAzureAsyncOperation/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505517855307&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=pohDzJZ0eMgIzOIePy1gUZCg_X2LsQCvpiWtdRSC3hW7HgDO0JZ62Btl0Sk11PitdT4JgwZx6HaroRbbkXnOKtiyt19_R3S1GCYe1Whm3wZcifefpaOMrBtxf3ysXc_8hizTYdn5W8dfGZOD3GgMnIRndaRKF7YHwIIn3jmJ3eWUFtXkFc4g05XlWSYPK4plj4_JsCKon9PJYwI15r2_yKGJQTj6KvokSFvJs2LqwzIoc2HhagpDfPTBgeW_poUSLr4XzOBiTzv_Yv-OemChpYGgG_3TgXAjkQVi2rJ4AEseo9EmF6h1-2XIGrgR7o1t8HuW3dBc150JnO_iOZCMwA&h=5IvN42kuNqVVly_Y5dxB6kdEPbBDCMVvtfzZnWaHz-U
+  response:
+    body:
+      string: '{"name":"1cf6dac1-d78e-4436-9679-c41d7ca52fec","status":"InProgress","startTime":"2026-10-30T09:49:11.727Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:27 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/f8138d72-af9a-4045-a2b6-ff3869042425
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: F413451391F64A23A2FC8477B341BD23 Ref B: PNQ231110906023 Ref C: 2026-10-30T09:49:28Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseAzureAsyncOperation/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505517855307&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=pohDzJZ0eMgIzOIePy1gUZCg_X2LsQCvpiWtdRSC3hW7HgDO0JZ62Btl0Sk11PitdT4JgwZx6HaroRbbkXnOKtiyt19_R3S1GCYe1Whm3wZcifefpaOMrBtxf3ysXc_8hizTYdn5W8dfGZOD3GgMnIRndaRKF7YHwIIn3jmJ3eWUFtXkFc4g05XlWSYPK4plj4_JsCKon9PJYwI15r2_yKGJQTj6KvokSFvJs2LqwzIoc2HhagpDfPTBgeW_poUSLr4XzOBiTzv_Yv-OemChpYGgG_3TgXAjkQVi2rJ4AEseo9EmF6h1-2XIGrgR7o1t8HuW3dBc150JnO_iOZCMwA&h=5IvN42kuNqVVly_Y5dxB6kdEPbBDCMVvtfzZnWaHz-U
+  response:
+    body:
+      string: '{"name":"1cf6dac1-d78e-4436-9679-c41d7ca52fec","status":"InProgress","startTime":"2026-10-30T09:49:11.727Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:44 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/6608d490-6a0a-442a-8a6b-e78697556b72
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 0ADBD8192C3A4D8996C96156B6195B31 Ref B: PNQ231110909060 Ref C: 2026-10-30T09:49:44Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseAzureAsyncOperation/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505517855307&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=pohDzJZ0eMgIzOIePy1gUZCg_X2LsQCvpiWtdRSC3hW7HgDO0JZ62Btl0Sk11PitdT4JgwZx6HaroRbbkXnOKtiyt19_R3S1GCYe1Whm3wZcifefpaOMrBtxf3ysXc_8hizTYdn5W8dfGZOD3GgMnIRndaRKF7YHwIIn3jmJ3eWUFtXkFc4g05XlWSYPK4plj4_JsCKon9PJYwI15r2_yKGJQTj6KvokSFvJs2LqwzIoc2HhagpDfPTBgeW_poUSLr4XzOBiTzv_Yv-OemChpYGgG_3TgXAjkQVi2rJ4AEseo9EmF6h1-2XIGrgR7o1t8HuW3dBc150JnO_iOZCMwA&h=5IvN42kuNqVVly_Y5dxB6kdEPbBDCMVvtfzZnWaHz-U
+  response:
+    body:
+      string: '{"name":"1cf6dac1-d78e-4436-9679-c41d7ca52fec","status":"InProgress","startTime":"2026-10-30T09:49:11.727Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '108'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:49:59 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/a9c6cea8-a32c-49c3-84a4-61ebc09e96a2
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 58D0D910008B4F40A06FFFEAB40A8E75 Ref B: PNQ231110909029 Ref C: 2026-10-30T09:49:59Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/locations/eastus/databaseAzureAsyncOperation/1cf6dac1-d78e-4436-9679-c41d7ca52fec?api-version=2026-08-01-preview&t=639289505517855307&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=pohDzJZ0eMgIzOIePy1gUZCg_X2LsQCvpiWtdRSC3hW7HgDO0JZ62Btl0Sk11PitdT4JgwZx6HaroRbbkXnOKtiyt19_R3S1GCYe1Whm3wZcifefpaOMrBtxf3ysXc_8hizTYdn5W8dfGZOD3GgMnIRndaRKF7YHwIIn3jmJ3eWUFtXkFc4g05XlWSYPK4plj4_JsCKon9PJYwI15r2_yKGJQTj6KvokSFvJs2LqwzIoc2HhagpDfPTBgeW_poUSLr4XzOBiTzv_Yv-OemChpYGgG_3TgXAjkQVi2rJ4AEseo9EmF6h1-2XIGrgR7o1t8HuW3dBc150JnO_iOZCMwA&h=5IvN42kuNqVVly_Y5dxB6kdEPbBDCMVvtfzZnWaHz-U
+  response:
+    body:
+      string: '{"name":"1cf6dac1-d78e-4436-9679-c41d7ca52fec","status":"Succeeded","startTime":"2026-10-30T09:49:11.727Z"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '107'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:16 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/62b1d3fa-1d91-4543-a78d-0d44cda191f2
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 233F559FF9D94704AD966DEF164A7FA3 Ref B: PNQ241100404036 Ref C: 2026-10-30T09:50:15Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --server -n --service-objective
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/databases/vasqldb000003?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"sku":{"name":"S0","tier":"Standard","capacity":10},"kind":"v12.0,user","properties":{"collation":"SQL_Latin1_General_CP1_CI_AS","maxSizeBytes":268435456000,"status":"Online","databaseId":"2165f949-eab8-4f18-820a-d92f3460097d","creationDate":"2026-10-30T09:50:09.77Z","currentServiceObjectiveName":"S0","requestedServiceObjectiveName":"S0","defaultSecondaryLocation":"westus","catalogCollation":"SQL_Latin1_General_CP1_CI_AS","zoneRedundant":false,"readScale":"Disabled","currentSku":{"name":"S0","tier":"Standard","capacity":10},"currentBackupStorageRedundancy":"Geo","requestedBackupStorageRedundancy":"Geo","maintenanceConfigurationId":"/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default","isLedgerOn":false,"isInfraEncryptionEnabled":false,"availabilityZone":"NoPreference","provisioningState":"Succeeded"},"location":"eastus","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/databases/vasqldb000003","name":"vasqldb000003","type":"Microsoft.Sql/servers/databases"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1148'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:16 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 02487F5E63DC46EBA161E61822FE8C15 Ref B: PNQ231110906062 Ref C: 2026-10-30T09:50:16Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"properties": {"state": "Enabled"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '36'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - --resource-id --state
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default?api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default","name":"default","type":"Microsoft.Security/sqlVulnerabilityAssessments","properties":{"creationTime":"2026-10-30T09:50:18.737+00:00","state":"Enabled"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '370'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:18 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/7de40bcf-70ca-497e-a005-73acb79ec011
+      x-ms-ratelimit-remaining-subscription-resource-requests:
+      - '199'
+      x-msedge-ref:
+      - 'Ref A: 27CAEB1189C14B4D9A17E82B2EA9E141 Ref B: PNQ241100404034 Ref C: 2026-10-30T09:50:17Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql scans initiate-scan
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      ParameterSetName:
+      - --resource-id --database-name
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: POST
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/initiateScan?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: ''
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '0'
+      date:
+      - Fri, 30 Oct 2026 09:50:21 GMT
+      expires:
+      - '-1'
+      location:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/scanOperationResults/34415376-813b-4a5b-8aa8-bbd7fdbcc0cc?api-version=2026-04-01-preview&databaseName=vasqldb000003&t=639289506213208299&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=PLqfQhZYCjYuhjftIKxRAdZstM4mQCPlBbrJt_mu0GnWJMXYjdRsbE327nRVs5xhkEYEygQSOdfOhg_PxsZxgOX0yulHklJsHgKWNLp96m50OgaCbBWqO55gdhNGPM-zY7GlNqskItolAPLGcnGbk3SrrE2gCQiCyEHjQlVPWJ9UKhcKa22wAdoMXeEuQjchPzbBJWO3CGFCeLmMGm5wBEUMFniJZkdkAKvlD611eqkK_IGqSSZ8MXTRD3jDbYFUHHCd8EzaSENzBThWwL0JyT4mkuU-XqA7hfqw-4eg2Uj58sgdNRY-C0dRy2lq17EJyM7AfFvkVcB7VDWhRm7lrA&h=rJKnqsksqvUVwX5EMKohTSQLVcnJhamLA4ZcNfgxlqU
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/1dc8e63a-ce19-4675-af8f-b36f7098f912
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: 87478286688E407AAFEDBE0DCD5410E5 Ref B: PNQ231110907034 Ref C: 2026-10-30T09:50:20Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql scans initiate-scan
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/scanOperationResults/34415376-813b-4a5b-8aa8-bbd7fdbcc0cc?api-version=2026-04-01-preview&databaseName=vasqldb000003&t=639289506213208299&c=MIIIIjCCBwqgAwIBAgIQCQiaVs4xxD8E0l40RFuHcDANBgkqhkiG9w0BAQsFADA2MTQwMgYDVQQDEytDQ01FIEcxIFRMUyBSU0EgMjA0OCBTSEEyNTYgMjA0OSBXQ1VTIENBIDAxMB4XDTI2MDkyMjAyMjUwMFoXDTI2MTIxNzA4MjUwMFowQDE-MDwGA1UEAxM1YXN5bmNvcGVyYXRpb25zaWduaW5nY2VydGlmaWNhdGUubWFuYWdlbWVudC5henVyZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC48Fr-TvYSaKP5LURoM4SIjikRaS02hXY-yXmKDBkleUIySlp4GC5M9sMHmXrVU60x9gVCavOkSSlUMx2yaVK9zR_MX43NKjbG9F4UE3XMvnUwgcxGj2tH8jze8QItLaK29hrs6vdBBnIxDYVuKYxr1WhV6vmxOHd2IabhF-eVoiRIs8ot83l4MFqPezanwezvWAyzgr-NcEy2XHSQ_4vuqlz1RFAogIfo_pVOLfsDOEO-Qvl3vrBf8oZlWwGi45hRICUe4QvS5g-S8xIt_5KNS7aLAsDDUiIiB35pH5-48-IZG7qzc6LWhMUiyXPyyjuvzjvWj5bN4cIT7S96qf49AgMBAAGjggUgMIIFHDCBnQYDVR0gBIGVMIGSMAwGCisGAQQBgjd7AQEwZgYKKwYBBAGCN3sCAjBYMFYGCCsGAQUFBwICMEoeSAAzADMAZQAwADEAOQAyADEALQA0AGQANgA0AC0ANABmADgAYwAtAGEAMAA1ADUALQA1AGIAZABhAGYAZgBkADUAZQAzADMAZDAMBgorBgEEAYI3ewMCMAwGCisGAQQBgjd7BAIwDAYDVR0TAQH_BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDgYDVR0PAQH_BAQDAgWgMB0GA1UdDgQWBBTWKRjKNNR497ZYByfYPXpKJ1RWVDAfBgNVHSMEGDAWgBQU0jfg9tZ9ft2NurplqwSUJeCWHTCCAfcGA1UdHwSCAe4wggHqMHqgeKB2hnRodHRwOi8vcHJpbWFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDB8oHqgeIZ2aHR0cDovL3NlY29uZGFyeS1jZG4ucGtpLmNvcmUud2luZG93cy5uZXQvd2VzdGNlbnRyYWx1cy9jcmxzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDBroGmgZ4ZlaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3dlc3RjZW50cmFsdXMvY3Jscy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxLzMvY3VycmVudC5jcmwwgYCgfqB8hnpodHRwOi8vY2NtZXdlc3RjZW50cmFsdXNwa2kud2VzdGNlbnRyYWx1cy5wa2kuY29yZS53aW5kb3dzLm5ldC9jZXJ0aWZpY2F0ZUF1dGhvcml0aWVzL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvMy9jdXJyZW50LmNybDCCAgAGCCsGAQUFBwEBBIIB8jCCAe4wfgYIKwYBBQUHMAKGcmh0dHA6Ly9wcmltYXJ5LWNkbi5wa2kuY29yZS53aW5kb3dzLm5ldC93ZXN0Y2VudHJhbHVzL2NhY2VydHMvY2NtZXdlc3RjZW50cmFsdXNwa2kvY2NtZXdlc3RjZW50cmFsdXNpY2EwMS9jZXJ0LmNlcjCBgAYIKwYBBQUHMAKGdGh0dHA6Ly9zZWNvbmRhcnktY2RuLnBraS5jb3JlLndpbmRvd3MubmV0L3dlc3RjZW50cmFsdXMvY2FjZXJ0cy9jY21ld2VzdGNlbnRyYWx1c3BraS9jY21ld2VzdGNlbnRyYWx1c2ljYTAxL2NlcnQuY2VyMG8GCCsGAQUFBzAChmNodHRwOi8vY3JsLm1pY3Jvc29mdC5jb20vd2VzdGNlbnRyYWx1cy9jYWNlcnRzL2NjbWV3ZXN0Y2VudHJhbHVzcGtpL2NjbWV3ZXN0Y2VudHJhbHVzaWNhMDEvY2VydC5jZXIweAYIKwYBBQUHMAKGbGh0dHA6Ly9jY21ld2VzdGNlbnRyYWx1c3BraS53ZXN0Y2VudHJhbHVzLnBraS5jb3JlLndpbmRvd3MubmV0L2NlcnRpZmljYXRlQXV0aG9yaXRpZXMvY2NtZXdlc3RjZW50cmFsdXNpY2EwMTANBgkqhkiG9w0BAQsFAAOCAQEAbgaZbQC171qcNFv3LvBydAAqgONyVrraAX-0u233GNNlfY_eafOSRzS72t5Mxj4Dti0KuTe0KWk3fkwn5_m_StgYoQIk4-17TIoDhMi1f7HOaqRlvYmRZYHNVrIhacvTdOmQLmL6Mf812UDiwK_03V5f2d2Ae7Kcp-jtLpG_VWfx1nb2IL6MKvUtNPMKTv8_x2nQ0q255GI2W5hE4KpF5icireKyA4kPVAIIyC97yQvIfLA-5BggBGzTd81llNOGeSDT8TfSNn6MKxES9vn4siHHk1Fuc8uwfAYOIAa8drlXOv9jIxU_WY_SMPWrjcnidGiihXh_scduY5aFJezb8Q&s=PLqfQhZYCjYuhjftIKxRAdZstM4mQCPlBbrJt_mu0GnWJMXYjdRsbE327nRVs5xhkEYEygQSOdfOhg_PxsZxgOX0yulHklJsHgKWNLp96m50OgaCbBWqO55gdhNGPM-zY7GlNqskItolAPLGcnGbk3SrrE2gCQiCyEHjQlVPWJ9UKhcKa22wAdoMXeEuQjchPzbBJWO3CGFCeLmMGm5wBEUMFniJZkdkAKvlD611eqkK_IGqSSZ8MXTRD3jDbYFUHHCd8EzaSENzBThWwL0JyT4mkuU-XqA7hfqw-4eg2Uj58sgdNRY-C0dRy2lq17EJyM7AfFvkVcB7VDWhRm7lrA&h=rJKnqsksqvUVwX5EMKohTSQLVcnJhamLA4ZcNfgxlqU
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/scanOperationResults/34415376-813b-4a5b-8aa8-bbd7fdbcc0cc","name":"34415376-813b-4a5b-8aa8-bbd7fdbcc0cc","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanOperationResults","properties":{"operationId":"34415376-813b-4a5b-8aa8-bbd7fdbcc0cc","scanStatus":"InProgress"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '504'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:22 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/aec6699f-08bb-4eda-8ddc-d6f714aa8c60
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 7576518C53BA4D30A2D94450E5B675DC Ref B: PNQ231110908042 Ref C: 2026-10-30T09:50:21Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql scans show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name --scan-id
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/latest?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"code":"ResultsAreNotAvailableYet","message":"Results are not available
+        yet"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '78'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:23 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/dceaa8f3-112a-4594-955a-d1082aaa1b94
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: E31C2BD9D2704902861044750BE6D8DF Ref B: PNQ231110907029 Ref C: 2026-10-30T09:50:23Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql scans show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name --scan-id
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/latest?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e","name":"b2c36f2a-3d98-4b64-bb44-a924afa0410e","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans","properties":{"triggerType":"OnDemand","state":"Failed","server":"vasqlsrv000002","database":"vasqldb000003","sqlVersion":"18.0.319","startTime":"2026-10-30T09:50:33.3538968+00:00","endTime":"2026-10-30T09:50:34.5913522+00:00","highSeverityFailedRulesCount":0,"mediumSeverityFailedRulesCount":1,"lowSeverityFailedRulesCount":0,"totalPassedRulesCount":23,"totalFailedRulesCount":1,"totalRulesCount":24,"isBaselineApplied":false,"lastScanTime":"2026-10-30T09:50:34.5913522+00:00"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '897'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:45 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/c4d6aa6a-8cd4-4be9-a4ab-73a1b24d4792
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 751EC4834D4248568815F8B4477D01F5 Ref B: PNQ241100401040 Ref C: 2026-10-30T09:50:44Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"latestScan": true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql baseline add
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '20'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - --resource-id --database-name --latest-scan
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: POST
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1143","name":"VA1143","type":"Microsoft.Security/sqlVulnerabilityAssessments/baselineRules","properties":{"results":[["True"]]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1219","name":"VA1219","type":"Microsoft.Security/sqlVulnerabilityAssessments/baselineRules","properties":{"results":[["False"]]}}]}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '834'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:47 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/926ed4b3-b62f-4890-8987-3c88a6439704
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: 682B3C5217C34D0B8A4D3832C434E2D6 Ref B: PNQ241100405062 Ref C: 2026-10-30T09:50:45Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql baseline list
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1143","name":"VA1143","type":"Microsoft.Security/sqlVulnerabilityAssessments/baselineRules","properties":{"results":[["True"]]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1219","name":"VA1219","type":"Microsoft.Security/sqlVulnerabilityAssessments/baselineRules","properties":{"results":[["False"]]}}]}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '834'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:48 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/a35f74cf-dd69-458d-8dc0-5b1c3639e471
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: F913A7FDFEF240189FA28C52557BA7C1 Ref B: PNQ241100403040 Ref C: 2026-10-30T09:50:47Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql baseline show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name --rule-id
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1143?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1143","name":"VA1143","type":"Microsoft.Security/sqlVulnerabilityAssessments/baselineRules","properties":{"results":[["True"]]}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '410'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:48 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/bbd45410-208f-4d77-9045-8c4680b6f06f
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 9217725A006B41779C163EF592778AE3 Ref B: PNQ231110909052 Ref C: 2026-10-30T09:50:48Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql results list
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name --scan-id
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/latest/scanResults?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1020","name":"VA1020","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1020","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Remove
+        the special user GUEST from all roles.","scripts":[],"automated":true,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1020","severity":"High","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Database
+        user GUEST should not be a member of any role","description":"The guest user
+        permits access to a database for any logins that are not mapped to a specific
+        database user. This rule checks that no database roles are assigned to the
+        Guest user.","rationale":"Database Roles are the basic building block at the
+        heart of separation of duties and the principle of least permission. Granting
+        the Guest user membership to specific roles defeats this purpose.","queryCheck":{"query":"SELECT
+        roles.[name] AS [Role]\nFROM sys.database_role_members AS drms\nINNER JOIN
+        sys.database_principals AS roles ON drms.role_principal_id = roles.principal_id\nINNER
+        JOIN sys.database_principals AS users ON drms.member_principal_id = users.principal_id\nWHERE
+        users.[name] = ''guest''","expectedResult":[],"columnNames":["Role"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1054","name":"VA1054","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1054","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        unnecessary permissions granted to PUBLIC","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1054","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Excessive
+        permissions should not be granted to PUBLIC role on objects or columns","description":"Every
+        SQL Server login belongs to the public server role. When a server principal
+        has not been granted or denied specific permissions on a securable object,
+        the user inherits the permissions granted to public on that object. This rule
+        displays a list of all securable objects or columns that are accessible to
+        all users through the PUBLIC role.","rationale":"Database Roles are the basic
+        building block at the heart of separation of duties and the principle of least
+        permission. Granting permissions to principals through the default PUBLIC
+        role defeats this purpose.","queryCheck":{"query":"SELECT permission_name
+        AS [Permission]\n ,schema_name AS [Schema]\n ,object_name AS [Object]\nFROM
+        (\n    SELECT objs.TYPE COLLATE database_default AS object_type\n        ,schema_name(schema_id)
+        COLLATE database_default AS schema_name\n        ,objs.name COLLATE database_default
+        AS object_name\n        ,user_name(grantor_principal_id) COLLATE database_default
+        AS grantor_principal_name\n        ,permission_name COLLATE database_default
+        AS permission_name\n        ,perms.TYPE COLLATE database_default AS TYPE\n        ,STATE
+        COLLATE database_default AS STATE\n FROM sys.database_permissions AS perms\n
+        INNER JOIN sys.objects AS objs\n ON objs.object_id = perms.major_id\n  WHERE
+        perms.class = 1 -- objects or columns. Other cases are handled by VA1095 which
+        has different remediation syntax\n  AND grantee_principal_id = DATABASE_PRINCIPAL_ID(''public'')\n  AND
+        [state] IN (\n   ''G''\n   ,''W''\n   )\n  AND NOT (\n   -- These permissions
+        are granted by default to public\n   permission_name = ''EXECUTE''\n   AND
+        schema_name(schema_id) = ''dbo''\n   AND STATE = ''G''\n   AND objs.name IN
+        (\n    ''fn_sysdac_is_dac_creator''\n    ,''fn_sysdac_is_currentuser_sa''\n    ,''fn_sysdac_is_login_creator''\n    ,''fn_sysdac_get_username''\n    ,''sp_sysdac_ensure_dac_creator''\n    ,''sp_sysdac_add_instance''\n    ,''sp_sysdac_add_history_entry''\n    ,''sp_sysdac_delete_instance''\n    ,''sp_sysdac_upgrade_instance''\n    ,''sp_sysdac_drop_database''\n    ,''sp_sysdac_rename_database''\n    ,''sp_sysdac_setreadonly_database''\n    ,''sp_sysdac_rollback_committed_step''\n    ,''sp_sysdac_update_history_entry''\n    ,''sp_sysdac_resolve_pending_entry''\n    ,''sp_sysdac_rollback_pending_object''\n    ,''sp_sysdac_rollback_all_pending_objects''\n    ,''fn_sysdac_get_currentusername''\n    )\n   OR
+        permission_name = ''SELECT''\n   AND schema_name(schema_id) = ''sys''\n   AND
+        STATE = ''G''\n   AND objs.name IN (\n    ''firewall_rules''\n    ,''database_firewall_rules''\n    ,''ipv6_database_firewall_rules''\n    ,''bandwidth_usage''\n    ,''database_usage''\n    ,''external_library_setup_errors''\n    ,''sql_feature_restrictions''\n    ,''resource_stats''\n    ,''elastic_pool_resource_stats''\n    ,''dm_database_copies''\n    ,''geo_replication_links''\n    ,''database_error_stats''\n    ,''event_log''\n    ,''database_connection_stats''\n    )\n   OR
+        permission_name = ''SELECT''\n   AND schema_name(schema_id) = ''dbo''\n   AND
+        STATE = ''G''\n   AND objs.name IN (\n    ''sysdac_instances_internal''\n    ,''sysdac_history_internal''\n    ,''sysdac_instances''\n    )\n   )\n\n
+        ) t","expectedResult":[],"columnNames":["Permission","Schema","Object"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1095","name":"VA1095","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1095","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        any unnecessary permissions granted to PUBLIC, but avoid changing permissions
+        granted out of the box.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1095","severity":"Medium","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Excessive
+        permissions should not be granted to PUBLIC role","description":"Every SQL
+        Server login belongs to the public server role. When a server principal has
+        not been granted or denied specific permissions on a securable object, the
+        user inherits the permissions granted to public on that object. This displays
+        a list of all permissions that are granted to the PUBLIC role.","rationale":"Database
+        Roles are the basic building block at the heart of separation of duties and
+        the principle of least permission. Granting permissions to principals through
+        the default PUBLIC role defeats this purpose.","queryCheck":{"query":"SELECT
+        REPLACE(perms.class_desc, ''_'', '' '') AS [Permission Class]\n    ,CASE\n        WHEN
+        perms.class = 0\n            THEN db_name() -- database\n        WHEN perms.class
+        = 3\n            THEN schema_name(major_id) -- schema\n        WHEN perms.class
+        = 4\n            THEN printarget.NAME -- principal\n        WHEN perms.class
+        = 5\n            THEN asm.NAME -- assembly\n        WHEN perms.class = 6\n            THEN
+        type_name(major_id) -- type\n        WHEN perms.class = 10\n            THEN
+        xmlsc.NAME -- xml schema\n        WHEN perms.class = 15\n            THEN
+        msgt.NAME COLLATE DATABASE_DEFAULT -- message types\n        WHEN perms.class
+        = 16\n            THEN svcc.NAME COLLATE DATABASE_DEFAULT -- service contracts\n        WHEN
+        perms.class = 17\n            THEN svcs.NAME COLLATE DATABASE_DEFAULT -- services\n        WHEN
+        perms.class = 18\n            THEN rsb.NAME COLLATE DATABASE_DEFAULT -- remote
+        service bindings\n        WHEN perms.class = 19\n            THEN rts.NAME
+        COLLATE DATABASE_DEFAULT -- routes\n        WHEN perms.class = 23\n            THEN
+        ftc.NAME -- full text catalog\n        WHEN perms.class = 24\n            THEN
+        sym.NAME -- symmetric key\n        WHEN perms.class = 25\n            THEN
+        crt.NAME -- certificate\n        WHEN perms.class = 26\n            THEN asym.NAME
+        -- assymetric key\n        END AS [Object]\n    ,perms.permission_name AS
+        Permission\nFROM sys.database_permissions AS perms\nLEFT JOIN sys.database_principals
+        AS prin ON perms.grantee_principal_id = prin.principal_id\nLEFT JOIN sys.assemblies
+        AS asm ON perms.major_id = asm.assembly_id\nLEFT JOIN sys.xml_schema_collections
+        AS xmlsc ON perms.major_id = xmlsc.xml_collection_id\nLEFT JOIN sys.service_message_types
+        AS msgt ON perms.major_id = msgt.message_type_id\nLEFT JOIN sys.service_contracts
+        AS svcc ON perms.major_id = svcc.service_contract_id\nLEFT JOIN sys.services
+        AS svcs ON perms.major_id = svcs.service_id\nLEFT JOIN sys.remote_service_bindings
+        AS rsb ON perms.major_id = rsb.remote_service_binding_id\nLEFT JOIN sys.routes
+        AS rts ON perms.major_id = rts.route_id\nLEFT JOIN sys.database_principals
+        AS printarget ON perms.major_id = printarget.principal_id\nLEFT JOIN sys.symmetric_keys
+        AS sym ON perms.major_id = sym.symmetric_key_id\nLEFT JOIN sys.asymmetric_keys
+        AS asym ON perms.major_id = asym.asymmetric_key_id\nLEFT JOIN sys.certificates
+        AS crt ON perms.major_id = crt.certificate_id\nLEFT JOIN sys.fulltext_catalogs
+        AS ftc ON perms.major_id = ftc.fulltext_catalog_id\nWHERE perms.grantee_principal_id
+        = DATABASE_PRINCIPAL_ID(''public'')\n    AND class != 1 -- Object or Columns
+        (class = 1) are handled by VA1054 and have different remediation syntax\n    AND
+        [state] IN (''G'',''W'')\n    AND NOT (\n        perms.class = 0\n        AND
+        prin.NAME = ''public''\n        AND perms.major_id = 0\n        AND perms.minor_id
+        = 0\n        AND permission_name IN (\n            ''VIEW ANY COLUMN ENCRYPTION
+        KEY DEFINITION''\n            ,''VIEW ANY COLUMN MASTER KEY DEFINITION''\n            )\n        )","expectedResult":[],"columnNames":["Permission
+        Class","Object","Permission"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1096","name":"VA1096","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1096","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        any unnecessary permissions granted to the special account GUEST","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1096","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Principal
+        GUEST should not be granted permissions in the database","description":"Each
+        database includes a user called GUEST. Permissions granted to GUEST are inherited
+        by users who have access to the database, but who do not have a user account
+        in the database. This rule checks that all permissions have been revoked from
+        the GUEST user.","rationale":"The special user GUEST is used to map any logins
+        that are not mapped to a specific database user. This can result in principals
+        gaining access to a database without having been explicitly granted permission
+        to do so.","queryCheck":{"query":"SELECT perms.permission_name AS [Permission]\nFROM
+        sys.database_permissions AS perms\nINNER JOIN sys.database_principals AS prin
+        ON perms.grantee_principal_id = prin.principal_id\nWHERE prin.[name] = ''guest''\n    AND
+        perms.class = 0\n    AND [state] IN (''G'', ''W'')","expectedResult":[],"columnNames":["Permission"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1097","name":"VA1097","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1097","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        any unnecessary permissions granted to the special account GUEST","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1097","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Principal
+        GUEST should not be granted permissions on objects or columns","description":"Each
+        database includes a user called GUEST. Permissions granted to GUEST are inherited
+        by users who have access to the database, but who do not have a user account
+        in the database. This rule checks that all permissions have been revoked from
+        the GUEST user.","rationale":"The special user GUEST is used to map any logins
+        that are not mapped to a specific database user. This can result in principals
+        gaining access to a database without having been explicitly granted permission
+        to do so.","queryCheck":{"query":"SELECT object_schema_name(major_id) AS [Schema]\n    ,object_name(major_id)
+        AS [Object]\n    ,perms.permission_name AS [Permission]\nFROM sys.database_permissions
+        AS perms\nINNER JOIN sys.database_principals AS prin ON perms.grantee_principal_id
+        = prin.principal_id\nWHERE prin.[name] = ''guest''\n    AND perms.class =
+        1\n    AND [state] IN (''G'', ''W'')","expectedResult":[],"columnNames":["Schema","Object","Permission"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1099","name":"VA1099","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1099","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        any unnecessary permissions granted to the special account GUEST","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1099","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"GUEST
+        user should not be granted permissions on database securables","description":"Each
+        database includes a user called GUEST. Permissions granted to GUEST are inherited
+        by users who have access to the database, but who do not have a user account
+        in the database. This rule checks that all permissions have been revoked from
+        the GUEST user.","rationale":"The special user GUEST is used to map any logins
+        that are not mapped to a specific database user. This can result in principals
+        gaining access to a database without having been explicitly granted permission
+        to do so.","queryCheck":{"query":"DECLARE @guestId INT\n\nSELECT @guestId
+        = principal_id\nFROM sys.database_principals\nWHERE [name] = ''guest''\n\nSELECT
+        REPLACE(perms.class_desc, ''_'', '' '') AS [Permission Class]\n    ,CASE\n        WHEN
+        perms.class = 3\n            THEN schema_name(major_id) -- schema\n        WHEN
+        perms.class = 4\n            THEN printarget.name -- principal\n        WHEN
+        perms.class = 5\n            THEN asm.name -- assembly\n        WHEN perms.class
+        = 6\n            THEN type_name(major_id) -- type\n        WHEN perms.class
+        = 24\n            THEN sym.name -- symmetric key\n        WHEN perms.class
+        = 25\n            THEN crt.name -- certificate\n        END AS [Object]\n    ,perms.permission_name
+        AS Permission\nFROM sys.database_permissions AS perms\nLEFT JOIN sys.database_principals
+        AS prin ON perms.grantee_principal_id = prin.principal_id\nLEFT JOIN sys.assemblies
+        AS asm ON perms.major_id = asm.assembly_id\nLEFT JOIN sys.database_principals
+        AS printarget ON perms.major_id = printarget.principal_id\nLEFT JOIN sys.symmetric_keys
+        AS sym ON perms.major_id = sym.symmetric_key_id\nLEFT JOIN sys.certificates
+        AS crt ON perms.major_id = crt.certificate_id\nWHERE grantee_principal_id
+        = @guestId\n    AND class IN (3, 4, 5, 6, 10, 15, 16, 17, 18, 19, 23, 24,
+        25, 26)","expectedResult":[],"columnNames":["Permission Class","Object","Permission"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1143","name":"VA1143","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1143","status":"Finding","isTrimmed":false,"queryResults":[["True"]],"remediation":{"description":"Create
+        users with low privileges to access the DB and any data stored in it with
+        the appropriate set of permissions.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":{"baseline":{"expectedResults":[["True"]],"updatedTime":"2026-10-30T09:50:47.2955238+00:00"},"status":"NonFinding","resultsNotInBaseline":[],"resultsOnlyInBaseline":[]},"ruleMetadata":{"ruleId":"VA1143","severity":"Medium","category":"SurfaceAreaReduction","ruleType":"Binary","title":"''dbo''
+        user should not be used for normal service operation","description":"The ''dbo'',
+        or database owner, is a user account that has implied permissions to perform
+        all activities in the database. Members of the sysadmin fixed server role
+        are automatically mapped to dbo. This rule checks that dbo is not the only
+        account allowed to access this database. Please note that on a newly created
+        clean database this rule will fail until additional roles are created.","rationale":"A
+        compromised service that accesses the database with the ''dbo'' user account
+        will have full control of the database. To avoid this situation, lower privileged
+        users should be defined for normal service operation, while the ''dbo'' account
+        should only be used for administrative tasks that require this privilege.","queryCheck":{"query":"IF((SELECT
+        count(*) from sys.database_principals  WHERE principal_id >= 5 AND principal_id
+        < 16384 ) > 0) SELECT 0 AS [Violation]\nELSE SELECT 1 AS [Violation]","expectedResult":[["0"]],"columnNames":["Violation"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1219","name":"VA1219","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1219","status":"NonFinding","isTrimmed":false,"queryResults":[["False"]],"remediation":{"description":"Enable
+        TDE on the affected databases","scripts":[],"automated":false,"portalLink":"EnableTDE"},"baselineAdjustedResult":{"baseline":{"expectedResults":[["False"]],"updatedTime":"2026-10-30T09:50:47.2955244+00:00"},"status":"NonFinding","resultsNotInBaseline":[],"resultsOnlyInBaseline":[]},"ruleMetadata":{"ruleId":"VA1219","severity":"Medium","category":"DataProtection","ruleType":"Binary","title":"Transparent
+        data encryption should be enabled","description":"Transparent data encryption
+        (TDE) helps to protect the database files against information disclosure by
+        performing real-time encryption and decryption of the database, associated
+        backups, and transaction log files ''at rest'', without requiring changes
+        to the application. This rule checks that TDE is enabled on the database.","rationale":"Transparent
+        Data Encryption (TDE) protects data ''at rest'', meaning the data and log
+        files are encrypted when stored on disk.","queryCheck":{"query":"SELECT CASE\n        WHEN
+        EXISTS (\n                SELECT * \n                FROM sys.dm_database_encryption_keys
+        \n                WHERE db_name(database_id) = db_name() \n                    AND
+        (encryption_state != 5 and encryption_state != 1)\n                )\n            THEN
+        0\n        ELSE 1\n        END AS [Violation]","expectedResult":[["0"]],"columnNames":["Violation"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1221","name":"VA1221","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1221","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Regenerate
+        the DEK using AES","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1221","severity":"High","category":"DataProtection","ruleType":"NegativeList","title":"Database
+        Encryption Symmetric Keys should use AES algorithm","description":"SQL Server
+        uses encryption keys to help secure data, credentials, and connection information
+        that is stored in a server database. SQL Server has two kinds of keys: symmetric
+        and asymmetric. This rule checks that Database Encryption Symmetric Keys use
+        AES algorithm.","rationale":"Weak encryption algorithms may lead to weaknesses
+        in the data-at-rest protection.","queryCheck":{"query":"SELECT db_name(database_id)
+        AS [Database]\n    ,encryption_state AS [Encryption State]\n    ,key_algorithm
+        AS [Key Algorithm]\n    ,key_length AS [Key Length]\n    ,encryptor_type AS
+        [Encryptor Type]\nFROM sys.dm_database_encryption_keys\nWHERE key_algorithm
+        != ''AES''","expectedResult":[],"columnNames":["Database","Encryption State","Key
+        Algorithm","Key Length","Encryptor Type"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1223","name":"VA1223","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1223","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Create
+        new certificates, re-encrypt the data/sign-data using the new key, and drop
+        the affected keys.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1223","severity":"High","category":"DataProtection","ruleType":"NegativeList","title":"Certificate
+        keys should use at least 2048 bits","description":"Certificate keys are used
+        in RSA and other encryption algorithms to protect data. These keys need to
+        be of enough length to secure the user''s data. This rule checks that the
+        key''s length is at least 2048 bits for all certificates.","rationale":"Key
+        length defines the upper-bound on the encryption algorithm''s security. Using
+        short keys in encryption algorithms may lead to weaknesses in data-at-rest
+        protection.","queryCheck":{"query":"SELECT name AS [Certificate Name], thumbprint
+        AS [Thumbprint]\nFROM sys.certificates\nWHERE key_length < 2048","expectedResult":[],"columnNames":["Certificate
+        Name","Thumbprint"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1224","name":"VA1224","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1224","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Create
+        new asymmetric Keys, re-encrypt the data/sign-data using the new key, and
+        drop the affected keys.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1224","severity":"High","category":"DataProtection","ruleType":"NegativeList","title":"Asymmetric
+        keys'' length should be at least 2048 bits","description":"Database asymmetric
+        keys are used in many encryption algorithms, these keys need to be of enough
+        length to secure the encrypted data, this rule checks that all asymmetric
+        keys stored in the database are of length of at least 2048 bits","rationale":"Key
+        length defines the upper-bound on the encryption algorithm''s security, using
+        short keys in encryption algorithms may lead to weaknesses in the data-at-rest
+        protection","queryCheck":{"query":"SELECT name AS [Key Name], pvt_key_encryption_type_desc
+        AS [Encryption Type], algorithm_desc AS [Key Algorithm]\nFROM sys.asymmetric_keys\nWHERE
+        key_length < 2048\nAND NOT (DB_NAME() = ''master'' AND name = ''MS_SQLEnableSystemAssemblyLoadingKey'')","expectedResult":[],"columnNames":["Key
+        Name","Encryption Type","Key Algorithm"]},"benchmarkReferences":[{"benchmark":"CIS","reference":"v1.0.0-08-11-2017:7.2"},{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1246","name":"VA1246","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1246","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Remove
+        the application roles. Use users without login as a permission-based replacement","scripts":[],"automated":true,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1246","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Application
+        roles should not be used","description":"An application role is a database
+        principal that enables an application to run with its own user-like permissions.
+        Application roles enable that only users connecting through a particular application
+        can access specific data. Application roles are password-based (which applications
+        typically hardcode) and not permission based, which exposes the database to
+        approle impersonation by password-guessing. This rule checks that no application
+        roles are defined in the database.","rationale":"It is important to limit
+        the possibility of acquiring user-like permissions to the database, and since
+        application roles are password based, they can lead to impersonation of the
+        application role via password-guessing.","queryCheck":{"query":"SELECT name
+        AS [Role]\nFROM sys.database_principals\nWHERE type  = ''A''","expectedResult":[],"columnNames":["Role"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1248","name":"VA1248","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1248","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Remove
+        user defined roles from fixed-database roles","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1248","severity":"Medium","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"User-defined
+        database roles should not be members of fixed roles","description":"To easily
+        manage the permissions in your databases, SQL Server provides several roles
+        which are security principals that group other principals. They are like groups
+        in the Microsoft Windows operating system. Database accounts and other SQL
+        Server roles can be added into database-level roles. Each member of a fixed-database
+        role can add other users to that same role. This rule checks that no user-defined
+        roles are members of fixed roles","rationale":"Adding user defined database
+        roles as members of fixed roles could enable unintended privilege escalation,
+        also finding any metadata indicating that the fixed roles have been modified
+        is typically a sign of data corruption or signs of somebody corrupting the
+        metadata in order to hide unusual activity.","queryCheck":{"query":"SELECT
+        user_name(roles.role_principal_id) AS [Role]\n    ,user_name(roles.member_principal_id)
+        AS [Member]\nFROM sys.database_role_members AS roles\nINNER JOIN sys.database_principals
+        AS users\nON roles.member_principal_id = users.principal_id\n    AND (\n        roles.role_principal_id
+        >= 16384\n        AND roles.role_principal_id <= 16393\n        )\n    AND
+        users.type = ''R''","expectedResult":[],"columnNames":["Role","Member"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1258","name":"VA1258","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1258","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Keep
+        track of database owners. Remove unnecessary database owners to avoid granting
+        excessive permissions or update the baseline to reflect the approved list
+        of owners.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1258","severity":"High","category":"AuditingAndLogging","ruleType":"BaselineExpected","title":"Database
+        owners are as expected","description":"Database owners can perform all configuration
+        and maintenance activities on the database, and can also drop databases in
+        SQL Server. Tracking database owners is important to avoid having excessive
+        permission for some principals. Create a baseline which defines the expected
+        database owners for the database. This rule checks whether the database owners
+        are as defined in the baseline.","rationale":"Keeping track of database owners
+        is important to avoid granting excessive permissions.","queryCheck":{"query":"SELECT
+        USER_NAME(member_principal_id) AS [Owner]\nFROM sys.database_role_members\nWHERE
+        USER_NAME(role_principal_id) = ''db_owner''\n    AND USER_NAME(member_principal_id)
+        != ''dbo''","expectedResult":[],"columnNames":["Owner"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1281","name":"VA1281","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1281","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Keep
+        track of role membership and remove unnecessary members from roles to avoid
+        granting excessive permissions or update baseline to comply with new changes","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1281","severity":"Medium","category":"AuditingAndLogging","ruleType":"BaselineExpected","title":"All
+        memberships for user-defined roles should be intended","description":"User-defined
+        roles are security principals defined by the user to group principals to easily
+        manage permissions. Monitoring these roles is important to avoid having excessive
+        permissions. Create a baseline which defines expected membership for each
+        user-defined role. This rule checks whether all memberships for user-defined
+        roles are as defined in the baseline","rationale":"Keeping track of role memberships
+        is important to avoid granting excessive permissions","queryCheck":{"query":"SELECT
+        user_name(role_principal_id) as [Role], user_name(member_principal_id) as
+        [Member]\nFROM sys.database_role_members\nWHERE role_principal_id NOT IN (16384,16385,16386,16387,16389,16390,16391,16392,16393)","expectedResult":[],"columnNames":["Role","Member"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1282","name":"VA1282","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1282","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Drop
+        the unnecessary database roles.","scripts":[],"automated":true,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA1282","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"NegativeList","title":"Orphan
+        database roles should be removed","description":"Orphan database roles are
+        user-defined roles that have no members. It is recommended to eliminate orphaned
+        roles as they are not needed on the system. This rule checks whether there
+        are any orphan roles","rationale":"Reduce the attack surface area by eliminating
+        unnecessary database roles in the system.","queryCheck":{"query":"SELECT name
+        AS [Role]\nFROM sys.database_principals\nWHERE type = ''R''\nAND principal_id
+        not in (0,16384,16385,16386,16387,16389,16390,16391,16392,16393)\nAND principal_id
+        not in ( \n    SELECT distinct role_principal_id\n    FROM sys.database_role_members\n    )","expectedResult":[],"columnNames":["Role"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2020","name":"VA2020","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2020","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        permissions from principals where not needed. It is recommended to have at
+        most 1 principal granted a specific permission.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2020","severity":"High","category":"AuthenticationAndAuthorization","ruleType":"BaselineExpected","title":"Minimal
+        set of principals should be granted ALTER or ALTER ANY USER database-scoped
+        permissions","description":"Every SQL Server securable has permissions associated
+        with it that can be granted to principals. Permissions can be scoped at the
+        server level (assigned to logins and server roles) or at the database level
+        (assigned to database users and database roles). These rules check that only
+        a minimal set of principals are granted ALTER or ALTER ANY USER database-scoped
+        permissions.","rationale":"Developing an application using a least-privileged
+        user account (LUA) approach is an important part of a defensive, in-depth
+        strategy for countering security threats. The LUA approach ensures that users
+        follow the principle of least privilege and always log on with limited user
+        accounts. Administrative tasks are broken out using fixed server roles, and
+        the use of the sysadmin fixed server role is severely restricted. Always follow
+        the principle of least privilege when granting permissions to database users.
+        Grant the minimum permissions necessary to a user or role to accomplish a
+        given task. See https://msdn.microsoft.com/en-us/library/bb669084(v=vs.110).aspx.","queryCheck":{"query":"SELECT
+        perms.class_desc AS [Permission Class]\n    ,perms.permission_name AS Permission\n    ,type_desc
+        AS [Principal Type]\n    ,prin.name AS Principal\nFROM sys.database_permissions
+        AS perms\nINNER JOIN sys.database_principals AS prin ON perms.grantee_principal_id
+        = prin.principal_id\nWHERE permission_name IN (\n        ''ALTER''\n        ,''ALTER
+        ANY USER''\n        )\n    AND user_name(grantee_principal_id) NOT IN (\n        ''guest''\n        ,''public''\n        )\n    AND
+        perms.class = 0\n    AND [state] IN (''G'',''W'')\n    AND NOT (\n        prin.type
+        = ''S''\n        AND prin.name = ''dbo''\n        AND prin.authentication_type
+        = 1\n        AND prin.owning_principal_id IS NULL\n        )","expectedResult":[],"columnNames":["Permission
+        Class","Permission","Principal Type","Principal"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2033","name":"VA2033","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2033","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        permissions from principals where not needed. It is recommended to have at
+        most 1 principal granted a specific permission.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2033","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"BaselineExpected","title":"Minimal
+        set of principals should be granted EXECUTE permission on objects or columns","description":"This
+        rule checks which principals are granted EXECUTE permission on objects or
+        columns to ensure this permission is granted to a minimal set of principals.
+        Every SQL Server securable has permissions associated with it that can be
+        granted to principals.\nPermissions can be scoped at the server level (assigned
+        to logins and server roles) or at the database level (assigned to database
+        users, database roles or application roles). The EXECUTE permission applies
+        to both stored procedures and scalar functions, which can be used in computed
+        columns.","rationale":"Developing an application using a least-privileged
+        user account (LUA) approach is an important part of a defensive, in-depth
+        strategy for countering security threats. The LUA approach ensures that users
+        follow the principle of least privilege and always log on with limited user
+        accounts. Administrative tasks are broken out using fixed server roles, and
+        the use of the sysadmin fixed server role is severely restricted. Always follow
+        the principle of least privilege when granting permissions to database users.
+        Grant the minimum permissions necessary to a user or role to accomplish a
+        given task. See https://msdn.microsoft.com/en-us/library/bb669084(v=vs.110).aspx.","queryCheck":{"query":"SELECT
+        perms.class_desc AS [Permission Class]\n    ,object_schema_name(major_id)
+        AS [Schema]\n    ,object_name(major_id) AS [Object]\n    ,perms.permission_name
+        AS [Permission]\n    ,type_desc AS [Principal Type]\n    ,prin.name AS [Principal]\nFROM
+        sys.database_permissions AS perms\nINNER JOIN sys.database_principals AS prin
+        ON perms.grantee_principal_id = prin.principal_id\nWHERE permission_name IN
+        (''EXECUTE'')\n    AND grantee_principal_id NOT IN (\n        SELECT principal_id\n        FROM
+        sys.database_principals\n        WHERE name IN (''guest'', ''public'')\n        )\n    AND
+        perms.class = 1\n    AND [state] IN (''G'', ''W'')","expectedResult":[],"columnNames":["Permission
+        Class","Schema","Object","Permission","Principal Type","Principal"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2062","name":"VA2062","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2062","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Remove
+        database firewall rules that grant excessive access","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2062","severity":"High","category":"SurfaceAreaReduction","ruleType":"NegativeList","title":"Database-level
+        firewall rules should not grant excessive access","description":"The Azure
+        SQL Database-level firewall helps protect your data by preventing all access
+        to your database until you specify which IP addresses have permission. Database-level
+        firewall rules grant access to the specific database based on the originating
+        IP address of each request.\n\nDatabase-level firewall rules for master and
+        user databases can only be created and managed through Transact-SQL (unlike
+        server-level firewall rules which can also be created and managed using the
+        Azure portal or PowerShell). For more details please see: https://docs.microsoft.com/en-us/azure/sql-database/sql-database-firewall-configure\n\nThis
+        check verifies that each database-level firewall rule does not grant access
+        to more than 255 IP addresses.","rationale":"Often, administrators add rules
+        that grant excessive access as part of a troubleshooting process - to eliminate
+        the firewall as the source of a problem, they simply create a rule that allows
+        all traffic to pass to the affected database.\n\nGranting excessive access
+        using database firewall rules is a clear security concern, as it violates
+        the principle of least privilege by allowing unnecessary access to your database.
+        In fact, it''s the equivalent of placing the database outside of the firewall.","queryCheck":{"query":"SELECT
+        name AS [Firewall Rule Name]\n    ,start_ip_address AS [Start Address]\n    ,end_ip_address
+        AS [End Address]\nFROM sys.database_firewall_rules\nWHERE ( \n        (CONVERT(bigint,
+        parsename(end_ip_address, 1)) +\n         CONVERT(bigint, parsename(end_ip_address,
+        2)) * 256 + \n         CONVERT(bigint, parsename(end_ip_address, 3)) * 65536
+        + \n         CONVERT(bigint, parsename(end_ip_address, 4)) * 16777216 ) \n        -
+        \n        (CONVERT(bigint, parsename(start_ip_address, 1)) +\n         CONVERT(bigint,
+        parsename(start_ip_address, 2)) * 256 + \n         CONVERT(bigint, parsename(start_ip_address,
+        3)) * 65536 + \n         CONVERT(bigint, parsename(start_ip_address, 4)) *
+        16777216 )\n      ) > 255","expectedResult":[],"columnNames":["Firewall Rule
+        Name","Start Address","End Address"]},"benchmarkReferences":[]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2064","name":"VA2064","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2064","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Evaluate
+        each of the database-level firewall rules. Remove any rules that grant unnecessary
+        access and set the rest as a baseline. Deviations from the baseline will be
+        identified and brought to your attention in subsequent scans.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2064","severity":"High","category":"SurfaceAreaReduction","ruleType":"BaselineExpected","title":"Database-level
+        firewall rules should be tracked and maintained at a strict minimum","description":"The
+        Azure SQL Database-level firewall helps protect your data by preventing all
+        access to your database until you specify which IP addresses have permission.
+        Database-level firewall rules grant access to the specific database based
+        on the originating IP address of each request.\n\nDatabase-level firewall
+        rules for master and user databases can only be created and managed through
+        Transact-SQL (unlike server-level firewall rules which can also be created
+        and managed using the Azure portal or PowerShell). For more details please
+        see: https://docs.microsoft.com/en-us/azure/sql-database/sql-database-firewall-configure.\n\nThis
+        check enumerates all the database-level firewall rules so that any changes
+        made to them can be identified and addressed.","rationale":"Firewall rules
+        should be strictly configured to allow access only to client computers that
+        have a valid need to connect to the database. Any superfluous entries in the
+        firewall may pose a threat by allowing an unauthorized source access to your
+        database.","queryCheck":{"query":"SELECT name AS [Firewall Rule Name]\n    ,start_ip_address
+        AS [Start Address]\n    ,end_ip_address AS [End Address]\nFROM sys.database_firewall_rules","expectedResult":[],"columnNames":["Firewall
+        Rule Name","Start Address","End Address"]},"benchmarkReferences":[]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2108","name":"VA2108","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2108","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Remove
+        members who should not have access to the database role","scripts":[],"automated":true,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2108","severity":"High","category":"AuthenticationAndAuthorization","ruleType":"BaselineExpected","title":"Minimal
+        set of principals should be members of fixed high impact database roles","description":"SQL
+        Server provides roles to help manage the permissions. Roles are security principals
+        that group other principals. Database-level roles are database-wide in their
+        permission scope. This rule checks that a minimal set of principals are members
+        of the fixed database roles.","rationale":"Fixed database roles may have administrative
+        permissions on the system. Following the principle of least privilege, it
+        is important to minimize membership in fixed database roles and keep a baseline
+        of these memberships. See https://docs.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles
+        for additional information on database roles.","queryCheck":{"query":"SELECT
+        user_name(sr.member_principal_id) AS [Principal]\n    ,user_name(sr.role_principal_id)
+        AS [Role]\n    ,type_desc AS [Principal Type]\n    ,authentication_type_desc
+        AS [Authentication Type]\nFROM sys.database_role_members AS sr\nINNER JOIN
+        sys.database_principals AS sp ON sp.principal_id = sr.member_principal_id\nWHERE
+        sr.role_principal_id IN (\n        user_id(''bulkadmin''),\n        user_id(''db_accessadmin''),\n        user_id(''db_securityadmin''),\n        user_id(''db_ddladmin''),\n        user_id(''db_backupoperator''))\n    OR
+        (sr.role_principal_id = user_id(''db_owner'')\n        AND sr.member_principal_id
+        <> user_id(''dbo''))","expectedResult":[],"columnNames":["Principal","Role","Principal
+        Type","Authentication Type"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2109","name":"VA2109","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2109","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Remove
+        members who should not have access to the database role","scripts":[],"automated":true,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2109","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"BaselineExpected","title":"Minimal
+        set of principals should be members of fixed low impact database roles","description":"SQL
+        Server provides roles to help manage the permissions. Roles are security principals
+        that group other principals. Database-level roles are database-wide in their
+        permission scope. This rule checks that a minimal set of principals are members
+        of the fixed database roles.","rationale":"Fixed database roles may have administrative
+        permissions on the system. Following the principle of least privilege, it
+        is important to minimize membership in fixed database roles and keep a baseline
+        of these memberships. See https://docs.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles
+        for additional information on database roles.","queryCheck":{"query":"SELECT
+        user_name(sr.member_principal_id) as [Principal]\n    ,user_name(sr.role_principal_id)
+        as [Role]\n    ,type_desc as [Principal Type]\n    ,authentication_type_desc
+        as [Authentication Type]\nFROM sys.database_role_members AS sr\nINNER JOIN
+        sys.database_principals AS sp ON sp.principal_id = sr.member_principal_id\nWHERE
+        sr.role_principal_id IN (\n        user_id(''db_datareader'')\n        ,user_id(''db_datawriter'')\n        ,user_id(''db_denydatareader'')\n        ,user_id(''db_denydatawriter'')\n        )","expectedResult":[],"columnNames":["Principal","Role","Principal
+        Type","Authentication Type"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2129","name":"VA2129","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2129","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Baseline
+        or remove the signature from the modules ","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2129","severity":"High","category":"AuthenticationAndAuthorization","ruleType":"BaselineExpected","title":"Changes
+        to signed modules should be authorized","description":"You can sign a stored
+        procedure, function or trigger with a certificate or an asymmetric key. This
+        is designed for scenarios when permissions cannot be inherited through ownership
+        chaining or when the ownership chain is broken, such as dynamic SQL. This
+        rule checks for changes made to signed modules which could be an indication
+        of malicious use.","rationale":"Changes made to the contents of a signed module
+        or to the certificate or asymmetric key that is used to sign it, as well as
+        the introduction of new signed modules could be an an indication of an attack.
+        Setting the known signed modules as a baseline allows you to easily detect
+        changes made, and to evaluate whether the changes are intended.","queryCheck":{"query":"SELECT
+        \n    QUOTENAME(sc.name) + ''.'' + QUOTENAME(oj.name) AS [Module]\n    ,IIF(ct.certificate_id
+        IS NOT NULL, ct.name, ak.name) AS [Signing Object]\n    ,dp.name AS [Signing
+        Object Owner]\n    ,cp.thumbprint AS [Signing Object Thumbprint]\n    ,oj.modify_date
+        AS [Last Definition Modify Date]\n    ,IIF(ct.certificate_id IS NOT NULL,
+        ''CERTIFICATE'', ''ASYMMETRIC KEY'') AS [Signing Object Type]\nFROM \n    sys.crypt_properties
+        AS cp\n    INNER JOIN sys.objects AS oj ON cp.major_id = oj.object_id\n    INNER
+        JOIN sys.schemas AS sc ON oj.schema_id = sc.schema_id\n    INNER JOIN sys.sql_modules
+        AS md ON md.object_id = cp.major_id\n    LEFT OUTER JOIN sys.certificates
+        AS ct ON cp.thumbprint = ct.thumbprint\n    LEFT OUTER JOIN sys.asymmetric_keys
+        AS ak ON cp.thumbprint = ak.thumbprint\n    LEFT OUTER JOIN sys.database_principals
+        AS dp ON (ct.sid = dp.sid OR ak.sid = dp.sid)\nWHERE \n    oj.type IN (''P'',''FN'',''TR'')\n    AND
+        cp.class_desc = ''OBJECT_OR_COLUMN''\n    AND oj.is_ms_shipped = 0","expectedResult":[],"columnNames":["Module","Signing
+        Object","Signing Object Owner","Signing Object Thumbprint","Last Definition
+        Modify Date","Signing Object Type"]},"benchmarkReferences":[{"benchmark":"CIS","reference":null}]}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA2130","name":"VA2130","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA2130","status":"NonFinding","isTrimmed":false,"queryResults":[],"remediation":{"description":"Revoke
+        unnecessary access granted to users. Add the rest to the baseline. ","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":null,"ruleMetadata":{"ruleId":"VA2130","severity":"Low","category":"AuthenticationAndAuthorization","ruleType":"BaselineExpected","title":"Track
+        all users with access to the database","description":"This check tracks all
+        users with access to a database. Make sure that these users are authorized
+        according to their current role in the organization. ","rationale":"Performing
+        a User Access Review helps identify accounts that were added to the server
+        maliciously and dormant accounts.","queryCheck":{"query":"WITH UsersAndRoles
+        (principal_name, sid, type) AS \n(\n    SELECT DISTINCT prin.name, prin.sid,
+        prin.type \n    FROM sys.database_principals prin \n        INNER JOIN ( SELECT
+        *\n                     FROM sys.database_permissions\n                     WHERE
+        type = ''CO'' \n                        AND state IN (''G'', ''W'')\n        )
+        perm \n            ON perm.grantee_principal_id = prin.principal_id \n        WHERE
+        prin.type IN (''S'', ''X'', ''R'', ''E'', ''G'')\n    UNION ALL\n    SELECT
+        \n        user_name(rls.member_principal_id), prin.sid, prin.type\n    FROM
+        \n        UsersAndRoles cte\n        INNER JOIN sys.database_role_members
+        rls\n            ON user_name(rls.role_principal_id) = cte.principal_name\n        INNER
+        JOIN sys.database_principals prin\n            ON rls.member_principal_id
+        = prin.principal_id\n        WHERE cte.type = ''R''\n),\nUsers (database_user,
+        sid) AS\n(\n    SELECT principal_name, sid\n    FROM UsersAndRoles\n    WHERE
+        type IN (''S'', ''X'', ''E'', ''G'')\n        AND principal_name != ''dbo''\n)\nSELECT
+        DISTINCT database_user AS [User], sid AS [SID]\n    FROM Users\n    WHERE
+        sid != 0x01","expectedResult":[],"columnNames":["User","SID"]},"benchmarkReferences":[{"benchmark":"SOX","reference":null}]}}}]}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '56484'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:50 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/63669191-290e-47df-b6fe-61614f5ae67b
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 30CA319B559F48FDB796E6208E161B60 Ref B: PNQ241100402040 Ref C: 2026-10-30T09:50:49Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql results show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --resource-id --database-name --scan-id --rule-id
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/latest/scanResults/VA1143?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_va_sql_dbname_000001/providers/Microsoft.Sql/servers/vasqlsrv000002/sqlServers/vasqlsrv000002/databases/vasqldb000003/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/scans/b2c36f2a-3d98-4b64-bb44-a924afa0410e/scanResults/VA1143","name":"VA1143","type":"Microsoft.Security/sqlVulnerabilityAssessments/scans/scanResults","properties":{"ruleId":"VA1143","status":"Finding","isTrimmed":false,"queryResults":[["True"]],"remediation":{"description":"Create
+        users with low privileges to access the DB and any data stored in it with
+        the appropriate set of permissions.","scripts":[],"automated":false,"portalLink":""},"baselineAdjustedResult":{"baseline":{"expectedResults":[["True"]],"updatedTime":"2026-10-30T09:50:47.2955238+00:00"},"status":"NonFinding","resultsNotInBaseline":[],"resultsOnlyInBaseline":[]},"ruleMetadata":{"ruleId":"VA1143","severity":"Medium","category":"SurfaceAreaReduction","ruleType":"Binary","title":"''dbo''
+        user should not be used for normal service operation","description":"The ''dbo'',
+        or database owner, is a user account that has implied permissions to perform
+        all activities in the database. Members of the sysadmin fixed server role
+        are automatically mapped to dbo. This rule checks that dbo is not the only
+        account allowed to access this database. Please note that on a newly created
+        clean database this rule will fail until additional roles are created.","rationale":"A
+        compromised service that accesses the database with the ''dbo'' user account
+        will have full control of the database. To avoid this situation, lower privileged
+        users should be defined for normal service operation, while the ''dbo'' account
+        should only be used for administrative tasks that require this privilege.","queryCheck":{"query":"IF((SELECT
+        count(*) from sys.database_principals  WHERE principal_id >= 5 AND principal_id
+        < 16384 ) > 0) SELECT 0 AS [Violation]\nELSE SELECT 1 AS [Violation]","expectedResult":[["0"]],"columnNames":["Violation"]},"benchmarkReferences":[{"benchmark":"FedRAMP","reference":null}]}}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '2112'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 30 Oct 2026 09:50:51 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=8e40e88517914b50a7ab096a52b642c3e56a9991ca2cba1a3cbe683bb2af633e;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/10b22b3b-a0a1-4be8-b8d0-26a4e5184da3
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 97852842F2F343E5AD09256064C551DF Ref B: PNQ231110906054 Ref C: 2026-10-30T09:50:51Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql baseline delete
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      ParameterSetName:
+      - --resource-id --database-name --rule-id --yes
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: DELETE
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default/baselineRules/VA1143?databaseName=vasqldb000003&api-version=2026-04-01-preview
+  response:
+    body:
+      string: ''
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '0'
+      date:
+      - Fri, 30 Oct 2026 09:50:52 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=bfbe6e64b92de330ee5dbb9986f6538d6db6d612921a5d711127bef71058cd63;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/c9ec8531-d5e3-46e4-8edb-418078ca61a4
+      x-ms-ratelimit-remaining-subscription-deletes:
+      - '799'
+      x-ms-ratelimit-remaining-subscription-global-deletes:
+      - '11999'
+      x-msedge-ref:
+      - 'Ref A: DB653BAB53DF4E5EBBDD9937A56EA8D4 Ref B: PNQ241100401052 Ref C: 2026-10-30T09:50:51Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - security va sql delete
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      ParameterSetName:
+      - --resource-id --yes
+      User-Agent:
+      - AZURECLI/2.92.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: DELETE
+    uri: https://management.azure.com/%2Fsubscriptions%2F00000000-0000-0000-0000-000000000000%2FresourceGroups%2Fcli_test_va_sql_dbname_000001%2Fproviders%2FMicrosoft.Sql%2Fservers%2Fvasqlsrv000002/providers/Microsoft.Security/sqlVulnerabilityAssessments/default?api-version=2026-04-01-preview
+  response:
+    body:
+      string: ''
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '0'
+      date:
+      - Fri, 30 Oct 2026 09:50:55 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      set-cookie:
+      - ARRAffinity=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      - ARRAffinitySameSite=57386b35d4f6236ad1938db68b76ff65ea0d90338acb7afbec9e7e276f4860d8;Path=/;HttpOnly;SameSite=None;Secure;Domain=mgmt.eus.sqlva.security.azure.com
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=99545ea9-828b-43fa-8f98-d5d7b8c82b6a/eastus/9a4c1fc5-aaa0-4223-a175-976bada727e2
+      x-ms-ratelimit-remaining-subscription-deletes:
+      - '799'
+      x-ms-ratelimit-remaining-subscription-global-deletes:
+      - '11999'
+      x-msedge-ref:
+      - 'Ref A: 1F88B9EC1FBD4784B7FDA2688E460A34 Ref B: PNQ231110907029 Ref C: 2026-10-30T09:50:53Z'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+version: 1

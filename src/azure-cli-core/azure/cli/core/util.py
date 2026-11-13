@@ -4,21 +4,15 @@
 # --------------------------------------------------------------------------------------------
 # pylint: disable=too-many-lines
 
-import base64
-import binascii
-import getpass
 import json
-import yaml
 import logging
 import os
 import platform
 import re
-import ssl
 import sys
-from urllib.request import urlopen
 
 from knack.log import get_logger
-from knack.util import CLIError, to_snake_case
+from knack.util import CLIError, to_snake_case, to_camel_case
 
 logger = get_logger(__name__)
 
@@ -28,10 +22,10 @@ COMPONENT_PREFIX = 'azure-cli-'
 SSLERROR_TEMPLATE = ('Certificate verification failed. This typically happens when using Azure CLI behind a proxy '
                      'that intercepts traffic with a self-signed certificate. '
                      # pylint: disable=line-too-long
-                     'Please add this certificate to the trusted CA bundle. More info: https://docs.microsoft.com/cli/azure/use-cli-effectively#work-behind-a-proxy.')
+                     'Please add this certificate to the trusted CA bundle. More info: https://learn.microsoft.com/cli/azure/use-cli-effectively#work-behind-a-proxy.')
 
 QUERY_REFERENCE = ("To learn more about --query, please visit: "
-                   "'https://docs.microsoft.com/cli/azure/query-azure-cli'")
+                   "'https://learn.microsoft.com/cli/azure/query-azure-cli'")
 
 
 _PROXYID_RE = re.compile(
@@ -52,14 +46,19 @@ DISALLOWED_USER_NAMES = [
     "sys", "test2", "test3", "user4", "user5"
 ]
 
+# AME Storage Account URL for version checking and VM image aliases (Network Isolation)
+# Files are stored as:
+#   - https://azcliprod.blob.core.windows.net/cli/{package}/pyproject.toml (CLI versions)
+#   - https://azcliprod.blob.core.windows.net/cli/vm/aliases.json (VM image aliases)
+AME_STORAGE_BASE_URL = "https://azcliprod.blob.core.windows.net/cli"
+
 
 def handle_exception(ex):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     # For error code, follow guidelines at https://docs.python.org/2/library/sys.html#sys.exit,
     from jmespath.exceptions import JMESPathError
-    from msrestazure.azure_exceptions import CloudError
     from msrest.exceptions import HttpOperationError, ValidationError, ClientRequestError
     from azure.common import AzureException
-    from azure.core.exceptions import AzureError, ServiceRequestError
+    from azure.core.exceptions import AzureError, ServiceRequestError, HttpResponseError
     from requests.exceptions import SSLError, HTTPError
     from azure.cli.core import azclierror
     from msal_extensions.persistence import PersistenceError
@@ -83,7 +82,7 @@ def handle_exception(ex):  # pylint: disable=too-many-locals, too-many-statement
         az_error = azclierror.AzureConnectionError(error_msg)
         az_error.set_recommendation(SSLERROR_TEMPLATE)
 
-    elif isinstance(ex, CloudError):
+    elif isinstance(ex, HttpResponseError):
         if extract_common_error_message(ex):
             error_msg = extract_common_error_message(ex)
         status_code = str(getattr(ex, 'status_code', 'Unknown Code'))
@@ -163,8 +162,7 @@ def handle_exception(ex):  # pylint: disable=too-many-locals, too-many-statement
         az_error = azclierror.CLIInternalError(error_msg)
         az_error.set_exception_trace(ex)
         az_error.set_recommendation(
-            "To check existing issues, please visit: https://github.com/Azure/azure-cli/issues\n"
-            "To open a new issue, please run `az feedback`")
+            "To check existing issues, please visit: https://github.com/Azure/azure-cli/issues")
 
     if isinstance(az_error, azclierror.ResourceNotFoundError):
         exit_code = 3
@@ -258,8 +256,8 @@ def is_azure_connection_error(error_msg):
 
 # pylint: disable=inconsistent-return-statements
 def empty_on_404(ex):
-    from msrestazure.azure_exceptions import CloudError
-    if isinstance(ex, CloudError) and ex.status_code == 404:
+    from azure.core.exceptions import HttpResponseError
+    if isinstance(ex, HttpResponseError) and ex.status_code == 404:
         return None
     raise ex
 
@@ -293,32 +291,50 @@ def get_installed_cli_distributions():
     ]
 
 
+def get_latest_version_from_ame_storage(package_path='azure-cli'):
+    """Get the latest version from AME Storage Account.
+
+    This replaces get_latest_from_github() due to network isolation requirements.
+    The pyproject.toml files are uploaded to AME Storage Account during release pipeline,
+    with the legacy setup.py files as a fallback.
+
+    Args:
+        package_path: Package name, e.g., 'azure-cli', 'azure-cli-core', 'azure-cli-telemetry', 'azure-cli-testsdk'
+    """
+    import requests
+    for file_name, key in (('pyproject.toml', 'version'), ('setup.py', 'VERSION')):
+        storage_url = "{}/{}/{}".format(AME_STORAGE_BASE_URL, package_path, file_name)
+        try:
+            response = requests.get(storage_url, timeout=10)
+            if response.status_code != 200:
+                logger.info("Failed to fetch '%s' with status code '%s'", storage_url, response.status_code)
+                continue
+            match = re.search(r'^{}\s*=\s*"(.+)"'.format(key), response.text, re.MULTILINE)
+            if match:
+                return match.group(1)
+        except Exception as ex:  # pylint: disable=broad-except
+            logger.info("Failed to get the latest version from '%s'. %s", storage_url, str(ex))
+    return None
+
+
 def get_latest_from_github(package_path='azure-cli'):
-    try:
-        import requests
-        git_url = "https://raw.githubusercontent.com/Azure/azure-cli/main/src/{}/setup.py".format(package_path)
-        response = requests.get(git_url, timeout=10)
-        if response.status_code != 200:
-            logger.info("Failed to fetch the latest version from '%s' with status code '%s' and reason '%s'",
-                        git_url, response.status_code, response.reason)
-            return None
-        for line in response.iter_lines():
-            txt = line.decode('utf-8', errors='ignore')
-            if txt.startswith('VERSION'):
-                match = re.search(r'VERSION = \"(.*)\"$', txt)
-                if match:
-                    return match.group(1)
-    except Exception as ex:  # pylint: disable=broad-except
-        logger.info("Failed to get the latest version from '%s'. %s", git_url, str(ex))
-        return None
+    """Deprecated: Use get_latest_version_from_ame_storage() instead.
+
+    This function is kept for backward compatibility but now reads from AME Storage Account.
+    """
+    return get_latest_version_from_ame_storage(package_path)
 
 
-def _update_latest_from_github(versions):
-    if not check_connectivity(max_retries=0):
+def _update_latest_from_ame_storage(versions):
+    """Update versions from AME Storage Account.
+
+    This replaces _update_latest_from_github() due to network isolation requirements.
+    """
+    if not check_connectivity(url=AME_STORAGE_BASE_URL, max_retries=0):
         return versions, False
     success = True
     for pkg in ['azure-cli-core', 'azure-cli-telemetry']:
-        version = get_latest_from_github(pkg)
+        version = get_latest_version_from_ame_storage(pkg)
         if not version:
             success = False
         else:
@@ -328,6 +344,14 @@ def _update_latest_from_github(versions):
     except KeyError:
         pass
     return versions, success
+
+
+def _update_latest_from_github(versions):
+    """Deprecated: Use _update_latest_from_ame_storage() instead.
+
+    This function is kept for backward compatibility but now reads from AME Storage Account.
+    """
+    return _update_latest_from_ame_storage(versions)
 
 
 def get_cached_latest_versions(versions=None):
@@ -345,7 +369,7 @@ def get_cached_latest_versions(versions=None):
             if cache_versions and cache_versions['azure-cli']['local'] == versions['azure-cli']['local']:
                 return cache_versions.copy(), True
 
-    versions, success = _update_latest_from_github(versions)
+    versions, success = _update_latest_from_ame_storage(versions)
     VERSIONS['versions'] = versions
     VERSIONS[_VERSION_UPDATE_TIME] = str(datetime.datetime.now())
     return versions.copy(), success
@@ -365,12 +389,13 @@ def _get_local_versions():
 
 def get_az_version_string(use_cache=False):  # pylint: disable=too-many-statements
     from azure.cli.core.extension import get_extensions, EXTENSIONS_DIR, DEV_EXTENSION_SOURCES, EXTENSIONS_SYS_DIR
+    from azure.cli.core._environment import get_config_dir
     import io
     output = io.StringIO()
     versions = _get_local_versions()
 
     # get the versions from pypi
-    versions, success = get_cached_latest_versions(versions) if use_cache else _update_latest_from_github(versions)
+    versions, success = get_cached_latest_versions(versions) if use_cache else _update_latest_from_ame_storage(versions)
     updates_available_components = []
 
     def _print(val=''):
@@ -412,6 +437,7 @@ def get_az_version_string(use_cache=False):  # pylint: disable=too-many-statemen
     _print()
 
     _print("Python location '{}'".format(os.path.abspath(sys.executable)))
+    _print("Config directory '{}'".format(get_config_dir()))
     _print("Extensions directory '{}'".format(EXTENSIONS_DIR))
     if os.path.isdir(EXTENSIONS_SYS_DIR) and os.listdir(EXTENSIONS_SYS_DIR):
         _print("Extensions system directory '{}'".format(EXTENSIONS_SYS_DIR))
@@ -534,6 +560,7 @@ def get_file_json(file_path, throw_on_empty=True, preserve_order=False):
 
 
 def get_file_yaml(file_path, throw_on_empty=True):
+    import yaml  # Lazy-load: only needed when parsing YAML files
     content = read_file_content(file_path)
     if not content:
         if throw_on_empty:
@@ -546,11 +573,10 @@ def get_file_yaml(file_path, throw_on_empty=True):
 
 
 def read_file_content(file_path, allow_binary=False):
-    from codecs import open as codecs_open
     # Note, always put 'utf-8-sig' first, so that BOM in WinOS won't cause trouble.
     for encoding in ['utf-8-sig', 'utf-8', 'utf-16', 'utf-16le', 'utf-16be']:
         try:
-            with codecs_open(file_path, encoding=encoding) as f:
+            with open(file_path, mode='r', encoding=encoding) as f:
                 logger.debug("attempting to read file %s as %s", file_path, encoding)
                 return f.read()
         except (UnicodeError, UnicodeDecodeError):
@@ -558,6 +584,7 @@ def read_file_content(file_path, allow_binary=False):
 
     if allow_binary:
         try:
+            import base64
             with open(file_path, 'rb') as input_file:
                 logger.debug("attempting to read file %s as binary", file_path)
                 return base64.b64encode(input_file.read()).decode("utf-8")
@@ -589,7 +616,7 @@ def shell_safe_json_parse(json_or_dict_string, preserve_order=False, strict=True
             # Recommendation for all shells
             from azure.cli.core.azclierror import InvalidArgumentValueError
             recommendation = "The provided JSON string may have been parsed by the shell. See " \
-                             "https://docs.microsoft.com/cli/azure/use-cli-effectively#use-quotation-marks-in-arguments"
+                             "https://learn.microsoft.com/cli/azure/use-azure-cli-successfully-quoting#json-strings"
 
             # Recommendation especially for PowerShell
             parent_proc = get_parent_proc_name()
@@ -603,13 +630,26 @@ def shell_safe_json_parse(json_or_dict_string, preserve_order=False, strict=True
 
 def b64encode(s):
     """
-    Encodes a string to base64 on 2.x and 3.x
+    Encodes a string to a base64 string.
     :param str s: latin_1 encoded string
     :return: base64 encoded string
     :rtype: str
     """
+    import base64
     encoded = base64.b64encode(s.encode("latin-1"))
-    return encoded if encoded is str else encoded.decode('latin-1')
+    return encoded.decode('latin-1')
+
+
+def b64decode(s):
+    """
+    Decodes a base64 string to a string.
+    :param str s: latin_1 encoded base64 string
+    :return: decoded string
+    :rtype: str
+    """
+    import base64
+    encoded = base64.b64decode(s.encode("latin-1"))
+    return encoded.decode('latin-1')
 
 
 def b64_to_hex(s):
@@ -619,11 +659,51 @@ def b64_to_hex(s):
     :return: uppercase hex string
     :rtype: str
     """
+    import base64
+    import binascii
     decoded = base64.b64decode(s)
     hex_data = binascii.hexlify(decoded).upper()
     if isinstance(hex_data, bytes):
         return str(hex_data.decode("utf-8"))
     return hex_data
+
+
+def todict(obj, post_processor=None):
+    """
+    Convert an object to a dictionary. Use 'post_processor(original_obj, dictionary)' to update the
+    dictionary in the process
+    """
+    from datetime import date, time, datetime, timedelta
+    from enum import Enum
+    from azure.core.serialization import attribute_list, get_backcompat_attr_name
+    if isinstance(obj, dict):
+        result = {k: todict(v, post_processor) for (k, v) in obj.items()}
+        return post_processor(obj, result) if post_processor else result
+    if isinstance(obj, list):
+        return [todict(a, post_processor) for a in obj]
+    if isinstance(obj, Enum):
+        return obj.value
+    if isinstance(obj, (date, time, datetime)):
+        return obj.isoformat()
+    if isinstance(obj, timedelta):
+        return str(obj)
+    # This is the only difference with knack.util.todict because for typespec generated SDKs
+    # The base model stores data in obj.__dict__['_data'] instead of in obj.__dict__
+    # The way to detect if it's a typespec generated model is to check the private `_is_model` attribute
+    # azure-core provided new function `attribute_list` to list all attribute names
+    # so that we don't need to use raw __dict__ directly
+    if getattr(obj, "_is_model", False):
+        result = {to_camel_case(get_backcompat_attr_name(obj, attr)): todict(getattr(obj, attr), post_processor)
+                  for attr in attribute_list(obj) if hasattr(obj, attr)}
+        return post_processor(obj, result) if post_processor else result
+    if hasattr(obj, '_asdict'):
+        return todict(obj._asdict(), post_processor)
+    if hasattr(obj, '__dict__'):
+        result = {to_camel_case(k): todict(v, post_processor)
+                  for k, v in obj.__dict__.items()
+                  if not callable(v) and not k.startswith('_')}
+        return post_processor(obj, result) if post_processor else result
+    return obj
 
 
 def random_string(length=16, force_lower=False, digits_only=False):
@@ -656,14 +736,8 @@ def in_cloud_console():
 
 def get_arg_list(op):
     import inspect
-
-    try:
-        # only supported in python3 - falling back to argspec if not available
-        sig = inspect.signature(op)
-        return sig.parameters
-    except AttributeError:
-        sig = inspect.getargspec(op)  # pylint: disable=deprecated-method
-        return sig.args
+    sig = inspect.signature(op)
+    return sig.parameters
 
 
 def is_track2(client_class):
@@ -683,11 +757,10 @@ def should_disable_connection_verify():
 
 
 def poller_classes():
-    from msrestazure.azure_operation import AzureOperationPoller
     from msrest.polling.poller import LROPoller
     from azure.core.polling import LROPoller as AzureCoreLROPoller
     from azure.cli.core.aaz._poller import AAZLROPoller
-    return (AzureOperationPoller, LROPoller, AzureCoreLROPoller, AAZLROPoller)
+    return (LROPoller, AzureCoreLROPoller, AAZLROPoller)
 
 
 def augment_no_wait_handler_args(no_wait_enabled, handler, handler_args):
@@ -724,10 +797,11 @@ def open_page_in_browser(url):
 
     if is_wsl():   # windows 10 linux subsystem
         try:
-            # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_powershell_exe
+            # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_powershell_exe
             # Ampersand (&) should be quoted
+            safe_url = url.replace("'", "''")
             return subprocess.Popen(
-                ['powershell.exe', '-NoProfile', '-Command', 'Start-Process "{}"'.format(url)]).wait()
+                ['powershell.exe', '-NoProfile', '-Command', f"Start-Process '{safe_url}'"]).wait()
         except OSError:  # WSL might be too old  # FileNotFoundError introduced in Python 3
             pass
     elif platform_name == 'darwin':
@@ -759,6 +833,11 @@ def is_wsl():
 def is_windows():
     platform_name, _ = _get_platform_info()
     return platform_name == 'windows'
+
+
+def is_github_codespaces():
+    # https://docs.github.com/en/codespaces/developing-in-a-codespace/default-environment-variables-for-your-codespace
+    return os.environ.get('CODESPACES') == 'true'
 
 
 def can_launch_browser():
@@ -800,6 +879,7 @@ def reload_module(module):
 
 def get_default_admin_username():
     try:
+        import getpass
         username = getpass.getuser()
     except KeyError:
         username = None
@@ -905,6 +985,9 @@ def send_raw_request(cli_ctx, method, url, headers=None, uri_parameters=None,  #
         agents.append(headers['User-Agent'])
     headers['User-Agent'] = ' '.join(agents)
 
+    from azure.cli.core.telemetry import set_user_agent
+    set_user_agent(headers['User-Agent'])
+
     if generated_client_request_id_name:
         headers[generated_client_request_id_name] = str(uuid.uuid4())
 
@@ -942,7 +1025,13 @@ def send_raw_request(cli_ctx, method, url, headers=None, uri_parameters=None,  #
     # default to Azure Resource Manager.
     # https://management.azure.com + /subscriptions/xxx/resourcegroups/xxx?api-version=2019-07-01
     if '://' not in url:
-        url = endpoints.resource_manager.rstrip('/') + url
+        # lstrip('/') prevents a protocol-relative path like '//attacker.example/leak' from
+        # producing 'https://management.azure.com//attacker.example/leak'.
+        url = endpoints.resource_manager.rstrip('/') + '/' + url.lstrip('/')
+
+    # Normalize before validating and before sending, so that the URL whose origin is validated is
+    # exactly the URL the request is sent to.
+    url = normalize_url(url)
 
     # Replace common tokens with real values. It is for smooth experience if users copy and paste the url from
     # Azure Rest API doc
@@ -955,21 +1044,13 @@ def send_raw_request(cli_ctx, method, url, headers=None, uri_parameters=None,  #
     if not skip_authorization_header and url.lower().startswith('https://'):
         # Prepare `resource` for `get_raw_token`
         if not resource:
-            # If url starts with ARM endpoint, like `https://management.azure.com/`,
+            # If url's origin matches the ARM endpoint, like `https://management.azure.com/`,
             # use `active_directory_resource_id` for resource, like `https://management.core.windows.net/`.
             # This follows the same behavior as `azure.cli.core.commands.client_factory._get_mgmt_service_client`
-            if url.lower().startswith(endpoints.resource_manager.rstrip('/')):
+            if is_same_origin(url, endpoints.resource_manager):
                 resource = endpoints.active_directory_resource_id
             else:
-                from azure.cli.core.cloud import CloudEndpointNotSetException
-                for p in [x for x in dir(endpoints) if not x.startswith('_')]:
-                    try:
-                        value = getattr(endpoints, p)
-                    except CloudEndpointNotSetException:
-                        continue
-                    if isinstance(value, str) and url.lower().startswith(value.lower()):
-                        resource = value
-                        break
+                resource = match_cloud_endpoint(url, cli_ctx)
         if resource:
             # Prepare `subscription` for `get_raw_token`
             # If this is an ARM request, try to extract subscription ID from the URL.
@@ -977,7 +1058,7 @@ def send_raw_request(cli_ctx, method, url, headers=None, uri_parameters=None,  #
             # TODO: In the future when multi-tenant subscription is supported, we won't be able to uniquely identify
             #   the token from subscription anymore.
             token_subscription = None
-            if url.lower().startswith(endpoints.resource_manager.rstrip('/')):
+            if is_same_origin(url, endpoints.resource_manager):
                 token_subscription = _extract_subscription_id(url)
             if token_subscription:
                 logger.debug('Retrieving token for resource %s, subscription %s', resource, token_subscription)
@@ -996,6 +1077,13 @@ def send_raw_request(cli_ctx, method, url, headers=None, uri_parameters=None,  #
     s = Session()
     req = Request(method=method, url=url, headers=headers, params=uri_parameters, data=body)
     prepped = s.prepare_request(req)
+
+    # Final defense: make sure requests didn't resolve the URL to a different origin than the one
+    # whose origin was validated above before an access token was attached.
+    if 'Authorization' in prepped.headers and not is_same_origin(prepped.url, url):
+        from .azclierror import InvalidArgumentValueError
+        raise InvalidArgumentValueError(
+            "The request URL '{}' doesn't match the validated URL '{}'.".format(prepped.url, url))
 
     # Merge environment settings into session
     settings = s.merge_environment_settings(prepped.url, {}, None, not should_disable_connection_verify(), None)
@@ -1114,18 +1202,197 @@ ConfiguredDefaultSetter = ScopedConfig
 
 
 def _ssl_context():
-    if sys.version_info < (3, 4) or (in_cloud_console() and platform.system() == 'Windows'):
-        try:
-            return ssl.SSLContext(ssl.PROTOCOL_TLS)  # added in python 2.7.13 and 3.6
-        except AttributeError:
-            return ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-
+    import ssl
     return ssl.create_default_context()
 
 
 def urlretrieve(url):
+    from urllib.request import urlopen
     req = urlopen(url, context=_ssl_context())
     return req.read()
+
+
+def _remove_dot_segments(path):
+    """Remove ``.`` and ``..`` segments from a URL path (RFC 3986 section 5.2.4) and collapse
+    empty segments, so that ``/a/b/../c`` becomes ``/a/c`` and ``//attacker.example/leak``
+    becomes ``/attacker.example/leak``.
+    """
+    leading_slash = path.startswith('/')
+    trailing_slash = path.endswith('/')
+    segments = []
+    for segment in path.split('/'):
+        # Empty segments are dropped so that a path can never be re-interpreted as an authority
+        # (protocol-relative URL) by a downstream parser, proxy or gateway.
+        if segment in ('', '.'):
+            continue
+        if segment == '..':
+            if segments:
+                segments.pop()
+            continue
+        segments.append(segment)
+    new_path = '/'.join(segments)
+    if leading_slash:
+        new_path = '/' + new_path
+    if trailing_slash and not new_path.endswith('/'):
+        new_path += '/'
+    return new_path
+
+
+def normalize_url(url):
+    """Normalize a URL so that it is parsed the same way by the CLI and by any downstream
+    consumer (requests/urllib3, proxies, gateways, servers).
+
+    Validating a URL that is not normalized is unsafe, because the validator and the consumer
+    may disagree on which host the request is actually sent to. This function:
+
+    - removes control characters, which are silently stripped by many URL parsers, and trims
+      leading/trailing whitespace;
+    - lowercases the scheme and the host;
+    - converts backslashes in the authority to ``/`` (WHATWG URL parsers treat ``\\`` as ``/``),
+      moving anything after them into the path;
+    - removes ``.``/``..`` segments and collapses empty segments in the path, so that
+      ``https://management.azure.com//attacker.example/leak`` is normalized to
+      ``https://management.azure.com/attacker.example/leak``.
+
+    :param url: The URL to normalize.
+    :return: The normalized URL, or the input unchanged if it is not a parsable string.
+    :rtype: str
+    """
+    from urllib.parse import urlsplit, urlunsplit
+
+    if not isinstance(url, str):
+        return url
+
+    # Strip C0/DEL control characters. Browsers and urllib strip some of them (\t, \r, \n), so a
+    # validator must not consider them part of the host.
+    # Note: the space character (U+0020) is *not* removed from the middle of the URL, as it is a
+    # meaningful character that downstream consumers percent-encode as '%20' rather than drop.
+    # Only leading and trailing whitespace is trimmed.
+    cleaned = ''.join(c for c in url if ord(c) >= 0x20 and ord(c) != 0x7f).strip()
+
+    try:
+        parts = urlsplit(cleaned)
+    except ValueError:
+        return cleaned
+
+    scheme = parts.scheme.lower()
+    netloc = parts.netloc
+    path = parts.path
+
+    if netloc:
+        # `urlsplit` doesn't treat '\' as a delimiter, but WHATWG parsers do. Anything after it
+        # belongs to the path, not to the authority.
+        netloc = netloc.replace('\\', '/')
+        if '/' in netloc:
+            netloc, _, rest = netloc.partition('/')
+            path = '/' + rest + path
+        # The host is case-insensitive, but userinfo isn't, so only lowercase the host part.
+        userinfo, sep, hostport = netloc.rpartition('@')
+        netloc = userinfo + sep + hostport.lower()
+
+    if path:
+        path = _remove_dot_segments(path)
+    elif netloc:
+        path = '/'
+
+    return urlunsplit((scheme, netloc, path, parts.query, parts.fragment))
+
+
+def is_same_origin(url, endpoint):
+    """Check whether ``url`` and ``endpoint`` share the same origin (scheme + host + port).
+
+    This performs an exact origin comparison rather than substring or prefix matching, so a
+    malicious host such as ``https://management.azure.com.attacker`` is not mistaken for
+    the trusted endpoint ``https://management.azure.com``. It is intended for validating that a
+    URL points to a trusted endpoint before sensitive data (e.g., an Azure access token) is sent
+    to it.
+
+    The URLs are normalized with :func:`normalize_url` first, so that tricks relying on control
+    characters or backslashes in the authority can't hide the real host.
+
+    :param url: The URL to validate, e.g., ``https://management.azure.com/subscriptions/...``.
+    :param endpoint: The trusted endpoint to validate against, e.g., ``https://management.azure.com/``.
+    :return: ``True`` if both share the same origin, otherwise ``False``.
+    :rtype: bool
+    """
+    from urllib.parse import urlparse
+
+    if not isinstance(url, str) or not isinstance(endpoint, str):
+        return False
+
+    try:
+        url_parts = urlparse(normalize_url(url))
+        endpoint_parts = urlparse(normalize_url(endpoint))
+
+    except (TypeError, ValueError):
+        return False
+
+    # Require a real host on both sides to avoid false positives against non-URL endpoint values.
+    # `hostname` (rather than `netloc`) is used so that userinfo tricks like
+    # `https://management.azure.com@attacker` resolve to the actual host `attacker`.
+    if not url_parts.hostname or not endpoint_parts.hostname:
+        return False
+
+    def _effective_port(parts):
+        # Treat a missing port as the scheme's default port so that, e.g.,
+        # `https://management.azure.com:443/` and `https://management.azure.com/` are equivalent.
+        if parts.port is not None:
+            return parts.port
+
+        return {'http': 80, 'https': 443}.get(parts.scheme.lower())
+
+    try:
+        if _effective_port(url_parts) != _effective_port(endpoint_parts):
+            return False
+
+    except ValueError:
+        return False
+
+    return (url_parts.scheme.lower() == endpoint_parts.scheme.lower() and
+            url_parts.hostname.lower() == endpoint_parts.hostname.lower())
+
+
+def match_cloud_endpoint(url, cli_ctx):
+    """Return the active cloud endpoint that shares the same origin as ``url``.
+
+    :param url: The URL to match, e.g., ``https://management.azure.com/subscriptions/...``.
+    :param cli_ctx: The CLI context whose active cloud's endpoints are treated as trusted.
+    :return: The matching endpoint value, or ``None`` if no endpoint shares ``url``'s origin.
+    :rtype: str or None
+    """
+    from azure.cli.core.cloud import CloudEndpointNotSetException
+
+    endpoints = cli_ctx.cloud.endpoints
+    for p in [x for x in dir(endpoints) if not x.startswith('_')]:
+        try:
+            value = getattr(endpoints, p)
+
+        except CloudEndpointNotSetException:
+            continue
+
+        if isinstance(value, str) and is_same_origin(url, value):
+            return value
+
+    return None
+
+
+def is_trusted_cloud_endpoint(url, cli_ctx):
+    """Check whether ``url`` shares the same origin as any endpoint of the active cloud.
+
+    The URL must already be in normalized form (see :func:`normalize_url`). A URL that is not
+    normalized is rejected, because the CLI and the downstream consumer (requests, a proxy or the
+    server) may not resolve it to the same host, e.g.
+    ``https://management.azure.com//attacker.example/leak``, whose path can be re-interpreted as
+    a protocol-relative URL.
+
+    :param url: The URL to validate, e.g., ``https://management.azure.com/subscriptions/...``.
+    :param cli_ctx: The CLI context whose active cloud's endpoints are treated as trusted.
+    :return: ``True`` if ``url`` shares the same origin as any cloud endpoint, otherwise ``False``.
+    :rtype: bool
+    """
+    if not isinstance(url, str) or normalize_url(url) != url:
+        return False
+    return match_cloud_endpoint(url, cli_ctx) is not None
 
 
 def parse_proxy_resource_id(rid):
@@ -1252,17 +1519,19 @@ def handle_version_update():
     """
     try:
         from azure.cli.core._session import VERSIONS
-        from packaging.version import parse  # pylint: disable=import-error,no-name-in-module
         from azure.cli.core import __version__
         if not VERSIONS['versions']:
             get_cached_latest_versions()
-        elif parse(VERSIONS['versions']['core']['local']) != parse(__version__):
-            logger.debug("Azure CLI has been updated.")
-            logger.debug("Clean up versions and refresh cloud endpoints information in local files.")
-            VERSIONS['versions'] = {}
-            VERSIONS['update_time'] = ''
-            from azure.cli.core.cloud import refresh_known_clouds
-            refresh_known_clouds()
+        elif VERSIONS['versions']['core']['local'] != __version__:
+            # Lazy import packaging.version
+            from packaging.version import parse  # pylint: disable=import-error,no-name-in-module
+            if parse(VERSIONS['versions']['core']['local']) != parse(__version__):
+                logger.debug("Azure CLI has been updated.")
+                logger.debug("Clean up versions and refresh cloud endpoints information in local files.")
+                VERSIONS['versions'] = {}
+                VERSIONS['update_time'] = ''
+                from azure.cli.core.cloud import refresh_known_clouds
+                refresh_known_clouds()
     except Exception as ex:  # pylint: disable=broad-except
         logger.warning(ex)
 
@@ -1360,3 +1629,91 @@ def should_encrypt_token_cache(cli_ctx):
     encrypt = cli_ctx.config.getboolean('core', 'encrypt_token_cache', fallback=fallback)
 
     return encrypt
+
+
+def get_safe_executable_path(executable):
+    """Resolve an executable name to an absolute path like ``shutil.which``, but never from the current working
+    directory, which Windows searches first for bare names (binary planting, CWE-427).
+    Return ``None`` if nothing trusted is found; never fall back to the bare name.
+    """
+    if os.path.dirname(executable):
+        return executable
+    try:
+        cwd = os.getcwd()
+    except OSError:
+        return None  # Fail closed: the directory to exclude is unknown.
+
+    search_dirs = os.environ.get('PATH', os.defpath).split(os.pathsep)
+    names = [executable]
+    is_windows_platform = sys.platform.startswith('win')
+    if is_windows_platform:
+        system_root = os.environ.get('SystemRoot', r'C:\Windows')
+        search_dirs = [os.path.join(system_root, 'System32'), system_root] + search_dirs
+        exts = [ext for ext in os.environ.get('PATHEXT', '.COM;.EXE;.BAT;.CMD').split(os.pathsep) if ext]
+        if not os.path.splitext(executable)[1]:
+            names = [executable + ext for ext in exts]
+
+    for directory in (d.strip('"') for d in search_dirs):
+        # Relative entries ('', '.') resolve against the CWD as well.
+        if not os.path.isabs(directory) or (is_windows_platform and not os.path.splitdrive(directory)[0]):
+            continue
+        try:
+            if not os.path.isdir(directory) or os.path.samefile(directory, cwd):
+                continue
+            for name in names:
+                path = os.path.join(directory, name)
+                if not os.path.isfile(path) or not os.access(path, os.X_OK):
+                    continue
+                if os.path.samefile(os.path.dirname(os.path.realpath(path)), cwd):
+                    continue
+                return path
+        except (OSError, ValueError) as ex:
+            logger.debug("Skipping executable lookup in '%s': unable to verify path safety: %s", directory, ex)
+    return None
+
+
+def run_cmd(args, *, capture_output=False, timeout=None, check=False, encoding=None, env=None):
+    """Run command in a subprocess. It reduces (not eliminates) shell injection by forcing args to be a list
+    and shell=False. Other arguments are keyword-only. For their documentation, see
+    https://docs.python.org/3/library/subprocess.html#subprocess.run
+    """
+    if not isinstance(args, list):
+        from azure.cli.core.azclierror import ArgumentUsageError
+        raise ArgumentUsageError("Invalid args. run_cmd args must be a list")
+
+    import subprocess
+    return subprocess.run(args, capture_output=capture_output, timeout=timeout, check=check,
+                          encoding=encoding, env=env)
+
+
+def run_az_cmd(args, out_file=None):
+    """
+    run_az_cmd would run az related cmds during command execution
+    :param args: cmd to be executed, array of string, like `["az", "version"]`, "az" is optional
+    :param out_file: The file to send output to. file-like object
+    :return: cmd execution result object, containing `result`, `error`, `exit_code`
+    """
+    from azure.cli.core.azclierror import ArgumentUsageError
+    if not isinstance(args, list):
+        raise ArgumentUsageError("Invalid args. run_az_cmd args must be a list")
+    if args[0] == "az":
+        args = args[1:]
+
+    from azure.cli.core import get_default_cli
+    cli = get_default_cli()
+    cli.invoke(args, out_file=out_file)
+    return cli.result
+
+
+def getprop(o, name, *default):
+    """ This function is used to get the property of the object.
+    It will raise an error if the property is a private property or a method.
+    """
+    if name.startswith('_'):
+        # avoid to access the private properties or methods
+        raise AttributeError(name)
+    v = getattr(o, name, *default)
+    if callable(v):
+        # avoid to access the methods
+        raise AttributeError(name)
+    return v

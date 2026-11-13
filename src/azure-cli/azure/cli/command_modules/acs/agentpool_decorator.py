@@ -4,6 +4,7 @@
 # --------------------------------------------------------------------------------------------
 
 import os
+import base64
 from math import isnan
 from types import SimpleNamespace
 from typing import Dict, List, Tuple, TypeVar, Union
@@ -14,6 +15,11 @@ from azure.cli.command_modules.acs._consts import (
     CONST_DEFAULT_NODE_OS_TYPE,
     CONST_DEFAULT_NODE_VM_SIZE,
     CONST_DEFAULT_WINDOWS_NODE_VM_SIZE,
+    CONST_DEFAULT_VMS_VM_SIZE,
+    CONST_DEFAULT_WINDOWS_VMS_VM_SIZE,
+    CONST_GPU_DRIVER_INSTALL,
+    CONST_GPU_MANAGEMENT_MODE_MANAGED,
+    CONST_MANAGED_CLUSTER_SKU_NAME_AUTOMATIC,
     CONST_NODEPOOL_MODE_SYSTEM,
     CONST_NODEPOOL_MODE_USER,
     CONST_SCALE_DOWN_MODE_DELETE,
@@ -21,13 +27,17 @@ from azure.cli.command_modules.acs._consts import (
     CONST_SCALE_SET_PRIORITY_SPOT,
     CONST_SPOT_EVICTION_POLICY_DELETE,
     CONST_VIRTUAL_MACHINE_SCALE_SETS,
+    CONST_VIRTUAL_MACHINES,
     CONST_OS_SKU_WINDOWS2019,
     CONST_OS_SKU_WINDOWS2022,
+    CONST_OS_SKU_WINDOWS2025,
     AgentPoolDecoratorMode,
     DecoratorEarlyExitException,
     DecoratorMode,
 )
-from azure.cli.command_modules.acs._helpers import get_snapshot_by_snapshot_id, safe_list_get
+from azure.cli.command_modules.acs._helpers import (
+    get_snapshot_by_snapshot_id, safe_list_get, process_dns_overrides, build_etag_kwargs
+)
 from azure.cli.command_modules.acs._validators import extract_comma_separated_string
 from azure.cli.command_modules.acs.base_decorator import BaseAKSContext, BaseAKSModels, BaseAKSParamDict
 from azure.cli.core import AzCommandsLoader
@@ -38,19 +48,23 @@ from azure.cli.core.azclierror import (
     MutuallyExclusiveArgumentError,
     RequiredArgumentMissingError,
 )
+from azure.cli.core.cloud import get_active_cloud
 from azure.cli.core.commands import AzCliCommand
 from azure.cli.core.profiles import ResourceType
-from azure.cli.core.util import get_file_json, sdk_no_wait
+from azure.cli.core.util import get_file_json, sdk_no_wait, read_file_content
 from knack.log import get_logger
+from knack.prompting import prompt_y_n
 
 logger = get_logger(__name__)
 
 # type variables
 AgentPool = TypeVar("AgentPool")
 AgentPoolsOperations = TypeVar("AgentPoolsOperations")
+PortRange = TypeVar("PortRange")
 Snapshot = TypeVar("Snapshot")
 KubeletConfig = TypeVar("KubeletConfig")
 LinuxOSConfig = TypeVar("LinuxOSConfig")
+IPTag = TypeVar("IPTag")
 
 # TODO:
 # 1. Add extra type checking for getter functions
@@ -368,6 +382,174 @@ class AKSAgentPoolContext(BaseAKSContext):
             host_group_id = raw_value
         return host_group_id
 
+    def get_crg_id(self) -> Union[str, None]:
+        return self._get_crg_id()
+
+    def _get_crg_id(self) -> Union[str, None]:
+        """Obtain the value of crg_id.
+
+        :return: string or None
+        """
+        raw_value = self.raw_param.get("crg_id")
+        # try to read the property value corresponding to the parameter from the `agentpool` object
+        value_from_agentpool = None
+        if self.agentpool and hasattr(self.agentpool, "capacity_reservation_group_id"):
+            value_from_agentpool = self.agentpool.capacity_reservation_group_id
+        if value_from_agentpool is not None:
+            crg_id = value_from_agentpool
+        else:
+            crg_id = raw_value
+        return crg_id
+
+    def get_message_of_the_day(self) -> Union[str, None]:
+        """Obtain the value of message_of_the_day.
+
+        :return: string or None
+        """
+        # read the original value passed by the command
+        message_of_the_day = None
+        message_of_the_day_file_path = self.raw_param.get("message_of_the_day")
+
+        if message_of_the_day_file_path:
+            if not os.path.isfile(message_of_the_day_file_path):
+                raise InvalidArgumentValueError(
+                    f"{message_of_the_day_file_path} is not valid file, or not accessible."
+                )
+            message_of_the_day = read_file_content(
+                message_of_the_day_file_path)
+            message_of_the_day = base64.b64encode(
+                bytes(message_of_the_day, 'ascii')).decode('ascii')
+
+        # try to read the property value corresponding to the parameter from the `mc` object
+        if (
+            self.agentpool and
+            hasattr(self.agentpool, "message_of_the_day") and
+            self.agentpool.message_of_the_day is not None
+        ):
+            message_of_the_day = self.agentpool.message_of_the_day
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return message_of_the_day
+
+    def get_enable_vtpm(self) -> bool:
+        return self._get_enable_vtpm(enable_validation=True)
+
+    def _get_enable_vtpm(self, enable_validation: bool = False) -> bool:
+        """Obtain the value of enable_vtpm, default value is False.
+
+        :return: bool
+        """
+        # read the original value passed by the command
+        enable_vtpm = self.raw_param.get("enable_vtpm", False)
+
+        # In create mode, try and read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            # try to read the property value corresponding to the parameter from the `agentpool` object
+            if (
+                self.agentpool and
+                hasattr(self.agentpool, "security_profile") and
+                self.agentpool.security_profile is not None and
+                self.agentpool.security_profile.enable_vtpm is not None
+            ):
+                enable_vtpm = self.agentpool.security_profile.enable_vtpm
+
+        # This parameter does not need dynamic completion.
+        if enable_validation:
+            if enable_vtpm and self._get_disable_vtpm(enable_validation=False):
+                raise MutuallyExclusiveArgumentError(
+                    "Cannot specify --enable-vtpm and --disable-vtpm at the same time."
+                )
+
+        return enable_vtpm
+
+    def _get_disable_vtpm(self, enable_validation: bool = False) -> bool:
+        """Internal function to obtain the value of disable_vtpm.
+        This function supports the option of enable_vtpm.
+        When enabled, if both enable_vtpm and disable_vtpm are specified,
+        raise a MutuallyExclusiveArgumentError.
+        :return: bool
+        """
+        # Read the original value passed by the command.
+        disable_vtpm = self.raw_param.get("disable_vtpm")
+
+        # This option is not supported in create mode, hence we do not read the property value from the `mc` object.
+        # This parameter does not need dynamic completion.
+        if enable_validation:
+            if disable_vtpm and self._get_enable_vtpm(enable_validation=False):
+                raise MutuallyExclusiveArgumentError(
+                    "Cannot specify --enable-vtpm and --disable-vtpm at the same time."
+                )
+
+        return disable_vtpm
+
+    def get_disable_vtpm(self) -> bool:
+        """Obtain the value of disable_vtpm.
+        This function will verify the parameter by default.
+        If both enable_vtpm and disable_vtpm are specified, raise a MutuallyExclusiveArgumentError.
+        :return: bool
+        """
+        return self._get_disable_vtpm(enable_validation=True)
+
+    def get_enable_secure_boot(self) -> bool:
+        return self._get_enable_secure_boot(enable_validation=True)
+
+    def _get_enable_secure_boot(self, enable_validation: bool = False) -> bool:
+        """Obtain the value of enable_secure_boot, default value is False.
+
+        :return: bool
+        """
+        # read the original value passed by the command
+        enable_secure_boot = self.raw_param.get("enable_secure_boot", False)
+
+        # In create mode, try and read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            # try to read the property value corresponding to the parameter from the `agentpool` object
+            if (
+                self.agentpool and
+                hasattr(self.agentpool, "security_profile") and
+                self.agentpool.security_profile is not None and
+                self.agentpool.security_profile.enable_secure_boot is not None
+            ):
+                enable_secure_boot = self.agentpool.security_profile.enable_secure_boot
+
+        # This parameter does not need dynamic completion.
+        if enable_validation:
+            if enable_secure_boot and self._get_disable_secure_boot(enable_validation=False):
+                raise MutuallyExclusiveArgumentError(
+                    "Cannot specify --enable-secure-boot and --disable-secure-boot at the same time."
+                )
+
+        return enable_secure_boot
+
+    def _get_disable_secure_boot(self, enable_validation: bool = False) -> bool:
+        """Internal function to obtain the value of disable_secure_boot.
+        This function supports the option of enable_secure_boot.
+        When enabled, if both enable_secure_boot and disable_secure_boot are specified,
+        raise a MutuallyExclusiveArgumentError.
+        :return: bool
+        """
+        # Read the original value passed by the command.
+        disable_secure_boot = self.raw_param.get("disable_secure_boot")
+
+        # This option is not supported in create mode, hence we do not read the property value from the `mc` object.
+        # This parameter does not need dynamic completion.
+        if enable_validation:
+            if disable_secure_boot and self._get_enable_secure_boot(enable_validation=False):
+                raise MutuallyExclusiveArgumentError(
+                    "Cannot specify --enable-secure-boot and --disable-secure-boot at the same time."
+                )
+
+        return disable_secure_boot
+
+    def get_disable_secure_boot(self) -> bool:
+        """Obtain the value of disable_secure_boot.
+        This function will verify the parameter by default.
+        If both enable_secure_boot and disable_secure_boot are specified, raise a MutuallyExclusiveArgumentError.
+        :return: bool
+        """
+        return self._get_disable_secure_boot(enable_validation=True)
+
     def _get_kubernetes_version(self, read_only: bool = False) -> str:
         """Internal function to dynamically obtain the value of kubernetes_version according to the context.
 
@@ -446,6 +628,10 @@ class AKSAgentPoolContext(BaseAKSContext):
                 node_vm_size = CONST_DEFAULT_WINDOWS_NODE_VM_SIZE
             else:
                 node_vm_size = CONST_DEFAULT_NODE_VM_SIZE
+                sku = self.raw_param.get("sku")
+                # if --node-vm-size is not specified, but --sku automatic is explicitly specified
+                if sku is not None and sku == CONST_MANAGED_CLUSTER_SKU_NAME_AUTOMATIC:
+                    node_vm_size = ""
 
         # this parameter does not need validation
         return node_vm_size
@@ -456,6 +642,33 @@ class AKSAgentPoolContext(BaseAKSContext):
         :return: string
         """
         return self._get_node_vm_size(read_only=False)
+
+    def get_vm_sizes(self) -> List[str]:
+        """Obtain the value of vm_sizes.
+
+        :return: list of strings
+        """
+        raw_value = self.raw_param.get("vm_sizes")
+        node_vm_size = self.raw_param.get("node_vm_size")
+        if raw_value is not None:
+            # vm_sizes is a comma-separated string, only used when vm_set_type is VirtualMachines
+            if self.get_vm_set_type() != CONST_VIRTUAL_MACHINES:
+                raise InvalidArgumentValueError("--vm-sizes can only be used with --vm-set-type VirtualMachines.")
+            if node_vm_size:
+                raise MutuallyExclusiveArgumentError("Cannot specify -vm-sizes and --node-vm-size at the same time.")
+            vm_sizes = [x.strip() for x in raw_value.split(",")]
+        else:
+            # when vm_sizes is not specified, try to use the value from node_vm_size (only 1 size)
+            if node_vm_size:
+                vm_sizes = [node_vm_size]
+            else:
+                # use default value
+                if self.get_os_type().lower() == "windows":
+                    vm_sizes = [CONST_DEFAULT_WINDOWS_VMS_VM_SIZE]
+                else:
+                    vm_sizes = [CONST_DEFAULT_VMS_VM_SIZE]
+
+        return vm_sizes
 
     def _get_os_type(self, read_only: bool = False) -> Union[str, None]:
         """Internal function to dynamically obtain the value of os_type according to the context.
@@ -503,9 +716,12 @@ class AKSAgentPoolContext(BaseAKSContext):
         ):
             # read the original value passed by the command
             raw_os_sku = self.raw_param.get("os_sku")
-            sku_2019 = CONST_OS_SKU_WINDOWS2019
-            sku_2022 = CONST_OS_SKU_WINDOWS2022
-            if raw_os_sku == sku_2019 or raw_os_sku == sku_2022:
+            windows_skus = (
+                CONST_OS_SKU_WINDOWS2019,
+                CONST_OS_SKU_WINDOWS2022,
+                CONST_OS_SKU_WINDOWS2025,
+            )
+            if raw_os_sku in windows_skus:
                 raise InvalidArgumentValueError(
                     "OS SKU is invalid for Linux OS Type."
                     " Please specify '--os-type Windows' for Windows SKUs"
@@ -543,7 +759,7 @@ class AKSAgentPoolContext(BaseAKSContext):
                 value_obtained_from_snapshot = snapshot.os_sku
 
         # set default value
-        if value_obtained_from_agentpool is not None:
+        if self.decorator_mode == DecoratorMode.CREATE and value_obtained_from_agentpool is not None:
             os_sku = value_obtained_from_agentpool
         elif raw_value is not None:
             os_sku = raw_value
@@ -590,6 +806,26 @@ class AKSAgentPoolContext(BaseAKSContext):
         # this parameter does not need dynamic completion
         # this parameter does not need validation
         return pod_subnet_id
+
+    def get_pod_ip_allocation_mode(self: bool = False) -> Union[str, None]:
+        """Get the value of pod_ip_allocation_mode.
+
+        :return: str or None
+        """
+
+        # Get the value of pod_ip_allocation_mode from the raw parameters provided by the user
+        pod_ip_allocation_mode = self.raw_param.get("pod_ip_allocation_mode")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        # if it exists and user has not provided any value in raw parameters
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                pod_ip_allocation_mode and
+                self.agentpool and
+                self.agentpool.pod_ip_allocation_mode is not None
+            ):
+                pod_ip_allocation_mode = self.agentpool.pod_ip_allocation_mode
+
+        return pod_ip_allocation_mode
 
     def get_enable_node_public_ip(self) -> bool:
         """Obtain the value of enable_node_public_ip, default value is False.
@@ -664,6 +900,42 @@ class AKSAgentPoolContext(BaseAKSContext):
             max_count = self.agentpool.max_count
 
         # these parameters do not need dynamic completion
+
+        # validation
+        self.__validate_counts_in_autoscaler(
+            node_count,
+            enable_cluster_autoscaler,
+            min_count,
+            max_count,
+            mode=self.get_mode(),
+            decorator_mode=DecoratorMode.CREATE,
+        )
+        return node_count, enable_cluster_autoscaler, min_count, max_count
+
+    def get_node_count_and_enable_cluster_autoscaler_min_max_count_vms(
+        self,
+    ) -> Tuple[int, bool, Union[int, None], Union[int, None]]:
+        """Obtain the value of node_count, enable_cluster_autoscaler, min_count and max_count.
+
+        This function will verify the parameters through function "__validate_counts_in_autoscaler" by default.
+
+        This function is for Virtual Machines nodepool only.
+
+        :return: a tuple containing four elements: node_count of int type, enable_cluster_autoscaler of bool type,
+        min_count of int type or None and max_count of int type or None
+        """
+        # node_count
+        # read the original value passed by the command
+        node_count = self.raw_param.get("node_count")
+        # enable_cluster_autoscaler
+        # read the original value passed by the command
+        enable_cluster_autoscaler = self.raw_param.get("enable_cluster_autoscaler", False)
+        # min_count
+        # read the original value passed by the command
+        min_count = self.raw_param.get("min_count")
+        # max_count
+        # read the original value passed by the command
+        max_count = self.raw_param.get("max_count")
 
         # validation
         self.__validate_counts_in_autoscaler(
@@ -764,6 +1036,124 @@ class AKSAgentPoolContext(BaseAKSContext):
 
         return update_cluster_autoscaler, enable_cluster_autoscaler, disable_cluster_autoscaler, min_count, max_count
 
+    def get_node_count_from_vms_agentpool(self, agentpool: AgentPool) -> Union[int, None]:
+        """Get current node count for vms agentpool.
+
+        :return: the node count of the vms agentpool
+        """
+        count = 0
+        if agentpool.virtual_machine_nodes_status:
+            for node_status in agentpool.virtual_machine_nodes_status:
+                if node_status.count is not None:
+                    count += node_status.count
+        if count == 0:
+            # If no node status is available, return None
+            return None
+        return count
+
+    def get_update_enable_disable_cluster_autoscaler_and_min_max_count_vmsize_vms(
+        self,
+    ) -> Tuple[bool, bool, Union[int, None], Union[int, None], Union[str, None]]:
+        """Obtain the value of enable_cluster_autoscaler, disable_cluster_autoscaler,
+        min_count and max_count, and vm size.
+
+        This function is for VMs agentpool only.
+
+        This function will verify the parameters through function "__validate_counts_in_autoscaler"
+        by default.
+        If update_cluster_autoscaler is specified, an InvalidArgumentValueError will be raised directing
+        users to use "az aks nodepool auto-scale update" instead.
+        If enable_cluster_autoscaler is specified and autoscaler is already enabled in `ap`,
+        it will output warning messages and exit with code 0.
+        If disable_cluster_autoscaler is specified and autoscaler is not enabled in `ap`,
+        it will output warning messages and exit with code 0.
+
+        :return: a tuple containing five elements: enable_cluster_autoscaler of bool type,
+        disable_cluster_autoscaler of bool type, min_count of int type or None, max_count of int type
+        or None, and vm_size of str type or None
+        """
+        update_cluster_autoscaler = self.raw_param.get("update_cluster_autoscaler", False)
+        enable_cluster_autoscaler = self.raw_param.get("enable_cluster_autoscaler", False)
+        disable_cluster_autoscaler = self.raw_param.get("disable_cluster_autoscaler", False)
+        min_count = self.raw_param.get("min_count")
+        max_count = self.raw_param.get("max_count")
+        vm_size = self.raw_param.get("node_vm_size")
+
+        # validation
+        if self.agentpool_decorator_mode == AgentPoolDecoratorMode.MANAGED_CLUSTER:
+            # For multi-agent pool, use the az aks nodepool command
+            if (enable_cluster_autoscaler or update_cluster_autoscaler) and len(self._agentpools) > 1:
+                raise ArgumentUsageError(
+                    'There are more than one node pool in the cluster. Please use "az aks nodepool" command '
+                    "to update per node pool auto scaler settings"
+                )
+
+        if enable_cluster_autoscaler + update_cluster_autoscaler + disable_cluster_autoscaler > 1:
+            raise MutuallyExclusiveArgumentError(
+                "Can only specify one of --enable-cluster-autoscaler, --update-cluster-autoscaler and "
+                "--disable-cluster-autoscaler"
+            )
+
+        if update_cluster_autoscaler:
+            raise InvalidArgumentValueError(
+                "--update-cluster-autoscaler is not supported for VirtualMachines node pools.\n"
+                'Please use "az aks nodepool auto-scale update" to update individual autoscale profiles.'
+            )
+
+        self.__validate_counts_in_autoscaler(
+            None,
+            enable_cluster_autoscaler,
+            min_count,
+            max_count,
+            mode=self.get_mode(),
+            decorator_mode=DecoratorMode.UPDATE,
+        )
+
+        autoscale_profile = (
+            self.agentpool.virtual_machines_profile and
+            self.agentpool.virtual_machines_profile.scale and
+            self.agentpool.virtual_machines_profile.scale.autoscale
+        )
+
+        manual_scale_profile = (
+            self.agentpool.virtual_machines_profile and
+            self.agentpool.virtual_machines_profile.scale and
+            self.agentpool.virtual_machines_profile.scale.manual
+        )
+
+        # if enabling cluster autoscaler
+        if enable_cluster_autoscaler:
+            if autoscale_profile:
+                logger.warning(
+                    "Cluster autoscaler is already enabled for this node pool.\n"
+                    'Please use "az aks nodepool auto-scale update" '
+                    "to update individual autoscale profiles."
+                )
+                raise DecoratorEarlyExitException()
+
+        # if disabling cluster autoscaler
+        if disable_cluster_autoscaler and not autoscale_profile:
+            logger.warning(
+                "Cluster autoscaler is already disabled for this node pool."
+            )
+            raise DecoratorEarlyExitException()
+
+        # if vm_size is not specified, use the size from the existing agentpool profile
+        if vm_size is None:
+            if autoscale_profile:
+                vm_size = autoscale_profile[0].size
+
+            if manual_scale_profile:
+                vm_size = manual_scale_profile[0].size
+
+        return (
+            enable_cluster_autoscaler,
+            disable_cluster_autoscaler,
+            min_count,
+            max_count,
+            vm_size,
+        )
+
     def get_priority(self) -> str:
         """Obtain the value of priority, default value is CONST_SCALE_SET_PRIORITY_REGULAR.
 
@@ -858,7 +1248,10 @@ class AKSAgentPoolContext(BaseAKSContext):
         :return: empty list, list of strings or None
         """
         # read the original value passed by the command
-        node_taints = self.raw_param.get("node_taints")
+        if self.agentpool_decorator_mode == AgentPoolDecoratorMode.MANAGED_CLUSTER:
+            node_taints = self.raw_param.get("nodepool_taints")
+        else:
+            node_taints = self.raw_param.get("node_taints")
         # normalize, default is an empty list
         if node_taints is not None:
             node_taints = [x.strip() for x in (node_taints.split(",") if node_taints else [])]
@@ -928,6 +1321,85 @@ class AKSAgentPoolContext(BaseAKSContext):
         # this parameter does not need validation
         return max_surge
 
+    def get_max_unavailable(self):
+        """Obtain the value of max_unavailable.
+        :return: string
+        """
+        # read the original value passed by the command
+        max_unavailable = self.raw_param.get("max_unavailable")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                self.agentpool.upgrade_settings and
+                self.agentpool.upgrade_settings.max_unavailable is not None
+            ):
+                max_unavailable = self.agentpool.upgrade_settings.max_unavailable
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return max_unavailable
+
+    def get_drain_timeout(self):
+        """Obtain the value of drain_timeout.
+
+        :return: int
+        """
+        # read the original value passed by the command
+        drain_timeout = self.raw_param.get("drain_timeout")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                self.agentpool.upgrade_settings and
+                self.agentpool.upgrade_settings.drain_timeout_in_minutes is not None
+            ):
+                drain_timeout = self.agentpool.upgrade_settings.drain_timeout_in_minutes
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return drain_timeout
+
+    def get_node_soak_duration(self):
+        """Obtain the value of node_soak_duration.
+
+        :return: int
+        """
+        # read the original value passed by the command
+        node_soak_duration = self.raw_param.get("node_soak_duration")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                self.agentpool.upgrade_settings and
+                self.agentpool.upgrade_settings.node_soak_duration_in_minutes is not None
+            ):
+                node_soak_duration = self.agentpool.upgrade_settings.node_soak_duration_in_minutes
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return node_soak_duration
+
+    def get_undrainable_node_behavior(self) -> str:
+        """Obtain the value of undrainable_node_behavior.
+
+        :return: string
+        """
+        # read the original value passed by the command
+        undrainable_node_behavior = self.raw_param.get("undrainable_node_behavior")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                self.agentpool.upgrade_settings and
+                self.agentpool.upgrade_settings.undrainable_node_behavior is not None
+            ):
+                undrainable_node_behavior = self.agentpool.upgrade_settings.undrainable_node_behavior
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return undrainable_node_behavior
+
     def get_vm_set_type(self) -> str:
         """Obtain the value of vm_set_type, default value is CONST_VIRTUAL_MACHINE_SCALE_SETS.
 
@@ -940,16 +1412,21 @@ class AKSAgentPoolContext(BaseAKSContext):
             if self.agentpool and self.agentpool.type is not None:
                 vm_set_type = self.agentpool.type
         else:
-            if self.agentpool and self.agentpool.type_properties_type is not None:
-                vm_set_type = self.agentpool.type_properties_type
+            if (self.agentpool and self.agentpool.properties and
+                    self.agentpool.properties.type_properties_type is not None):
+                vm_set_type = self.agentpool.properties.type_properties_type
 
         # normalize
         if vm_set_type.lower() == CONST_VIRTUAL_MACHINE_SCALE_SETS.lower():
             vm_set_type = CONST_VIRTUAL_MACHINE_SCALE_SETS
         elif vm_set_type.lower() == CONST_AVAILABILITY_SET.lower():
             vm_set_type = CONST_AVAILABILITY_SET
+        elif vm_set_type.lower() == CONST_VIRTUAL_MACHINES.lower():
+            vm_set_type = CONST_VIRTUAL_MACHINES
         else:
-            raise InvalidArgumentValueError("--vm-set-type can only be VirtualMachineScaleSets or AvailabilitySet")
+            raise InvalidArgumentValueError(
+                "--vm-set-type can only be VirtualMachineScaleSets or AvailabilitySet or VirtualMachines"
+            )
         # this parameter does not need validation
         return vm_set_type
 
@@ -1006,24 +1483,73 @@ class AKSAgentPoolContext(BaseAKSContext):
         # this parameter does not need validation
         return enable_ultra_ssd
 
+    # Mutable Fips now allows changes after create
     def get_enable_fips_image(self) -> bool:
-        """Obtain the value of enable_fips_image, default value is False.
+        """Obtain enable_fips_image, defaulting to False except for new Windows2025 pools.
+        :return: bool
+        """
+
+        # read the original value passed by the command
+        enable_fips_image = self.raw_param.get("enable_fips_image", False)
+        # In create mode, try and read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                hasattr(self.agentpool, "enable_fips") and      # backward compatibility
+                self.agentpool.enable_fips is not None
+            ):
+                enable_fips_image = self.agentpool.enable_fips
+            elif self.get_os_sku() == CONST_OS_SKU_WINDOWS2025:
+                if self.get_disable_fips_image():
+                    raise ArgumentUsageError(
+                        '"--disable-fips-image" cannot be used with "--os-sku Windows2025", '
+                        "which requires a FIPS-enabled OS image."
+                    )
+                enable_fips_image = True
+
+        # Verify both flags have not been set
+        if enable_fips_image and self.get_disable_fips_image():
+            raise MutuallyExclusiveArgumentError(
+                'Cannot specify "--enable-fips-image" and "--disable-fips-image" at the same time'
+            )
+
+        return enable_fips_image
+
+    def get_disable_fips_image(self) -> bool:
+        """Obtain the value of disable_fips_image.
+        :return: bool
+        """
+        # read the original value passed by the command
+        return self.raw_param.get("disable_fips_image")
+
+    def get_enable_artifact_streaming(self) -> bool:
+        """Obtain the value of enable_artifact_streaming.
 
         :return: bool
         """
         # read the original value passed by the command
-        enable_fips_image = self.raw_param.get("enable_fips_image", False)
-        # try to read the property value corresponding to the parameter from the `agentpool` object
-        if (
-            self.agentpool and
-            hasattr(self.agentpool, "enable_fips") and      # backward compatibility
-            self.agentpool.enable_fips is not None
-        ):
-            enable_fips_image = self.agentpool.enable_fips
+        enable_artifact_streaming = self.raw_param.get("enable_artifact_streaming")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                self.agentpool.artifact_streaming_profile is not None and
+                self.agentpool.artifact_streaming_profile.enabled is not None
+            ):
+                enable_artifact_streaming = self.agentpool.artifact_streaming_profile.enabled
 
-        # this parameter does not need dynamic completion
-        # this parameter does not need validation
-        return enable_fips_image
+        if enable_artifact_streaming and self.get_disable_artifact_streaming():
+            raise MutuallyExclusiveArgumentError(
+                'Cannot specify both --enable-artifact-streaming and --disable-artifact-streaming.'
+            )
+        return enable_artifact_streaming
+
+    def get_disable_artifact_streaming(self) -> bool:
+        """Obtain the value of disable_artifact_streaming.
+        :return: bool
+        """
+
+        return self.raw_param.get("disable_artifact_streaming")
 
     def get_zones(self) -> Union[List[str], None]:
         """Obtain the value of zones.
@@ -1041,16 +1567,16 @@ class AKSAgentPoolContext(BaseAKSContext):
         return zones
 
     def get_max_pods(self) -> Union[int, None]:
-        """Obtain the value of max_pods, default value is 0.
+        """Obtain the value of max_pods.
 
         This function will normalize the parameter by default. Int 0 would be converted to None.
 
         :return: int or None
         """
         # read the original value passed by the command
-        max_pods = self.raw_param.get("max_pods", 0)
+        max_pods = self.raw_param.get("max_pods")
         # normalize
-        if max_pods == 0:
+        if max_pods == 0:  # 0 is not a valid value
             max_pods = None
 
         # try to read the property value corresponding to the parameter from the `agentpool` object
@@ -1233,6 +1759,315 @@ class AKSAgentPoolContext(BaseAKSContext):
         # this parameter does not need validation
         return gpu_instance_profile
 
+    def get_asg_ids(self) -> Union[List[str], None]:
+        if self.agentpool_decorator_mode == AgentPoolDecoratorMode.MANAGED_CLUSTER:
+            asg_ids = self.raw_param.get('nodepool_asg_ids')
+        else:
+            asg_ids = self.raw_param.get('asg_ids')
+
+        return asg_ids
+
+    def get_allowed_host_ports(self) -> Union[List[PortRange], None]:
+        if self.agentpool_decorator_mode == AgentPoolDecoratorMode.MANAGED_CLUSTER:
+            ports = self.raw_param.get('nodepool_allowed_host_ports')
+        else:
+            ports = self.raw_param.get('allowed_host_ports')
+
+        if ports is None:
+            return None
+
+        port_ranges = []
+        import re
+        # Parse the port range. The format is either `<int>/<protocol>` or `<int>-<int>/<protocol>`.
+        # e.g. `80/tcp` | `22/udp` | `4000-5000/tcp`
+        regex = re.compile(r'^((\d+)|((\d+)-(\d+)))/(tcp|udp)$')
+        for port in ports:
+            r = regex.findall(port.lower())
+            if r[0][1] != '':
+                # single port
+                port_start, port_end = int(r[0][1]), int(r[0][1])
+            else:
+                # port range
+                port_start, port_end = int(r[0][3]), int(r[0][4])
+            port_ranges.append(self.models.PortRange(
+                port_start=port_start,
+                port_end=port_end,
+                protocol=r[0][5].upper(),
+            ))
+        return port_ranges
+
+    def get_enable_managed_dranet(self) -> Union[bool, None]:
+        """Obtain the value of enable_managed_dranet."""
+        return self.raw_param.get("enable_managed_dranet")
+
+    def get_ip_tags(self) -> Union[List[IPTag], None]:
+        ip_tags = self.raw_param.get("node_public_ip_tags")
+        res = []
+        if ip_tags:
+            for k, v in ip_tags.items():
+                res.append(self.models.IPTag(
+                    ip_tag_type=k,
+                    tag=v,
+                ))
+        return res
+
+    def _get_disable_windows_outbound_nat(self) -> bool:
+        """Internal function to obtain the value of disable_windows_outbound_nat.
+
+        :return: bool
+        """
+        # read the original value passed by the command
+        disable_windows_outbound_nat = self.raw_param.get("disable_windows_outbound_nat")
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                hasattr(self.agentpool, "windows_profile") and
+                self.agentpool.windows_profile and
+                self.agentpool.windows_profile.disable_outbound_nat is not None
+            ):
+                disable_windows_outbound_nat = self.agentpool.windows_profile.disable_outbound_nat
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return disable_windows_outbound_nat
+
+    def get_disable_windows_outbound_nat(self) -> bool:
+        """Obtain the value of disable_windows_outbound_nat.
+
+        :return: bool
+        """
+        return self._get_disable_windows_outbound_nat()
+
+    def get_if_match(self) -> str:
+        """Obtain the value of if_match.
+
+        :return: string
+        """
+        return self.raw_param.get("if_match")
+
+    def get_if_none_match(self) -> str:
+        """Obtain the value of if_none_match.
+
+        :return: string
+        """
+        return self.raw_param.get("if_none_match")
+
+    def _get_gpu_driver(self) -> Union[str, None]:
+        """Obtain the value of gpu_driver.
+
+        :return: string
+        """
+        # read the original value passed by the command
+        gpu_driver = self.raw_param.get("gpu_driver")
+
+        # In create mode, try to read the property value corresponding to the parameter from the `agentpool` object
+        if self.decorator_mode == DecoratorMode.CREATE:
+            if (
+                self.agentpool and
+                hasattr(self.agentpool, "gpu_profile") and      # backward compatibility
+                self.agentpool.gpu_profile and
+                self.agentpool.gpu_profile.driver is not None
+            ):
+                gpu_driver = self.agentpool.gpu_profile.driver
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return gpu_driver
+
+    def get_gpu_driver(self) -> Union[str, None]:
+        """Obtain the value of gpu_driver.
+
+        :return: string or None
+        """
+        return self._get_gpu_driver()
+
+    def get_enable_managed_gpu(self) -> Union[bool, None]:
+        """Obtain enable_managed_gpu, preserving the value on an attached create model."""
+        enable_managed_gpu = self.raw_param.get("enable_managed_gpu")
+        if self.decorator_mode == DecoratorMode.CREATE and self.agentpool:
+            gpu_profile = self.agentpool.gpu_profile
+            nvidia = getattr(gpu_profile, "nvidia", None)
+            if nvidia is not None and nvidia.management_mode is not None:
+                enable_managed_gpu = nvidia.management_mode == CONST_GPU_MANAGEMENT_MODE_MANAGED
+        return enable_managed_gpu
+
+    def get_gateway_prefix_size(self) -> Union[int, None]:
+        """Obtain the value of gateway_prefix_size.
+
+        :return: int or None
+        """
+        return self.raw_param.get('gateway_prefix_size')
+
+    def get_localdns_config(self):
+        return self.raw_param.get("localdns_config")
+
+    def get_localdns_profile(self):
+        """
+        Returns the local DNS profile dict if set, or None.
+        Only supports loading from --localdns-config (JSON file).
+        Assumes the input is always a string filename.
+        """
+        config = self.get_localdns_config()
+        if config:
+            if not isinstance(config, str) or not os.path.isfile(config):
+                raise InvalidArgumentValueError(
+                    f"{config} is not a valid file, or not accessible."
+                )
+            profile = get_file_json(config)
+            if not isinstance(profile, dict):
+                raise InvalidArgumentValueError(
+                    f"Error reading local DNS config from {config}. "
+                    "Please provide a valid JSON file."
+                )
+            return profile
+        return None
+
+    def build_localdns_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Build local DNS profile for the AgentPool object if provided via --localdns-config."""
+        localdns_profile = self.get_localdns_profile()
+        kube_dns_overrides, vnet_dns_overrides = None, None
+
+        if localdns_profile is not None:
+            def find_keys_case_insensitive(dictionary, target_keys):
+                """Find multiple keys case-insensitively and return a dict mapping target_key -> actual_key"""
+                result = {}
+                lowered_keys = {key.lower(): key for key in dictionary.keys()}
+                for target_key in target_keys:
+                    lowered_target = target_key.lower()
+                    if lowered_target in lowered_keys:
+                        result[target_key] = lowered_keys[lowered_target]
+                    else:
+                        result[target_key] = None
+                return result
+
+            def build_override(override_dict):
+                if not isinstance(override_dict, dict):
+                    raise InvalidArgumentValueError(
+                        f"Expected a dictionary for DNS override settings,"
+                        f" but got {type(override_dict).__name__}: {override_dict}"
+                    )
+                camel_to_snake_case = {
+                    "queryLogging": "query_logging",
+                    "protocol": "protocol",
+                    "forwardDestination": "forward_destination",
+                    "forwardPolicy": "forward_policy",
+                    "maxConcurrent": "max_concurrent",
+                    "cacheDurationInSeconds": "cache_duration_in_seconds",
+                    "serveStaleDurationInSeconds": "serve_stale_duration_in_seconds",
+                    "serveStale": "serve_stale",
+                }
+                valid_keys = set(camel_to_snake_case.values())
+                filtered = {}
+                for k, v in override_dict.items():
+                    if k in camel_to_snake_case:
+                        filtered[camel_to_snake_case[k]] = v
+                    elif k in valid_keys:
+                        filtered[k] = v
+                return self.models.LocalDNSOverride(**filtered)
+
+            # Build kubeDNSOverrides and vnetDNSOverrides from the localdns_profile
+            key_mappings = find_keys_case_insensitive(localdns_profile, ["kubeDNSOverrides", "vnetDNSOverrides"])
+            actual_kube_key = key_mappings["kubeDNSOverrides"]
+            if actual_kube_key:
+                logger.debug("Found kubeDNSOverrides key as: %s", actual_kube_key)
+                kube_dns_overrides = {}
+                process_dns_overrides(
+                    localdns_profile.get(actual_kube_key),
+                    kube_dns_overrides,
+                    build_override
+                )
+
+            actual_vnet_key = key_mappings["vnetDNSOverrides"]
+            if actual_vnet_key:
+                logger.debug("Found vnetDNSOverrides key as: %s", actual_vnet_key)
+                vnet_dns_overrides = {}
+                process_dns_overrides(
+                    localdns_profile.get(actual_vnet_key),
+                    vnet_dns_overrides,
+                    build_override
+                )
+
+            agentpool.local_dns_profile = self.models.LocalDNSProfile(
+                mode=localdns_profile.get("mode"),
+                kube_dns_overrides=kube_dns_overrides,
+                vnet_dns_overrides=vnet_dns_overrides,
+            )
+        return agentpool
+
+    def get_workload_runtime(self) -> Union[str, None]:
+        """Obtain the value of workload_runtime, default value is None.
+
+        :return: string or None
+        """
+        # read the original value passed by the command
+        workload_runtime = self.raw_param.get("workload_runtime", None)
+        # try to read the property value corresponding to the parameter from the `mc` object
+        if self.agentpool and self.agentpool.workload_runtime is not None:
+            workload_runtime = self.agentpool.workload_runtime
+
+        # this parameter does not need dynamic completion
+        # this parameter does not need validation
+        return workload_runtime
+
+    def get_ssh_access(self) -> Union[str, None]:
+        """Obtain the value of ssh_access.
+        """
+        return self.raw_param.get("ssh_access")
+
+    def get_yes(self) -> bool:
+        """Obtain the value of yes.
+
+        :return: bool
+        """
+        return self.raw_param.get("yes")
+
+    def get_node_vm_size_for_update(self) -> Union[str, None]:
+        """Obtain and validate the value of node_vm_size for `az aks nodepool update`.
+
+        An explicit empty value is rejected instead of being treated as omitted.
+
+        :return: string or None
+        """
+        node_vm_size = self.raw_param.get("node_vm_size")
+        if node_vm_size is None:
+            return None
+        if not node_vm_size.strip():
+            raise InvalidArgumentValueError("--node-vm-size cannot be empty.")
+        return node_vm_size
+
+    def validate_node_vm_size_with_autoscaler_for_update(self) -> None:
+        """Reject a resize combined with an autoscaler request that would exit early without updating.
+
+        Must be called with the fetched agentpool attached and before the autoscaler properties are updated, since
+        it compares the request with the node pool's current autoscaler state.
+
+        On a VirtualMachineScaleSets pool, --enable-cluster-autoscaler when the autoscaler is already enabled, or
+        --disable-cluster-autoscaler when it is already disabled, is a no-op that exits early, which would silently
+        drop --node-vm-size. Other combinations (e.g. resize with --update-cluster-autoscaler, or with an
+        enable/disable that changes the autoscaler state) are left untouched so existing callers, such as
+        aks-preview, keep working. VirtualMachines pools are handled by update_auto_scaler_properties_vms and
+        update_vm_size, which aks-preview overrides with its own VirtualMachines handling.
+        """
+        if self.get_node_vm_size_for_update() is None:
+            return
+        if self.agentpool is None or self.get_vm_set_type() != CONST_VIRTUAL_MACHINE_SCALE_SETS:
+            return
+        autoscaler_enabled = bool(self.agentpool.enable_auto_scaling)
+        if self.raw_param.get("enable_cluster_autoscaler") and autoscaler_enabled:
+            raise MutuallyExclusiveArgumentError(
+                "Cluster autoscaler is already enabled for this node pool, so --enable-cluster-autoscaler "
+                "would skip the update and --node-vm-size would not be applied. "
+                "Remove --enable-cluster-autoscaler, or use --update-cluster-autoscaler to change "
+                "min-count or max-count."
+            )
+        if self.raw_param.get("disable_cluster_autoscaler") and not autoscaler_enabled:
+            raise MutuallyExclusiveArgumentError(
+                "Cluster autoscaler is already disabled for this node pool, so --disable-cluster-autoscaler "
+                "would skip the update and --node-vm-size would not be applied. "
+                "Remove --disable-cluster-autoscaler."
+            )
+
 
 class AKSAgentPoolAddDecorator:
     def __init__(
@@ -1392,6 +2227,7 @@ class AKSAgentPoolAddDecorator:
 
         agentpool.vnet_subnet_id = self.context.get_vnet_subnet_id()
         agentpool.pod_subnet_id = self.context.get_pod_subnet_id()
+        agentpool.pod_ip_allocation_mode = self.context.get_pod_ip_allocation_mode()
         agentpool.enable_node_public_ip = self.context.get_enable_node_public_ip()
         agentpool.node_public_ip_prefix_id = self.context.get_node_public_ip_prefix_id()
         return agentpool
@@ -1465,6 +2301,23 @@ class AKSAgentPoolAddDecorator:
         max_surge = self.context.get_max_surge()
         if max_surge:
             upgrade_settings.max_surge = max_surge
+
+        max_unavailable = self.context.get_max_unavailable()
+        if max_unavailable:
+            upgrade_settings.max_unavailable = max_unavailable
+
+        drain_timeout = self.context.get_drain_timeout()
+        if drain_timeout:
+            upgrade_settings.drain_timeout_in_minutes = drain_timeout
+
+        node_soak_duration = self.context.get_node_soak_duration()
+        if node_soak_duration:
+            upgrade_settings.node_soak_duration_in_minutes = node_soak_duration
+
+        undrainable_node_behavior = self.context.get_undrainable_node_behavior()
+        if undrainable_node_behavior:
+            upgrade_settings.undrainable_node_behavior = undrainable_node_behavior
+
         agentpool.upgrade_settings = upgrade_settings
         return agentpool
 
@@ -1502,6 +2355,16 @@ class AKSAgentPoolAddDecorator:
         agentpool.linux_os_config = self.context.get_linux_os_config()
         return agentpool
 
+    def set_up_motd(self, agentpool: AgentPool) -> AgentPool:
+        """Set up message of the day for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        agentpool.message_of_the_day = self.context.get_message_of_the_day()
+        return agentpool
+
     def set_up_gpu_properties(self, agentpool: AgentPool) -> AgentPool:
         """Set up gpu related properties for the AgentPool object.
 
@@ -1510,6 +2373,220 @@ class AKSAgentPoolAddDecorator:
         self._ensure_agentpool(agentpool)
 
         agentpool.gpu_instance_profile = self.context.get_gpu_instance_profile()
+        return agentpool
+
+    def set_up_crg_id(self, agentpool: AgentPool) -> AgentPool:
+        """Set up crg related properties for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+        agentpool.capacity_reservation_group_id = self.context.get_crg_id()
+        return agentpool
+
+    def set_up_agentpool_security_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Set up security profile for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        enable_vtpm = self.context.get_enable_vtpm()
+        enable_secure_boot = self.context.get_enable_secure_boot()
+
+        # Construct AgentPoolSecurityProfile if one of the fields has been set
+        if enable_vtpm:
+            agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.enable_vtpm = enable_vtpm
+
+        if enable_secure_boot:
+            if not agentpool.security_profile:
+                agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.enable_secure_boot = enable_secure_boot
+
+        return agentpool
+
+    def set_up_ssh_access(self, agentpool: AgentPool) -> AgentPool:
+        """Set up the SSH access property for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        ssh_access = self.context.get_ssh_access()
+        if ssh_access is not None:
+            if agentpool.security_profile is None:
+                agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.ssh_access = ssh_access
+        return agentpool
+
+    def set_up_agentpool_network_profile(self, agentpool: AgentPool) -> AgentPool:
+        self._ensure_agentpool(agentpool)
+
+        asg_ids = self.context.get_asg_ids()
+        allowed_host_ports = self.context.get_allowed_host_ports()
+        enable_managed_dranet = self.context.get_enable_managed_dranet()
+        if allowed_host_ports is not None or enable_managed_dranet is not None:
+            agentpool.network_profile = self.models.AgentPoolNetworkProfile()
+            agentpool.network_profile.allowed_host_ports = allowed_host_ports
+            agentpool.network_profile.application_security_groups = asg_ids
+            if enable_managed_dranet is not None:
+                agentpool.network_profile.dranet = self.models.DRANETProfile(
+                    mode="Managed" if enable_managed_dranet else "Unmanaged"
+                )
+
+        ip_tags = self.context.get_ip_tags()
+        if ip_tags:
+            if not agentpool.network_profile:
+                agentpool.network_profile = self.models.AgentPoolNetworkProfile()
+            agentpool.network_profile.node_public_ip_tags = ip_tags
+
+        return agentpool
+
+    def set_up_agentpool_windows_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Set up windows profile for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        disable_windows_outbound_nat = self.context.get_disable_windows_outbound_nat()
+
+        # Construct AgentPoolWindowsProfile if one of the fields has been set
+        if disable_windows_outbound_nat:
+            agentpool.windows_profile = self.models.AgentPoolWindowsProfile(  # pylint: disable=no-member
+                disable_outbound_nat=disable_windows_outbound_nat
+            )
+
+        return agentpool
+
+    def set_up_gpu_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Set up gpu profile for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        gpu_driver = self.context.get_gpu_driver()
+        enable_managed_gpu = self.context.get_enable_managed_gpu()
+
+        if gpu_driver or enable_managed_gpu:
+            if agentpool.gpu_profile is None:
+                agentpool.gpu_profile = self.models.GPUProfile()
+            agentpool.gpu_profile.driver = CONST_GPU_DRIVER_INSTALL if enable_managed_gpu else gpu_driver
+            if enable_managed_gpu:
+                if agentpool.gpu_profile.nvidia is None:
+                    agentpool.gpu_profile.nvidia = self.models.NvidiaGPUProfile()
+                agentpool.gpu_profile.nvidia.management_mode = CONST_GPU_MANAGEMENT_MODE_MANAGED
+
+        return agentpool
+
+    def set_up_artifact_streaming(self, agentpool: AgentPool) -> AgentPool:
+        """Set up artifact streaming property for the AgentPool object."""
+        self._ensure_agentpool(agentpool)
+
+        if self.context.get_enable_artifact_streaming():
+            if agentpool.artifact_streaming_profile is None:
+                agentpool.artifact_streaming_profile = self.models.AgentPoolArtifactStreamingProfile()  # pylint: disable=no-member
+            agentpool.artifact_streaming_profile.enabled = True
+        return agentpool
+
+    def set_up_agentpool_gateway_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Set up agentpool gateway profile for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        gateway_prefix_size = self.context.get_gateway_prefix_size()
+        if gateway_prefix_size is not None:
+            if agentpool.gateway_profile is None:
+                agentpool.gateway_profile = self.models.AgentPoolGatewayProfile()  # pylint: disable=no-member
+
+            agentpool.gateway_profile.public_ip_prefix_size = gateway_prefix_size
+
+        return agentpool
+
+    def set_up_pod_ip_allocation_mode(self, agentpool: AgentPool) -> AgentPool:
+        """Set up pod ip allocation mode for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        pod_ip_allocation_mode = self.context.get_pod_ip_allocation_mode()
+        if pod_ip_allocation_mode is not None:
+            agentpool.pod_ip_allocation_mode = pod_ip_allocation_mode
+
+        return agentpool
+
+    def set_up_virtual_machines_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Set up virtual machines profile for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        # validate vm_sizes first, then skip if not Virtual Machines
+        sizes = self.context.get_vm_sizes()
+        if len(sizes) != 1:
+            raise InvalidArgumentValueError(f"We only accept single sku size for scale profile. {sizes} is invalid.")
+
+        if self.context.get_vm_set_type() != CONST_VIRTUAL_MACHINES:
+            return agentpool
+
+        (
+            node_count,
+            enable_auto_scaling,
+            min_count,
+            max_count,
+        ) = self.context.get_node_count_and_enable_cluster_autoscaler_min_max_count_vms()
+
+        if enable_auto_scaling:
+            agentpool.virtual_machines_profile = self.models.VirtualMachinesProfile(
+                scale=self.models.ScaleProfile(
+                    autoscale=[
+                        self.models.AutoScaleProfile(
+                            size=sizes[0],
+                            min_count=min_count,
+                            max_count=max_count,
+                        )
+                    ]
+                )
+            )
+        else:
+            agentpool.virtual_machines_profile = self.models.VirtualMachinesProfile(
+                scale=self.models.ScaleProfile(
+                    manual=[
+                        self.models.ManualScaleProfile(
+                            size=sizes[0],
+                            count=node_count,
+                        )
+                    ]
+                )
+            )
+
+        # properties that doesn't need to be set for virtual machines agentpool
+        # they are for vmss only
+        agentpool.vm_size = None
+        agentpool.count = None
+        agentpool.enable_auto_scaling = False
+        agentpool.min_count = None
+        agentpool.max_count = None
+
+        return agentpool
+
+    def set_up_workload_runtime(self, agentpool: AgentPool) -> AgentPool:
+        """Set up workload runtime for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        workload_runtime = self.context.get_workload_runtime()
+        if workload_runtime is not None:
+            agentpool.workload_runtime = workload_runtime
+
         return agentpool
 
     def construct_agentpool_profile_default(self, bypass_restore_defaults: bool = False) -> AgentPool:
@@ -1546,6 +2623,32 @@ class AKSAgentPoolAddDecorator:
         agentpool = self.set_up_custom_node_config(agentpool)
         # set up gpu instance profile
         agentpool = self.set_up_gpu_properties(agentpool)
+        # set up agentpool network profile
+        agentpool = self.set_up_agentpool_network_profile(agentpool)
+        # set up artifact streaming
+        agentpool = self.set_up_artifact_streaming(agentpool)
+        # set up agentpool pod ip allocation mode
+        agentpool = self.set_up_pod_ip_allocation_mode(agentpool)
+        # set up agentpool windows profile
+        agentpool = self.set_up_agentpool_windows_profile(agentpool)
+        # set up crg id
+        agentpool = self.set_up_crg_id(agentpool)
+        # set up agentpool security profile
+        agentpool = self.set_up_agentpool_security_profile(agentpool)
+        # set up agentpool ssh access
+        agentpool = self.set_up_ssh_access(agentpool)
+        # set up message of the day
+        agentpool = self.set_up_motd(agentpool)
+        # set up gpu profile
+        agentpool = self.set_up_gpu_profile(agentpool)
+        # set up agentpool gateway profile
+        agentpool = self.set_up_agentpool_gateway_profile(agentpool)
+        # set up virtual machines profile
+        agentpool = self.set_up_virtual_machines_profile(agentpool)
+        # set up local DNS profile
+        agentpool = self.set_up_localdns_profile(agentpool)
+        # set up workload_runtime
+        agentpool = self.set_up_workload_runtime(agentpool)
         # restore defaults
         if not bypass_restore_defaults:
             agentpool = self._restore_defaults_in_agentpool(agentpool)
@@ -1562,6 +2665,18 @@ class AKSAgentPoolAddDecorator:
         """
         self._ensure_agentpool(agentpool)
 
+        active_cloud = get_active_cloud(self.cmd.cli_ctx)
+        if active_cloud.profile != "latest":
+            return sdk_no_wait(
+                self.context.get_no_wait(),
+                self.client.begin_create_or_update,
+                self.context.get_resource_group_name(),
+                self.context.get_cluster_name(),
+                self.context._get_nodepool_name(enable_validation=False),
+                agentpool,
+                headers=self.context.get_aks_custom_headers(),
+            )
+
         return sdk_no_wait(
             self.context.get_no_wait(),
             self.client.begin_create_or_update,
@@ -1570,8 +2685,14 @@ class AKSAgentPoolAddDecorator:
             # validated in "init_agentpool", skip to avoid duplicate api calls
             self.context._get_nodepool_name(enable_validation=False),
             agentpool,
+            **build_etag_kwargs(self.context.get_if_match(), self.context.get_if_none_match()),
             headers=self.context.get_aks_custom_headers(),
         )
+
+    def set_up_localdns_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Set up local DNS profile for the AgentPool object if provided via --localdns-config."""
+        self._ensure_agentpool(agentpool)
+        return self.context.build_localdns_profile(agentpool)
 
 
 class AKSAgentPoolUpdateDecorator:
@@ -1668,6 +2789,10 @@ class AKSAgentPoolUpdateDecorator:
         """
         self._ensure_agentpool(agentpool)
 
+        # skip it for virtual machines pool
+        if self.context.get_vm_set_type() == CONST_VIRTUAL_MACHINES:
+            return agentpool
+
         (
             update_cluster_autoscaler,
             enable_cluster_autoscaler,
@@ -1687,6 +2812,87 @@ class AKSAgentPoolUpdateDecorator:
             agentpool.enable_auto_scaling = False
             agentpool.min_count = None
             agentpool.max_count = None
+        return agentpool
+
+    def update_auto_scaler_properties_vms(self, agentpool: AgentPool) -> AgentPool:
+        """Update auto scaler related properties for a VirtualMachines Agentpool object.
+
+        Converts between manual and autoscale profiles based on the user's request.
+
+        :return: the Agentpool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        # for virtual machines agentpool only, skip for other agentpool types
+        if self.context.get_vm_set_type() != CONST_VIRTUAL_MACHINES:
+            return agentpool
+
+        (
+            enable_cluster_autoscaler,
+            disable_cluster_autoscaler,
+            min_count,
+            max_count,
+            vm_size,
+        ) = (
+            self.context.get_update_enable_disable_cluster_autoscaler_and_min_max_count_vmsize_vms()
+        )
+
+        if enable_cluster_autoscaler:
+            # Convert all manual profiles to autoscale profiles using the same min/max counts
+            manual_profiles = (
+                agentpool.virtual_machines_profile and
+                agentpool.virtual_machines_profile.scale and
+                agentpool.virtual_machines_profile.scale.manual
+            )
+            if manual_profiles:
+                autoscale_profiles = [
+                    self.models.AutoScaleProfile(
+                        size=m.size,
+                        min_count=min_count,
+                        max_count=max_count,
+                    )
+                    for m in manual_profiles
+                ]
+            else:
+                autoscale_profiles = [self.models.AutoScaleProfile(
+                    size=vm_size,
+                    min_count=min_count,
+                    max_count=max_count,
+                )]
+            agentpool.virtual_machines_profile = self.models.VirtualMachinesProfile(
+                scale=self.models.ScaleProfile(
+                    autoscale=autoscale_profiles
+                )
+            )
+
+        if disable_cluster_autoscaler:
+            current_node_count = self.context.get_node_count_from_vms_agentpool(agentpool)
+            autoscale_profiles = (
+                agentpool.virtual_machines_profile and
+                agentpool.virtual_machines_profile.scale and
+                agentpool.virtual_machines_profile.scale.autoscale
+            )
+            if autoscale_profiles:
+                manual_profiles = [
+                    self.models.ManualScaleProfile(
+                        size=a.size,
+                        count=a.min_count if a.min_count is not None else current_node_count,
+                    )
+                    for a in autoscale_profiles
+                ]
+            else:
+                manual_profiles = [
+                    self.models.ManualScaleProfile(
+                        size=vm_size,
+                        count=current_node_count,
+                    )
+                ]
+            agentpool.virtual_machines_profile = self.models.VirtualMachinesProfile(
+                scale=self.models.ScaleProfile(
+                    manual=manual_profiles
+                )
+            )
+
         return agentpool
 
     def update_label_tag_taint(self, agentpool: AgentPool) -> AgentPool:
@@ -1723,7 +2929,28 @@ class AKSAgentPoolUpdateDecorator:
         max_surge = self.context.get_max_surge()
         if max_surge:
             upgrade_settings.max_surge = max_surge
+            # why not always set this? so we don't wipe out a preview feaure in upgrade settigns like NodeSoakDuration?
             agentpool.upgrade_settings = upgrade_settings
+
+        max_unavailable = self.context.get_max_unavailable()
+        if max_unavailable:
+            upgrade_settings.max_unavailable = max_unavailable
+
+        drain_timeout = self.context.get_drain_timeout()
+        if drain_timeout:
+            upgrade_settings.drain_timeout_in_minutes = drain_timeout
+            agentpool.upgrade_settings = upgrade_settings
+
+        node_soak_duration = self.context.get_node_soak_duration()
+        if node_soak_duration:
+            upgrade_settings.node_soak_duration_in_minutes = node_soak_duration
+            agentpool.upgrade_settings = upgrade_settings
+
+        undrainable_node_behavior = self.context.get_undrainable_node_behavior()
+        if undrainable_node_behavior:
+            upgrade_settings.undrainable_node_behavior = undrainable_node_behavior
+            agentpool.upgrade_settings = upgrade_settings
+
         return agentpool
 
     def update_vm_properties(self, agentpool: AgentPool) -> AgentPool:
@@ -1742,6 +2969,180 @@ class AKSAgentPoolUpdateDecorator:
             agentpool.mode = mode
         return agentpool
 
+    def update_network_profile(self, agentpool: AgentPool) -> AgentPool:
+        self._ensure_agentpool(agentpool)
+
+        asg_ids = self.context.get_asg_ids()
+        allowed_host_ports = self.context.get_allowed_host_ports()
+        enable_managed_dranet = self.context.get_enable_managed_dranet()
+        if (
+            asg_ids is not None or
+            allowed_host_ports is not None or
+            enable_managed_dranet is not None
+        ) and not agentpool.network_profile:
+            agentpool.network_profile = self.models.AgentPoolNetworkProfile()
+        if asg_ids is not None:
+            agentpool.network_profile.application_security_groups = asg_ids
+        if allowed_host_ports is not None:
+            agentpool.network_profile.allowed_host_ports = allowed_host_ports
+        if enable_managed_dranet is not None:
+            agentpool.network_profile.dranet = self.models.DRANETProfile(
+                mode="Managed" if enable_managed_dranet else "Unmanaged"
+            )
+        return agentpool
+
+    def update_os_sku(self, agentpool: AgentPool) -> AgentPool:
+        self._ensure_agentpool(agentpool)
+
+        os_sku = self.context.get_os_sku()
+        if os_sku:
+            agentpool.os_sku = os_sku
+        return agentpool
+
+    def update_fips_image(self, agentpool: AgentPool) -> AgentPool:
+        """Update fips image property for the AgentPool object.
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        # Updates enable_fips property allowing switching of fips mode
+        if self.context.get_enable_fips_image():
+            agentpool.enable_fips = True
+
+        if self.context.get_disable_fips_image():
+            agentpool.enable_fips = False
+
+        return agentpool
+
+    def update_secure_boot(self, agentpool: AgentPool) -> AgentPool:
+        """Update secure boot property for the AgentPool object.
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        if self.context.get_enable_secure_boot():
+            if agentpool.security_profile is None:
+                agentpool.secure_boot = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.enable_secure_boot = True
+
+        if self.context.get_disable_secure_boot():
+            if agentpool.security_profile is None:
+                agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.enable_secure_boot = False
+
+        return agentpool
+
+    def update_vtpm(self, agentpool: AgentPool) -> AgentPool:
+        """Update vtpm property for the AgentPool object.
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        if self.context.get_enable_vtpm():
+            if agentpool.security_profile is None:
+                agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.enable_vtpm = True
+
+        if self.context.get_disable_vtpm():
+            if agentpool.security_profile is None:
+                agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            agentpool.security_profile.enable_vtpm = False
+
+        return agentpool
+
+    def update_ssh_access(self, agentpool: AgentPool) -> AgentPool:
+        """Update the SSH access property for the AgentPool object.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        ssh_access = self.context.get_ssh_access()
+        if ssh_access is not None:
+            if agentpool.security_profile is None:
+                agentpool.security_profile = self.models.AgentPoolSecurityProfile()  # pylint: disable=no-member
+            current_ssh_access = agentpool.security_profile.ssh_access
+            # already set to the same value, directly return
+            if current_ssh_access is not None and current_ssh_access.lower() == ssh_access.lower():
+                return agentpool
+
+            msg = (
+                f"You're going to update agentpool {agentpool.name} ssh access to '{ssh_access}'. "
+                "For Kubernetes versions below 1.37, this change takes effect after you upgrade the node pool. "
+                "For Kubernetes versions 1.37 and above, this change can trigger node pool reimaging. Proceed?"
+            )
+            if not self.context.get_yes() and not prompt_y_n(msg, default="n"):
+                raise DecoratorEarlyExitException()
+            agentpool.security_profile.ssh_access = ssh_access
+        return agentpool
+
+    def update_vm_size(self, agentpool: AgentPool) -> AgentPool:
+        """Update the VM size of a VirtualMachineScaleSets based AgentPool object.
+
+        Changing the VM size triggers a rolling replacement: AKS surges nodes with the new size, then cordons,
+        drains and deletes the old nodes according to the node pool's upgrade settings.
+
+        VirtualMachines node pools manage VM sizes through their scale profiles, so --node-vm-size is rejected
+        for them instead of being silently ignored. Combinations with no-op autoscaler requests are rejected
+        earlier by AKSAgentPoolContext.validate_node_vm_size_with_autoscaler_for_update.
+
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        node_vm_size = self.context.get_node_vm_size_for_update()
+        if node_vm_size is None:
+            return agentpool
+
+        if self.context.get_vm_set_type() == CONST_VIRTUAL_MACHINES:
+            raise InvalidArgumentValueError(
+                "--node-vm-size is not supported for VirtualMachines node pools. "
+                'Please use "az aks nodepool manual-scale update" or "az aks nodepool auto-scale update" '
+                "to change the VM size of a VirtualMachines node pool."
+            )
+
+        # already set to the same value, directly return
+        if agentpool.vm_size and agentpool.vm_size.lower() == node_vm_size.lower():
+            return agentpool
+
+        msg = (
+            f"You're going to resize agentpool {agentpool.name} from '{agentpool.vm_size}' to '{node_vm_size}'. "
+            "All nodes in the node pool will be replaced with nodes of the new size. Proceed?"
+        )
+        if not self.context.get_yes() and not prompt_y_n(msg, default="n"):
+            raise DecoratorEarlyExitException()
+        agentpool.vm_size = node_vm_size
+        return agentpool
+
+    def update_gpu_profile(self, agentpool: AgentPool) -> AgentPool:
+        self._ensure_agentpool(agentpool)
+
+        gpu_driver = self.context.get_gpu_driver()
+
+        # Construct AgentPoolGPUProfile if one of the fields has been set
+        if gpu_driver:
+            agentpool.gpu_profile = self.models.GPUProfile()
+            agentpool.gpu_profile.driver = gpu_driver
+
+        return agentpool
+
+    def update_artifact_streaming(self, agentpool: AgentPool) -> AgentPool:
+        """Update artifact streaming property for the AgentPool object.
+        :return: the AgentPool object
+        """
+        self._ensure_agentpool(agentpool)
+
+        if self.context.get_enable_artifact_streaming():
+            if agentpool.artifact_streaming_profile is None:
+                agentpool.artifact_streaming_profile = self.models.AgentPoolArtifactStreamingProfile()  # pylint: disable=no-member
+            agentpool.artifact_streaming_profile.enabled = True
+
+        if self.context.get_disable_artifact_streaming():
+            if agentpool.artifact_streaming_profile is None:
+                agentpool.artifact_streaming_profile = self.models.AgentPoolArtifactStreamingProfile()  # pylint: disable=no-member
+            agentpool.artifact_streaming_profile.enabled = False
+        return agentpool
+
     def update_agentpool_profile_default(self, agentpools: List[AgentPool] = None) -> AgentPool:
         """The overall controller used to update AgentPool profile by default.
 
@@ -1752,14 +3153,39 @@ class AKSAgentPoolUpdateDecorator:
         """
         # fetch the Agentpool object
         agentpool = self.fetch_agentpool(agentpools)
+        # reject a resize combined with a no-op autoscaler request, before update_auto_scaler_properties changes the
+        # autoscaler state or exits early (e.g. autoscaler already enabled) and drops the resize
+        self.context.validate_node_vm_size_with_autoscaler_for_update()
         # update auto scaler properties
         agentpool = self.update_auto_scaler_properties(agentpool)
+        # update auto scaler properties for vms pool
+        agentpool = self.update_auto_scaler_properties_vms(agentpool)
         # update label, tag, taint
         agentpool = self.update_label_tag_taint(agentpool)
         # update upgrade settings
         agentpool = self.update_upgrade_settings(agentpool)
         # update misc vm properties
         agentpool = self.update_vm_properties(agentpool)
+        # update network profile
+        agentpool = self.update_network_profile(agentpool)
+        # update os sku
+        agentpool = self.update_os_sku(agentpool)
+        # update fips image
+        agentpool = self.update_fips_image(agentpool)
+        # update vtpm
+        agentpool = self.update_vtpm(agentpool)
+        # update secure boot
+        agentpool = self.update_secure_boot(agentpool)
+        # update ssh access
+        agentpool = self.update_ssh_access(agentpool)
+        # update vm size
+        agentpool = self.update_vm_size(agentpool)
+        # update local DNS profile
+        agentpool = self.update_localdns_profile(agentpool)
+        # update gpu profile
+        agentpool = self.update_gpu_profile(agentpool)
+        # update artifact streaming
+        agentpool = self.update_artifact_streaming(agentpool)
         return agentpool
 
     def update_agentpool(self, agentpool: AgentPool) -> AgentPool:
@@ -1772,6 +3198,18 @@ class AKSAgentPoolUpdateDecorator:
         """
         self._ensure_agentpool(agentpool)
 
+        active_cloud = get_active_cloud(self.cmd.cli_ctx)
+        if active_cloud.profile != "latest":
+            return sdk_no_wait(
+                self.context.get_no_wait(),
+                self.client.begin_create_or_update,
+                self.context.get_resource_group_name(),
+                self.context.get_cluster_name(),
+                self.context.get_nodepool_name(),
+                agentpool,
+                headers=self.context.get_aks_custom_headers(),
+            )
+
         return sdk_no_wait(
             self.context.get_no_wait(),
             self.client.begin_create_or_update,
@@ -1779,5 +3217,11 @@ class AKSAgentPoolUpdateDecorator:
             self.context.get_cluster_name(),
             self.context.get_nodepool_name(),
             agentpool,
+            **build_etag_kwargs(self.context.get_if_match(), self.context.get_if_none_match()),
             headers=self.context.get_aks_custom_headers(),
         )
+
+    def update_localdns_profile(self, agentpool: AgentPool) -> AgentPool:
+        """Update local DNS profile for the AgentPool object if provided via --localdns-config."""
+        self._ensure_agentpool(agentpool)
+        return self.context.build_localdns_profile(agentpool)

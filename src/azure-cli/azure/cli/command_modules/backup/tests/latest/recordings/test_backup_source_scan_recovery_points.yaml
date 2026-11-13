@@ -1,0 +1,307 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - backup vault show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --subscription -g -n
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.13.15 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1?api-version=2026-07-01
+  response:
+    body:
+      string: '{"location":"eastasia","name":"mdchanatest31new1","etag":"W/\"datetime''2026-10-24T10%3A24%3A01.8055165Z''\"","properties":{"provisioningState":"Succeeded","privateEndpointStateForBackup":"None","privateEndpointStateForSiteRecovery":"None","backupStorageVersion":"V1","securitySettings":{"immutabilitySettings":{"state":"Disabled"},"softDeleteSettings":{"softDeleteRetentionPeriodInDays":15,"softDeleteState":"AlwaysON","enhancedSecurityState":"AlwaysON"},"multiUserAuthorization":"Disabled","sourceScanConfiguration":{"state":"Enabled"}},"redundancySettings":{"standardTierStorageRedundancy":"LocallyRedundant","crossRegionRestore":"Disabled"},"regionOfChoiceSettings":{"status":"Disabled"},"secureScore":"Adequate","bcdrSecurityLevel":"Good","publicNetworkAccess":"Enabled","restoreSettings":{"crossSubscriptionRestoreSettings":{"crossSubscriptionRestoreState":"Enabled"}}},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-RG/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1","type":"Microsoft.RecoveryServices/vaults","sku":{"name":"RS0","tier":"Standard"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1106'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 24 Oct 2026 16:31:11 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: AFFA8ACDECF148F58BCDAAC0B03C011A Ref B: SG2AA1070303040 Ref C: 2026-10-24T16:31:11Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - backup container show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --subscription --backup-management-type -g -v -n --query -o
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.13.15 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupProtectionContainers?api-version=2026-10-01&$filter=backupManagementType%20eq%20%27AzureIaasVM%27%20and%20friendlyName%20eq%20%27hanatest32%27%20and%20status%20eq%20%27Registered%27
+  response:
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer;iaasvmcontainerv2;hanatest32-rg;hanatest32","name":"IaasVMContainer;iaasvmcontainerv2;hanatest32-rg;hanatest32","type":"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers","properties":{"virtualMachineId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","virtualMachineVersion":"Compute","resourceGroup":"hanatest32-RG","friendlyName":"hanatest32","backupManagementType":"AzureIaasVM","registrationStatus":"Registered","healthStatus":"Deleted","containerType":"Microsoft.Compute/virtualMachines","protectableObjectType":"Microsoft.Compute/virtualMachines"}}]}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '883'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 24 Oct 2026 16:31:12 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=75320258-6d4a-4f7e-aac0-f013fd030124/eastasia/9a8f01f3-606c-4c7a-9ddb-5d0e927de007
+      x-ms-ratelimit-remaining-subscription-resource-requests:
+      - '249'
+      x-msedge-ref:
+      - 'Ref A: 33604CC0F46D416DB51DA2C861C995FF Ref B: SG2AA1070306054 Ref C: 2026-10-24T16:31:12Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - backup item show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --subscription --backup-management-type --workload-type -g -v -c -n --query
+        -o
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.13.15 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupProtectedItems?api-version=2026-10-01&$filter=backupManagementType%20eq%20%27AzureIaasVM%27%20and%20itemType%20eq%20%27VM%27
+  response:
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer;iaasvmcontainerv2;abhinknrg1;hanavmntest/protectedItems/VM;iaasvmcontainerv2;abhinknrg1;hanavmntest","name":"VM;iaasvmcontainerv2;abhinknrg1;hanavmntest","type":"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems","properties":{"friendlyName":"hanavmntest","virtualMachineId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/abhinknRG1/providers/Microsoft.Compute/virtualMachines/hanavmntest","protectionStatus":"Healthy","protectionState":"Protected","healthStatus":"Passed","healthDetails":[{"code":400239,"title":"IaasVmHealthGreenDefault","message":"Backup
+        pre-check status of this virtual machine is OK.","recommendations":[]}],"lastBackupStatus":"Completed","lastBackupTime":"2026-10-04T12:12:55.0297479Z","protectedItemDataId":"2265592089482794144","extendedProperties":{"linuxVmApplicationName":""},"policyType":"V2","protectedItemType":"Microsoft.Compute/virtualMachines","backupManagementType":"AzureIaasVM","workloadType":"VM","containerName":"iaasvmcontainerv2;abhinknrg1;hanavmntest","sourceResourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/abhinknRG1/providers/Microsoft.Compute/virtualMachines/hanavmntest","policyId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupPolicies/EnhancedPolicy","policyName":"EnhancedPolicy","lastRecoveryPoint":"2026-10-04T12:13:30.6933022Z","vaultId":"https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1","isArchiveEnabled":false,"softDeleteRetentionPeriod":0,"sourceLocation":"eastasia","sourceSideScanInfo":{"sourceSideScanStatus":"Configured","sourceSideScanSummary":"Unknown"}}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer;iaasvmcontainerv2;hanatest32-rg;hanatest32/protectedItems/VM;iaasvmcontainerv2;hanatest32-rg;hanatest32","name":"VM;iaasvmcontainerv2;hanatest32-rg;hanatest32","type":"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems","properties":{"friendlyName":"hanatest32","virtualMachineId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","protectionStatus":"Healthy","protectionState":"Protected","healthStatus":"Passed","healthDetails":[{"code":400239,"title":"IaasVmHealthGreenDefault","message":"Backup
+        pre-check status of this virtual machine is OK.","recommendations":[]}],"lastBackupStatus":"Completed","lastBackupTime":"2026-10-23T08:06:22.2294822Z","protectedItemDataId":"2265592087800580540","extendedProperties":{"linuxVmApplicationName":""},"policyType":"V2","protectedItemType":"Microsoft.Compute/virtualMachines","backupManagementType":"AzureIaasVM","workloadType":"VM","containerName":"iaasvmcontainerv2;hanatest32-rg;hanatest32","sourceResourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","policyId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupPolicies/EnhancedPolicy","policyName":"EnhancedPolicy","lastRecoveryPoint":"2026-10-23T08:09:33.2000235Z","vaultId":"https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1","isArchiveEnabled":false,"softDeleteRetentionPeriod":0,"sourceLocation":"eastasia","sourceSideScanInfo":{"sourceSideScanStatus":"Configured","sourceSideScanSummary":"Suspicious"}}}]}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '4103'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 24 Oct 2026 16:31:13 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=75320258-6d4a-4f7e-aac0-f013fd030124/eastasia/a3b48ece-2cdf-4ba8-ad0a-c1405fff8c07
+      x-ms-ratelimit-remaining-subscription-resource-requests:
+      - '249'
+      x-msedge-ref:
+      - 'Ref A: B96167D44BA548349E488CEB39A473FC Ref B: SG2AA1070306060 Ref C: 2026-10-24T16:31:14Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - backup item show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --subscription --backup-management-type --workload-type -g -v -c -n
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.13.15 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer%3Biaasvmcontainerv2%3Bhanatest32-rg%3Bhanatest32/protectedItems/VM%3Biaasvmcontainerv2%3Bhanatest32-rg%3Bhanatest32?api-version=2026-10-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer;iaasvmcontainerv2;hanatest32-rg;hanatest32/protectedItems/VM;iaasvmcontainerv2;hanatest32-rg;hanatest32","name":"VM;iaasvmcontainerv2;hanatest32-rg;hanatest32","type":"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems","properties":{"friendlyName":"hanatest32","virtualMachineId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","protectionStatus":"Healthy","protectionState":"Protected","healthStatus":"Passed","healthDetails":[{"code":400239,"title":"IaasVmHealthGreenDefault","message":"Backup
+        pre-check status of this virtual machine is OK.","recommendations":[]}],"lastBackupStatus":"Completed","lastBackupTime":"2026-10-23T08:06:22.2294822Z","protectedItemDataId":"2265592087800580540","extendedProperties":{"linuxVmApplicationName":""},"policyType":"V2","protectedItemType":"Microsoft.Compute/virtualMachines","backupManagementType":"AzureIaasVM","workloadType":"VM","containerName":"iaasvmcontainerv2;hanatest32-rg;hanatest32","sourceResourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","policyId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupPolicies/EnhancedPolicy","policyName":"EnhancedPolicy","lastRecoveryPoint":"2026-10-23T08:09:33.2000235Z","vaultId":"https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1","isArchiveEnabled":false,"softDeleteRetentionPeriod":0,"sourceLocation":"eastasia","sourceSideScanInfo":{"sourceSideScanStatus":"Configured","sourceSideScanSummary":"Suspicious"}}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '2052'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 24 Oct 2026 16:31:15 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=75320258-6d4a-4f7e-aac0-f013fd030124/eastasia/bb8c2623-07ae-4b46-8bf1-66e4832c6fd1
+      x-ms-ratelimit-remaining-subscription-resource-requests:
+      - '249'
+      x-msedge-ref:
+      - 'Ref A: C3B4245E3A4C4FE691572BDF8145DED7 Ref B: SG2AA1070302025 Ref C: 2026-10-24T16:31:15Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - backup recoverypoint show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --subscription --backup-management-type --workload-type -g -v -c -i -n
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.13.15 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer%3Biaasvmcontainerv2%3Bhanatest32-rg%3Bhanatest32/protectedItems/VM%3Biaasvmcontainerv2%3Bhanatest32-rg%3Bhanatest32?api-version=2026-10-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer;iaasvmcontainerv2;hanatest32-rg;hanatest32/protectedItems/VM;iaasvmcontainerv2;hanatest32-rg;hanatest32","name":"VM;iaasvmcontainerv2;hanatest32-rg;hanatest32","type":"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems","properties":{"friendlyName":"hanatest32","virtualMachineId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","protectionStatus":"Healthy","protectionState":"Protected","healthStatus":"Passed","healthDetails":[{"code":400239,"title":"IaasVmHealthGreenDefault","message":"Backup
+        pre-check status of this virtual machine is OK.","recommendations":[]}],"lastBackupStatus":"Completed","lastBackupTime":"2026-10-23T08:06:22.2294822Z","protectedItemDataId":"2265592087800580540","extendedProperties":{"linuxVmApplicationName":""},"policyType":"V2","protectedItemType":"Microsoft.Compute/virtualMachines","backupManagementType":"AzureIaasVM","workloadType":"VM","containerName":"iaasvmcontainerv2;hanatest32-rg;hanatest32","sourceResourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest32-RG/providers/Microsoft.Compute/virtualMachines/hanatest32","policyId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupPolicies/EnhancedPolicy","policyName":"EnhancedPolicy","lastRecoveryPoint":"2026-10-23T08:09:33.2000235Z","vaultId":"https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1","isArchiveEnabled":false,"softDeleteRetentionPeriod":0,"sourceLocation":"eastasia","sourceSideScanInfo":{"sourceSideScanStatus":"Configured","sourceSideScanSummary":"Suspicious"}}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '2052'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 24 Oct 2026 16:31:18 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=75320258-6d4a-4f7e-aac0-f013fd030124/eastasia/9f218cd4-eb40-4d20-b0f6-fe97e729114f
+      x-ms-ratelimit-remaining-subscription-resource-requests:
+      - '249'
+      x-msedge-ref:
+      - 'Ref A: BF1F68FAFECC41438FB1F362F0AEE502 Ref B: SG2AA1070305023 Ref C: 2026-10-24T16:31:18Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - backup recoverypoint show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --subscription --backup-management-type --workload-type -g -v -c -i -n
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.13.15 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer%3Biaasvmcontainerv2%3Bhanatest32-rg%3Bhanatest32/protectedItems/VM%3Biaasvmcontainerv2%3Bhanatest32-rg%3Bhanatest32/recoveryPoints/2265475452755865626?api-version=2026-10-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hanatest31-rg/providers/Microsoft.RecoveryServices/vaults/mdchanatest31new1/backupFabrics/Azure/protectionContainers/IaasVMContainer;iaasvmcontainerv2;hanatest32-rg;hanatest32/protectedItems/VM;iaasvmcontainerv2;hanatest32-rg;hanatest32/recoveryPoints/2265475452755865626","name":"2265475452755865626","type":"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints","properties":{"objectType":"IaasVMRecoveryPoint","recoveryPointType":"FileSystemConsistent","recoveryPointTime":"2026-10-23T08:09:33.2000235Z","recoveryPointAdditionalInfo":"","sourceVMStorageType":"NormalStorage","isSourceVMEncrypted":false,"isInstantIlrSessionActive":false,"recoveryPointTierDetails":[{"type":"InstantRP","status":"Valid"}],"isManagedVirtualMachine":true,"virtualMachineSize":"Standard_D8as_v5","originalStorageAccountOption":false,"osType":"Linux","recoveryPointMoveReadinessInfo":{"ArchivedRP":{"isReadyForMove":false,"additionalInfo":"We''re
+        still determining if this Recovery Point can be moved.. Please check again
+        after some time."}},"securityType":"None","recoveryPointProperties":{"expiryTime":"2026-10-25T08:09:33.2000235Z","ruleName":"Daily","isSoftDeleted":false},"isPrivateAccessEnabledOnAnyDisk":false,"createdWithPolicyType":"V2","sourceResourceLocation":"eastasia","threatInfo":[{"threatTitle":"[SAMPLE
+        ALERT #5] Detected Petya ransomware indicators","threatDescription":"[SAMPLE
+        ALERT #5] Detected Petya ransomware indicators","lastUpdatedTime":"2026-10-16T09:16:57.0000000","threatState":"Active","threatStartTime":"2026-10-16T09:16:57.0000000","threatEndTime":"2026-10-16T09:16:57.0000000","threatURI":"https://portal.azure.com/#blade/Microsoft_Azure_Security_AzureDefenderForData/AlertBlade/alertId/21391c5a-52c0-4542-8ca8-21458f3f11ac/subscriptionId/00000000-0000-0000-0000-000000000000/resourceGroup/hanatest32-RG/referencedFrom/alertDeepLink/location/centralus","threatSeverity":"High"},{"threatTitle":"[SAMPLE
+        ALERT #2] Detected Petya ransomware indicators","threatDescription":"[SAMPLE
+        ALERT #2] Detected Petya ransomware indicators","lastUpdatedTime":"2026-10-16T09:16:57.0000000","threatState":"Active","threatStartTime":"2026-10-16T09:16:57.0000000","threatEndTime":"2026-10-16T09:16:57.0000000","threatURI":"https://portal.azure.com/#blade/Microsoft_Azure_Security_AzureDefenderForData/AlertBlade/alertId/510bf5ce-2992-44f7-b7f2-ef3c09fe9e60/subscriptionId/00000000-0000-0000-0000-000000000000/resourceGroup/hanatest32-RG/referencedFrom/alertDeepLink/location/centralus","threatSeverity":"High"},{"threatTitle":"[SAMPLE
+        ALERT #4] Detected Petya ransomware indicators","threatDescription":"[SAMPLE
+        ALERT #4] Detected Petya ransomware indicators","lastUpdatedTime":"2026-10-16T09:16:57.0000000","threatState":"Active","threatStartTime":"2026-10-16T09:16:57.0000000","threatEndTime":"2026-10-16T09:16:57.0000000","threatURI":"https://portal.azure.com/#blade/Microsoft_Azure_Security_AzureDefenderForData/AlertBlade/alertId/72721a6c-0cd9-4439-af1e-09d4b4fc9e8c/subscriptionId/00000000-0000-0000-0000-000000000000/resourceGroup/hanatest32-RG/referencedFrom/alertDeepLink/location/centralus","threatSeverity":"High"},{"threatTitle":"[SAMPLE
+        ALERT] Detected Petya ransomware indicators","threatDescription":"[SAMPLE
+        ALERT] Detected Petya ransomware indicators","lastUpdatedTime":"2026-10-16T09:16:57.0000000","threatState":"Active","threatStartTime":"2026-10-16T09:16:57.0000000","threatEndTime":"2026-10-16T09:16:57.0000000","threatURI":"https://portal.azure.com/#blade/Microsoft_Azure_Security_AzureDefenderForData/AlertBlade/alertId/73dd0140-bb64-46d5-9376-6030e785a076/subscriptionId/00000000-0000-0000-0000-000000000000/resourceGroup/hanatest32-RG/referencedFrom/alertDeepLink/location/centralus","threatSeverity":"High"},{"threatTitle":"[SAMPLE
+        ALERT #3] Detected Petya ransomware indicators","threatDescription":"[SAMPLE
+        ALERT #3] Detected Petya ransomware indicators","lastUpdatedTime":"2026-10-16T09:16:57.0000000","threatState":"Active","threatStartTime":"2026-10-16T09:16:57.0000000","threatEndTime":"2026-10-16T09:16:57.0000000","threatURI":"https://portal.azure.com/#blade/Microsoft_Azure_Security_AzureDefenderForData/AlertBlade/alertId/dc6f3b1d-a327-44fd-b0bf-e22eb8c310a0/subscriptionId/00000000-0000-0000-0000-000000000000/resourceGroup/hanatest32-RG/referencedFrom/alertDeepLink/location/centralus","threatSeverity":"High"},{"threatTitle":"[SAMPLE
+        ALERT] Detected Petya ransomware indicators","threatDescription":"[SAMPLE
+        ALERT] Detected Petya ransomware indicators","lastUpdatedTime":"2026-10-22T12:20:00.0000000","threatState":"Active","threatStartTime":"2026-10-22T12:20:00.0000000","threatEndTime":"2026-10-22T12:20:00.0000000","threatURI":"https://portal.azure.com/#blade/Microsoft_Azure_Security_AzureDefenderForData/AlertBlade/alertId/fc2328c9-433d-4f11-9067-41e18d4ca3f5/subscriptionId/00000000-0000-0000-0000-000000000000/resourceGroup/hanatest32-RG/referencedFrom/alertDeepLink/location/centralus","threatSeverity":"High"}],"threatStatus":"UnHealthy"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '5103'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 24 Oct 2026 16:31:20 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=75320258-6d4a-4f7e-aac0-f013fd030124/eastasia/c73428d7-a89f-4802-8c5c-38786b03b8be
+      x-ms-ratelimit-remaining-subscription-resource-requests:
+      - '249'
+      x-msedge-ref:
+      - 'Ref A: 628AB333C5BA48D48E2626DE006D145C Ref B: SG2AA1070305052 Ref C: 2026-10-24T16:31:20Z'
+    status:
+      code: 200
+      message: OK
+version: 1

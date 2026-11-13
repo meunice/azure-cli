@@ -34,9 +34,19 @@ def acr_config_content_trust_update(cmd,
                                     client,
                                     registry_name,
                                     status=None,
-                                    resource_group_name=None):
+                                    resource_group_name=None,
+                                    yes=False):
     registry, resource_group_name = validate_premium_registry(
         cmd, registry_name, resource_group_name, POLICIES_NOT_SUPPORTED)
+
+    warning_message = (
+        "Content Trust is being deprecated and will be completely removed on March 31, 2028. "
+        "It cannot be enabled once disabled. Please submit a support ticket if you wish to "
+        "disable and subsequently re-enable this feature. When disabled, your images will "
+        "remain in the registry, but all your signatures will be deleted permanently. "
+        "Are you sure you want to disable content trust?"
+    )
+    user_confirmation(warning_message, yes)
 
     policies = registry.policies
 
@@ -161,9 +171,13 @@ def acr_config_authentication_as_arm_show(cmd,
 
     AzureADAuthenticationAsArmPolicy = cmd.get_models('AzureADAuthenticationAsArmPolicy')
     policies = registry.policies
-    aadAuth_policy = policies.azure_ad_authentication_as_arm_policy if policies else AzureADAuthenticationAsArmPolicy()
 
-    return aadAuth_policy
+    # On AzureStackHub, the 2019-05-01 API version is still in use, so we need to check if the
+    # 'azure_ad_authentication_as_arm_policy' attribute exists before we invoke it
+    if policies and hasattr(policies, 'azure_ad_authentication_as_arm_policy'):
+        return policies.azure_ad_authentication_as_arm_policy
+
+    return AzureADAuthenticationAsArmPolicy
 
 
 def acr_config_authentication_as_arm_update(cmd,

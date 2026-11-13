@@ -2,12 +2,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-
-from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.data_export import \
-    Create as _WorkspaceDataExportCreate, \
-    Update as _WorkspaceDataExportUpdate
-from azure.cli.core.azclierror import ArgumentUsageError, InvalidArgumentValueError, RequiredArgumentMissingError
-from azure.cli.core.commands.transform import _parse_id
+# pylint: disable=protected-access
 
 
 def list_deleted_log_analytics_workspaces(client, resource_group_name=None):
@@ -17,8 +12,11 @@ def list_deleted_log_analytics_workspaces(client, resource_group_name=None):
 
 
 def recover_log_analytics_workspace(cmd, workspace_name, resource_group_name=None, no_wait=False):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace import Create, \
-        ListDeletedWorkspaces
+    from azure.cli.core.azclierror import InvalidArgumentValueError
+    from azure.cli.core.commands.transform import _parse_id
+    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace._create import Create
+    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace._list_deleted_workspaces \
+        import ListDeletedWorkspaces
 
     deleted_workspaces = ListDeletedWorkspaces(cli_ctx=cmd.cli_ctx)(command_args={
         "resource_group": resource_group_name
@@ -49,7 +47,8 @@ def create_log_analytics_workspace_saved_search(cmd, workspace_name, resource_gr
                                                 category, display_name, saved_query,
                                                 function_alias=None, function_parameters=None,
                                                 tags=None):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.saved_search import Create
+    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.saved_search._create \
+        import Create
 
     command_args = {
         "resource_group": resource_group_name,
@@ -74,7 +73,8 @@ def update_log_analytics_workspace_saved_search(cmd, workspace_name, resource_gr
                                                 category=None, display_name=None, saved_query=None,
                                                 function_alias=None, function_parameters=None,
                                                 tags=None):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.saved_search import Update
+    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.saved_search._update \
+        import Update
     command_args = {
         "resource_group": resource_group_name,
         "saved_search_name": saved_search_id,
@@ -98,70 +98,18 @@ def update_log_analytics_workspace_saved_search(cmd, workspace_name, resource_gr
     )
 
 
-class WorkspaceDataExportCreate(_WorkspaceDataExportCreate):
-
-    def pre_operations(self):
-        args = self.ctx.args
-        destination = str(args.destination)
-        from azure.mgmt.core.tools import is_valid_resource_id, resource_id, parse_resource_id
-        if not is_valid_resource_id(destination):
-            raise InvalidArgumentValueError('usage error: --destination should be a storage account,'
-                                            ' an evenhug namespace or an event hub resource id.')
-        result = parse_resource_id(destination)
-        if result['namespace'].lower() == 'microsoft.eventhub' and result['type'].lower() == 'namespaces':
-            args.destination = resource_id(
-                subscription=result['subscription'],
-                resource_group=result['resource_group'],
-                namespace=result['namespace'],
-                type=result['type'],
-                name=result['name']
-            )
-            if 'child_type_1' in result and result['child_type_1'].lower() == 'eventhubs':
-                args.event_hub_name = result['child_name_1']
-        elif result['namespace'].lower() == 'microsoft.storage' and result['type'].lower() == 'storageaccounts':
-            pass
-        else:
-            raise InvalidArgumentValueError('usage error: --destination should be a storage account,'
-                                            ' an evenhug namespace or an event hub resource id.')
-
-
-class WorkspaceDataExportUpdate(_WorkspaceDataExportUpdate):
-
-    def pre_operations(self):
-        args = self.ctx.args
-        if args.destination:
-            destination = str(args.destination)
-            from azure.mgmt.core.tools import is_valid_resource_id, resource_id, parse_resource_id
-            if not is_valid_resource_id(destination):
-                raise InvalidArgumentValueError('usage error: --destination should be a storage account,'
-                                                ' an evenhug namespace or an event hub resource id.')
-            result = parse_resource_id(destination)
-            if result['namespace'].lower() == 'microsoft.eventhub' and result['type'].lower() == 'namespaces':
-                args.destination = resource_id(
-                    subscription=result['subscription'],
-                    resource_group=result['resource_group'],
-                    namespace=result['namespace'],
-                    type=result['type'],
-                    name=result['name']
-                )
-                if 'child_type_1' in result and result['child_type_1'].lower() == 'eventhubs':
-                    args.event_hub_name = result['child_name_1']
-            elif result['namespace'].lower() == 'microsoft.storage' and result['type'].lower() == 'storageaccounts':
-                pass
-            else:
-                raise InvalidArgumentValueError('usage error: --destination should be a storage account,'
-                                                ' an evenhug namespace or an event hub resource id.')
-
-
 # pylint:disable=too-many-locals
 def create_log_analytics_workspace_table(cmd, resource_group_name, workspace_name, table_name, columns=None,
                                          retention_in_days=None, total_retention_in_days=None, plan=None,
                                          description=None, no_wait=False):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.table import Create
+    from azure.cli.core.azclierror import InvalidArgumentValueError, ArgumentUsageError, RequiredArgumentMissingError
+    from azure.cli.command_modules.monitor.operations.latest.monitor.log_analytics.workspace.table._create \
+        import WorkspaceTableCreate
+
     if retention_in_days and total_retention_in_days:
         if total_retention_in_days < retention_in_days:
-            InvalidArgumentValueError('InvalidArgumentValueError: The specified value of --retention-time'
-                                      ' should be less than --total-retention-time')
+            raise InvalidArgumentValueError('InvalidArgumentValueError: The specified value of --retention-time'
+                                            ' should be less than --total-retention-time')
     columns_list = None
     if columns:
         columns_list = []
@@ -175,12 +123,12 @@ def create_log_analytics_workspace_table(cmd, resource_group_name, workspace_nam
     if columns or description is not None:
         if not columns:
             raise RequiredArgumentMissingError('Usage error: When using --description, --columns must be provided')
-    return Create(cli_ctx=cmd.cli_ctx)(command_args={
+    return WorkspaceTableCreate(cli_ctx=cmd.cli_ctx)(command_args={
         "resource_group": resource_group_name,
         "table_name": table_name,
         "workspace_name": workspace_name,
-        "retention_time": retention_in_days,
-        "total_retention_time": total_retention_in_days,
+        "retention_in_days": retention_in_days,
+        "total_retention_in_days": total_retention_in_days,
         "plan": plan,
         "schema": {
             "columns": columns_list,
@@ -195,14 +143,16 @@ def create_log_analytics_workspace_table_search_job(cmd, resource_group_name, wo
                                                     search_query, start_search_time, end_search_time,
                                                     retention_in_days=None, total_retention_in_days=None, limit=None,
                                                     no_wait=False):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.table import Create
-    return Create(cli_ctx=cmd.cli_ctx)(command_args={
+    from azure.cli.command_modules.monitor.operations.latest.monitor.log_analytics.workspace.table._create \
+        import WorkspaceTableCreate
+
+    return WorkspaceTableCreate(cli_ctx=cmd.cli_ctx)(command_args={
         "resource_group": resource_group_name,
         "table_name": table_name,
         "workspace_name": workspace_name,
-        "retention_time": retention_in_days,
-        "total_retention_time": total_retention_in_days,
-        "search_job": {
+        "retention_in_days": retention_in_days,
+        "total_retention_in_days": total_retention_in_days,
+        "search_results": {
             "query": search_query,
             "limit": limit,
             "start_search_time": start_search_time,
@@ -215,13 +165,14 @@ def create_log_analytics_workspace_table_search_job(cmd, resource_group_name, wo
 def create_log_analytics_workspace_table_restore(cmd, resource_group_name, workspace_name, table_name,
                                                  start_restore_time, end_restore_time, restore_source_table,
                                                  no_wait=False):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.table import Create
+    from azure.cli.command_modules.monitor.operations.latest.monitor.log_analytics.workspace.table._create \
+        import WorkspaceTableCreate
 
-    return Create(cli_ctx=cmd.cli_ctx)(command_args={
+    return WorkspaceTableCreate(cli_ctx=cmd.cli_ctx)(command_args={
         "resource_group": resource_group_name,
         "table_name": table_name,
         "workspace_name": workspace_name,
-        "restore": {
+        "restored_logs": {
             "start_restore_time": start_restore_time,
             "end_restore_time": end_restore_time,
             "source_table": restore_source_table,
@@ -233,7 +184,9 @@ def create_log_analytics_workspace_table_restore(cmd, resource_group_name, works
 def update_log_analytics_workspace_table(cmd, resource_group_name, workspace_name, table_name, columns=None,
                                          retention_in_days=None, total_retention_in_days=None, plan=None,
                                          description=None, no_wait=False):
-    from azure.cli.command_modules.monitor.aaz.latest.monitor.log_analytics.workspace.table import Update
+    from azure.cli.core.azclierror import ArgumentUsageError
+    from azure.cli.command_modules.monitor.operations.latest.monitor.log_analytics.workspace.table._update \
+        import WorkspaceTableUpdate
 
     columns_list = None
     if columns:
@@ -252,9 +205,9 @@ def update_log_analytics_workspace_table(cmd, resource_group_name, workspace_nam
         "no_wait": no_wait,
     }
     if retention_in_days is not None:
-        command_args["retention_time"] = retention_in_days
+        command_args["retention_in_days"] = retention_in_days
     if total_retention_in_days is not None:
-        command_args["total_retention_time"] = total_retention_in_days
+        command_args["total_retention_in_days"] = total_retention_in_days
     if plan is not None:
         command_args["plan"] = plan
     if columns_list or description is not None:
@@ -263,4 +216,4 @@ def update_log_analytics_workspace_table(cmd, resource_group_name, workspace_nam
         command_args["schema"]["columns"] = columns_list
     if description is not None:
         command_args["schema"]["description"] = description
-    return Update(cli_ctx=cmd.cli_ctx)(command_args=command_args)
+    return WorkspaceTableUpdate(cli_ctx=cmd.cli_ctx)(command_args=command_args)

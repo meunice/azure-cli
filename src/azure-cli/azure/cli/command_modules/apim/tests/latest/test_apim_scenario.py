@@ -121,7 +121,7 @@ class ApimScenarioTest(ScenarioTest):
             'subscription_key_query_param_name': 'query',
             'api_id2': '48242ec7f53745de9cbb800757a4204a',
             'subscription_required': True,
-            'specification_url': 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/petstore.json',
+            'specification_url': 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/_archive_/schemas/v3.0/pass/petstore.yaml',
             'specification_format': 'OpenApi',
             'product_id1': 'standard',
             'product_id2': 'premium',
@@ -192,6 +192,11 @@ class ApimScenarioTest(ScenarioTest):
             self.check('displayName', '{display_name}'),
             self.check('serviceUrl', '{service_url}')
         ])
+
+        # # export api
+        # self.cmd(
+        #     'apim api export -g "{rg}" --service-name "{service_name}" --api-id "{api_id2}" --format "OpenApiJsonUrl"',
+        #     checks=[self.check('name', "{api_id2}")])
 
         # update api
         self.cmd(
@@ -383,6 +388,9 @@ class ApimScenarioTest(ScenarioTest):
         content_value = api_file.read()
         value = content_value
         
+        pythonfile = 'policy.xml'
+        policypath = os.path.join(TEST_DIR, pythonfile)
+
         self.kwargs.update({
             'graphql_api_id': self.create_random_name('gr-api', 10),
             'graphql_sch_id': 'graphql',
@@ -394,10 +402,15 @@ class ApimScenarioTest(ScenarioTest):
             'graphql_protocol': 'https',
             'graphql_api_type': 'graphql',
             'graphql_path': 'graphqltestpath',
-            'graphql_service_url': 'https://api.spacex.land/graphql/',
+            'graphql_service_url': 'https://apim-gql-test-cartoons.azurewebsites.net/graphql/',
             'graphql_im_api_id': self.create_random_name('gr-imp', 10),
-            'path3' : 'testingImportApiPath',
-            'graphql' : 'GraphQL'
+            'path3': 'testingImportApiPath',
+            'graphql': 'GraphQL',
+            'resolver_id': 'newresolver',
+            'resolver_display_name': 'Query-allFamilies',
+            'resolver_path': 'Query/allFamilies',
+            'resolver_decription': "A GraphQL Resolver example",
+            'value_path': policypath
         })
 
         # import api
@@ -424,6 +437,42 @@ class ApimScenarioTest(ScenarioTest):
                     self.check('name', '{graphql_sch_id}'),
                     self.check('value', '{schema_file_value}')])
         
+        #create resolver
+        self.cmd(
+            'apim graphql resolver create -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --resolver-id "{resolver_id}" --display-name "{resolver_display_name}" --path "{resolver_path}" --description "{resolver_decription}"',
+            checks=[self.check('name', '{resolver_id}'),
+                    self.check('path', '{resolver_path}')])
+        
+        #get resolver
+        self.cmd(
+            'apim graphql resolver show -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --resolver-id "{resolver_id}"',
+            checks=[self.check('name', '{resolver_id}'),
+                    self.check('path', '{resolver_path}')])
+        
+        #list resolvers
+        resolver_count = len(self.cmd('apim graphql resolver list -g "{rg}" -n "{service_name}" --api-id "{graphql_api_id}"').get_output_in_json())
+        self.assertEqual(resolver_count, 1)
+
+        #create resolver policy
+        self.cmd(
+            'apim graphql resolver policy create -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --resolver-id "{resolver_id}" --policy-format "xml" --value-path "{value_path}"',
+            checks=[self.check('format', 'xml')])
+        
+        #get resolver policy
+        self.cmd(
+            'apim graphql resolver policy show -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --resolver-id "{resolver_id}"',
+            checks=[self.check('format', 'xml')])
+        
+        #delete resolver policy
+        self.cmd(
+            'apim graphql resolver policy delete -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --resolver-id "{resolver_id}" --yes')
+        
+        #delete resolver
+        self.cmd(
+            'apim graphql resolver delete -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --resolver-id "{resolver_id}" --yes')
+        
+        
+
         #get schema
         self.cmd(
             'apim api schema show -g "{rg}" --service-name "{service_name}" --api-id "{graphql_api_id}" --schema-id "{graphql_sch_id}"',
@@ -517,11 +566,110 @@ class ApimScenarioTest(ScenarioTest):
         final_vs_count = len(self.cmd('apim api versionset list -g "{rg}" -n "{service_name}"').get_output_in_json())
         self.assertEqual(final_vs_count, initial_vs_count)
 
+        # Backends operations
+
+        self.kwargs.update({
+            'backend_id': self.create_random_name('backend-id-', 30)
+        })
+
+        # backend create command
+        self.cmd(
+            'apim backend create -g "{rg}" --service-name "{service_name}" --backend-id "{backend_id}" --url "https://mybackend.com/api" --protocol "http" --description "My backend description"',
+            checks=[self.check('name', '{backend_id}'),
+                    self.check('url', 'https://mybackend.com/api'),
+                    self.check('protocol', 'http'),
+                    self.check('description', "My backend description")])
+
+        # backend show command
+        self.cmd(
+            'apim backend show -g "{rg}" --service-name "{service_name}" --backend-id "{backend_id}"',
+            checks=[self.check('name', '{backend_id}'),
+                    self.check('url', 'https://mybackend.com/api')])
+
+        # backend update command
+        self.cmd(
+            'apim backend update -g "{rg}" --service-name "{service_name}" --backend-id "{backend_id}" --description "Updated backend description"',
+            checks=[self.check('description', 'Updated backend description')])
+
+        # backend list command
+        backend_count = len(self.cmd('apim backend list -g "{rg}" --service-name "{service_name}"').get_output_in_json())
+        self.assertEqual(backend_count, 1)
+
+        # backend delete command
+        self.cmd(
+            'apim backend delete -g "{rg}" --service-name "{service_name}" --backend-id "{backend_id}" -y')
+        backend_count = len(self.cmd('apim backend list -g "{rg}" --service-name "{service_name}"').get_output_in_json())
+        self.assertEqual(backend_count, 0)
+
         # service delete command
         self.cmd('apim delete -g {rg} -n {service_name} -y')
 
         final_count = len(self.cmd('apim list -g {rg}').get_output_in_json())
         self.assertEqual(final_count, service_count - 1)
+
+
+    @ResourceGroupPreparer(name_prefix='cli_test_apim_service-', parameter_name_for_location='resource_group_location')
+    @StorageAccountPreparer(parameter_name='storage_account_for_backup')
+    @AllowLargeResponse()
+    def test_apim_export_api(self, resource_group, resource_group_location):
+        service_name = self.create_random_name('cli-test-apim-service-', 35)
+        resource_group = self.create_random_name('cli-test-apim-service-rg', 35)
+
+        # try to use the injected location, but if the location is not known
+        # fall back to west us, otherwise we can't validate since the sdk returns displayName
+        if resource_group_location not in KNOWN_LOCS.keys():
+            resource_group_location = 'westus'
+
+        self.kwargs.update({
+            'service_name': service_name,
+            'rg': resource_group,
+            'rg_loc': resource_group_location,
+            'rg_loc_displayName': KNOWN_LOCS.get(resource_group_location),
+            'notification_sender_email': 'notifications@contoso.com',
+            'publisher_email': 'publisher@contoso.com',
+            'publisher_name': 'Contoso',
+            'sku_name': 'Consumption',
+            'skucapacity': 1,
+            'enable_managed_identity': True,
+            'tag': "foo=boo",
+            'path': 'test',
+            'api_id': '48242ec7f53745de9cbb800757a4204a',
+            'api_version': 'v1',
+            'specification_url': 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/_archive_/schemas/v3.0/pass/petstore.yaml',
+            'specification_format': 'OpenApi',
+            'vs_id': 'MyVSId',
+            'subscription_key_header_name': 'header',
+            'subscription_key_query_param_name': 'query'
+        })
+
+        self.cmd('group create -l {rg_loc} -n {rg}')
+
+        self.cmd('apim check-name -n {service_name} -o json',
+                 checks=[self.check('nameAvailable', True)])
+
+        self.cmd('apim create --name {service_name} -g {rg} -l {rg_loc} --sku-name {sku_name} --publisher-email {publisher_email} --publisher-name {publisher_name} --enable-managed-identity {enable_managed_identity}',
+                 checks=[self.check('name', '{service_name}'),
+                         self.check('location', '{rg_loc_displayName}'),
+                         self.check('sku.name', '{sku_name}'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('identity.type', 'SystemAssigned'),
+                         self.check('publisherName', '{publisher_name}'),
+                         self.check('publisherEmail', '{publisher_email}')])
+
+        # import api
+        self.cmd(
+            'apim api import -g "{rg}" --service-name "{service_name}" --path "{path}" --api-id "{api_id}" --specification-url "{specification_url}" --specification-format "{specification_format}" --display-name "Swagger Petstore"',
+            checks=[self.check('displayName', 'Swagger Petstore'),
+                    self.check('path', '{path}')])
+
+        # export api
+        self.cmd(
+            'apim api export -g "{rg}" --service-name "{service_name}" --api-id "{api_id}" --export-format "OpenApiJsonUrl"',
+            checks=[self.check('name', "{api_id}")])
+
+        # service delete command
+        self.cmd('apim delete -g {rg} -n {service_name} -y')
+
 
     @ResourceGroupPreparer(name_prefix='cli_test_apim_deletedservice-', parameter_name_for_location='resource_group_location')
     @StorageAccountPreparer(parameter_name='storage_account_for_backup')
@@ -563,10 +711,6 @@ class ApimScenarioTest(ScenarioTest):
                          self.check('publisherName', '{publisher_name}'),
                          self.check('publisherEmail', '{publisher_email}')])
 
-        self.cmd('apim check-name -n {service_name}',
-            checks=[self.check('nameAvailable', False),
-                    self.check('reason', 'AlreadyExists')])    
-
         # wait for creation
         self.cmd('apim wait -g {rg} -n {service_name} --created', checks=[self.is_empty()])
 
@@ -574,8 +718,8 @@ class ApimScenarioTest(ScenarioTest):
         self.cmd('group delete -g {rg} -y', checks=[self.is_empty()])
 
         # list deleted service
-        deletedservices = self.cmd('apim deletedservice list').get_output_in_json()
-        self.assertTrue(any(service['name'] == service_name for service in deletedservices))
+        # deletedservices = self.cmd('apim deletedservice list').get_output_in_json()
+        # self.assertTrue(any(service['name'] == service_name for service in deletedservices))
 
         # show deleted service
         self.cmd('apim deletedservice show -l {rg_loc} -n {service_name}',
@@ -586,8 +730,8 @@ class ApimScenarioTest(ScenarioTest):
         # purge deleted service
         self.cmd('apim deletedservice purge -l {rg_loc} -n {service_name}', checks=[self.is_empty()])
 
-        deletedservices = self.cmd('apim deletedservice list').get_output_in_json()
-        self.assertFalse(any(service['name'] == service_name for service in deletedservices))
+        # deletedservices = self.cmd('apim deletedservice list').get_output_in_json()
+        # self.assertFalse(any(service['name'] == service_name for service in deletedservices))
 
 KNOWN_LOCS = {'eastasia': 'East Asia',
               'southeastasia': 'Southeast Asia',

@@ -4,13 +4,17 @@
 # --------------------------------------------------------------------------------------------
 
 import unittest
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from azure.cli.command_modules.acs._helpers import (
+    check_is_apiserver_vnet_integration_cluster,
     check_is_managed_aad_cluster,
     check_is_msi_cluster,
     check_is_private_cluster,
+    check_is_private_link_cluster,
     format_parameter_name_to_option_name,
+    get_monitoring_addon_key,
     get_property_from_dict_or_object,
     get_snapshot,
     get_snapshot_by_snapshot_id,
@@ -19,6 +23,15 @@ from azure.cli.command_modules.acs._helpers import (
     map_azure_error_to_cli_error,
     safe_list_get,
     safe_lower,
+)
+from azure.cli.command_modules.acs.azurecontainerstorage import _helpers as acstor_helpers
+from azure.cli.command_modules.acs.azurecontainerstorage._consts import (
+    CONST_ACSTOR_K8S_EXTENSION_NAME,
+    CONST_ACSTOR_V1_K8S_EXTENSION_NAME,
+    CONST_DISK_TYPE_PV_WITH_ANNOTATION,
+    CONST_EPHEMERAL_NVME_PERF_TIER_PREMIUM,
+    CONST_K8S_EXTENSION_CLIENT_FACTORY_MOD_NAME,
+    CONST_K8S_EXTENSION_CUSTOM_MOD_NAME,
 )
 from azure.cli.command_modules.acs.base_decorator import BaseAKSModels
 from azure.cli.command_modules.acs.tests.latest.mocks import MockCLI, MockCmd
@@ -36,7 +49,6 @@ from azure.cli.core.azclierror import (
 )
 from azure.cli.core.profiles import ResourceType
 from azure.core.exceptions import AzureError, HttpResponseError, ServiceRequestError, ServiceResponseError
-from msrestazure.azure_exceptions import CloudError
 
 
 class DecoratorFunctionsTestCase(unittest.TestCase):
@@ -119,6 +131,75 @@ class DecoratorFunctionsTestCase(unittest.TestCase):
         )
         self.assertEqual(check_is_private_cluster(mc_4), False)
 
+    def test_check_is_apiserver_vnet_integration_cluster(self):
+        self.assertEqual(check_is_apiserver_vnet_integration_cluster(None), False)
+
+        mc_1 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(
+                enable_vnet_integration=True,
+            ),
+        )
+        self.assertEqual(check_is_apiserver_vnet_integration_cluster(mc_1), True)
+
+        mc_2 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(
+                enable_vnet_integration=False,
+            ),
+        )
+        self.assertEqual(check_is_apiserver_vnet_integration_cluster(mc_2), False)
+
+        mc_3 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(),
+        )
+        self.assertEqual(check_is_apiserver_vnet_integration_cluster(mc_3), False)
+
+        mc_4 = self.models.ManagedCluster(
+            location="test_location",
+        )
+        self.assertEqual(check_is_apiserver_vnet_integration_cluster(mc_4), False)
+
+    def test_check_is_private_link_cluster(self):
+        self.assertEqual(check_is_private_link_cluster(None), False)
+
+        mc_1 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(
+                enable_private_cluster=True,
+            ),
+        )
+        self.assertEqual(check_is_private_link_cluster(mc_1), True)
+
+        mc_2 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(
+                enable_private_cluster=False,
+            ),
+        )
+        self.assertEqual(check_is_private_link_cluster(mc_2), False)
+
+        mc_3 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(
+                enable_private_cluster=True,
+                enable_vnet_integration=True,
+            ),
+        )
+        self.assertEqual(check_is_private_link_cluster(mc_3), False)
+
+        mc_4 = self.models.ManagedCluster(
+            location="test_location",
+            api_server_access_profile=self.models.ManagedClusterAPIServerAccessProfile(),
+        )
+        self.assertEqual(check_is_private_link_cluster(mc_4), False)
+
+        mc_5 = self.models.ManagedCluster(
+            location="test_location",
+        )
+        self.assertEqual(check_is_private_link_cluster(mc_5), False)
+
     def test_check_is_managed_aad_cluster(self):
         self.assertEqual(check_is_managed_aad_cluster(None), False)
 
@@ -134,6 +215,73 @@ class DecoratorFunctionsTestCase(unittest.TestCase):
             ),
         )
         self.assertEqual(check_is_managed_aad_cluster(mc_2), True)
+
+
+class AzureContainerStorageHelpersTestCase(unittest.TestCase):
+    def _patch_k8s_extension_modules(self, extension):
+        client_factory = Mock()
+        client_factory.cf_k8s_extension_operation.return_value = Mock()
+        custom_mod = Mock()
+        custom_mod.show_k8s_extension.return_value = extension
+
+        def get_module(module_name):
+            if module_name == CONST_K8S_EXTENSION_CLIENT_FACTORY_MOD_NAME:
+                return client_factory
+            if module_name == CONST_K8S_EXTENSION_CUSTOM_MOD_NAME:
+                return custom_mod
+            raise AssertionError(module_name)
+
+        return patch.object(acstor_helpers, "get_k8s_extension_module", side_effect=get_module)
+
+    def test_get_extension_installed_and_cluster_configs_v1_reads_lowercase_boolean_strings(self):
+        extension = SimpleNamespace(
+            extension_type=CONST_ACSTOR_V1_K8S_EXTENSION_NAME,
+            configuration_settings={
+                "global.cli.activeControl": "true",
+                "global.cli.storagePool.azureDisk.enabled": "true",
+                "global.cli.storagePool.elasticSan.enabled": "false",
+                "global.cli.storagePool.ephemeralDisk.nvme.enabled": "true",
+                "global.cli.storagePool.ephemeralDisk.temp.enabled": "false",
+                "global.cli.resources.ioEngine.cpu": "2.5",
+                "global.cli.storagePool.ephemeralDisk.enableEphemeralBypassAnnotation": "true",
+                "global.cli.storagePool.ephemeralDisk.nvme.perfTier": "premium",
+            }
+        )
+
+        with self._patch_k8s_extension_modules(extension):
+            result = acstor_helpers.get_extension_installed_and_cluster_configs_v1(
+                Mock(cli_ctx=Mock()), "rg", "cluster", []
+            )
+
+        self.assertEqual(
+            result,
+            (
+                True,
+                True,
+                False,
+                False,
+                True,
+                2.5,
+                CONST_DISK_TYPE_PV_WITH_ANNOTATION,
+                CONST_EPHEMERAL_NVME_PERF_TIER_PREMIUM,
+            )
+        )
+
+    def test_get_extension_installed_and_cluster_configs_reads_boolean_settings(self):
+        extension = SimpleNamespace(
+            extension_type=CONST_ACSTOR_K8S_EXTENSION_NAME,
+            configuration_settings={
+                "csiDriverConfigs.local-csi-driver.enabled": True,
+                "csiDriverConfigs.azuresan-csi-driver.enabled": False,
+            }
+        )
+
+        with self._patch_k8s_extension_modules(extension):
+            result = acstor_helpers.get_extension_installed_and_cluster_configs(
+                Mock(cli_ctx=Mock()), "rg", "cluster"
+            )
+
+        self.assertEqual(result, (True, True, False))
 
 
 class ErrorMappingTestCase(unittest.TestCase):
@@ -256,7 +404,7 @@ class GetUserAssignedIdentityTestCase(unittest.TestCase):
             )
             self.assertEqual(user_assigned_identity, mock_user_assigned_identity)
 
-        cloud_error_2 = CloudError(Mock(status_code="xxx"), "mock user assigned identity was not found")
+        cloud_error_2 = HttpResponseError(response=Mock(status_code="xxx", reason="mock user assigned identity was not found"))
         mock_user_assigned_identity_operations_2 = Mock(
             user_assigned_identities=Mock(get=Mock(side_effect=cloud_error_2))
         )
@@ -266,7 +414,7 @@ class GetUserAssignedIdentityTestCase(unittest.TestCase):
         ), self.assertRaises(ResourceNotFoundError):
             get_user_assigned_identity("mock_cli_ctx", "mock_sub_id", "mock_rg", "mock_identity_name")
 
-        cloud_error_3 = CloudError(Mock(status_code="xxx"), "test_error_msg")
+        cloud_error_3 = HttpResponseError(response=Mock(status_code="xxx", reason="test_error_msg"))
         mock_user_assigned_identity_operations_3 = Mock(
             user_assigned_identities=Mock(get=Mock(side_effect=cloud_error_3))
         )
@@ -275,6 +423,48 @@ class GetUserAssignedIdentityTestCase(unittest.TestCase):
             return_value=mock_user_assigned_identity_operations_3,
         ), self.assertRaises(ServiceError):
             get_user_assigned_identity("mock_cli_ctx", "mock_sub_id", "mock_rg", "mock_identity_name")
+
+
+class TestGetMonitoringAddonKey(unittest.TestCase):
+    """Tests for the shared get_monitoring_addon_key helper."""
+
+    def test_returns_default_when_addon_profiles_is_none(self):
+        result = get_monitoring_addon_key(None, "omsagent")
+        self.assertEqual(result, "omsagent")
+
+    def test_returns_lowercase_key_when_present(self):
+        addon_profiles = {"omsagent": object()}
+        result = get_monitoring_addon_key(addon_profiles, "omsagent")
+        self.assertEqual(result, "omsagent")
+
+    def test_normalizes_camelcase_key(self):
+        profile = object()
+        addon_profiles = {"omsAgent": profile}
+        result = get_monitoring_addon_key(addon_profiles, "omsagent")
+        self.assertEqual(result, "omsagent")
+        self.assertIn("omsagent", addon_profiles)
+        self.assertNotIn("omsAgent", addon_profiles)
+
+    def test_prefers_lowercase_when_both_present(self):
+        addon_profiles = {"omsagent": object(), "omsAgent": object()}
+        result = get_monitoring_addon_key(addon_profiles, "omsagent")
+        self.assertEqual(result, "omsagent")
+
+    def test_returns_default_when_key_not_present(self):
+        addon_profiles = {"someOtherAddon": object()}
+        result = get_monitoring_addon_key(addon_profiles, "omsagent")
+        self.assertEqual(result, "omsagent")
+
+    def test_normalizes_nonstandard_casing(self):
+        """A key like 'oMSaGent' should be re-keyed to the canonical form."""
+        profile = object()
+        addon_profiles = {"oMSaGent": profile}
+        result = get_monitoring_addon_key(addon_profiles, "omsagent")
+        self.assertEqual(result, "omsagent")
+        # The dict should now contain the canonical key, not the old one.
+        self.assertIn("omsagent", addon_profiles)
+        self.assertNotIn("oMSaGent", addon_profiles)
+        self.assertIs(addon_profiles["omsagent"], profile)
 
 
 if __name__ == "__main__":

@@ -109,6 +109,19 @@ def _get_extension_run_after_dynamic_install_config(cli_ctx):
     return run_after_extension_installed
 
 
+def _get_extension_allow_preview_install_config(cli_ctx):
+    dynamic_install_allow_preview = None
+    if cli_ctx:
+        if cli_ctx.config.get('extension', 'dynamic_install_allow_preview', None) is None:
+            logger.warning("Preview version of extension is disabled by default for extension installation, "
+                           "enabled for modules without stable versions. ")
+            logger.warning("Please run 'az config set extension.dynamic_install_allow_preview=true or false' "
+                           "to config it specifically. ")
+        else:
+            dynamic_install_allow_preview = cli_ctx.config.getboolean('extension', 'dynamic_install_allow_preview')
+    return dynamic_install_allow_preview
+
+
 def try_install_extension(parser, args):
     # parser.cli_ctx is None when parser.prog is beyond 'az', such as 'az iot'.
     # use cli_ctx from cli_help which is not lost.
@@ -121,7 +134,14 @@ def try_install_extension(parser, args):
 
 
 def _get_extension_use_dynamic_install_config(cli_ctx):
-    default_value = 'yes_prompt'
+    from knack.prompting import verify_is_a_tty, NoTTYException
+    try:
+        verify_is_a_tty()
+        # prompt when it's in tty
+        default_value = 'yes_prompt'
+    except NoTTYException:
+        # without prompt when it's not in tty
+        default_value = 'yes_without_prompt'
     use_dynamic_install = cli_ctx.config.get(
         'extension', 'use_dynamic_install', default_value).lower() if cli_ctx else default_value
     if use_dynamic_install not in ['no', 'yes_prompt', 'yes_without_prompt']:
@@ -174,13 +194,15 @@ def _check_value_in_extensions(cli_ctx, parser, args, no_prompt):  # pylint: dis
     # extension is already installed and return if yes as the error is not caused by extension not installed.
     from azure.cli.core.extension import get_extension, ExtensionNotInstalledException
     from azure.cli.core.extension._resolve import resolve_from_index, NoExtensionCandidatesError
+    extension_allow_preview = _get_extension_allow_preview_install_config(cli_ctx)
     try:
         ext = get_extension(ext_name)
     except ExtensionNotInstalledException:
         pass
     else:
         try:
-            resolve_from_index(ext_name, cur_version=ext.version, cli_ctx=cli_ctx)
+            resolve_from_index(ext_name, cur_version=ext.version, cli_ctx=cli_ctx,
+                               allow_preview=extension_allow_preview)
         except NoExtensionCandidatesError:
             return
 
@@ -217,15 +239,19 @@ def _check_value_in_extensions(cli_ctx, parser, args, no_prompt):  # pylint: dis
     print_error = True
     if install_ext:
         from azure.cli.core.extension.operations import add_extension
-        add_extension(cli_ctx=cli_ctx, extension_name=ext_name, upgrade=True)
+        add_extension(cli_ctx=cli_ctx, extension_name=ext_name, upgrade=True, allow_preview=extension_allow_preview)
         if run_after_extension_installed:
-            import subprocess
-            import platform
-            exit_code = subprocess.call(args, shell=platform.system() == 'Windows')
+            # Rerun the command with the CLI's own entry point instead of handing the raw argv back to a
+            # shell. The previous implementation used `subprocess.call(args, shell=True)` on Windows, which
+            # let cmd.exe reinterpret user-controlled arguments (e.g. `&`, `|`, `^`) and allowed command
+            # injection. `run_az_cmd` executes the command in-process with the args kept as a list, so no
+            # shell is involved.
+            from azure.cli.core.util import run_az_cmd
+            result = run_az_cmd(args[1:])
+            exit_code = getattr(result, 'exit_code', 0)
             # In this case, error msg is for telemetry recording purpose only.
-            # From UX perspective, the command will rerun in subprocess. Whether it succeeds or fails,
-            # mesages will be shown from the subprocess and this process should not print more message to
-            # interrupt that.
+            # From UX perspective, the command is rerun and its messages are already shown,
+            # so this process should not print more message to interrupt that.
             print_error = False
             error_msg = ("Extension {} dynamically installed{} and commands will be "
                          "rerun automatically.").format(ext_name, prompt_info)

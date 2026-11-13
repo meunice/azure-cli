@@ -15,13 +15,12 @@ interactions:
       ParameterSetName:
       - -n -g --query -o
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002/listKeys?api-version=2022-09-01&$expand=kerb
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002/listKeys?api-version=2026-09-01&$expand=kerb
   response:
     body:
-      string: '{"keys":[{"creationTime":"2022-11-18T07:08:51.7582073Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2022-11-18T07:08:51.7582073Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
+      string: '{"keys":[{"creationTime":"2026-05-14T09:09:32.8907094Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2026-05-14T09:09:32.8907094Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
     headers:
       cache-control:
       - no-cache
@@ -30,7 +29,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Fri, 18 Nov 2022 07:09:11 GMT
+      - Thu, 14 May 2026 09:10:04 GMT
       expires:
       - '-1'
       pragma:
@@ -39,14 +38,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/64319b2e-1552-4055-aeb5-a5cd25f50050
       x-ms-ratelimit-remaining-subscription-resource-requests:
-      - '11999'
+      - '799'
+      x-ms-throttling-version:
+      - v1
     status:
       code: 200
       message: OK
@@ -66,13 +65,12 @@ interactions:
       ParameterSetName:
       - -n -g --query -o
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002/listKeys?api-version=2022-09-01&$expand=kerb
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002/listKeys?api-version=2026-09-01&$expand=kerb
   response:
     body:
-      string: '{"keys":[{"creationTime":"2022-11-18T07:08:51.7582073Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2022-11-18T07:08:51.7582073Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
+      string: '{"keys":[{"creationTime":"2026-05-14T09:09:32.8907094Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2026-05-14T09:09:32.8907094Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
     headers:
       cache-control:
       - no-cache
@@ -81,7 +79,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Fri, 18 Nov 2022 07:09:11 GMT
+      - Thu, 14 May 2026 09:10:08 GMT
       expires:
       - '-1'
       pragma:
@@ -90,14 +88,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/cc6d6dfe-5807-43fa-a797-bc1ed998e12d
       x-ms-ratelimit-remaining-subscription-resource-requests:
-      - '11999'
+      - '799'
+      x-ms-throttling-version:
+      - v1
     status:
       code: 200
       message: OK
@@ -115,22 +113,21 @@ interactions:
       ParameterSetName:
       - -n -g --query -o
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002?api-version=2026-09-01
   response:
     body:
-      string: '{"sku":{"name":"Standard_RAGRS","tier":"Standard"},"kind":"StorageV2","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002","name":"queue000002","type":"Microsoft.Storage/storageAccounts","location":"eastus2","tags":{},"properties":{"keyCreationTime":{"key1":"2022-11-18T07:08:51.7582073Z","key2":"2022-11-18T07:08:51.7582073Z"},"privateEndpointConnections":[],"minimumTlsVersion":"TLS1_0","allowBlobPublicAccess":false,"networkAcls":{"bypass":"AzureServices","virtualNetworkRules":[],"ipRules":[],"defaultAction":"Allow"},"supportsHttpsTrafficOnly":true,"encryption":{"services":{"file":{"keyType":"Account","enabled":true,"lastEnabledTime":"2022-11-18T07:08:52.3832575Z"},"blob":{"keyType":"Account","enabled":true,"lastEnabledTime":"2022-11-18T07:08:52.3832575Z"}},"keySource":"Microsoft.Storage"},"accessTier":"Hot","provisioningState":"Succeeded","creationTime":"2022-11-18T07:08:51.6175994Z","primaryEndpoints":{"dfs":"https://queue000002.dfs.core.windows.net/","web":"https://queue000002.z20.web.core.windows.net/","blob":"https://queue000002.blob.core.windows.net/","queue":"https://queue000002.queue.core.windows.net/","table":"https://queue000002.table.core.windows.net/","file":"https://queue000002.file.core.windows.net/"},"primaryLocation":"eastus2","statusOfPrimary":"available","secondaryLocation":"centralus","statusOfSecondary":"available","secondaryEndpoints":{"dfs":"https://queue000002-secondary.dfs.core.windows.net/","web":"https://queue000002-secondary.z20.web.core.windows.net/","blob":"https://queue000002-secondary.blob.core.windows.net/","queue":"https://queue000002-secondary.queue.core.windows.net/","table":"https://queue000002-secondary.table.core.windows.net/"}}}'
+      string: '{"sku":{"name":"Standard_RAGRS","tier":"Standard"},"kind":"StorageV2","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Storage/storageAccounts/queue000002","name":"queue000002","type":"Microsoft.Storage/storageAccounts","location":"eastus2","tags":{},"properties":{"allowCrossTenantDelegationSas":false,"keyCreationTime":{"key1":"2026-05-14T09:09:32.8907094Z","key2":"2026-05-14T09:09:32.8907094Z"},"allowCrossTenantReplication":false,"privateEndpointConnections":[],"minimumTlsVersion":"TLS1_0","allowBlobPublicAccess":false,"networkAcls":{"ipv6Rules":[],"bypass":"AzureServices","virtualNetworkRules":[],"ipRules":[],"defaultAction":"Allow"},"supportsHttpsTrafficOnly":true,"encryption":{"services":{"file":{"keyType":"Account","enabled":true,"lastEnabledTime":"2026-05-14T09:09:32.9039472Z"},"blob":{"keyType":"Account","enabled":true,"lastEnabledTime":"2026-05-14T09:09:32.9039472Z"}},"keySource":"Microsoft.Storage"},"accessTier":"Hot","provisioningState":"Succeeded","creationTime":"2026-05-14T09:09:32.4520346Z","primaryEndpoints":{"dfs":"https://queue000002.dfs.core.windows.net/","web":"https://queue000002.z20.web.core.windows.net/","blob":"https://queue000002.blob.core.windows.net/","queue":"https://queue000002.queue.core.windows.net/","table":"https://queue000002.table.core.windows.net/","file":"https://queue000002.file.core.windows.net/"},"primaryLocation":"eastus2","statusOfPrimary":"available","secondaryLocation":"centralus","statusOfSecondary":"available","secondaryEndpoints":{"dfs":"https://queue000002-secondary.dfs.core.windows.net/","web":"https://queue000002-secondary.z20.web.core.windows.net/","blob":"https://queue000002-secondary.blob.core.windows.net/","queue":"https://queue000002-secondary.queue.core.windows.net/","table":"https://queue000002-secondary.table.core.windows.net/"}}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1785'
+      - '1874'
       content-type:
       - application/json
       date:
-      - Fri, 18 Nov 2022 07:09:11 GMT
+      - Thu, 14 May 2026 09:10:11 GMT
       expires:
       - '-1'
       pragma:
@@ -139,12 +136,10 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -164,10 +159,9 @@ interactions:
       ParameterSetName:
       - -n --fail-on-exist --metadata
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:11 GMT
       x-ms-meta:
       - '{''a'': ''b'', ''c'': ''d''}'
       x-ms-meta-a:
@@ -175,7 +169,7 @@ interactions:
       x-ms-meta-c:
       - d
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://queue000002.queue.core.windows.net/queue000003
   response:
@@ -185,11 +179,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:13 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 201
       message: Created
@@ -209,31 +203,30 @@ interactions:
       ParameterSetName:
       - -n --fail-on-exist --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:14 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://queue000002.queue.core.windows.net/queue000003
   response:
     body:
       string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><Error><Code>QueueAlreadyExists</Code><Message>The
-        specified queue already exists.\nRequestId:92e8008a-a003-004a-301c-fb3ce7000000\nTime:2022-11-18T07:09:12.9348337Z</Message></Error>"
+        specified queue already exists.\nRequestId:8f55056d-d003-004a-1081-e3f44e000000\nTime:2026-05-14T09:10:17.4058735Z</Message></Error>"
     headers:
       content-length:
       - '220'
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:16 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-error-code:
       - QueueAlreadyExists
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 409
       message: The specified queue already exists.
@@ -251,12 +244,11 @@ interactions:
       ParameterSetName:
       - -n
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:17 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://queue000002.queue.core.windows.net/queue000003?comp=metadata
   response:
@@ -268,7 +260,7 @@ interactions:
       content-length:
       - '0'
       date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:19 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-approximate-messages-count:
@@ -278,7 +270,7 @@ interactions:
       x-ms-meta-c:
       - d
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -294,12 +286,11 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:20 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://queue000002.queue.core.windows.net/?comp=list&maxresults=5000
   response:
@@ -313,13 +304,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:22 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -337,12 +328,11 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:23 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://queue000002.queue.core.windows.net/?comp=list&maxresults=5000
   response:
@@ -356,13 +346,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:12 GMT
+      - Thu, 14 May 2026 09:10:25 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -382,12 +372,11 @@ interactions:
       ParameterSetName:
       - -n --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:26 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: DELETE
     uri: https://queue000002.queue.core.windows.net/queue000003
   response:
@@ -397,11 +386,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:28 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 204
       message: No Content
@@ -419,31 +408,30 @@ interactions:
       ParameterSetName:
       - -n --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:29 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://queue000002.queue.core.windows.net/queue000003?comp=metadata
   response:
     body:
       string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><Error><Code>QueueNotFound</Code><Message>The
-        specified queue does not exist.\nRequestId:cd48a55e-7003-0049-541c-fbdd83000000\nTime:2022-11-18T07:09:13.9967677Z</Message></Error>"
+        specified queue does not exist.\nRequestId:21001fa4-2003-0095-4181-e3bf74000000\nTime:2026-05-14T09:10:31.8476401Z</Message></Error>"
     headers:
       content-length:
       - '215'
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:13 GMT
+      - Thu, 14 May 2026 09:10:31 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-error-code:
       - QueueNotFound
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 404
       message: The specified queue does not exist.
@@ -463,31 +451,30 @@ interactions:
       ParameterSetName:
       - -n --fail-not-exist
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:14 GMT
+      - Thu, 14 May 2026 09:10:32 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: DELETE
     uri: https://queue000002.queue.core.windows.net/queue000004
   response:
     body:
       string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><Error><Code>QueueNotFound</Code><Message>The
-        specified queue does not exist.\nRequestId:18ec992b-3003-0077-1f1c-fb4afc000000\nTime:2022-11-18T07:09:14.2587698Z</Message></Error>"
+        specified queue does not exist.\nRequestId:8ab9a604-5003-0019-6181-e3d77a000000\nTime:2026-05-14T09:10:34.9438156Z</Message></Error>"
     headers:
       content-length:
       - '215'
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:14 GMT
+      - Thu, 14 May 2026 09:10:34 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-error-code:
       - QueueNotFound
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 404
       message: The specified queue does not exist.
@@ -503,12 +490,11 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:14 GMT
+      - Thu, 14 May 2026 09:10:35 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://queue000002-secondary.queue.core.windows.net/?restype=service&comp=stats
   response:
@@ -520,13 +506,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:14 GMT
+      - Thu, 14 May 2026 09:10:37 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -544,12 +530,11 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-storage-queue/12.3.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Fri, 18 Nov 2022 07:09:14 GMT
+      - Thu, 14 May 2026 09:10:38 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://queue000002-secondary.queue.core.windows.net/?restype=service&comp=stats
   response:
@@ -561,13 +546,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Fri, 18 Nov 2022 07:09:14 GMT
+      - Thu, 14 May 2026 09:10:40 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK

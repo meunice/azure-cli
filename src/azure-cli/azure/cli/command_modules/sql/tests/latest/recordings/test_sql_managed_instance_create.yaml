@@ -1,0 +1,226 @@
+interactions:
+- request:
+    body: '{"location": "eastus2euap", "properties": {"subnetId": "/subscriptions/self.get_subscription_id()/resourceGroups/sqlmigeodr/providers/Microsoft.Network/virtualNetworks/cl_geodr_eus2_euap_vnet/subnets/subnet_1",
+      "dnsZonePartner": "/subscriptions/self.get_subscription_id()/resourceGroups/kmatijevic-ha-testenv-canary/providers/Microsoft.Sql/managedInstances/ha-testenv-canary-gp-1",
+      "administratorLogin": "admin123", "administrators": {}, "administratorLoginPassword":
+      "SecretPassword123"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql mi create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '489'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -n -l -u -p --subnet --dns-zone-partner
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sqlmigeodr/providers/Microsoft.Sql/managedInstances/clitestmi000001?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"error":{"code":"InternalServerError","message":"Encountered internal
+        server error. Diagnostic information: timestamp ''20261026T124015Z'', subscription
+        id ''8313371e-0879-428e-b1da-6353575a9192'', tracking id ''752e7891-9126-4297-bf96-641af1f43f41'',
+        request correlation id ''752e7891-9126-4297-bf96-641af1f43f41''."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '312'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 26 Oct 2026 12:40:15 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+      x-msedge-ref:
+      - 'Ref A: CB6B597527A24C049C30C7DC5B09B93D Ref B: PNQ241100404062 Ref C: 2026-10-26T12:40:15Z'
+    status:
+      code: 500
+      message: Internal Server Error
+- request:
+    body: '{"location": "eastus2euap", "properties": {"subnetId": "/subscriptions/self.get_subscription_id()/resourceGroups/sqlmigeodr/providers/Microsoft.Network/virtualNetworks/cl_geodr_eus2_euap_vnet/subnets/subnet_1",
+      "dnsZonePartner": "/subscriptions/self.get_subscription_id()/resourceGroups/kmatijevic-ha-testenv-canary/providers/Microsoft.Sql/managedInstances/ha-testenv-canary-gp-1",
+      "administratorLogin": "admin123", "administrators": {}, "administratorLoginPassword":
+      "SecretPassword123"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql mi create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '489'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -n -l -u -p --subnet --dns-zone-partner
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sqlmigeodr/providers/Microsoft.Sql/managedInstances/clitestmi000001?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"error":{"code":"InternalServerError","message":"Encountered internal
+        server error. Diagnostic information: timestamp ''20261026T124016Z'', subscription
+        id ''8313371e-0879-428e-b1da-6353575a9192'', tracking id ''92d8c654-6704-4100-96c8-5de1f5d282f1'',
+        request correlation id ''92d8c654-6704-4100-96c8-5de1f5d282f1''."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '312'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 26 Oct 2026 12:40:15 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+      x-msedge-ref:
+      - 'Ref A: 33980133F7844E0FB353649CDAF7916D Ref B: PNQ241100403036 Ref C: 2026-10-26T12:40:16Z'
+    status:
+      code: 500
+      message: Internal Server Error
+- request:
+    body: '{"location": "eastus2euap", "properties": {"subnetId": "/subscriptions/self.get_subscription_id()/resourceGroups/sqlmigeodr/providers/Microsoft.Network/virtualNetworks/cl_geodr_eus2_euap_vnet/subnets/subnet_1",
+      "dnsZonePartner": "/subscriptions/self.get_subscription_id()/resourceGroups/kmatijevic-ha-testenv-canary/providers/Microsoft.Sql/managedInstances/ha-testenv-canary-gp-1",
+      "administratorLogin": "admin123", "administrators": {}, "administratorLoginPassword":
+      "SecretPassword123"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql mi create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '489'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -n -l -u -p --subnet --dns-zone-partner
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sqlmigeodr/providers/Microsoft.Sql/managedInstances/clitestmi000001?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"error":{"code":"InternalServerError","message":"Encountered internal
+        server error. Diagnostic information: timestamp ''20261026T124018Z'', subscription
+        id ''8313371e-0879-428e-b1da-6353575a9192'', tracking id ''f53a9b11-fc02-44ca-b00c-48bde48a2b48'',
+        request correlation id ''f53a9b11-fc02-44ca-b00c-48bde48a2b48''."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '312'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 26 Oct 2026 12:40:17 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+      x-msedge-ref:
+      - 'Ref A: 814D8A3210A6469C8A0CCBDAADE5A1CD Ref B: PNQ231110906062 Ref C: 2026-10-26T12:40:17Z'
+    status:
+      code: 500
+      message: Internal Server Error
+- request:
+    body: '{"location": "eastus2euap", "properties": {"subnetId": "/subscriptions/self.get_subscription_id()/resourceGroups/sqlmigeodr/providers/Microsoft.Network/virtualNetworks/cl_geodr_eus2_euap_vnet/subnets/subnet_1",
+      "dnsZonePartner": "/subscriptions/self.get_subscription_id()/resourceGroups/kmatijevic-ha-testenv-canary/providers/Microsoft.Sql/managedInstances/ha-testenv-canary-gp-1",
+      "administratorLogin": "admin123", "administrators": {}, "administratorLoginPassword":
+      "SecretPassword123"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql mi create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '489'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -n -l -u -p --subnet --dns-zone-partner
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sqlmigeodr/providers/Microsoft.Sql/managedInstances/clitestmi000001?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"error":{"code":"InternalServerError","message":"Encountered internal
+        server error. Diagnostic information: timestamp ''20261026T124021Z'', subscription
+        id ''8313371e-0879-428e-b1da-6353575a9192'', tracking id ''dfbaa86b-ac08-4f15-a7eb-3f76c1f94c04'',
+        request correlation id ''dfbaa86b-ac08-4f15-a7eb-3f76c1f94c04''."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '312'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 26 Oct 2026 12:40:21 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+      x-msedge-ref:
+      - 'Ref A: 18CDC2E73B4646379F3BB3DFF7D6C012 Ref B: PNQ231110906060 Ref C: 2026-10-26T12:40:21Z'
+    status:
+      code: 500
+      message: Internal Server Error
+version: 1

@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-
+# pylint: disable=line-too-long
 # pylint: disable=too-many-lines
 
 import argparse
@@ -15,13 +15,13 @@ from azure.cli.core.commands import LongRunningOperation
 from azure.cli.core.commands.client_factory import get_mgmt_service_client
 from azure.cli.core.commands.events import EVENT_INVOKER_PRE_LOAD_ARGUMENTS
 from azure.cli.core.commands.validators import IterateValue
-from azure.cli.core.util import shell_safe_json_parse, get_command_type_kwarg
+from azure.cli.core.util import shell_safe_json_parse, get_command_type_kwarg, getprop
 from azure.cli.core.profiles import ResourceType, get_sdk
 
 from knack.arguments import CLICommandArgument, ignore_type
 from knack.introspection import extract_args_from_signature
 from knack.log import get_logger
-from knack.util import todict, CLIError
+from knack.util import CLIError
 
 logger = get_logger(__name__)
 EXCLUDED_NON_CLIENT_PARAMS = list(set(EXCLUDED_PARAMS) - set(['self', 'client']))
@@ -75,7 +75,7 @@ class ArmTemplateBuilder:
                    output_type='string', path=None):
 
         if provider and property_type:
-            value = "[reference(resourceId('{provider}/{type}', '{property}'),providers('{provider}', '{type}').apiVersions[0])".format(  # pylint: disable=line-too-long
+            value = "[reference(resourceId('{provider}/{type}', '{property}'),providers('{provider}', '{type}').apiVersions[0])".format(
                 provider=provider, type=property_type, property=property_name)
         else:
             value = "[reference('{}')".format(property_name)
@@ -175,13 +175,59 @@ class ResourceId(str):
         return str.__new__(cls, val)
 
 
-def resource_exists(cli_ctx, resource_group, name, namespace, type, **_):  # pylint: disable=redefined-builtin
+def resource_exists(cli_ctx, subscription, resource_group, name, namespace, type, **_):  # pylint: disable=redefined-builtin
     ''' Checks if the given resource exists. '''
     odata_filter = "resourceGroup eq '{}' and name eq '{}'" \
         " and resourceType eq '{}/{}'".format(resource_group, name, namespace, type)
-    client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES).resources
+    # Support cross subscription resource existence check
+    client = get_mgmt_service_client(
+        cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES, subscription_id=subscription).resources
     existing = len(list(client.list(filter=odata_filter))) == 1
     return existing
+
+
+def register_global_policy_argument(cli_ctx):
+
+    def add_global_policy_argument(_, **kwargs):
+        command_table = kwargs.get('commands_loader').command_table
+
+        if not command_table:
+            return
+
+        class ChangeReferenceAction(argparse.Action):  # pylint:disable=too-few-public-methods
+
+            def __call__(self, parser, namespace, value, option_string=None):
+                # save change reference to CLI context
+                cmd = getattr(namespace, 'cmd', None) or getattr(namespace, '_cmd', None)
+                cmd.cli_ctx.data['_change_reference'] = value
+
+        class AcquirePolicyTokenAction(argparse.Action):  # pylint:disable=too-few-public-methods
+
+            def __call__(self, parser, namespace, value, option_string=None):
+                # save change reference to CLI context
+                cmd = getattr(namespace, 'cmd', None) or getattr(namespace, '_cmd', None)
+                cmd.cli_ctx.data['_acquire_policy_token'] = True
+
+        for command in command_table.values():
+            if command.name.split()[-1] in ['list', 'show']:
+                continue
+
+            change_reference_kwargs = {
+                'help': 'The related change reference ID for this resource operation',
+                'arg_group': 'Global Policy',
+                'action': ChangeReferenceAction,
+            }
+            acquire_policy_token_kwargs = {
+                'help': 'Acquiring an Azure Policy token automatically for this resource operation',
+                'arg_group': 'Global Policy',
+                'nargs': 0,
+                'action': AcquirePolicyTokenAction,
+            }
+            command.add_argument('_change_reference', '--change-reference', **change_reference_kwargs)
+            command.add_argument('_acquire_policy_token', '--acquire-policy-token', **acquire_policy_token_kwargs)
+
+    from knack import events
+    cli_ctx.register_event(events.EVENT_INVOKER_POST_CMD_TBL_CREATE, add_global_policy_argument)
 
 
 # pylint: disable=too-many-statements
@@ -255,7 +301,7 @@ def register_ids_argument(cli_ctx):
             # ensure the required parameters are provided if --ids is not
             errors = [arg for arg in required_args if getattr(namespace, arg.name, None) is None]
             if errors:
-                missing_required = ' '.join((arg.options_list[0] for arg in errors))
+                missing_required = ' '.join(arg.options_list[0] for arg in errors)
                 raise CLIError('({} | {}) are required'.format(missing_required, '--ids'))
             return
 
@@ -386,9 +432,9 @@ def register_global_subscription_argument(cli_ctx):
     cli_ctx.register_event(EVENT_INVOKER_PRE_LOAD_ARGUMENTS, add_subscription_parameter)
 
 
-add_usage = '--add property.listProperty <key=value, string or JSON string>'
-set_usage = '--set property1.property2=<value>'
-remove_usage = '--remove property.list <indexToRemove> OR --remove propertyToRemove'
+add_usage = '`--add property.listProperty <key=value, string or JSON string>`'
+set_usage = '`--set property1.property2=<value>`'
+remove_usage = '`--remove property.list <indexToRemove>` OR `--remove propertyToRemove`'
 
 
 def _get_operations_tmpl(cmd, custom_command=False):
@@ -430,6 +476,7 @@ def show_exception_handler(ex):
 
 
 def verify_property(instance, condition):
+    from azure.cli.core.util import todict
     from jmespath import compile as compile_jmespath
     result = todict(instance)
     jmes_query = compile_jmespath(condition)
@@ -597,7 +644,7 @@ def remove_properties(instance, argument_values):
 def throw_and_show_options(instance, part, path):
     from msrest.serialization import Model
     options = instance.__dict__ if hasattr(instance, '__dict__') else instance
-    if isinstance(instance, Model) and isinstance(getattr(instance, 'additional_properties', None), dict):
+    if isinstance(instance, Model) and isinstance(getprop(instance, 'additional_properties', None), dict):
         options.update(options.pop('additional_properties'))
     parent = '.'.join(path[:-1]).replace('.[', '[')
     error_message = "Couldn't find '{}' in '{}'.".format(part, parent)
@@ -670,7 +717,7 @@ def _update_instance(instance, part, path):  # pylint: disable=too-many-return-s
                     matches.append(x)
                 elif not isinstance(x, dict):
                     snake_key = make_snake_case(key)
-                    if hasattr(x, snake_key) and getattr(x, snake_key, None) == value:
+                    if hasattr(x, snake_key) and getprop(x, snake_key, None) == value:
                         matches.append(x)
 
             if len(matches) == 1:
@@ -678,7 +725,7 @@ def _update_instance(instance, part, path):  # pylint: disable=too-many-return-s
             if len(matches) > 1:
                 raise CLIError("non-unique key '{}' found multiple matches on {}. Key must be unique."
                                .format(key, path[-2]))
-            if key in getattr(instance, 'additional_properties', {}):
+            if key in getprop(instance, 'additional_properties', {}):
                 instance.enable_additional_properties_sending()
                 return instance.additional_properties[key]
             raise CLIError("item with value '{}' doesn\'t exist for key '{}' on {}".format(value, key, path[-2]))
@@ -694,8 +741,8 @@ def _update_instance(instance, part, path):  # pylint: disable=too-many-return-s
             return instance[part]
 
         if hasattr(instance, make_snake_case(part)):
-            return getattr(instance, make_snake_case(part), None)
-        if part in getattr(instance, 'additional_properties', {}):
+            return getprop(instance, make_snake_case(part), None)
+        if part in getprop(instance, 'additional_properties', {}):
             instance.enable_additional_properties_sending()
             return instance.additional_properties[part]
         raise AttributeError()
@@ -710,9 +757,6 @@ def _find_property(instance, path):
 
 
 def assign_identity(cli_ctx, getter, setter, identity_role=None, identity_scope=None):
-    import time
-    from azure.core.exceptions import HttpResponseError
-
     # get
     resource = getter()
     resource = setter(resource)
@@ -720,34 +764,46 @@ def assign_identity(cli_ctx, getter, setter, identity_role=None, identity_scope=
     # create role assignment:
     if identity_scope:
         principal_id = resource.identity.principal_id
+        create_role_assignment(cli_ctx, principal_id, identity_role, identity_scope)
 
-        identity_role_id = resolve_role_id(cli_ctx, identity_role, identity_scope)
-        assignments_client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_AUTHORIZATION).role_assignments
-        RoleAssignmentCreateParameters = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION,
-                                                 'RoleAssignmentCreateParameters', mod='models',
-                                                 operation_group='role_assignments')
-        parameters = RoleAssignmentCreateParameters(role_definition_id=identity_role_id, principal_id=principal_id,
-                                                    principal_type=None)
-
-        logger.info("Creating an assignment with a role '%s' on the scope of '%s'", identity_role_id, identity_scope)
-        retry_times = 36
-        assignment_name = _gen_guid()
-        for retry_time in range(0, retry_times):
-            try:
-                assignments_client.create(scope=identity_scope, role_assignment_name=assignment_name,
-                                          parameters=parameters)
-                break
-            except HttpResponseError as ex:
-                if 'role assignment already exists' in ex.message:
-                    logger.info('Role assignment already exists')
-                    break
-                if retry_time < retry_times and ' does not exist in the directory ' in ex.message:
-                    time.sleep(5)
-                    logger.warning('Retrying role assignment creation: %s/%s', retry_time + 1,
-                                   retry_times)
-                    continue
-                raise
     return resource
+
+
+def create_role_assignment(cli_ctx, principal_id, identity_role=None, identity_scope=None):
+    import time
+    from azure.core.exceptions import HttpResponseError
+
+    # Coerce AAZSimpleValue/model values to plain strings for SDK 5.0.0b2 compatibility
+    principal_id = str(principal_id) if principal_id else principal_id
+    identity_role = str(identity_role) if identity_role else identity_role
+    identity_scope = str(identity_scope) if identity_scope else identity_scope
+
+    identity_role_id = resolve_role_id(cli_ctx, identity_role, identity_scope)
+    assignments_client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_AUTHORIZATION).role_assignments
+    RoleAssignmentCreateParameters = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION,
+                                             'RoleAssignmentCreateParameters', mod='models',
+                                             operation_group='role_assignments')
+    parameters = RoleAssignmentCreateParameters(role_definition_id=identity_role_id, principal_id=principal_id,
+                                                principal_type=None)
+
+    logger.info("Creating an assignment with a role '%s' on the scope of '%s'", identity_role_id, identity_scope)
+    retry_times = 36
+    assignment_name = _gen_guid()
+    for retry_time in range(0, retry_times):
+        try:
+            assignments_client.create(scope=identity_scope, role_assignment_name=assignment_name,
+                                      parameters=parameters)
+            break
+        except HttpResponseError as ex:
+            if ex.error.code == 'RoleAssignmentExists':
+                logger.info('Role assignment already exists')
+                break
+            if retry_time < retry_times and ' does not exist in the directory ' in ex.message:
+                time.sleep(5)
+                logger.warning('Retrying role assignment creation: %s/%s', retry_time + 1,
+                               retry_times)
+                continue
+            raise
 
 
 def resolve_role_id(cli_ctx, role, scope):
@@ -766,7 +822,7 @@ def resolve_role_id(cli_ctx, role, scope):
         except ValueError:
             pass
         if not role_id:  # retrieve role id
-            role_defs = list(client.list(scope, "roleName eq '{}'".format(role)))
+            role_defs = list(client.list(scope, filter="roleName eq '{}'".format(role)))
             if not role_defs:
                 raise CLIError("Role '{}' doesn't exist.".format(role))
             if len(role_defs) > 1:

@@ -1,8 +1,102 @@
 interactions:
 - request:
+    body: null
+    headers:
+      Accept:
+      - application/json, text/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - feature show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --name --namespace
+      User-Agent:
+      - AZURECLI/2.78.0 azsdk-python-core/1.35.0 Python/3.12.3 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Features/providers/Microsoft.CognitiveServices/features/byoxPreview?api-version=2021-07-01
+  response:
+    body:
+      string: '{"properties":{"state":"Registered"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Features/providers/Microsoft.CognitiveServices/features/byoxPreview","type":"Microsoft.Features/providers/features","name":"Microsoft.CognitiveServices/byoxPreview"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '280'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Tue, 28 Oct 2025 14:51:20 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=13afee5e-80fb-422a-8d26-1e2149850a56/westus/be4f955f-ba67-438c-8912-8c6852d4d5f1
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 8571975EB2D94114A719C6BCF78C28E6 Ref B: CO6AA3150220037 Ref C: 2025-10-28T14:51:21Z'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage account show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -n -g
+      User-Agent:
+      - AZURECLI/2.78.0 azsdk-python-core/1.35.0 Python/3.12.3 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002?api-version=2026-09-01
+  response:
+    body:
+      string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"kind":"Storage","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002","name":"clitest000002","type":"Microsoft.Storage/storageAccounts","location":"westus","tags":{},"properties":{"keyCreationTime":{"key1":"2025-10-28T14:51:00.9936207Z","key2":"2025-10-28T14:51:00.9936207Z"},"allowCrossTenantReplication":false,"privateEndpointConnections":[],"minimumTlsVersion":"TLS1_2","allowBlobPublicAccess":false,"allowSharedKeyAccess":false,"networkAcls":{"ipv6Rules":[],"bypass":"AzureServices","virtualNetworkRules":[],"ipRules":[],"defaultAction":"Allow"},"supportsHttpsTrafficOnly":true,"encryption":{"services":{"file":{"keyType":"Account","enabled":true,"lastEnabledTime":"2025-10-28T14:51:01.0093205Z"},"blob":{"keyType":"Account","enabled":true,"lastEnabledTime":"2025-10-28T14:51:01.0093205Z"}},"keySource":"Microsoft.Storage"},"provisioningState":"Succeeded","creationTime":"2025-10-28T14:51:00.7905599Z","primaryEndpoints":{"blob":"https://clitest000002.blob.core.windows.net/","queue":"https://clitest000002.queue.core.windows.net/","table":"https://clitest000002.table.core.windows.net/","file":"https://clitest000002.file.core.windows.net/"},"primaryLocation":"westus","statusOfPrimary":"available"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1350'
+      content-type:
+      - application/json
+      date:
+      - Tue, 28 Oct 2025 14:51:21 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: 8583714A796940F48D504B6D28566006 Ref B: CO6AA3150219031 Ref C: 2025-10-28T14:51:22Z'
+    status:
+      code: 200
+      message: OK
+- request:
     body: '{"kind": "SpeechServices", "sku": {"name": "S0"}, "identity": {"type":
-      "SystemAssigned"}, "location": "SOUTHCENTRALUS", "properties": {"userOwnedStorage":
-      [{"resourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/felixwa-01/providers/Microsoft.Storage/storageAccounts/felixwatest"}]}}'
+      "SystemAssigned"}, "location": "WESTEUROPE", "properties": {"userOwnedStorage":
+      [{"resourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002"}]}}'
     headers:
       Accept:
       - application/json
@@ -13,51 +107,69 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '310'
+      - '314'
       Content-Type:
       - application/json
       ParameterSetName:
       - -n -g --kind --sku -l --assign-identity --storage --yes
       User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.78.0 azsdk-python-core/1.35.0 Python/3.12.3 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000002?api-version=2022-10-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2026-09-15-preview
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000002","name":"cs_cli_test_000002","type":"Microsoft.CognitiveServices/accounts","etag":"\"1700336c-0000-0500-0000-6358a6220000\"","location":"SOUTHCENTRALUS","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","internalId":"9a9c65dfe1904a34ad556ae874285039","dateCreated":"2022-10-26T03:14:41.796679Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"userOwnedStorage":[{"resourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/felixwa-01/providers/Microsoft.Storage/storageAccounts/felixwatest"}],"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"VirtualNetworks"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*"}],"endpoints":{"Speech
-        Services Speech to Text v2.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.1-preview.1":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Custom Voice":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Audio Content Creation":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Unified
-        Speech":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Verification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Identification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken"},"provisioningState":"Succeeded"},"identity":{"principalId":"28d2b3ae-8f0f-4325-adc4-19a3ec153eea","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"yuanyang@microsoft.com","createdByType":"User","createdAt":"2022-10-26T03:14:40.9476215Z","lastModifiedBy":"yuanyang@microsoft.com","lastModifiedByType":"User","lastModifiedAt":"2022-10-26T03:14:40.9476215Z"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003","name":"cs_cli_test_000003","type":"Microsoft.CognitiveServices/accounts","etag":"\"0101329b-0000-0d00-0000-6900d86d0000\"","location":"WESTEUROPE","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://westeurope.api.cognitive.microsoft.com/","internalId":"5c753c4c79bb44e9a9c577baaa43409d","dateCreated":"2025-10-28T14:51:25.4920167Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.aoaivoicesynthesize","renewalPeriod":60,"count":10,"matchPatterns":[{"path":"speech/aoaivoicesynthesize","method":"*"}]},{"key":"speech.aoaihdvoicesynthesize","renewalPeriod":60,"count":3,"matchPatterns":[{"path":"speech/aoaihdvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.personalvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/personalvoicesynthesize","method":"*"}]},{"key":"speech.liveavatarconnect","renewalPeriod":60,"count":1,"matchPatterns":[{"path":"speech/liveavatarconnect","method":"*"}]},{"key":"speech.livecustomavatarconnect","renewalPeriod":60,"count":200,"matchPatterns":[{"path":"speech/livecustomavatarconnect","method":"*"}]},{"key":"speech.batchavatarcreate","renewalPeriod":60,"count":2,"matchPatterns":[{"path":"avatar/batchsyntheses/*","method":"PUT"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.batchtexttospeechcreate","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"texttospeech/batchsyntheses/*","method":"PUT"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.customvoice","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"customvoice/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"userOwnedStorage":[{"resourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002"}],"allowProjectManagement":false,"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"CommitmentPlan"},{"name":"VirtualNetworks"},{"name":"CustomerManagedKey"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*,SpeechServices.CustomSpeechToText,SpeechServices.NeuralTextToSpeech,SpeechServices.NeuralTextToSpeechOnPrem,SpeechServices.DPP,SpeechServices.SpeechToText,SpeechServices.ctsdiarizer,SpeechServices.diarization"}],"endpoints":{"Speech
+        Services Speech to Text":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text v3.2":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text 2024-05-15-preview":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text 2024-11-15":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text 2025-10-15":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text v3.2_internal.1":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Custom Voice":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Custom Voice Trial":"https://westeurope.api.cognitive.microsoft.com/","Video
+        Translation":"https://westeurope.api.cognitive.microsoft.com/","Speech Services
+        Audio Content Creation":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services TTS Player":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Custom Avatar":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Batch Avatar":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Batch Text to Speech":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text (Standard)":"https://westeurope.stt.speech.microsoft.com","Speech
+        Services Text to Speech (Neural)":"https://westeurope.tts.speech.microsoft.com","Speech
+        Services Speaker Verification":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speaker Identification":"https://westeurope.api.cognitive.microsoft.com/","Voice
+        Agent Realtime API":"https://westeurope.api.cognitive.microsoft.com/","Voice
+        Live Realtime API":"https://westeurope.api.cognitive.microsoft.com/","Token":"https://westeurope.api.cognitive.microsoft.com/"},"provisioningState":"Succeeded"},"identity":{"principalId":"f92ad73b-c184-462d-bd7e-2323b027d4fb","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"test@example.com","createdByType":"User","createdAt":"2025-10-28T14:51:23.2829465Z","lastModifiedBy":"test@example.com","lastModifiedByType":"User","lastModifiedAt":"2025-10-28T14:51:23.2829465Z"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '4313'
+      - '6184'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Wed, 26 Oct 2022 03:14:42 GMT
+      - Tue, 28 Oct 2025 14:51:25 GMT
       etag:
-      - '"1700336c-0000-0500-0000-6358a6220000"'
+      - '"0101329b-0000-0d00-0000-6900d86d0000"'
       expires:
       - '-1'
       pragma:
       - no-cache
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '248'
+      - '915'
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=13afee5e-80fb-422a-8d26-1e2149850a56/westus/bcc14a72-97a3-434b-a753-41c104beb3b8
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: E389B8E3060E4AE3874C643AEE49E14A Ref B: CO6AA3150219035 Ref C: 2025-10-28T14:51:22Z'
     status:
       code: 201
       message: Created
@@ -75,47 +187,59 @@ interactions:
       ParameterSetName:
       - -n -g
       User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.78.0 azsdk-python-core/1.35.0 Python/3.12.3 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000002?api-version=2022-10-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2026-09-15-preview
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000002","name":"cs_cli_test_000002","type":"Microsoft.CognitiveServices/accounts","etag":"\"1700336c-0000-0500-0000-6358a6220000\"","location":"SOUTHCENTRALUS","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","internalId":"9a9c65dfe1904a34ad556ae874285039","dateCreated":"2022-10-26T03:14:41.796679Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"userOwnedStorage":[{"resourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/felixwa-01/providers/Microsoft.Storage/storageAccounts/felixwatest"}],"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"VirtualNetworks"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*"}],"endpoints":{"Speech
-        Services Speech to Text v2.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.1-preview.1":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Custom Voice":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Audio Content Creation":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Unified
-        Speech":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Verification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Identification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken"},"provisioningState":"Succeeded"},"identity":{"principalId":"28d2b3ae-8f0f-4325-adc4-19a3ec153eea","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"yuanyang@microsoft.com","createdByType":"User","createdAt":"2022-10-26T03:14:40.9476215Z","lastModifiedBy":"yuanyang@microsoft.com","lastModifiedByType":"User","lastModifiedAt":"2022-10-26T03:14:40.9476215Z"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003","name":"cs_cli_test_000003","type":"Microsoft.CognitiveServices/accounts","etag":"\"0101329b-0000-0d00-0000-6900d86d0000\"","location":"WESTEUROPE","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://westeurope.api.cognitive.microsoft.com/","internalId":"5c753c4c79bb44e9a9c577baaa43409d","dateCreated":"2025-10-28T14:51:25.4920167Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.aoaivoicesynthesize","renewalPeriod":60,"count":10,"matchPatterns":[{"path":"speech/aoaivoicesynthesize","method":"*"}]},{"key":"speech.aoaihdvoicesynthesize","renewalPeriod":60,"count":3,"matchPatterns":[{"path":"speech/aoaihdvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.personalvoicesynthesize","renewalPeriod":1,"count":200,"matchPatterns":[{"path":"speech/personalvoicesynthesize","method":"*"}]},{"key":"speech.liveavatarconnect","renewalPeriod":60,"count":1,"matchPatterns":[{"path":"speech/liveavatarconnect","method":"*"}]},{"key":"speech.livecustomavatarconnect","renewalPeriod":60,"count":200,"matchPatterns":[{"path":"speech/livecustomavatarconnect","method":"*"}]},{"key":"speech.batchavatarcreate","renewalPeriod":60,"count":2,"matchPatterns":[{"path":"avatar/batchsyntheses/*","method":"PUT"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.batchtexttospeechcreate","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"texttospeech/batchsyntheses/*","method":"PUT"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.customvoice","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"customvoice/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"userOwnedStorage":[{"resourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002"}],"allowProjectManagement":false,"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"CommitmentPlan"},{"name":"VirtualNetworks"},{"name":"CustomerManagedKey"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*,SpeechServices.CustomSpeechToText,SpeechServices.NeuralTextToSpeech,SpeechServices.NeuralTextToSpeechOnPrem,SpeechServices.DPP,SpeechServices.SpeechToText,SpeechServices.ctsdiarizer,SpeechServices.diarization"}],"endpoints":{"Speech
+        Services Speech to Text":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text v3.2":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text 2024-05-15-preview":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text 2024-11-15":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text 2025-10-15":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text v3.2_internal.1":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Custom Voice":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Custom Voice Trial":"https://westeurope.api.cognitive.microsoft.com/","Video
+        Translation":"https://westeurope.api.cognitive.microsoft.com/","Speech Services
+        Audio Content Creation":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services TTS Player":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Custom Avatar":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Batch Avatar":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Batch Text to Speech":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speech to Text (Standard)":"https://westeurope.stt.speech.microsoft.com","Speech
+        Services Text to Speech (Neural)":"https://westeurope.tts.speech.microsoft.com","Speech
+        Services Speaker Verification":"https://westeurope.api.cognitive.microsoft.com/","Speech
+        Services Speaker Identification":"https://westeurope.api.cognitive.microsoft.com/","Voice
+        Agent Realtime API":"https://westeurope.api.cognitive.microsoft.com/","Voice
+        Live Realtime API":"https://westeurope.api.cognitive.microsoft.com/","Token":"https://westeurope.api.cognitive.microsoft.com/"},"provisioningState":"Succeeded"},"identity":{"principalId":"f92ad73b-c184-462d-bd7e-2323b027d4fb","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"test@example.com","createdByType":"User","createdAt":"2025-10-28T14:51:23.2829465Z","lastModifiedBy":"test@example.com","lastModifiedByType":"User","lastModifiedAt":"2025-10-28T14:51:23.2829465Z"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '4313'
+      - '6184'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Wed, 26 Oct 2022 03:14:41 GMT
+      - Tue, 28 Oct 2025 14:51:27 GMT
       etag:
-      - '"1700336c-0000-0500-0000-6358a6220000"'
+      - '"0101329b-0000-0d00-0000-6900d86d0000"'
       expires:
       - '-1'
       pragma:
       - no-cache
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '10'
+      - '11'
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: D6BD594AEE7F4F77AA9AB20AC07FD4C1 Ref B: MWH011020806034 Ref C: 2025-10-28T14:51:26Z'
     status:
       code: 200
       message: OK
@@ -135,9 +259,9 @@ interactions:
       ParameterSetName:
       - -n -g
       User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.78.0 azsdk-python-core/1.35.0 Python/3.12.3 (Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39)
     method: DELETE
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000002?api-version=2022-10-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2026-09-15-preview
   response:
     body:
       string: ''
@@ -147,309 +271,27 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 26 Oct 2022 03:14:45 GMT
+      - Tue, 28 Oct 2025 14:51:29 GMT
       expires:
       - '-1'
       pragma:
       - no-cache
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '88'
+      - '272'
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=13afee5e-80fb-422a-8d26-1e2149850a56/westus/f8e0a43a-e709-43e8-952e-93908491a564
       x-ms-ratelimit-remaining-subscription-deletes:
-      - '14999'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"kind": "SpeechServices", "sku": {"name": "S0"}, "identity": {"type":
-      "SystemAssigned"}, "location": "SOUTHCENTRALUS", "properties": {}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - cognitiveservices account create
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '137'
-      Content-Type:
-      - application/json
-      ParameterSetName:
-      - -n -g --kind --sku -l --assign-identity --yes
-      User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
-    method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2022-10-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003","name":"cs_cli_test_000003","type":"Microsoft.CognitiveServices/accounts","etag":"\"17003e6c-0000-0500-0000-6358a6280000\"","location":"SOUTHCENTRALUS","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","internalId":"8addd8359f224d5b954e9473124945b7","dateCreated":"2022-10-26T03:14:48.1801308Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"VirtualNetworks"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*"}],"endpoints":{"Speech
-        Services Speech to Text v2.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.1-preview.1":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Custom Voice":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Audio Content Creation":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Unified
-        Speech":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Verification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Identification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken"},"provisioningState":"Succeeded"},"identity":{"principalId":"6711cb2d-882d-45a0-80a8-b0024ef12626","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"yuanyang@microsoft.com","createdByType":"User","createdAt":"2022-10-26T03:14:47.2900251Z","lastModifiedBy":"yuanyang@microsoft.com","lastModifiedByType":"User","lastModifiedAt":"2022-10-26T03:14:47.2900251Z"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '4142'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Wed, 26 Oct 2022 03:14:47 GMT
-      etag:
-      - '"17003e6c-0000-0500-0000-6358a6280000"'
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '330'
-      x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
-    status:
-      code: 201
-      message: Created
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - cognitiveservices account update
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - -n -g --storage
-      User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
-    method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2022-10-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003","name":"cs_cli_test_000003","type":"Microsoft.CognitiveServices/accounts","etag":"\"17003e6c-0000-0500-0000-6358a6280000\"","location":"SOUTHCENTRALUS","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","internalId":"8addd8359f224d5b954e9473124945b7","dateCreated":"2022-10-26T03:14:48.1801308Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"VirtualNetworks"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*"}],"endpoints":{"Speech
-        Services Speech to Text v2.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.1-preview.1":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Custom Voice":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Audio Content Creation":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Unified
-        Speech":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Verification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Identification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken"},"provisioningState":"Succeeded"},"identity":{"principalId":"6711cb2d-882d-45a0-80a8-b0024ef12626","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"yuanyang@microsoft.com","createdByType":"User","createdAt":"2022-10-26T03:14:47.2900251Z","lastModifiedBy":"yuanyang@microsoft.com","lastModifiedByType":"User","lastModifiedAt":"2022-10-26T03:14:47.2900251Z"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '4142'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Wed, 26 Oct 2022 03:14:48 GMT
-      etag:
-      - '"17003e6c-0000-0500-0000-6358a6280000"'
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '10'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"sku": {"name": "S0"}, "properties": {"userOwnedStorage": [{"resourceId":
-      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/felixwa-01/providers/Microsoft.Storage/storageAccounts/felixwatest"}]}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - cognitiveservices account update
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '214'
-      Content-Type:
-      - application/json
-      ParameterSetName:
-      - -n -g --storage
-      User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
-    method: PATCH
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2022-10-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003","name":"cs_cli_test_000003","type":"Microsoft.CognitiveServices/accounts","etag":"\"17004a6c-0000-0500-0000-6358a62a0000\"","location":"SOUTHCENTRALUS","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","provisioningState":"Succeeded","internalId":"8addd8359f224d5b954e9473124945b7","dateCreated":"2022-10-26T03:14:48.1801308Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"userOwnedStorage":[{"resourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/felixwa-01/providers/Microsoft.Storage/storageAccounts/felixwatest"}],"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"VirtualNetworks"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*"}],"endpoints":{"Speech
-        Services Speech to Text v2.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.1-preview.1":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Custom Voice":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Audio Content Creation":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Unified
-        Speech":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Verification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Identification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken"}},"identity":{"principalId":"6711cb2d-882d-45a0-80a8-b0024ef12626","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"yuanyang@microsoft.com","createdByType":"User","createdAt":"2022-10-26T03:14:47.2900251Z","lastModifiedBy":"yuanyang@microsoft.com","lastModifiedByType":"User","lastModifiedAt":"2022-10-26T03:14:49.9549782Z"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '4314'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Wed, 26 Oct 2022 03:14:50 GMT
-      etag:
-      - '"17004a6c-0000-0500-0000-6358a62a0000"'
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '146'
-      x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - cognitiveservices account show
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - -n -g
-      User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
-    method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2022-10-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003","name":"cs_cli_test_000003","type":"Microsoft.CognitiveServices/accounts","etag":"\"17004a6c-0000-0500-0000-6358a62a0000\"","location":"SOUTHCENTRALUS","sku":{"name":"S0"},"kind":"SpeechServices","properties":{"endpoint":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","provisioningState":"Succeeded","internalId":"8addd8359f224d5b954e9473124945b7","dateCreated":"2022-10-26T03:14:48.1801308Z","callRateLimit":{"rules":[{"key":"token","renewalPeriod":1,"count":50,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"sts/v1.0/*","method":"*"}]},{"key":"speech.synthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/synthesize","method":"*"}]},{"key":"speech.customvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customvoicesynthesize","method":"*"}]},{"key":"speech.neuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/neuralvoicesynthesize","method":"*"}]},{"key":"speech.customneuralvoicesynthesize","renewalPeriod":1,"count":200,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/customneuralvoicesynthesize","method":"*"}]},{"key":"speech.conversationtranscription","renewalPeriod":1,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speech/singlechannelaudioconversationtranscription","method":"*"},{"path":"speech/multichannelaudioconversationtranscribe","method":"*"},{"path":"speech/videoconversationtranscribe","method":"*"}]},{"key":"speech.speechtotext","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speechtotext/*","method":"*"}]},{"key":"speech.texttospeech","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"texttospeech/*","method":"*"}]},{"key":"speech.speakerrecognitionv2","renewalPeriod":1,"count":20,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"speaker/*","method":"*"},{"path":"speaker-recognition/*","method":"*"}]},{"key":"speech.speakerrecognitionv1","renewalPeriod":1,"count":5,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"spid/*","method":"*"}]},{"key":"container.billing","renewalPeriod":10,"count":500,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"billing/*","method":"*"}]},{"key":"default","renewalPeriod":10,"count":100,"dynamicThrottlingEnabled":false,"matchPatterns":[{"path":"*","method":"*"}]}]},"isMigrated":false,"userOwnedStorage":[{"resourceId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/felixwa-01/providers/Microsoft.Storage/storageAccounts/felixwatest"}],"privateEndpointConnections":[],"publicNetworkAccess":"Enabled","capabilities":[{"name":"VirtualNetworks"},{"name":"CustomerManagedStorage"},{"name":"Container","value":"SpeechServices.*"}],"endpoints":{"Speech
-        Services Speech to Text v2.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.0":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speech to Text v3.1-preview.1":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Custom Voice":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Audio Content Creation":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Unified
-        Speech":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Verification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken","Speech
-        Services Speaker Identification":"https://southcentralus.api.cognitive.microsoft.com/sts/v1.0/issuetoken"}},"identity":{"principalId":"6711cb2d-882d-45a0-80a8-b0024ef12626","tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","type":"SystemAssigned"},"systemData":{"createdBy":"yuanyang@microsoft.com","createdByType":"User","createdAt":"2022-10-26T03:14:47.2900251Z","lastModifiedBy":"yuanyang@microsoft.com","lastModifiedByType":"User","lastModifiedAt":"2022-10-26T03:14:49.9549782Z"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '4314'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Wed, 26 Oct 2022 03:14:50 GMT
-      etag:
-      - '"17004a6c-0000-0500-0000-6358a62a0000"'
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '13'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - cognitiveservices account delete
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      ParameterSetName:
-      - -n -g
-      User-Agent:
-      - AZURECLI/2.41.0 azsdk-python-mgmt-cognitiveservices/13.3.0 Python/3.9.13 (Windows-10-10.0.22621-SP0)
-    method: DELETE
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.CognitiveServices/accounts/cs_cli_test_000003?api-version=2022-10-01
-  response:
-    body:
-      string: ''
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '0'
-      date:
-      - Wed, 26 Oct 2022 03:14:53 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '89'
-      x-ms-ratelimit-remaining-subscription-deletes:
-      - '14999'
+      - '799'
+      x-ms-ratelimit-remaining-subscription-global-deletes:
+      - '11999'
+      x-msedge-ref:
+      - 'Ref A: A66ECF7C93E349FC825B582DBB834674 Ref B: MWH011020808042 Ref C: 2025-10-28T14:51:27Z'
     status:
       code: 200
       message: OK

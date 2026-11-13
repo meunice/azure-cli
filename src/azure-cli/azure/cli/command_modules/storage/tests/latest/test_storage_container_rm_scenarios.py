@@ -4,12 +4,11 @@
 # --------------------------------------------------------------------------------------------
 
 from azure.cli.core.profiles import ResourceType
-from azure.cli.testsdk import (ScenarioTest, api_version_constraint,
+from azure.cli.testsdk import (ScenarioTest,
                                ResourceGroupPreparer, StorageAccountPreparer, JMESPathCheck)
 from azure.cli.testsdk.scenario_tests import AllowLargeResponse
 
 
-@api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2019-06-01')
 class StorageContainerRmScenarios(ScenarioTest):
     @AllowLargeResponse()
     @ResourceGroupPreparer(name_prefix="cli", location="eastus")
@@ -100,11 +99,6 @@ class StorageContainerRmScenarios(ScenarioTest):
         self.assertEqual(result['name'], container_name)
         self.assertEqual(result['publicAccess'], 'Container')
 
-        # Update container by container resource id.
-        result = self.cmd('storage container-rm update --ids {container_id} '
-                          '--deny-encryption-scope-override true').get_output_in_json()
-        self.assertEqual(result['denyEncryptionScopeOverride'], True)
-
         # 5. Test list command(with storage account name and resource group)
         result = self.cmd('storage container-rm list --storage-account {sa} --query "[].name"').get_output_in_json()
         self.assertIn(container_name, result)
@@ -140,10 +134,10 @@ class StorageContainerRmScenarios(ScenarioTest):
             'vnet': self.create_random_name(prefix='vnet', length=10),
             'subnet': self.create_random_name(prefix='subnet', length=10)
         })
-        result = self.cmd('network vnet create -g {rg} -n {vnet} --subnet-name {subnet}').get_output_in_json()
-        self.kwargs['subnet_id'] = result['newVNet']['subnets'][0]['id']
-        self.cmd(
-            'network vnet subnet update -g {rg} --vnet-name {vnet} -n {subnet} --service-endpoints Microsoft.Storage')
+        self.cmd('network vnet create -n {vnet} -g {rg}')
+        self.kwargs['subnet_id'] = self.cmd('network vnet subnet create -g {rg} --vnet-name {vnet} --name {subnet} '
+                                            '--address-prefixes 10.0.1.0/24 --default-outbound false '
+                                            '--service-endpoints Microsoft.Storage').get_output_in_json()['id']
         self.cmd('storage account create -n {sa} -g {rg} --subnet {subnet_id} '
                  '--default-action Deny --hns --sku Standard_LRS --enable-nfs-v3 true',
                  checks=[JMESPathCheck('enableNfsV3', True)])

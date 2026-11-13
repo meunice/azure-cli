@@ -18,12 +18,23 @@ class CognitiveServicesCommandsLoader(AzCommandsLoader):
         custom_type = CliCommandType(
             operations_tmpl='azure.cli.command_modules.cognitiveservices.custom#{}',
             client_factory=cf_accounts)
-        super(CognitiveServicesCommandsLoader, self).__init__(cli_ctx=cli_ctx,
-                                                              custom_command_type=custom_type,
-                                                              resource_type=ResourceType.MGMT_COGNITIVESERVICES)
+        super().__init__(cli_ctx=cli_ctx,
+                         custom_command_type=custom_type,
+                         resource_type=ResourceType.MGMT_COGNITIVESERVICES)
 
     def load_command_table(self, args):
         from azure.cli.command_modules.cognitiveservices.commands import load_command_table
+        from azure.cli.core.aaz import load_aaz_command_table
+        try:
+            from . import aaz
+        except ImportError:
+            aaz = None
+        if aaz:
+            load_aaz_command_table(
+                loader=self,
+                aaz_pkg_name=aaz.__name__,
+                args=args
+            )
         load_command_table(self, args)
         return self.command_table
 

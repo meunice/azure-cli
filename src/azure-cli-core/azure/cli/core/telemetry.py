@@ -47,9 +47,11 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
         self.extension_name = None
         self.extension_version = None
         self.event_id = str(uuid.uuid4())
+        self.cli_recommendation = None
         self.feedback = None
         self.extension_management_detail = None
         self.raw_command = None
+        self.is_cmd_idx_rebuild_triggered = False
         self.show_survey_message = False
         self.region_input = None
         self.region_identified = None
@@ -69,7 +71,16 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
         self.suppress_new_event = False
         self.poll_start_time = None
         self.poll_end_time = None
-        self.allow_broker = None
+        self.secrets_detected = None
+        self.secret_keys = None
+        self.secret_names = None
+        self.user_agent = None
+        # authentication-related
+        self.enable_broker_on_windows = None
+        self.enable_broker_on_mac = None
+        self.msal_telemetry = None
+        self.login_experience_v2 = None
+        self.agentic_session = False
 
     def add_event(self, name, properties):
         for key in self.instrumentation_key:
@@ -122,6 +133,8 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
         return _remove_symbols(payload)
 
     def _get_base_properties(self):
+        uname = platform.uname()
+
         return {
             'Reserved.ChannelUsed': 'AI',
             'Reserved.EventId': self.event_id,
@@ -142,13 +155,16 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
                 self.product_version, self.module_version),
             'Context.Default.VS.Core.MacAddressHash': _get_hash_mac_address(),
             'Context.Default.VS.Core.Machine.Id': _get_hash_machine_id(),
-            'Context.Default.VS.Core.OS.Type': platform.system().lower(),  # eg. darwin, windows
-            'Context.Default.VS.Core.OS.Version': platform.version().lower(),  # eg. 10.0.14942
-            'Context.Default.VS.Core.OS.Platform': platform.platform().lower(),  # eg. windows-10-10.0.19041-sp0
+            'Context.Default.VS.Core.OS.Type': uname.system.lower(),  # eg. darwin, windows
+            'Context.Default.VS.Core.OS.Version': uname.version.lower(),  # eg. 10.0.14942
+            'Context.Default.VS.Core.OS.Platform': '{}-{}-{}-{}'.format(
+                uname.system, uname.release, uname.version, uname.machine).lower(),  # eg. windows-10-10.0.19041-sp0
             # the distro info is complement of platform info for linux
             'Context.Default.VS.Core.Distro.Name': _get_distro_name(),  # eg. 'CentOS Linux 8'
             'Context.Default.VS.Core.Distro.Id': _get_distro_id(),  # eg. 'centos'
             'Context.Default.VS.Core.Distro.Version': _get_distro_version(),  # eg. '8.4.2105'
+            'Context.Dafault.VS.Core.Istty': str(sys.stdin.isatty()),
+            'Context.Default.VS.Core.DevDeviceId': _get_device_id(),
             'Context.Default.VS.Core.User.Id': _get_installation_id(),
             'Context.Default.VS.Core.User.IsMicrosoftInternal': 'False',
             'Context.Default.VS.Core.User.IsOptedIn': 'True',
@@ -179,6 +195,7 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
         set_custom_properties(result,
                               'ClientRequestId',
                               lambda: self.application.data['headers'].get('x-ms-client-request-id', ''))
+        set_custom_properties(result, 'UserAgent', _get_user_agent())
         set_custom_properties(result, 'CoreVersion', _get_core_version)
         set_custom_properties(result, 'TelemetryVersion', "2.0")
         set_custom_properties(result, 'InstallationId', _get_installation_id)
@@ -189,17 +206,19 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
                               lambda: _get_config().get('core', 'output', fallback='unknown'))
         set_custom_properties(result, 'EnvironmentVariables', _get_env_string)
         set_custom_properties(result, 'Locale',
-                              lambda: '{},{}'.format(locale.getdefaultlocale()[0], locale.getdefaultlocale()[1]))
+                              lambda: '{},{}'.format(locale.getlocale()[0], locale.getlocale()[1]))
         set_custom_properties(result, 'StartTime', str(self.start_time))
         set_custom_properties(result, 'EndTime', str(self.end_time))
         set_custom_properties(result, 'InitTimeElapsed', str(self.init_time_elapsed))
         set_custom_properties(result, 'InvokeTimeElapsed', str(self.invoke_time_elapsed))
         set_custom_properties(result, 'OutputType', self.output_type)
         set_custom_properties(result, 'RawCommand', self.raw_command)
+        set_custom_properties(result, 'IsCmdIdxRebuildTriggered', str(self.is_cmd_idx_rebuild_triggered))
         set_custom_properties(result, 'Params', ','.join(self.parameters or []))
         set_custom_properties(result, 'PythonVersion', platform.python_version())
         set_custom_properties(result, 'ModuleCorrelation', self.module_correlation)
         set_custom_properties(result, 'ExtensionName', ext_info)
+        set_custom_properties(result, 'CLIRecommendation', self.cli_recommendation)
         set_custom_properties(result, 'Feedback', self.feedback)
         set_custom_properties(result, 'ExtensionManagementDetail', self.extension_management_detail)
         set_custom_properties(result, 'Mode', self.mode)
@@ -214,7 +233,16 @@ class TelemetrySession:  # pylint: disable=too-many-instance-attributes
         set_custom_properties(result, 'ShowSurveyMessage', str(self.show_survey_message))
         set_custom_properties(result, 'RegionInput', self.region_input)
         set_custom_properties(result, 'RegionIdentified', self.region_identified)
-        set_custom_properties(result, 'AllowBroker', str(self.allow_broker))
+        set_custom_properties(result, 'SecretsWarning', _get_secrets_warning_config())
+        set_custom_properties(result, 'SecretsDetected', str(self.secrets_detected))
+        set_custom_properties(result, 'SecretKeys', ','.join(self.secret_keys or []))
+        set_custom_properties(result, 'SecretNames', ','.join(self.secret_names or []))
+        # authentication-related
+        set_custom_properties(result, 'EnableBrokerOnWindows', str(self.enable_broker_on_windows))
+        set_custom_properties(result, 'EnableBrokerOnMac', str(self.enable_broker_on_mac))
+        set_custom_properties(result, 'MsalTelemetry', self.msal_telemetry)
+        set_custom_properties(result, 'LoginExperienceV2', str(self.login_experience_v2))
+        set_custom_properties(result, 'AgenticSession', str(self.agentic_session))
 
         return result
 
@@ -298,7 +326,7 @@ def flush():
     save(get_config_dir(), _session.generate_payload())
 
     # reset session fields, retaining correlation id and application
-    _session.__init__(correlation_id=_session.correlation_id, application=_session.application)
+    _session.__init__(correlation_id=_session.correlation_id, application=_session.application)  # pylint: disable=unnecessary-dunder-call
 
 
 @_user_agrees_to_telemetry
@@ -403,13 +431,28 @@ def set_feedback(feedback):
 
 
 @decorators.suppress_all_exceptions()
+def set_cli_recommendation(api_version, feedback):
+    # This function returns the user's selection and feedback on the cli-recommendation results
+    # Please refer to feedback_design.md of cli-recommendation for detailed information
+    # json.dumps converts the JSON-formatted feedback into a string format before storing it in the telemetry database.
+    # Telemetry property only accepts string inputs, and it cannot directly upload JSON content.
+    _session.cli_recommendation = json.dumps({"api_version": api_version, "feedback": feedback})
+
+
+@decorators.suppress_all_exceptions()
 def set_extension_management_detail(ext_name, ext_version):
     content = '{}@{}'.format(ext_name, ext_version)
     _session.extension_management_detail = content[:512]
 
 
 @decorators.suppress_all_exceptions()
-def set_command_details(command, output_type=None, parameters=None, extension_name=None, extension_version=None):
+def set_command_index_rebuild_triggered(is_cmd_idx_rebuild_triggered=False):
+    _session.is_cmd_idx_rebuild_triggered = is_cmd_idx_rebuild_triggered
+
+
+@decorators.suppress_all_exceptions()
+def set_command_details(command, output_type=None, parameters=None, extension_name=None,
+                        extension_version=None):
     _session.command = command
     _session.output_type = output_type
     _session.parameters = parameters
@@ -442,10 +485,44 @@ def set_region_identified(region_input, region_identified):
     _session.region_identified = region_identified
 
 
+# region authentication-related
 @decorators.suppress_all_exceptions()
-def set_broker_info(allow_broker):
-    # whether customer has configured `allow_broker` to enable WAM(Web Account Manager) login for authentication
-    _session.allow_broker = allow_broker
+def set_broker_info(enable_broker_on_windows, enable_broker_on_mac=None):
+    # Log the value of `enable_broker_on_windows` and `enable_broker_on_mac`
+    _session.enable_broker_on_windows = enable_broker_on_windows
+    _session.enable_broker_on_mac = enable_broker_on_mac
+
+
+@decorators.suppress_all_exceptions()
+def set_msal_telemetry(msal_telemetry):
+    if not _session.msal_telemetry:
+        _session.msal_telemetry = msal_telemetry
+
+
+@decorators.suppress_all_exceptions()
+def set_login_experience_v2(login_experience_v2):
+    _session.login_experience_v2 = login_experience_v2
+
+
+@decorators.suppress_all_exceptions()
+def set_agentic_session(agentic_session):
+    _session.agentic_session = agentic_session
+# endregion
+
+
+@decorators.suppress_all_exceptions()
+def set_user_agent(user_agent):
+    if user_agent:
+        _session.user_agent = user_agent
+
+
+@decorators.suppress_all_exceptions()
+def set_secrets_detected(secrets_detected, secret_keys=None, secret_names=None):
+    _session.secrets_detected = secrets_detected
+    if secret_keys:
+        _session.secret_keys = secret_keys
+    if secret_names:
+        _session.secret_names = secret_names
 
 
 @decorators.suppress_all_exceptions()
@@ -500,12 +577,29 @@ def _get_config():
     return _session.application.config
 
 
+@decorators.suppress_all_exceptions()
+def _get_secrets_warning_config():
+    from configparser import NoSectionError, NoOptionError
+    try:
+        show_secrets_warning = _get_config().getboolean('clients', 'show_secrets_warning')
+        return 'on' if show_secrets_warning else 'off'
+    except (NoSectionError, NoOptionError):
+        return None
+
+
 # internal utility functions
 
 @decorators.suppress_all_exceptions(fallback_return=None)
 def _get_core_version():
     from azure.cli.core import __version__ as core_version
     return core_version
+
+
+@decorators.suppress_all_exceptions(fallback_return=None)
+def _get_device_id():
+    # This is a shared id with VS code telemetry
+    from deviceid import get_device_id
+    return get_device_id()
 
 
 @decorators.suppress_all_exceptions(fallback_return=None)
@@ -642,6 +736,17 @@ def _get_shell_type():
     if in_cloud_console():
         return 'cloud-shell'
     return _remove_cmd_chars(_remove_symbols(os.environ.get('SHELL')))
+
+
+@decorators.suppress_all_exceptions(fallback_return='')
+def _get_user_agent():
+    if _session.user_agent:
+        return _session.user_agent
+    from azure.cli.core.util import get_az_user_agent
+    agents = [get_az_user_agent()]
+    if 'AZURE_HTTP_USER_AGENT' in os.environ:
+        agents.append(os.environ['AZURE_HTTP_USER_AGENT'])
+    return ' '.join(agents)
 
 
 @decorators.suppress_all_exceptions(fallback_return='')

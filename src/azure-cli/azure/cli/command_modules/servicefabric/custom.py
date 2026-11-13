@@ -8,22 +8,18 @@
 import os
 import time
 
+from urllib.parse import urlparse
+
 from OpenSSL import crypto
-
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse  # pylint: disable=import-error
-
-from msrestazure.azure_exceptions import CloudError
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.hazmat.primitives import hashes
 
 from azure.cli.core.util import CLIError, get_file_json, b64_to_hex, sdk_no_wait
 from azure.cli.core.commands import LongRunningOperation
-from azure.graphrbac import GraphRbacManagementClient
 from azure.cli.core.profiles import ResourceType, get_sdk
 from azure.cli.command_modules.servicefabric._arm_deployment_utils import validate_and_deploy_arm_template
 from azure.cli.command_modules.servicefabric._sf_utils import _get_resource_group_by_name, _create_resource_group_name
-from azure.core.exceptions import ResourceNotFoundError
+from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 
 from azure.mgmt.servicefabric.models import (ClusterUpdateParameters,
                                              ClientCertificateThumbprint,
@@ -32,30 +28,12 @@ from azure.mgmt.servicefabric.models import (ClusterUpdateParameters,
                                              SettingsParameterDescription,
                                              NodeTypeDescription,
                                              EndpointRangeDescription)
-from azure.mgmt.compute.models import (VaultCertificate,
-                                       Sku as ComputeSku,
-                                       UpgradePolicy,
-                                       ImageReference,
-                                       ApiEntityReference,
-                                       VaultSecretGroup,
-                                       VirtualMachineScaleSetOSDisk,
-                                       VirtualMachineScaleSetVMProfile,
-                                       VirtualMachineScaleSetExtensionProfile,
-                                       VirtualMachineScaleSetOSProfile,
-                                       VirtualMachineScaleSetStorageProfile,
-                                       VirtualMachineScaleSet,
-                                       VirtualMachineScaleSetNetworkConfiguration,
-                                       VirtualMachineScaleSetIPConfiguration,
-                                       VirtualMachineScaleSetNetworkProfile,
-                                       SubResource,
-                                       UpgradeMode)
 from azure.mgmt.storage.models import StorageAccountCreateParameters
 
 from knack.log import get_logger
 
 from ._client_factory import (resource_client_factory,
                               keyvault_client_factory,
-                              compute_client_factory,
                               storage_client_factory)
 logger = get_logger(__name__)
 
@@ -79,6 +57,7 @@ DEFAULT_BACKEND_PORT = 3389
 SERVICE_FABRIC_WINDOWS_NODE_EXT_NAME = "servicefabricnode"
 SERVICE_FABRIC_LINUX_NODE_EXT_NAME = "servicefabriclinuxnode"
 
+CLUSTER_NAME_VALUE = "clusterName"
 SOURCE_VAULT_VALUE = "sourceVaultValue"
 CERTIFICATE_THUMBPRINT = "certificateThumbprint"
 CERTIFICATE_URL_VALUE = "certificateUrlValue"
@@ -88,6 +67,11 @@ SEC_CERTIFICATE_URL_VALUE = "secCertificateUrlValue"
 
 os_dic = {'WindowsServer2012R2Datacenter': '2012-R2-Datacenter',
           'UbuntuServer1604': '16.04-LTS',
+          'UbuntuServer1804': '18.04-LTS',
+          'UbuntuServer1804Gen2': '18_04-LTS-Gen2',
+          'UbuntuServer2004': '20_04-LTS',
+          'UbuntuServer2204': '22_04-LTS',
+          'UbuntuServer2204Gen2': '22_04-LTS-Gen2',
           'WindowsServer2016DatacenterwithContainers': '2016-Datacenter-with-Containers',
           'WindowsServer2016Datacenter': '2016-Datacenter',
           'WindowsServer1709': "Datacenter-Core-1709-smalldisk",
@@ -95,7 +79,13 @@ os_dic = {'WindowsServer2012R2Datacenter': '2012-R2-Datacenter',
           'WindowsServer1803withContainers': "Datacenter-Core-1803-with-Containers-smalldisk",
           'WindowsServer1809withContainers': "Datacenter-Core-1809-with-Containers-smalldisk",
           'WindowsServer2019Datacenter': "2019-Datacenter",
-          'WindowsServer2019DatacenterwithContainers': "2019-Datacenter-Core-with-Containers"}
+          'WindowsServer2019DatacenterGen2': "2019-Datacenter-gensecond",
+          'WindowsServer2019DatacenterwithContainers': "2019-Datacenter-Core-with-Containers",
+          'WindowsServer2022Datacenter': "2022-Datacenter",
+          'WindowsServer2022DatacenterGen2': "2022-Datacenter-G2",
+          'WindowsServer2022DatacenterAzureEdition': "2022-Datacenter-Azure-Edition",
+          'WindowsServer2022DatacenterCoreSmallDisk': "2022-Datacenter-Core-SmallDisk",
+          'WindowsServer2022DatacenterGS': "2022-Datacenter-GS"}
 
 
 def list_cluster(client, resource_group_name=None):
@@ -138,7 +128,7 @@ def new_cluster(cmd,
                 'when \'--secret-identifier\' is specified')
     if parameter_file or template_file:
         if parameter_file is None or template_file is None:
-            raise CLIError('If using customize template to deploy,both \'--parameter-file\' and \'--template-file\' can not be None ' + '\n For example:\n az sf cluster create --resource-group myRg --location westus --certificate-subject-name test.com --parameter-file c:\\parameter.json --template-file c:\\template.json' +
+            raise CLIError('If using customize template to deploy, neither \'--parameter-file\' and \'--template-file\' can be None ' + '\n For example:\n az sf cluster create --resource-group myRg --location westus --certificate-subject-name test.com --parameter-file c:\\parameter.json --template-file c:\\template.json' +
                            '\n az sf cluster create --resource-group myRg --location westus --parameter-file c:\\parameter.json --template-file c:\\template.json --certificate_file c:\\test.pfx' + '\n az sf cluster create --resource-group myRg --location westus --certificate-subject-name test.com --parameter-file c:\\parameter.json --template-file c:\\template.json --certificate-output-folder c:\\certoutput')
         if cluster_size or vm_sku or vm_user_name:
             raise CLIError('\'cluster_size\',\'vm_sku\',\'vm_os\',\'vm_user_name\' can not be specified when using customize template deployment')
@@ -187,7 +177,6 @@ def new_cluster(cmd,
     cert_thumbprint = None
     output_file = None
     if parameter_file is None:
-        vm_os = os_dic[vm_os]
         reliability_level = _get_reliability_level(cluster_size)
         result = _create_certificate(cmd,
                                      cli_ctx,
@@ -198,15 +187,17 @@ def new_cluster(cmd,
                                      vault_resource_group_name,
                                      certificate_output_folder,
                                      certificate_subject_name,
-                                     secret_identifier)
+                                     secret_identifier,
+                                     location)
         vault_id = result[0]
         certificate_uri = result[1]
         cert_thumbprint = result[2]
         output_file = result[3]
 
         linux = None
-        if vm_os == '16.04-LTS':
+        if vm_os.startswith('Ubuntu'):
             linux = True
+        vm_os = os_dic[vm_os]
         template = _modify_template(linux)
         parameters = _set_parameters_for_default_template(cluster_location=location,
                                                           cluster_name=cluster_name,
@@ -222,18 +213,19 @@ def new_cluster(cmd,
                                                           os_type=vm_os,
                                                           linux=linux)
     else:
-        parameters, output_file = _set_parameters_for_customize_template(cmd,
-                                                                         cli_ctx,
-                                                                         resource_group_name,
-                                                                         certificate_file,
-                                                                         certificate_password,
-                                                                         vault_name,
-                                                                         vault_resource_group_name,
-                                                                         certificate_output_folder,
-                                                                         certificate_subject_name,
-                                                                         secret_identifier,
-                                                                         parameter_file)
+        parameters, output_file = _set_parameters_for_customize_template(cmd=cmd,
+                                                                         cli_ctx=cli_ctx,
+                                                                         resource_group_name=resource_group_name,
+                                                                         certificate_file=certificate_file,
+                                                                         certificate_password=certificate_password,
+                                                                         vault_name=vault_name,
+                                                                         vault_resource_group_name=vault_resource_group_name,
+                                                                         certificate_output_folder=certificate_output_folder,
+                                                                         certificate_subject_name=certificate_subject_name,
+                                                                         secret_identifier=secret_identifier,
+                                                                         parameter_file=parameter_file)
 
+        cluster_name = parameters[CLUSTER_NAME_VALUE]['value']
         vault_id = parameters[SOURCE_VAULT_VALUE]['value']
         certificate_uri = parameters[CERTIFICATE_URL_VALUE]['value']
         cert_thumbprint = parameters[CERTIFICATE_THUMBPRINT]['value']
@@ -277,6 +269,8 @@ def add_app_cert(cmd,
                  certificate_subject_name=None,
                  secret_identifier=None):
     cli_ctx = cmd.cli_ctx
+    cluster = client.get(resource_group_name, cluster_name)
+    location = cluster.location
     result = _create_certificate(cmd,
                                  cli_ctx,
                                  resource_group_name,
@@ -286,7 +280,8 @@ def add_app_cert(cmd,
                                  vault_resource_group_name,
                                  certificate_output_folder,
                                  certificate_subject_name,
-                                 secret_identifier)
+                                 secret_identifier,
+                                 location)
 
     _add_cert_to_all_vmss(cli_ctx, resource_group_name, None, result[0], result[1])
     return client.get(resource_group_name, cluster_name)
@@ -337,13 +332,20 @@ def add_client_cert(cmd,
             ClientCertificateThumbprint(is_admin, thumbprint))
 
     def _add_common_name(cluster, is_admin, certificate_common_name, certificate_issuer_thumbprint):
+        remove = False
         for t in cluster.client_certificate_common_names:
             if t.certificate_common_name.lower() == certificate_common_name.lower() and t.certificate_issuer_thumbprint.lower() == certificate_issuer_thumbprint.lower():
                 remove = t
+
         if remove:
             cluster.client_certificate_common_names.remove(remove)
-        cluster.client_certificate_common_names.add(ClientCertificateCommonName(
-            is_admin, certificate_common_name, certificate_issuer_thumbprint))
+
+        client_certificate_common_name = ClientCertificateCommonName(
+            is_admin=is_admin,
+            certificate_common_name=certificate_common_name,
+            certificate_issuer_thumbprint=certificate_issuer_thumbprint,
+        )
+        cluster.client_certificate_common_names.append(client_certificate_common_name)
         return cluster.client_certificate_common_names
 
     if thumbprint:
@@ -441,27 +443,29 @@ def remove_client_cert(cmd,
 
 
 def add_cluster_node(cmd, client, resource_group_name, cluster_name, node_type, number_of_nodes_to_add):
+    from ..vm.operations.vmss import VMSSCreate
     cli_ctx = cmd.cli_ctx
     number_of_nodes_to_add = int(number_of_nodes_to_add)
     if number_of_nodes_to_add <= 0:
         raise CLIError("--number-of-nodes-to-add must be greater than 0")
-    compute_client = compute_client_factory(cli_ctx)
     cluster = client.get(resource_group_name, cluster_name)
     node_types = [n for n in cluster.node_types if n.name.lower() == node_type.lower()]
     if node_types is None:
         raise CLIError("Failed to find the node type in the cluster")
     node_type = node_types[0]
 
-    vmss = _get_cluster_vmss_by_node_type(compute_client, resource_group_name, cluster.cluster_id, node_type.name)
-    vmss.sku.capacity = vmss.sku.capacity + number_of_nodes_to_add
+    vmss = _get_cluster_vmss_by_node_type(cmd, resource_group_name, cluster.cluster_id, node_type.name)
+
+    vmss['sku']['capacity'] = vmss['sku']['capacity'] + number_of_nodes_to_add
+    vmss['resource_group'] = resource_group_name
+    vmss['vm_scale_set_name'] = vmss['name']
 
     # update vmss
-    vmss_poll = compute_client.virtual_machine_scale_sets.begin_create_or_update(
-        resource_group_name, vmss.name, vmss)
+    vmss_poll = VMSSCreate(cli_ctx=cli_ctx)(command_args=vmss)
     LongRunningOperation(cli_ctx)(vmss_poll)
 
     # update cluster
-    node_type.vm_instance_count = vmss.sku.capacity
+    node_type.vm_instance_count = vmss['sku']['capacity']
     patch_request = ClusterUpdateParameters(node_types=cluster.node_types)
 
     update_cluster_poll = client.begin_update(resource_group_name, cluster_name, patch_request)
@@ -469,11 +473,11 @@ def add_cluster_node(cmd, client, resource_group_name, cluster_name, node_type, 
 
 
 def remove_cluster_node(cmd, client, resource_group_name, cluster_name, node_type, number_of_nodes_to_remove):
+    from ..vm.operations.vmss import VMSSCreate
     cli_ctx = cmd.cli_ctx
     number_of_nodes_to_remove = int(number_of_nodes_to_remove)
     if number_of_nodes_to_remove <= 0:
         raise CLIError("--number-of-nodes-to-remove must be greater than 0")
-    compute_client = compute_client_factory(cli_ctx)
     cluster = client.get(resource_group_name, cluster_name)
     node_types = [n for n in cluster.node_types if n.name.lower() == node_type.lower()]
     if node_types is None or len(node_types) == 0:
@@ -481,16 +485,17 @@ def remove_cluster_node(cmd, client, resource_group_name, cluster_name, node_typ
 
     node_type = node_types[0]
     reliability_required_instance_count = _get_target_instance(cluster.reliability_level)
-    vmss = _get_cluster_vmss_by_node_type(compute_client, resource_group_name, cluster.cluster_id, node_type.name)
-    vmss.sku.capacity = vmss.sku.capacity - number_of_nodes_to_remove
-    if vmss.sku.capacity < reliability_required_instance_count:
+    vmss = _get_cluster_vmss_by_node_type(cmd, resource_group_name, cluster.cluster_id, node_type.name)
+    vmss['sku']['capacity'] = vmss['sku']['capacity'] - number_of_nodes_to_remove
+    if vmss['sku']['capacity'] < reliability_required_instance_count:
         raise CLIError("Can't delete node since current reliability level is {} requires at least {} nodes.".format(
             cluster.reliability_level,
             reliability_required_instance_count))
 
     # update vmss
-    vmss_poll = compute_client.virtual_machine_scale_sets.begin_create_or_update(
-        resource_group_name, vmss.name, vmss)
+    vmss['resource_group'] = resource_group_name
+    vmss['vm_scale_set_name'] = vmss['name']
+    vmss_poll = VMSSCreate(cli_ctx=cli_ctx)(command_args=vmss)
     LongRunningOperation(cli_ctx)(vmss_poll)
 
     # update cluster
@@ -513,14 +518,15 @@ def update_cluster_durability(cmd, client, resource_group_name, cluster_name, no
     curr_node_type_durability = node_type_ref.durability_level
 
     # get vmss extension durability
-    compute_client = compute_client_factory(cli_ctx)
-    vmss = _get_cluster_vmss_by_node_type(compute_client, resource_group_name, cluster.cluster_id, node_type)
+    vmss = _get_cluster_vmss_by_node_type(cmd, resource_group_name, cluster.cluster_id, node_type)
 
     fabric_ext_ref = _get_sf_vm_extension(vmss)
     if fabric_ext_ref is None:
         raise CLIError("Failed to find service fabric extension.")
 
-    curr_vmss_durability_level = fabric_ext_ref.settings['durabilityLevel']
+    setting = fabric_ext_ref.get('settings', {})
+    # Settings is a freeform dict; Service Fabric stores keys in their original casing, so read using the original key name.
+    curr_vmss_durability_level = setting.get('durabilityLevel')
 
     # check upgrade
     if curr_node_type_durability.lower() != curr_vmss_durability_level.lower():
@@ -537,10 +543,14 @@ def update_cluster_durability(cmd, client, resource_group_name, cluster_name, no
         LongRunningOperation(cli_ctx)(update_cluster_poll)
 
     # update vmss sf extension durability
-    if curr_vmss_durability_level.lower() != durability_level.lower():
-        fabric_ext_ref.settings['durabilityLevel'] = durability_level
-        fabric_ext_ref.settings['enableParallelJobs'] = True
-        vmss_poll = compute_client.virtual_machine_scale_sets.begin_create_or_update(resource_group_name, vmss.name, vmss)
+    if curr_vmss_durability_level.lower() != durability_level.lower() and fabric_ext_ref.get('settings'):
+        from ..vm.operations.vmss import VMSSCreate
+        # Use snake_case since the backend accepts it; keeps naming consistent across the migrated module.
+        fabric_ext_ref['settings']['durability_level'] = durability_level
+        fabric_ext_ref['settings']['enable_parallel_jobs'] = True
+        vmss['resource_group'] = resource_group_name
+        vmss['vm_scale_set_name'] = vmss['name']
+        vmss_poll = VMSSCreate(cli_ctx=cmd.cli_ctx)(command_args=vmss)
         LongRunningOperation(cli_ctx)(vmss_poll)
 
     return client.get(resource_group_name, cluster_name)
@@ -662,21 +672,24 @@ def update_cluster_reliability_level(cmd,
     if node_types is None:
         raise CLIError("Failed to find the node type in the cluster")
     node_type = node_types[0]
-    compute_client = compute_client_factory(cli_ctx)
-    vmss = _get_cluster_vmss_by_node_type(compute_client, resource_group_name, cluster.cluster_id, node_type.name)
+    vmss = _get_cluster_vmss_by_node_type(cmd, resource_group_name, cluster.cluster_id, node_type.name)
     if instance_target == instance_now:
         return cluster
     if instance_target > instance_now:
-        if vmss.sku.capacity < instance_target:
+        capacity = vmss.get('sku', {}).get('capacity')
+        if capacity is not None and capacity < instance_target:
             if auto_add_node is not True:
                 raise CLIError('Please use --auto_add_node to automatically increase the nodes,{} requires {} nodes, but currenty there are {}'.
-                               format(reliability_level, instance_target, vmss.sku.capacity))
-            vmss.sku.capacity = instance_target
-            vmss_poll = compute_client.virtual_machine_scale_sets.begin_create_or_update(
-                resource_group_name, vmss.name, vmss)
+                               format(reliability_level, instance_target, vmss['sku']['capacity']))
+            vmss['sku']['capacity'] = instance_target
+            from ..vm.operations.vmss import VMSSCreate
+            vmss['resource_group'] = resource_group_name
+            vmss['vm_scale_set_name'] = vmss['name']
+            vmss_poll = VMSSCreate(cli_ctx=cmd.cli_ctx)(command_args=vmss)
             LongRunningOperation(cli_ctx)(vmss_poll)
 
-    node_type.vm_instance_count = vmss.sku.capacity
+    if vmss.get('sku', {}).get('capacity') is not None:
+        node_type.vm_instance_count = vmss['sku']['capacity']
     patch_request = ClusterUpdateParameters(
         node_types=cluster.node_types, reliability_level=reliability_level)
     update_cluster_poll = client.begin_update(resource_group_name, cluster_name, patch_request)
@@ -730,6 +743,7 @@ def _create_vmss(cmd, resource_group_name, cluster_name, cluster, node_type_name
     from .aaz.latest.network.public_ip import Create as PublicIPCreate
     from .aaz.latest.network.vnet import List as VNetList
     from .aaz.latest.network.vnet.subnet import Create as SubnetCreate, List as SubnetList
+    from ..vm.operations.vmss import VMSSCreate
 
     cli_ctx = cmd.cli_ctx
     subnet_name = "subnet_{}".format(1)
@@ -856,9 +870,9 @@ def _create_vmss(cmd, resource_group_name, cluster_name, cluster, node_type_name
     backend_address_pools = []
     inbound_nat_pools = []
     for p in new_load_balancer["backendAddressPools"]:
-        backend_address_pools.append(SubResource(id=p["id"]))
+        backend_address_pools.append({'id': p["id"]})
     for p in new_load_balancer["inboundNatPools"]:
-        inbound_nat_pools.append(SubResource(id=p["id"]))
+        inbound_nat_pools.append({'id': p["id"]})
 
     network_config_name = 'NIC-{}-{}'.format(node_type_name.lower(), node_type_name.lower())
     if len(network_config_name) >= 24:
@@ -867,16 +881,24 @@ def _create_vmss(cmd, resource_group_name, cluster_name, cluster, node_type_name
     ip_config_name = 'Nic-{}'.format(node_type_name.lower())
     if len(ip_config_name) >= 24:
         ip_config_name = network_config_name[0:22]
-    vm_network_profile = VirtualMachineScaleSetNetworkProfile(network_interface_configurations=[VirtualMachineScaleSetNetworkConfiguration(name=network_config_name,
-                                                                                                                                           primary=True,
-                                                                                                                                           ip_configurations=[VirtualMachineScaleSetIPConfiguration(name=ip_config_name,
-                                                                                                                                                                                                    load_balancer_backend_address_pools=backend_address_pools,
-                                                                                                                                                                                                    load_balancer_inbound_nat_pools=inbound_nat_pools,
-                                                                                                                                                                                                    subnet=ApiEntityReference(id=subnet["id"]))])])
-    compute_client = compute_client_factory(cli_ctx)
+
+    vm_network_profile = {
+        'network_interface_configurations': [{
+            'name': network_config_name,
+            'ip_configurations': [{
+                'name': ip_config_name,
+                'load_balancer_backend_address_pools': backend_address_pools,
+                'load_balancer_inbound_nat_pools': inbound_nat_pools,
+                'subnet': {
+                    'id': subnet["id"]
+                }
+            }],
+            'primary': True
+        }]
+    }
 
     node_type_name_ref = cluster.node_types[0].name
-    vmss_reference = _get_cluster_vmss_by_node_type(compute_client, resource_group_name, cluster.cluster_id, node_type_name_ref)
+    vmss_reference = _get_cluster_vmss_by_node_type(cmd, resource_group_name, cluster.cluster_id, node_type_name_ref)
 
     def create_vhd(cli_ctx, resource_group_name, cluster_name, node_type, location):
         storage_name = '{}{}'.format(cluster_name.lower(), node_type.lower())
@@ -919,94 +941,132 @@ def _create_vmss(cmd, resource_group_name, cluster_name, cluster, node_type_name
         offer = 'UbuntuServer'
         version = 'latest'
         sku = os_dic['UbuntuServer1604']
-    storage_profile = VirtualMachineScaleSetStorageProfile(image_reference=ImageReference(publisher=publisher,
-                                                                                          offer=offer,
-                                                                                          sku=sku,
-                                                                                          version=version),
-                                                           os_disk=VirtualMachineScaleSetOSDisk(caching='ReadOnly',
-                                                                                                create_option='FromImage',
-                                                                                                name='vmssosdisk',
-                                                                                                vhd_containers=create_vhd(cli_ctx, resource_group_name, cluster_name, node_type_name, location)))
 
-    os_profile = VirtualMachineScaleSetOSProfile(computer_name_prefix=node_type_name,
-                                                 admin_password=vm_password,
-                                                 admin_username=vm_user_name,
-                                                 secrets=vmss_reference.virtual_machine_profile.os_profile.secrets)
+    storage_profile = {
+        'image_reference': {
+            'offer': offer,
+            'publisher': publisher,
+            'sku': sku,
+            'version': version
+        },
+        'os_disk': {
+            'caching': 'ReadOnly',
+            'create_option': 'FromImage',
+            'name': 'vmssosdisk',
+            'vhd_containers': create_vhd(cli_ctx, resource_group_name, cluster_name, node_type_name, location)
+        }
+    }
+
+    os_profile = {
+        'admin_password': vm_password,
+        'admin_username': vm_user_name,
+        'computer_name_prefix': node_type_name,
+        'secrets': vmss_reference.get('virtual_machine_profile', {}).get('os_profile', {}).get('secrets', [])
+    }
 
     diagnostics_storage_name = cluster.diagnostics_storage_account_config.storage_account_name
 
     diagnostics_ext = None
     fabric_ext = None
-    diagnostics_exts = [e for e in vmss_reference.virtual_machine_profile.extension_profile.extensions if e.type_properties_type.lower(
-    ) == 'IaaSDiagnostics'.lower()]
+    diagnostics_exts = [
+        e for e in vmss_reference.get('virtual_machine_profile', {}).get('extension_profile', {}).get('extensions', [])
+        if e.get('type', '').lower() == 'IaaSDiagnostics'.lower()]
     if any(diagnostics_exts):
         diagnostics_ext = diagnostics_exts[0]
-        diagnostics_account = diagnostics_ext.settings['StorageAccount']
-        storage_client = storage_client_factory(cli_ctx)
-        list_results = storage_client.storage_accounts.list_keys(
-            resource_group_name, diagnostics_account)
-        import json
-        json_data = json.loads(
-            '{"storageAccountName": "", "storageAccountKey": "", "storageAccountEndPoint": ""}')
-        json_data['storageAccountName'] = diagnostics_account
-        json_data['storageAccountKey'] = list_results.keys[0].value
-        json_data['storageAccountEndPoint'] = "https://core.windows.net/"
-        diagnostics_ext.protected_settings = json_data
 
-    fabric_exts = [e for e in vmss_reference.virtual_machine_profile.extension_profile.extensions if e.type_properties_type.lower(
-    ) == SERVICE_FABRIC_WINDOWS_NODE_EXT_NAME or e.type_properties_type.lower() == SERVICE_FABRIC_LINUX_NODE_EXT_NAME]
+        setting = diagnostics_ext.get('settings', {})
+        # Settings is a freeform dict; IaaSDiagnostics stores keys in their original casing, so read using the original key name.
+        diagnostics_account = setting.get('StorageAccount')
+        storage_client = storage_client_factory(cli_ctx)
+        list_results = storage_client.storage_accounts.list_keys(resource_group_name, diagnostics_account)
+        # Use snake_case since the backend accepts it; keeps naming consistent across the migrated module.
+        diagnostics_ext['protected_settings'] = {
+            'storage_account_name': diagnostics_account,
+            'storage_account_key': list_results.keys_property[0].value,
+            'storage_account_end_point': 'https://core.windows.net/'
+        }
+
+    fabric_exts = [
+        e for e in vmss_reference.get('virtual_machine_profile', {}).get('extension_profile', {}).get('extensions', [])
+        if e.get('type', '').lower() in [SERVICE_FABRIC_WINDOWS_NODE_EXT_NAME, SERVICE_FABRIC_LINUX_NODE_EXT_NAME]]
+
     if any(fabric_exts):
         fabric_ext = fabric_exts[0]
 
     if fabric_ext is None:
         raise CLIError("No valid fabric extension found")
 
-    fabric_ext.settings['nodeTypeRef'] = node_type_name
-    fabric_ext.settings['durabilityLevel'] = durability_level
-    if 'nicPrefixOverride' not in fabric_ext.settings:
-        fabric_ext.settings['nicPrefixOverride'] = address_prefix
+    if not fabric_ext.get('settings'):
+        fabric_ext['settings'] = {}
+
+    # Use snake_case since the backend accepts it; keeps naming consistent across the migrated module.
+    fabric_ext['settings']['node_type_ref'] = node_type_name
+    fabric_ext['settings']['durability_level'] = durability_level
+    # Migrate legacy camelCase key to snake_case since the backend accepts it; keeps naming consistent across the migrated module.
+    if 'nicPrefixOverride' not in fabric_ext['settings']:
+        fabric_ext['settings']['nic_prefix_override'] = address_prefix
+    else:
+        fabric_ext['settings']['nic_prefix_override'] = fabric_ext['settings'].pop('nicPrefixOverride')
     storage_client = storage_client_factory(cli_ctx)
     list_results = storage_client.storage_accounts.list_keys(
         resource_group_name, diagnostics_storage_name)
-    import json
-    json_data = json.loads(
-        '{"StorageAccountKey1": "", "StorageAccountKey2": ""}')
-    fabric_ext.protected_settings = json_data
-    fabric_ext.protected_settings['StorageAccountKey1'] = list_results.keys[0].value
-    fabric_ext.protected_settings['StorageAccountKey2'] = list_results.keys[1].value
+    fabric_ext['protected_settings'] = {
+        'storage_account_key_1': list_results.keys_property[0].value,
+        'storage_account_key_2': list_results.keys_property[1].value
+    }
 
     extensions = [fabric_ext]
     if diagnostics_ext:
         extensions.append(diagnostics_ext)
-    vm_ext_profile = VirtualMachineScaleSetExtensionProfile(
-        extensions=extensions)
 
-    virtual_machine_scale_set_profile = VirtualMachineScaleSetVMProfile(extension_profile=vm_ext_profile,
-                                                                        os_profile=os_profile,
-                                                                        storage_profile=storage_profile,
-                                                                        network_profile=vm_network_profile)
+    vm_ext_profile = {
+        'extensions': extensions
+    }
 
-    poller = compute_client.virtual_machine_scale_sets.begin_create_or_update(resource_group_name,
-                                                                              node_type_name,
-                                                                              VirtualMachineScaleSet(location=location,
-                                                                                                     sku=ComputeSku(name=vm_sku, tier=vm_tier, capacity=capacity),
-                                                                                                     overprovision=False,
-                                                                                                     upgrade_policy=UpgradePolicy(mode=UpgradeMode.automatic),
-                                                                                                     virtual_machine_profile=virtual_machine_scale_set_profile))
+    virtual_machine_scale_set_profile = {
+        'extension_profile': vm_ext_profile,
+        'network_profile': vm_network_profile,
+        'os_profile': os_profile,
+        'storage_profile': storage_profile
+    }
+
+    command_args = {
+        'resource_group': resource_group_name,
+        'vm_scale_set_name': node_type_name,
+        'location': location,
+        'sku': {
+            'capacity': capacity,
+            'name': vm_sku,
+            'tier': vm_tier
+        },
+        'overprovision': False,
+        'upgrade_policy': {
+            'mode': 'Automatic'
+        },
+        'virtual_machine_profile': virtual_machine_scale_set_profile
+    }
+    poller = VMSSCreate(cli_ctx=cmd.cli_ctx)(command_args=command_args)
     LongRunningOperation(cli_ctx)(poller)
 
 
-def _get_cluster_vmss_by_node_type(compute_client, resource_group_name, cluster_id, node_type_name):
-
-    vmsses = list(compute_client.virtual_machine_scale_sets.list(resource_group_name))
+def _get_cluster_vmss_by_node_type(cmd, resource_group_name, cluster_id, node_type_name):
+    from ..vm.operations.vmss import VMSSList, convert_show_result_to_snake_case
+    vmsses = VMSSList(cli_ctx=cmd.cli_ctx)(command_args={
+        'resource_group': resource_group_name
+    })
 
     for vmss in vmsses:
+        vmss = convert_show_result_to_snake_case(vmss)
         fabric_ext = _get_sf_vm_extension(vmss)
         if fabric_ext is not None:
             curr_cluster_id = _get_cluster_id_in_sf_extension(fabric_ext)
-            if curr_cluster_id.lower() == cluster_id.lower() and fabric_ext.settings["nodeTypeRef"].lower() == node_type_name.lower():
+            setting = fabric_ext.get('settings', {})
+            # Settings is a freeform dict; Service Fabric stores keys in their original casing, so read using the original key name.
+            if (curr_cluster_id.lower() == cluster_id.lower() and
+                    setting.get('nodeTypeRef', '').lower() == node_type_name.lower()):
                 return vmss
-    raise CLIError("Failed to find vmss in resource group {} for cluster id {} and node type {}".format(resource_group_name, cluster_id, node_type_name))
+    raise CLIError("Failed to find vmss in resource group {} for cluster id {} and node type {}".format(
+        resource_group_name, cluster_id, node_type_name))
 
 
 def _verify_cert_function_parameter(certificate_file=None,
@@ -1058,7 +1118,8 @@ def _create_certificate(cmd,
                         vault_resource_group_name=None,
                         certificate_output_folder=None,
                         certificate_subject_name=None,
-                        secret_identifier=None):
+                        secret_identifier=None,
+                        location=None):
     _verify_cert_function_parameter(certificate_file, certificate_password,
                                     vault_name, vault_resource_group_name,
                                     certificate_output_folder,
@@ -1066,9 +1127,8 @@ def _create_certificate(cmd,
                                     secret_identifier)
 
     output_file = None
-    rg = _get_resource_group_by_name(cli_ctx, resource_group_name)
-    location = rg.location
-
+    if location is None:
+        location = _get_resource_group_by_name(cli_ctx, resource_group_name).location
     vault_id = None
     secret_url = None
     certificate_thumbprint = None
@@ -1105,10 +1165,10 @@ def _create_certificate(cmd,
             result = import_certificate(
                 cli_ctx, vault_uri, certificate_name, certificate_file, password=certificate_password)
             vault_id = vault.id
-            secret_url = result.sid
+            secret_url = result.secret_id
             import base64
             certificate_thumbprint = b64_to_hex(
-                base64.b64encode(result.x509_thumbprint))
+                base64.b64encode(result.properties.x509_thumbprint))
 
         else:
             if vault is None:
@@ -1119,62 +1179,79 @@ def _create_certificate(cmd,
             vault_uri = vault.properties.vault_uri
             certificate_name = _get_certificate_name(certificate_subject_name, resource_group_name)
 
-            policy = _get_default_policy(cli_ctx, certificate_subject_name)
+            from azure.cli.command_modules.keyvault._validators import build_certificate_policy
+            from knack.util import todict
+            policy = _get_default_policy(certificate_subject_name)
+            policyObj = build_certificate_policy(cli_ctx, todict(policy))
             logger.info("Creating self-signed certificate")
-            _create_self_signed_key_vault_certificate.__doc__ = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'key_vault_client#KeyVaultClient').__doc__
             result = _create_self_signed_key_vault_certificate(
-                cli_ctx, vault_uri, certificate_name, policy, certificate_output_folder=certificate_output_folder)
+                cli_ctx, vault_uri, certificate_name, policyObj, certificate_output_folder=certificate_output_folder)
             kv_result = result[0]
             output_file = result[1]
             vault_id = vault.id
-            secret_url = kv_result.sid
+            secret_url = kv_result.secret_id
             import base64
             certificate_thumbprint = b64_to_hex(
-                base64.b64encode(kv_result.x509_thumbprint))
+                base64.b64encode(kv_result.properties.x509_thumbprint))
 
     return vault_id, secret_url, certificate_thumbprint, output_file
 
 
 # pylint: disable=inconsistent-return-statements
 def _add_cert_to_vmss(cli_ctx, vmss, resource_group_name, vault_id, secret_url):
-    compute_client = compute_client_factory(cli_ctx)
-    secrets = [
-        s for s in vmss.virtual_machine_profile.os_profile.secrets if s.source_vault.id == vault_id]
+    from ..vm.operations.vmss import VMSSCreate
+
+    secrets = [s for s in vmss.get('virtual_machine_profile', {}).get('os_profile', {}).get('secrets', [])
+               if s.get('source_vault', {}).get('id') == vault_id]
     if secrets is None or secrets == []:
-        if vmss.virtual_machine_profile.os_profile.secrets is None:
-            vmss.virtual_machine_profile.os_profile.secrets = []
+        if vmss.get('virtual_machine_profile', {}).get('os_profile', {}).get('secrets') is None:
+            if not vmss.get('virtual_machine_profile'):
+                vmss['virtual_machine_profile'] = {}
+            if not vmss['virtual_machine_profile'].get('os_profile'):
+                vmss['virtual_machine_profile']['os_profile'] = {}
+            vmss['virtual_machine_profile']['os_profile']['secrets'] = []
         new_vault_certificates = []
-        new_vault_certificates.append(VaultCertificate(certificate_url=secret_url, certificate_store='my'))
-        new_source_vault = SubResource(id=vault_id)
-        vmss.virtual_machine_profile.os_profile.secrets.append(VaultSecretGroup(source_vault=new_source_vault,
-                                                                                vault_certificates=new_vault_certificates))
+        new_vault_certificates.append({
+            'certificate_store': 'my',
+            'certificate_url': secret_url
+        })
+        vmss['virtual_machine_profile']['os_profile']['secrets'].append({
+            'source_vault': {
+                'id': vault_id
+            },
+            'vault_certificates': new_vault_certificates
+        })
     else:
-        if secrets[0].vault_certificates is not None:
-            certs = [
-                c for c in secrets[0].vault_certificates if c.certificate_url == secret_url]
+        if secrets[0].get('vault_certificates') is not None:
+            certs = [c for c in secrets[0]['vault_certificates'] if c.get('certificate_url') == secret_url]
             if certs is None or certs == []:
-                secrets[0].vault_certificates.append(
-                    VaultCertificate(certificate_url=secret_url, certificate_store='my'))
+                secrets[0]['vault_certificates'].append({
+                    'certificate_store': 'my',
+                    'certificate_url': secret_url
+                })
             else:
                 return
         else:
-            secrets[0].vault_certificates = []
-            secrets[0].vault_certificates.append(
-                VaultCertificate(secret_url, 'my'))
+            secrets[0]['vault_certificates'] = []
+            secrets[0]['vault_certificates'].append({
+                'certificate_store': 'my',
+                'certificate_url': secret_url
+            })
 
-    poller = compute_client.virtual_machine_scale_sets.begin_create_or_update(
-        resource_group_name, vmss.name, vmss)
+    vmss['resource_group'] = resource_group_name
+    vmss['vm_scale_set_name'] = vmss['name']
+    poller = VMSSCreate(cli_ctx=cli_ctx)(command_args=vmss)
     return LongRunningOperation(cli_ctx)(poller)
 
 
 def _get_sf_vm_extension(vmss):
     fabric_ext = None
-    for ext in vmss.virtual_machine_profile.extension_profile.extensions:
+    for ext in vmss.get('virtual_machine_profile', {}).get('extension_profile', {}).get('extensions', []):
         extension_type = None
-        if hasattr(ext, 'type1') and ext.type1 is not None:
-            extension_type = ext.type1.lower()
-        elif hasattr(ext, 'type_properties_type') and ext.type_properties_type is not None:
-            extension_type = ext.type_properties_type.lower()
+        if ext.get('type1'):
+            extension_type = ext['type1'].lower()
+        elif ext.get('type'):
+            extension_type = ext['type'].lower()
 
         if extension_type is not None and extension_type in (SERVICE_FABRIC_WINDOWS_NODE_EXT_NAME, SERVICE_FABRIC_LINUX_NODE_EXT_NAME):
             fabric_ext = ext
@@ -1186,19 +1263,24 @@ def _get_sf_vm_extension(vmss):
 
 
 def _get_cluster_id_in_sf_extension(fabric_ext):
-    cluster_endpoint = fabric_ext.settings["clusterEndpoint"]
+    setting = fabric_ext.get('settings', {})
+    # Settings is a freeform dict; Service Fabric stores keys in their original casing, so read using the original key name.
+    cluster_endpoint = setting.get('clusterEndpoint')
     endpoint_list = cluster_endpoint.split('/')
     cluster_id = endpoint_list[len(endpoint_list) - 1]
     return cluster_id
 
 
 def _add_cert_to_all_vmss(cli_ctx, resource_group_name, cluster_id, vault_id, secret_url, is_cluster_cert=False, thumbprint=None):
-    threads = []
+    from ..vm.operations.vmss import VMSSList, convert_show_result_to_snake_case
     import threading
-    compute_client = compute_client_factory(cli_ctx)
-    vmsses = list(compute_client.virtual_machine_scale_sets.list(resource_group_name))
+    threads = []
+    vmsses = VMSSList(cli_ctx=cli_ctx)(command_args={
+        'resource_group': resource_group_name
+    })
     if vmsses is not None:
         for vmss in vmsses:
+            vmss = convert_show_result_to_snake_case(vmss)
             fabric_ext = _get_sf_vm_extension(vmss)
             if fabric_ext is not None and (cluster_id is None or _get_cluster_id_in_sf_extension(fabric_ext).lower() == cluster_id.lower()):
 
@@ -1207,7 +1289,11 @@ def _add_cert_to_all_vmss(cli_ctx, resource_group_name, cluster_id, vault_id, se
                     import json
                     secondary_setting = json.loads(
                         '{{"thumbprint":"{0}","x509StoreName":"{1}"}}'.format(thumbprint, 'my'))
-                    fabric_ext.settings["certificateSecondary"] = secondary_setting
+
+                    if not fabric_ext.get('settings'):
+                        fabric_ext['settings'] = {}
+                    # Use snake_case since the backend accepts it; keeps naming consistent across the migrated module.
+                    fabric_ext["settings"]["certificate_secondary"] = secondary_setting
 
                 t = threading.Thread(target=_add_cert_to_vmss, args=[cli_ctx, vmss, resource_group_name, vault_id, secret_url])
                 t.start()
@@ -1331,7 +1417,9 @@ def _get_certificate_name(certificate_subject_name, resource_group_name):
 
 # pylint: disable=inconsistent-return-statements
 def _get_vault_from_secret_identifier(cli_ctx, secret_identifier):
-    key_vault_client = keyvault_client_factory(cli_ctx).vaults
+    # vaults.list() calls ARM's /resources API, which only accepts 2015-11-01. azure-mgmt-keyvault 14.1.0
+    # sends the client's api-version on next-link pages, so pin the client to 2015-11-01 for this call.
+    key_vault_client = keyvault_client_factory(cli_ctx, api_version='2015-11-01').vaults
     vault_name = urlparse(secret_identifier).hostname.split('.')[0]
     vaults = key_vault_client.list()
     if vaults is not None:
@@ -1356,8 +1444,8 @@ def _safe_get_vault(cli_ctx, resource_group_name, vault_name):
         return vault
     except ResourceNotFoundError:
         return None
-    except CloudError as ex:
-        if ex.error.error == 'ResourceNotFound':
+    except HttpResponseError as ex:
+        if ex.status_code == '404':
             return None
         raise
 
@@ -1377,24 +1465,23 @@ def _get_thumbprint_from_secret_identifier(cli_ctx, vault, secret_identifier):
     secret_version = segment[3]
     vault_uri_group = _get_vault_uri_and_resource_group_name(cli_ctx, vault)
     vault_uri = vault_uri_group[0]
-    client_not_arm = _get_keyVault_not_arm_client(cli_ctx)
-    secret = client_not_arm.get_secret(vault_uri, secret_name, secret_version)
+    client_not_arm = _get_keyvault_secret_client(cli_ctx, vault_uri)
+    secret = client_not_arm.get_secret(secret_name, secret_version)
     cert_bytes = secret.value
     x509 = None
+    thumbprint = None
     import base64
     decoded = base64.b64decode(cert_bytes)
     try:
-        x509 = crypto.load_pkcs12(decoded).get_certificate()
+        p12 = pkcs12.load_pkcs12(decoded, None)
     except (ValueError, crypto.Error):
         pass
 
-    if not x509:
-        x509 = crypto.load_certificate(crypto.FILETYPE_PEM, cert_bytes)
+    if p12.cert is None:
+        raise Exception("certificate is None")  # pylint: disable=broad-exception-raised
 
-    if not x509:
-        raise Exception('invalid certificate')
-
-    thumbprint = x509.digest("sha1").decode("utf-8").replace(':', '')
+    x509 = p12.cert.certificate
+    thumbprint = x509.fingerprint(hashes.SHA1()).hex().upper()
     return thumbprint
 
 
@@ -1406,10 +1493,7 @@ def _get_certificate(client, vault_base_url, certificate_name):
 
 def import_certificate(cli_ctx, vault_base_url, certificate_name, certificate_data,
                        disabled=False, password=None, certificate_policy=None, tags=None):
-    CertificateAttributes = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.certificate_attributes#CertificateAttributes')
-    CertificatePolicy = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.certificate_policy#CertificatePolicy')
-    SecretProperties = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.secret_properties#SecretProperties')
-    import binascii
+    from azure.cli.command_modules.keyvault._validators import build_certificate_policy
     certificate_data = open(certificate_data, 'rb').read()
     x509 = None
     content_type = None
@@ -1417,63 +1501,28 @@ def import_certificate(cli_ctx, vault_base_url, certificate_name, certificate_da
         x509 = crypto.load_certificate(crypto.FILETYPE_PEM, certificate_data)
         # if we get here, we know it was a PEM file
         content_type = 'application/x-pem-file'
-        try:
-            # for PEM files (including automatic endline conversion for
-            # Windows)
-            certificate_data = certificate_data.decode(
-                'utf-8').replace('\r\n', '\n')
-        except UnicodeDecodeError:
-            certificate_data = binascii.b2a_base64(
-                certificate_data).decode('utf-8')
     except (ValueError, crypto.Error):
         pass
 
     if not x509:
-        try:
-            if password:
-                x509 = crypto.load_pkcs12(
-                    certificate_data, password).get_certificate()
-            else:
-                x509 = crypto.load_pkcs12(certificate_data).get_certificate()
-            content_type = 'application/x-pkcs12'
-            certificate_data = binascii.b2a_base64(
-                certificate_data).decode('utf-8')
-        except crypto.Error:
-            raise CLIError(
-                'We could not parse the provided certificate as .pem or .pfx. '
-                'Please verify the certificate with OpenSSL.')
-
-    not_before, not_after = None, None
-
-    if x509.get_notBefore():
-        not_before = _asn1_to_iso8601(x509.get_notBefore())
-
-    if x509.get_notAfter():
-        not_after = _asn1_to_iso8601(x509.get_notAfter())
-
-    cert_attrs = CertificateAttributes(enabled=not disabled,
-                                       not_before=not_before,
-                                       expires=not_after)
+        content_type = 'application/x-pkcs12'
 
     if certificate_policy:
         secret_props = certificate_policy.get('secret_properties')
         if secret_props:
             secret_props['content_type'] = content_type
         elif certificate_policy and not secret_props:
-            certificate_policy['secret_properties'] = SecretProperties(
-                content_type=content_type)
+            certificate_policy['secret_properties'] = {'content_type': content_type}
     else:
-        certificate_policy = CertificatePolicy(
-            secret_properties=SecretProperties(content_type=content_type))
+        certificate_policy = {'secret_properties': {'content_type': content_type}}
 
+    policyObj = build_certificate_policy(cli_ctx, certificate_policy)
     logger.info("Starting 'keyvault certificate import'")
-    client_not_arm = _get_keyVault_not_arm_client(cli_ctx)
-    result = client_not_arm.import_certificate(cli_ctx=cli_ctx,
-                                               vault_base_url=vault_base_url,
-                                               certificate_name=certificate_name,
-                                               base64_encoded_certificate=certificate_data,
-                                               certificate_attributes=cert_attrs,
-                                               certificate_policy=certificate_policy,
+    client_not_arm = _get_keyvault_cert_client(cli_ctx, vault_base_url)
+    result = client_not_arm.import_certificate(certificate_name=certificate_name,
+                                               certificate_bytes=certificate_data,
+                                               enabled=not disabled,
+                                               policy=policyObj,
                                                tags=tags,
                                                password=password)
 
@@ -1482,19 +1531,19 @@ def import_certificate(cli_ctx, vault_base_url, certificate_name, certificate_da
 
 
 def _download_secret(cli_ctx, vault_base_url, secret_name, pem_path, pfx_path, secret_version=''):
-    client = _get_keyVault_not_arm_client(cli_ctx)
-    secret = client.get_secret(vault_base_url, secret_name, secret_version)
+    client = _get_keyvault_secret_client(cli_ctx, vault_base_url)
+    secret = client.get_secret(secret_name, secret_version)
     secret_value = secret.value
     if pem_path:
         try:
             import base64
             decoded = base64.b64decode(secret_value)
-            p12 = crypto.load_pkcs12(decoded)
+            p12 = pkcs12.load_pkcs12(decoded, None)
             f_pem = open(pem_path, 'wb')
             f_pem.write(crypto.dump_privatekey(
-                crypto.FILETYPE_PEM, p12.get_privatekey()))
+                crypto.FILETYPE_PEM, p12.key))
             f_pem.write(crypto.dump_certificate(
-                crypto.FILETYPE_PEM, p12.get_certificate()))
+                crypto.FILETYPE_PEM, p12.cert))
             ca = p12.get_ca_certificates()
             if ca is not None:
                 for cert in ca:
@@ -1510,7 +1559,7 @@ def _download_secret(cli_ctx, vault_base_url, secret_name, pem_path, pfx_path, s
         try:
             import base64
             decoded = base64.b64decode(secret_value)
-            p12 = crypto.load_pkcs12(decoded)
+            p12 = pkcs12.load_pkcs12(decoded, None)
             with open(pfx_path, 'wb') as f:
                 f.write(decoded)
         except Exception as ex:  # pylint: disable=broad-except
@@ -1519,80 +1568,52 @@ def _download_secret(cli_ctx, vault_base_url, secret_name, pem_path, pfx_path, s
             raise ex
 
 
-def _get_default_policy(cli_ctx, subject):
+def _get_default_policy(subject):
     if subject.lower().startswith('cn') is not True:
         subject = "CN={0}".format(subject)
-    return _default_certificate_profile(cli_ctx, subject)
-
-
-def _default_certificate_profile(cli_ctx, subject):
-    CertificateAttributes = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.certificate_attributes#CertificateAttributes')
-    CertificatePolicy = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.certificate_policy#CertificatePolicy')
-    ActionType = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.key_vault_client_enums#ActionType')
-    KeyUsageType = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.key_vault_client_enums#KeyUsageType')
-    IssuerParameters = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.issuer_parameters#IssuerParameters')
-    KeyProperties = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.key_properties#KeyProperties')
-    LifetimeAction = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.lifetime_action#LifetimeAction')
-    SecretProperties = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.secret_properties#SecretProperties')
-    X509CertificateProperties = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.x509_certificate_properties#X509CertificateProperties')
-    Trigger = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.trigger#Trigger')
-    Action = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.action#Action')
-    template = CertificatePolicy(key_properties=KeyProperties(exportable=True,
-                                                              key_type=u'RSA',
-                                                              key_size=2048,
-                                                              reuse_key=True),
-                                 secret_properties=SecretProperties(
-                                     content_type=u'application/x-pkcs12'),
-                                 x509_certificate_properties=X509CertificateProperties(key_usage=[KeyUsageType.c_rl_sign,
-                                                                                                  KeyUsageType.data_encipherment,
-                                                                                                  KeyUsageType.digital_signature,
-                                                                                                  KeyUsageType.key_encipherment,
-                                                                                                  KeyUsageType.key_agreement,
-                                                                                                  KeyUsageType.key_cert_sign],
-                                                                                       subject=subject,
-                                                                                       validity_in_months=12),
-                                 lifetime_actions=[LifetimeAction(trigger=Trigger(days_before_expiry=90),
-                                                                  action=Action(action_type=ActionType.auto_renew))],
-                                 issuer_parameters=IssuerParameters(
-                                     name=u'Self',),
-                                 attributes=CertificateAttributes(enabled=True))
-
-    return template
+    cert_policy = {
+        'issuer_parameters': {
+            'name': 'Self'
+        },
+        'key_properties': {
+            'exportable': True,
+            'key_size': 2048,
+            'key_type': 'RSA',
+            'reuse_key': True
+        },
+        'lifetime_actions': [{
+            'action': {
+                'action_type': 'AutoRenew'
+            },
+            'trigger': {
+                'days_before_expiry': 90
+            }
+        }],
+        'secret_properties': {
+            'content_type': 'application/x-pkcs12'
+        },
+        'x509_certificate_properties': {
+            'key_usage': [
+                'cRLSign',
+                'dataEncipherment',
+                'digitalSignature',
+                'keyEncipherment',
+                'keyAgreement',
+                'keyCertSign'
+            ],
+            'subject': subject,
+            'validity_in_months': 12
+        }
+    }
+    return cert_policy
 
 
 def _create_self_signed_key_vault_certificate(cli_ctx, vault_base_url, certificate_name, certificate_policy, certificate_output_folder=None, disabled=False, tags=None, validity=None):
-    CertificateAttributes = get_sdk(cli_ctx, ResourceType.DATA_KEYVAULT, 'models.certificate_attributes#CertificateAttributes')
-    cert_attrs = CertificateAttributes(enabled=not disabled)
     logger.info("Starting long-running operation 'keyvault certificate create'")
-    if validity is not None:
-        certificate_policy['x509_certificate_properties']['validity_in_months'] = validity
-    client = _get_keyVault_not_arm_client(cli_ctx)
-    client.create_certificate(
-        vault_base_url, certificate_name, certificate_policy, cert_attrs, tags)
-
-    # otherwise loop until the certificate creation is complete
-    while True:
-        check = client.get_certificate_operation(
-            vault_base_url, certificate_name)
-        if check.status != 'inProgress':
-            logger.info("Long-running operation 'keyvault certificate create' finished with result %s.",
-                        check)
-            break
-        try:
-            time.sleep(10)
-        except KeyboardInterrupt:
-            logger.info("Long-running operation wait cancelled.")
-            raise
-        except Exception as client_exception:
-            message = getattr(client_exception, 'message', client_exception)
-            import json
-            try:
-                message = str(message) + ' ' + json.loads(
-                    client_exception.response.text)['error']['details'][0]['message']   # pylint: disable=no-member
-            except:  # pylint: disable=bare-except
-                pass
-
-            raise CLIError('{}'.format(message))
+    if validity:
+        certificate_policy._validity_in_months = validity  # pylint: disable=protected-access
+    client = _get_keyvault_cert_client(cli_ctx, vault_base_url)
+    client.begin_create_certificate(certificate_name, certificate_policy, enabled=not disabled, tags=tags).result()
 
     pem_output_folder = None
     if certificate_output_folder is not None:
@@ -1603,12 +1624,19 @@ def _create_self_signed_key_vault_certificate(cli_ctx, vault_base_url, certifica
             certificate_output_folder, certificate_name + '.pfx')
         _download_secret(cli_ctx, vault_base_url, certificate_name,
                          pem_output_folder, pfx_output_folder)
-    return client.get_certificate(vault_base_url, certificate_name, ''), pem_output_folder
+    return client.get_certificate(certificate_name), pem_output_folder
 
 
-def _get_keyVault_not_arm_client(cli_ctx):
-    from azure.cli.command_modules.keyvault._client_factory import keyvault_data_plane_factory
-    return keyvault_data_plane_factory(cli_ctx)
+def _get_keyvault_secret_client(cli_ctx, vault_base_url):
+    from azure.cli.command_modules.keyvault._client_factory import data_plane_azure_keyvault_secret_client
+    command_args = {'vault_base_url': vault_base_url}
+    return data_plane_azure_keyvault_secret_client(cli_ctx, command_args)
+
+
+def _get_keyvault_cert_client(cli_ctx, vault_base_url):
+    from azure.cli.command_modules.keyvault._client_factory import data_plane_azure_keyvault_certificate_client
+    command_args = {'vault_base_url': vault_base_url}
+    return data_plane_azure_keyvault_certificate_client(cli_ctx, command_args)
 
 
 def _create_keyvault(cmd,
@@ -1621,16 +1649,6 @@ def _create_keyvault(cmd,
                      enabled_for_disk_encryption=None,
                      enabled_for_template_deployment=None,
                      no_self_perms=None, tags=None):
-
-    from azure.cli.core._profile import Profile
-    from azure.graphrbac.models import GraphErrorException
-    profile = Profile(cli_ctx=cli_ctx)
-    cred, _, tenant_id = profile.get_login_credentials(
-        resource=cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
-    graph_client = GraphRbacManagementClient(cred,
-                                             tenant_id,
-                                             base_url=cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
-    subscription = profile.get_subscription()
     VaultCreateOrUpdateParameters = cmd.get_models('VaultCreateOrUpdateParameters', resource_type=ResourceType.MGMT_KEYVAULT, operation_group='vaults')
     VaultProperties = cmd.get_models('VaultProperties', resource_type=ResourceType.MGMT_KEYVAULT, operation_group='vaults')
     KeyVaultSku = cmd.get_models('Sku', resource_type=ResourceType.MGMT_KEYVAULT, operation_group='vaults')
@@ -1641,44 +1659,23 @@ def _create_keyvault(cmd,
     SecretPermissions = get_sdk(cli_ctx, ResourceType.MGMT_KEYVAULT, 'models#SecretPermissions', operation_group='vaults')
     KeyVaultSkuName = cmd.get_models('SkuName', resource_type=ResourceType.MGMT_KEYVAULT, operation_group='vaults')
 
+    from azure.cli.core._profile import Profile, _TENANT_ID
+    profile = Profile(cli_ctx=cmd.cli_ctx)
+    subscription = profile.get_subscription(subscription=cmd.cli_ctx.data.get('subscription_id', None))
+    tenant_id = subscription[_TENANT_ID]
+
     if not sku:
         sku = KeyVaultSkuName.standard.value
 
     if no_self_perms:
         access_policies = []
     else:
-        permissions = Permissions(keys=[KeyPermissions.get,
-                                        KeyPermissions.create,
-                                        KeyPermissions.delete,
-                                        KeyPermissions.list,
-                                        KeyPermissions.update,
-                                        KeyPermissions.IMPORT,
-                                        KeyPermissions.backup,
-                                        KeyPermissions.restore],
-                                  secrets=[SecretPermissions.get,
-                                           SecretPermissions.list,
-                                           SecretPermissions.set,
-                                           SecretPermissions.delete,
-                                           SecretPermissions.backup,
-                                           SecretPermissions.restore,
-                                           SecretPermissions.recover],
-                                  certificates=[CertificatePermissions.get,
-                                                CertificatePermissions.list,
-                                                CertificatePermissions.delete,
-                                                CertificatePermissions.create,
-                                                CertificatePermissions.IMPORT,
-                                                CertificatePermissions.update,
-                                                CertificatePermissions.managecontacts,
-                                                CertificatePermissions.getissuers,
-                                                CertificatePermissions.listissuers,
-                                                CertificatePermissions.setissuers,
-                                                CertificatePermissions.deleteissuers,
-                                                CertificatePermissions.manageissuers,
-                                                CertificatePermissions.recover])
-        try:
-            object_id = _get_current_user_object_id(graph_client)
-        except GraphErrorException:
-            object_id = _get_object_id(graph_client, subscription=subscription)
+        permissions = Permissions(keys_property=[KeyPermissions.all],
+                                  secrets=[SecretPermissions.all],
+                                  certificates=[CertificatePermissions.all])
+
+        from azure.cli.command_modules.role.util import get_current_identity_object_id
+        object_id = get_current_identity_object_id(cli_ctx)
         if not object_id:
             raise CLIError('Cannot create vault.\n'
                            'Unable to query active directory for information '
@@ -1715,7 +1712,7 @@ def _get_current_user_object_id(graph_client):
         current_user = graph_client.signed_in_user.get()
         if current_user and current_user.object_id:  # pylint:disable=no-member
             return current_user.object_id  # pylint:disable=no-member
-    except CloudError:
+    except HttpResponseError:
         pass
 
 
@@ -1828,6 +1825,9 @@ def _set_parameters_for_customize_template(cmd,
     parameters = get_file_json(parameter_file)['parameters']
     if parameters is None:
         raise CLIError('Invalid parameters file')
+
+    location = parameters['clusterLocation']['value']
+
     if SOURCE_VAULT_VALUE in parameters and CERTIFICATE_THUMBPRINT in parameters and CERTIFICATE_URL_VALUE in parameters:
         logger.info('Found primary certificate parameters in parameters file')
         result = _create_certificate(cmd,
@@ -1839,7 +1839,8 @@ def _set_parameters_for_customize_template(cmd,
                                      vault_resource_group_name,
                                      certificate_output_folder,
                                      certificate_subject_name,
-                                     secret_identifier)
+                                     secret_identifier,
+                                     location)
         parameters[SOURCE_VAULT_VALUE]['value'] = result[0]
         parameters[CERTIFICATE_URL_VALUE]['value'] = result[1]
         parameters[CERTIFICATE_THUMBPRINT]['value'] = result[2]
@@ -1860,7 +1861,8 @@ def _set_parameters_for_customize_template(cmd,
                                      vault_resource_group_name,
                                      certificate_output_folder,
                                      certificate_subject_name,
-                                     secret_identifier)
+                                     secret_identifier,
+                                     location)
         parameters[SOURCE_VAULT_VALUE]['value'] = result[0]
         parameters[CERTIFICATE_URL_VALUE]['value'] = result[1]
         parameters[CERTIFICATE_THUMBPRINT]['value'] = result[2]

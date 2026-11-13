@@ -4,132 +4,149 @@
 # --------------------------------------------------------------------------------------------
 
 from knack.util import CLIError
+from azure.cli.core.commands import LongRunningOperation
+from azure.cli.core.commands.client_factory import get_subscription_id
+from ._client_factory import cf_acr_registries
 from ._utils import validate_premium_registry
-from ._client_factory import cf_acr_network_rules
-from typing import Optional, Union
-import msrest.serialization
-
-
-class VirtualNetworkRule(msrest.serialization.Model):
-    """Virtual network rule.
-    All required parameters must be populated in order to send to Azure.
-    :ivar action: The action of virtual network rule. Possible values include: "Allow".
-    :vartype action: str or ~azure.mgmt.containerregistry.v2021_08_01_preview.models.Action
-    :ivar virtual_network_resource_id: Required. Resource ID of a subnet, for example:
-     '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/
-     providers/Microsoft.Network/virtualNetworks/{vnetName}/subnets/{subnetName}.'
-    :vartype virtual_network_resource_id: str
-    """
-
-    _validation = {
-        'virtual_network_resource_id': {'required': True},
-    }
-
-    _attribute_map = {
-        'action': {'key': 'action', 'type': 'str'},
-        'virtual_network_resource_id': {'key': 'id', 'type': 'str'},
-    }
-
-    def __init__(
-        self,
-        *,
-        virtual_network_resource_id: str,
-        action: Optional[Union[str, "Action"]] = None,  # noqa: F821
-        **kwargs
-    ):
-        """
-        :keyword action: The action of virtual network rule. Possible values include: "Allow".
-        :paramtype action: str or ~azure.mgmt.containerregistry.v2021_08_01_preview.models.Action
-        :keyword virtual_network_resource_id: Required. Resource ID of a subnet, for example:
-         '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/
-         providers/Microsoft.Network/virtualNetworks/{vnetName}/subnets/{subnetName}.'
-        :paramtype virtual_network_resource_id: str
-        """
-        super(VirtualNetworkRule, self).__init__(**kwargs)
-        self.action = action
-        self.virtual_network_resource_id = virtual_network_resource_id
 
 
 NETWORK_RULE_NOT_SUPPORTED = 'Network rules are only supported for managed registries in Premium SKU.'
 
 
+def _get_enum_value(value):
+    return getattr(value, 'value', value)
+
+
+def _format_virtual_network_rule(rule):
+    """Preserve the legacy field while surfacing the SDK's subnet resource ID."""
+    subnet_id = rule.virtual_network_subnet_resource_id
+    return {
+        'virtualNetworkResourceId': subnet_id,
+        'virtualNetworkSubnetResourceId': subnet_id,
+        'action': _get_enum_value(rule.action) or 'Allow',
+    }
+
+
+def _format_registry_response(registry):
+    """Format the registry SDK model for CLI output."""
+    network_rule_set = registry.network_rule_set
+    virtual_network_rules = []
+    ip_rules = []
+    if network_rule_set:
+        virtual_network_rules = [
+            _format_virtual_network_rule(rule)
+            for rule in (network_rule_set.virtual_network_rules or [])
+        ]
+        ip_rules = [
+            {
+                'ipAddressOrRange': rule.ip_address_or_range,
+                'action': _get_enum_value(rule.action) or 'Allow',
+            }
+            for rule in (network_rule_set.ip_rules or [])
+        ]
+
+    return {
+        'name': registry.name,
+        'provisioningState': _get_enum_value(registry.provisioning_state),
+        'networkRuleSet': {
+            'defaultAction': _get_enum_value(network_rule_set.default_action) if network_rule_set else None,
+            'virtualNetworkRules': virtual_network_rules,
+            'ipRules': ip_rules,
+        },
+    }
+
+
+def _get_network_rule_set(cmd, registry):
+    if registry.network_rule_set:
+        return registry.network_rule_set
+    NetworkRuleSet = cmd.get_models('NetworkRuleSet')
+    return NetworkRuleSet(default_action='Allow')
+
+
+def _update_registry(cmd, resource_group_name, registry_name, network_rule_set):
+    RegistryUpdateParameters = cmd.get_models('RegistryUpdateParameters')
+    parameters = RegistryUpdateParameters(network_rule_set=network_rule_set)
+    client = cf_acr_registries(cmd.cli_ctx)
+    return LongRunningOperation(cmd.cli_ctx)(
+        client.begin_update(resource_group_name, registry_name, parameters)
+    )
+
+
 def acr_network_rule_list(cmd, registry_name, resource_group_name=None):
-    _, resource_group_name = validate_premium_registry(
+    registry, _ = validate_premium_registry(
         cmd, registry_name, resource_group_name, NETWORK_RULE_NOT_SUPPORTED)
 
-    client = cf_acr_network_rules(cmd.cli_ctx)
-    registry = client.get(resource_group_name, registry_name)
-    rules = registry.network_rule_set
-    delattr(rules, 'default_action')
-    return rules
+    network_rule_set = _format_registry_response(registry)['networkRuleSet']
+    return {'virtualNetworkRules': network_rule_set['virtualNetworkRules'], 'ipRules': network_rule_set['ipRules']}
 
 
 def acr_network_rule_add(cmd,
-                         client,
                          registry_name,
                          subnet=None,
                          vnet_name=None,
                          ip_address=None,
                          resource_group_name=None):
-    _, resource_group_name = validate_premium_registry(
+    registry, resource_group_name = validate_premium_registry(
         cmd, registry_name, resource_group_name, NETWORK_RULE_NOT_SUPPORTED)
 
-    client = cf_acr_network_rules(cmd.cli_ctx)
-    registry = client.get(resource_group_name, registry_name)
-
-    rules = registry.network_rule_set
+    VirtualNetworkRule, IPRule = cmd.get_models('VirtualNetworkRule', 'IPRule')
+    rules = _get_network_rule_set(cmd, registry)
 
     if subnet or vnet_name:
-        rules.virtual_network_rules = rules.virtual_network_rules if rules.virtual_network_rules else []
+        virtual_network_rules = list(rules.virtual_network_rules or [])
         subnet_id = _validate_subnet(cmd.cli_ctx, subnet, vnet_name, resource_group_name)
-        rules.virtual_network_rules.append(VirtualNetworkRule(virtual_network_resource_id=subnet_id))
-    if ip_address:
-        rules.ip_rules = rules.ip_rules if rules.ip_rules else []
-        IPRule = cmd.get_models('IPRule')
-        rules.ip_rules.append(IPRule(ip_address_or_range=ip_address))
+        virtual_network_rules.append(
+            VirtualNetworkRule(virtual_network_subnet_resource_id=subnet_id, action='Allow')
+        )
+        rules.virtual_network_rules = virtual_network_rules
 
-    RegistryUpdateParameters = cmd.get_models('RegistryUpdateParameters')
-    parameters = RegistryUpdateParameters(network_rule_set=rules)
-    return client.begin_update(resource_group_name, registry_name, parameters)
+    if ip_address:
+        ip_rules = list(rules.ip_rules or [])
+        ip_rules.append(IPRule(ip_address_or_range=ip_address, action='Allow'))
+        rules.ip_rules = ip_rules
+
+    response = _update_registry(cmd, resource_group_name, registry_name, rules)
+    return _format_registry_response(response)
 
 
 def acr_network_rule_remove(cmd,
-                            client,
                             registry_name,
                             subnet=None,
                             vnet_name=None,
                             ip_address=None,
                             resource_group_name=None):
-    _, resource_group_name = validate_premium_registry(
+    registry, resource_group_name = validate_premium_registry(
         cmd, registry_name, resource_group_name, NETWORK_RULE_NOT_SUPPORTED)
 
-    client = cf_acr_network_rules(cmd.cli_ctx)
-    registry = client.get(resource_group_name, registry_name)
-    rules = registry.network_rule_set
+    rules = _get_network_rule_set(cmd, registry)
 
     if subnet or vnet_name:
-        rules.virtual_network_rules = rules.virtual_network_rules if rules.virtual_network_rules else []
+        virtual_network_rules = list(rules.virtual_network_rules or [])
         subnet_id = _validate_subnet(cmd.cli_ctx, subnet, vnet_name, resource_group_name).lower()
         rules.virtual_network_rules = [
-            x for x in rules.virtual_network_rules if x.virtual_network_resource_id.lower() != subnet_id]
-    if ip_address:
-        rules.ip_rules = rules.ip_rules if rules.ip_rules else []
-        rules.ip_rules = [x for x in rules.ip_rules if x.ip_address_or_range != ip_address]
+            x for x in virtual_network_rules
+            if (x.virtual_network_subnet_resource_id or '').lower() != subnet_id
+        ]
 
-    RegistryUpdateParameters = cmd.get_models('RegistryUpdateParameters')
-    parameters = RegistryUpdateParameters(network_rule_set=rules)
-    return client.begin_update(resource_group_name, registry_name, parameters)
+    if ip_address:
+        ip_rules = list(rules.ip_rules or [])
+        rules.ip_rules = [
+            x for x in ip_rules
+            if x.ip_address_or_range != ip_address
+        ]
+
+    response = _update_registry(cmd, resource_group_name, registry_name, rules)
+    return _format_registry_response(response)
 
 
 def _validate_subnet(cli_ctx, subnet, vnet_name, resource_group_name):
-    from msrestazure.tools import is_valid_resource_id
+    from azure.mgmt.core.tools import is_valid_resource_id
     subnet_is_id = is_valid_resource_id(subnet)
 
     if subnet_is_id and not vnet_name:
         return subnet
     if subnet and not subnet_is_id and vnet_name:
-        from msrestazure.tools import resource_id
-        from azure.cli.core.commands.client_factory import get_subscription_id
+        from azure.mgmt.core.tools import resource_id
         return resource_id(
             subscription=get_subscription_id(cli_ctx),
             resource_group=resource_group_name,

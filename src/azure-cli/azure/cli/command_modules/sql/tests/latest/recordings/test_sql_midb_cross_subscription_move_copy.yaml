@@ -1,0 +1,49 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql mi show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sqlmigeodr/providers/Microsoft.Sql/managedInstances/sqlmigeodr-eus2euap-gp-dbmovetest-mi1?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"error":{"code":"ResourceGroupNotFound","message":"Resource group
+        ''sqlmigeodr'' could not be found."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '102'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 26 Oct 2026 12:40:21 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+      x-msedge-ref:
+      - 'Ref A: 43336390413048DD9812C2DE428E48BA Ref B: PNQ231110908060 Ref C: 2026-10-26T12:40:21Z'
+    status:
+      code: 404
+      message: Not Found
+version: 1

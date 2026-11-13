@@ -9,6 +9,7 @@ from azdev.utilities import get_path_table
 import json
 import logging
 import os
+from pathlib import Path
 import subprocess
 import sys
 import time
@@ -36,6 +37,7 @@ job_name = os.environ.get('JOB_NAME', None)
 pull_request_number = os.environ.get('PULL_REQUEST_NUMBER', None)
 enable_pipeline_result = bool(job_name and python_version)
 unique_job_name = ' '.join([job_name, python_version, profile, str(instance_idx)]) if enable_pipeline_result else None
+enable_traceback = True if (os.environ.get('ENABLE_TRACEBACK') is not None and os.environ.get('ENABLE_TRACEBACK').lower() == 'true') else False
 cli_jobs = {
             'acr': 45,
             'acs': 62,
@@ -270,6 +272,19 @@ def remove_extension(extension_module):
     return error_flag
 
 
+def rerun_setup(cli_repo_path, extension_repo_path):
+    try:
+        if extension_repo_path:
+            cmd = ['azdev', 'setup', '-c', cli_repo_path, '-r', extension_repo_path, '--debug']
+        else:
+            cmd = ['azdev', 'setup', '-c', cli_repo_path, '--debug']
+        error_flag = run_command(cmd, check_return_code=True)
+    except Exception:
+        error_flag = True
+
+    return error_flag
+
+
 def git_restore(file_path):
     if not file_path:
         return
@@ -381,11 +396,16 @@ def build_pipeline_result():
             "Name": job_name,
             "Details": [
                 {
-                    "Profile": profile,
+                    "TestName": "AzureCLI-FullTest",
                     "Details": [
                         {
-                            "PythonVersion": python_version,
-                            "Details": []
+                            "Profile": profile,
+                            "Details": [
+                                {
+                                    "PythonVersion": python_version,
+                                    "Details": []
+                                }
+                            ]
                         }
                     ]
                 }
@@ -396,7 +416,7 @@ def build_pipeline_result():
         pipeline_result['pull_request_number'] = pull_request_number
 
     for k in selected_modules:
-        pipeline_result[unique_job_name]['Details'][0]['Details'][0]['Details'].append({
+        pipeline_result[unique_job_name]['Details'][0]['Details'][0]['Details'][0]['Details'].append({
             "Module": k,
             "Status": "Running",
             "Content": ""
@@ -404,55 +424,73 @@ def build_pipeline_result():
     return pipeline_result
 
 
-def get_pipeline_result(test_result_fp, pipeline_result):
-    tree = ET.parse(test_result_fp)
-    root = tree.getroot()
-    for testsuite in root:
-        for testcase in testsuite:
-            # ['azure', 'cli', 'command_modules', 'network', 'tests', 'latest', 'test_network_commands', 'NetworkNicScenarioTest']
-            # ['src', 'azure-cli', 'azure', 'cli', 'command_modules', 'network', 'tests', 'hybrid_2018_03_01', 'test_dns_commands', 'DnsZoneImportTest']
-            # ['src', 'azure-cli-core', 'azure', 'cli', 'core', 'tests', 'test_aaz_arg', 'TestAAZArg']
-            # ['src', 'azure-cli-telemetry', 'azure', 'cli', 'telemetry', 'tests', 'test_records_collection', 'TestRecordsCollection']
-            class_name = testcase.attrib['classname'].split('.')
-            # classname="azure.cli.command_modules.network.tests"
-            if class_name[2] == 'command_modules':
-                module = class_name[3]
-            # classname="azure.cli.core.tests"
-            # classname="azure.cli.telemetry.tests"
-            elif class_name[2] in ['core', 'telemetry']:
-                module = class_name[2]
-            # classname="src.azure-cli.azure.cli.command_modules.network.tests"
-            elif class_name[4] == 'command_modules':
-                module = class_name[5]
-            # classname="src.azure-cli-core.azure.cli.core.tests"
-            # classname="src.azure-cli-telemetry.azure.cli.telemetry.tests"
-            elif class_name[1] in ['azure-cli-core', 'azure-cli-telemetry']:
-                module = class_name[4]
-            else:
-                logger.error(f'unexpected class name: {class_name}')
-                module = 'unknown'
-            failures = testcase.findall('failure')
-            if failures:
-                # logger.info(f"failed testcase attributes: {testcase.attrib}")
-                state = "Failed"
-                test_case = testcase.attrib['name']
-                line = testcase.attrib['file'] + ':' + testcase.attrib['line']
-                # only get first failure
-                for failure in failures:
-                    message = failure.attrib['message'].replace('\n', '<br>')
-                    break
-                for i in pipeline_result[unique_job_name]['Details'][0]['Details'][0]['Details']:
-                    if i['Module'] == module:
-                        i['Status'] = 'Failed'
-                        i['Content'] = build_markdown_content(state, test_case, message, line, i['Content'])
-                        break
-            else:
-                for i in pipeline_result[unique_job_name]['Details'][0]['Details'][0]['Details']:
-                    if i['Module'] == module:
-                        i['Status'] = 'Succeeded' if i['Status'] != 'Failed' else 'Failed'
-                        break
+def _module_from_test_path(value):
+    # Accept dotted JUnit classnames and source paths, with or without a src prefix.
+    parts = value.replace('\\', '.').replace('/', '.').split('.')
+    for index in range(len(parts) - 2):
+        if parts[index:index + 2] == ['azure', 'cli']:
+            module = parts[index + 2]
+            if module == 'command_modules' and index + 3 < len(parts):
+                return parts[index + 3]
+            if module in ('core', 'telemetry'):
+                return module
+    for package in ('azure-cli-core', 'azure-cli-telemetry'):
+        if package in parts:
+            return package.removeprefix('azure-cli-')
+    return None
 
-    print(json.dumps(pipeline_result, indent=4))
+
+def _test_file_modules():
+    # A pyproject root can shorten classnames to test_foo.TestClass. Resolve
+    # those from source instead of hard-coding filenames or guessing a module.
+    root = Path(working_directory) if working_directory else Path(__file__).resolve().parents[2]
+    modules = {}
+    for path in root.glob('src/azure-cli*/azure/cli/**/test_*.py'):
+        if 'tests' not in path.parts:
+            continue
+        module = _module_from_test_path(path.as_posix())
+        if module:
+            modules.setdefault(path.stem, set()).add(module)
+    return modules
+
+
+def get_pipeline_result(test_result_fp, pipeline_result):
+    root = ET.parse(test_result_fp).getroot()
+    details = pipeline_result[unique_job_name]['Details'][0]['Details'][0]['Details'][0]['Details']
+    test_modules = None
+    for testcase in root.iter('testcase'):
+        classname = testcase.get('classname', '')
+        filename = testcase.get('file', '')
+        module = _module_from_test_path(classname) or _module_from_test_path(filename)
+        if module is None:
+            if test_modules is None:
+                test_modules = _test_file_modules()
+            test_file = Path(filename.replace('\\', '/')).stem if filename else next(
+                (part for part in classname.split('.') if part.startswith('test_')), '')
+            matches = test_modules.get(test_file, set())
+            module = next(iter(matches)) if len(matches) == 1 else 'unknown'
+        if module == 'unknown':
+            logger.warning('Unable to identify test module: classname=%r file=%r', classname, filename)
+        result = next((item for item in details if item['Module'] == module), None)
+        if result is None:
+            result = {'Module': module, 'Status': 'Running', 'Content': ''}
+            details.append(result)
+        failures = testcase.findall('failure') + testcase.findall('error')
+        if failures:
+            result['Status'] = 'Failed'
+            test_case = testcase.get('name', classname)
+            line = filename or classname
+            if testcase.get('line'):
+                line += ':' + testcase.get('line')
+            failure = failures[0]
+            message = (failure.get('message') or failure.text or 'See pipeline log for details.')
+            message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
+            # Leave room for the extra HTML added by the GitHub comment bot.
+            if len(json.dumps(pipeline_result, indent=4)) + len(message) > 65535:
+                message = 'The error message is too long, please check the pipeline log for details.'
+            result['Content'] = build_markdown_content('Failed', test_case, message, line, result['Content'])
+        elif result['Status'] != 'Failed':
+            result['Status'] = 'Succeeded'
     return pipeline_result
 
 
@@ -472,7 +510,7 @@ def save_pipeline_result(pipeline_result):
     logger.info(f"save pipeline result to file: {filename}")
 
 
-class AutomaticScheduling(object):
+class AutomaticScheduling:
 
     def __init__(self):
         """
@@ -507,7 +545,13 @@ class AutomaticScheduling(object):
     def get_all_modules(self):
         result = get_path_table()
         # only get modules and core, ignore extensions
-        self.modules = {**result['mod'], **result['core']}
+        result_mod = result['mod']
+        result_core = result['core']
+
+        # make sure the dictionary is in order, otherwise job assignments will be random.
+        from collections import OrderedDict
+        self.modules = OrderedDict(sorted((result_mod | result_core).items()))
+        logger.info(json.dumps(self.modules, indent=2))
 
     def get_extension_modules(self):
         out = subprocess.Popen(['azdev', 'extension', 'list', '-o', 'tsv'], stdout=subprocess.PIPE)
@@ -551,6 +595,7 @@ class AutomaticScheduling(object):
             self.works[idx][k] = v
         # instance_idx: 1~n, python list index: 0~n-1
         self.instance_idx -= 1
+        logger.info(json.dumps(self.works, indent=2))
         return self.works[self.instance_idx]
 
     def run_instance_modules(self, instance_modules):
@@ -563,18 +608,27 @@ class AutomaticScheduling(object):
                 serial_tests.append(k)
             else:
                 parallel_tests.append(k)
+        # Put the cloud module at the end of the serial execution
+        # Since it will cause the test_get_docker_credentials test to fail
+        # TODO: Find the root cause of the failure and modify the test code.
+        if 'cloud' in serial_tests:
+            serial_tests.remove('cloud')
+            serial_tests.append('cloud')
         pipeline_result = build_pipeline_result() if enable_pipeline_result else None
-        if serial_tests:
-            azdev_test_result_fp = os.path.join(azdev_test_result_dir, f"test_results_{python_version}_{profile}_{instance_idx}.serial.xml")
-            cmd = ['azdev', 'test', '--no-exitfirst', '--verbose', '--series'] + serial_tests + \
-                  ['--profile', f'{profile}', '--xml-path', azdev_test_result_fp, '--pytest-args', '-o junit_family=xunit1 --durations=10 --tb=no']
-            serial_error_flag = process_test(cmd, azdev_test_result_fp, live_rerun=fix_failure_tests)
-            pipeline_result = get_pipeline_result(azdev_test_result_fp, pipeline_result) if enable_pipeline_result else None
+        pytest_args = '-o junit_family=xunit1 --durations=10'
+        if not enable_traceback:
+            pytest_args += ' --tb=no'
         if parallel_tests:
             azdev_test_result_fp = os.path.join(azdev_test_result_dir, f"test_results_{python_version}_{profile}_{instance_idx}.parallel.xml")
             cmd = ['azdev', 'test', '--no-exitfirst', '--verbose'] + parallel_tests + \
-                  ['--profile', f'{profile}', '--xml-path', azdev_test_result_fp, '--pytest-args', '-o junit_family=xunit1 --durations=10 --tb=no']
+                  ['--profile', f'{profile}', '--xml-path', azdev_test_result_fp, '--pytest-args', pytest_args]
             parallel_error_flag = process_test(cmd, azdev_test_result_fp, live_rerun=fix_failure_tests)
+            pipeline_result = get_pipeline_result(azdev_test_result_fp, pipeline_result) if enable_pipeline_result else None
+        if serial_tests:
+            azdev_test_result_fp = os.path.join(azdev_test_result_dir, f"test_results_{python_version}_{profile}_{instance_idx}.serial.xml")
+            cmd = ['azdev', 'test', '--no-exitfirst', '--verbose', '--series'] + serial_tests + \
+                  ['--profile', f'{profile}', '--xml-path', azdev_test_result_fp, '--pytest-args', pytest_args]
+            serial_error_flag = process_test(cmd, azdev_test_result_fp, live_rerun=fix_failure_tests)
             pipeline_result = get_pipeline_result(azdev_test_result_fp, pipeline_result) if enable_pipeline_result else None
         save_pipeline_result(pipeline_result) if enable_pipeline_result else None
         return serial_error_flag or parallel_error_flag
@@ -584,12 +638,17 @@ class AutomaticScheduling(object):
         for module, path in instance_modules.items():
             run_command(["git", "checkout", f"regression_test_{os.getenv('BUILD_BUILDID')}"], check_return_code=True)
             error_flag = install_extension(module)
+            logger.info(f"Finish installing extension {module}, error_flag: {error_flag}")
             if not error_flag:
                 azdev_test_result_fp = os.path.join(azdev_test_result_dir, f"test_results_{module}.xml")
                 cmd = ['azdev', 'test', module, '--discover', '--no-exitfirst', '--verbose',
                        '--xml-path', azdev_test_result_fp, '--pytest-args', '"--durations=10"']
                 error_flag = process_test(cmd, azdev_test_result_fp, live_rerun=fix_failure_tests, modules=[module])
+                logger.info(f"Finish testing extension {module}, error_flag: {error_flag}")
             remove_extension(module)
+            logger.info(f"Finish removing extension {module}, error_flag: {error_flag}")
+            if error_flag:
+                rerun_setup(cli_repo_path=os.getenv('BUILD_SOURCESDIRECTORY'), extension_repo_path=working_directory)
             global_error_flag = global_error_flag or error_flag
         return global_error_flag
 

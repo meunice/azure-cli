@@ -13,15 +13,13 @@ import zipfile
 import traceback
 import hashlib
 from subprocess import check_output, STDOUT, CalledProcessError
-from urllib.parse import urlparse
 
 from packaging.version import parse
 
 from azure.cli.core import CommandIndex
 from azure.cli.core.util import CLIError, reload_module, rmtree_with_retry
 from azure.cli.core.extension import (extension_exists, build_extension_path, get_extensions, get_extension_modname,
-                                      get_extension, ext_compat_with_cli,
-                                      EXT_METADATA_ISPREVIEW, EXT_METADATA_ISEXPERIMENTAL,
+                                      get_extension, ext_compat_with_cli, is_preview_from_extension_meta,
                                       WheelExtension, DevExtension, ExtensionNotInstalledException, WHEEL_INFO_RE)
 from azure.cli.core.telemetry import set_extension_management_detail
 
@@ -47,7 +45,7 @@ LSB_RELEASE_FILE = os.path.join(os.sep, 'etc', 'lsb-release')
 
 
 def _run_pip(pip_exec_args, extension_path=None):
-    cmd = [sys.executable, '-m', 'pip'] + pip_exec_args + ['-vv', '--disable-pip-version-check', '--no-cache-dir']
+    cmd = [sys.executable, '-m', 'pip'] + pip_exec_args + ['--disable-pip-version-check', '--no-cache-dir']
     logger.debug('Running: %s', cmd)
     try:
         log_output = check_output(cmd, stderr=STDOUT, universal_newlines=True)
@@ -66,7 +64,7 @@ def _whl_download_from_url(url_parse_result, ext_file):
     import requests
     from azure.cli.core.util import should_disable_connection_verify
     url = url_parse_result.geturl()
-    r = requests.get(url, stream=True, verify=(not should_disable_connection_verify()))
+    r = requests.get(url, stream=True, verify=not should_disable_connection_verify())
     if r.status_code != 200:
         raise CLIError("Request to {} failed with {}".format(url, r.status_code))
     with open(ext_file, 'wb') as f:
@@ -86,6 +84,7 @@ def _validate_whl_extension(ext_file):
 
 
 def _get_extension_info_from_source(source):
+    from urllib.parse import urlparse
     url_parse_result = urlparse(source)
     is_url = (url_parse_result.scheme == 'http' or url_parse_result.scheme == 'https')
     whl_filename = os.path.basename(url_parse_result.path) if is_url else os.path.basename(source)
@@ -97,6 +96,7 @@ def _get_extension_info_from_source(source):
 
 
 def _add_whl_ext(cli_ctx, source, ext_sha256=None, pip_extra_index_urls=None, pip_proxy=None, system=None):  # pylint: disable=too-many-statements
+    from urllib.parse import urlparse
     cli_ctx.get_progress_controller().add(message='Analyzing')
     if not source.endswith('.whl'):
         raise ValueError('Unknown extension type. Only Python wheels are supported.')
@@ -180,7 +180,7 @@ def _add_whl_ext(cli_ctx, source, ext_sha256=None, pip_extra_index_urls=None, pi
     return extension_name
 
 
-def _install_deps_for_psycopg2():  # pylint: disable=too-many-statements
+def _install_deps_for_psycopg2():  # pylint: disable=too-many-statements, too-many-branches
     # If we are in Cloud Shell, dependencies should have already been installed.
     from azure.cli.core.util import in_cloud_console
     if in_cloud_console():
@@ -195,7 +195,7 @@ def _install_deps_for_psycopg2():  # pylint: disable=too-many-statements
     system = platform.system()
     if system == 'Darwin':
         subprocess.call(['xcode-select', '--install'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if installer != 'HOMEBREW':
+        if installer not in ('HOMEBREW', 'HOMEBREW_CASK'):
             from shutil import which
             if which('brew') is None:
                 logger.warning('You may need to install postgresql with homebrew first before you install this extension.')
@@ -215,8 +215,17 @@ def _install_deps_for_psycopg2():  # pylint: disable=too-many-statements
                 '/usr/local/opt/openssl/lib/'
             ])
     elif system == 'Linux':
-        distname, _ = get_linux_distro()
-        distname = distname.lower().strip()
+        distname, distversion = get_linux_distro()
+        distname = (distname or '').lower().strip()
+        distversion = (distversion or '').strip()
+        # Extract major version from VERSION_ID (e.g., "4", "4.0", "4.0.1" all map to major=4)
+        azl_major_version = None
+        if 'azure linux' in distname and distversion:
+            try:
+                azl_major_version = int(distversion.partition('.')[0])
+            except ValueError:
+                pass
+        is_azure_linux_4 = azl_major_version == 4
         if installer == 'DEB' or any(x in distname for x in ['ubuntu', 'debian']):
             exit_code = subprocess.call(['dpkg', '-s', 'gcc', 'libpq-dev', 'python3-dev'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if exit_code != 0:
@@ -230,7 +239,7 @@ def _install_deps_for_psycopg2():  # pylint: disable=too-many-statements
                 if exit_code == 0:
                     logger.debug("Install dependencies with '%s'", " ".join(apt_install_cmd))
                     subprocess.call(apt_install_cmd, True)
-        elif installer == 'RPM' or any(x in distname for x in ['centos', 'rhel', 'red hat', 'fedora', 'opensuse', 'suse', 'sles']):
+        elif installer == 'RPM' or any(x in distname for x in ['centos', 'rhel', 'red hat', 'fedora', 'opensuse', 'suse', 'sles']) or is_azure_linux_4:
             if any(x in distname for x in ['centos', 'rhel', 'red hat', 'fedora']):
                 yum_install_cmd = 'yum install -y gcc postgresql-devel python3-devel'.split()
                 if os.geteuid() != 0:  # pylint: disable=no-member
@@ -249,6 +258,29 @@ def _install_deps_for_psycopg2():  # pylint: disable=too-many-statements
                 if exit_code == 0:
                     logger.debug("Install dependencies with '%s'", " ".join(zypper_install_cmd))
                     subprocess.call(zypper_install_cmd)
+            elif is_azure_linux_4:
+                from shutil import which
+                if which('tdnf') is None:
+                    raise CLIError(
+                        'tdnf package manager not found. This extension requires Azure Linux 4 with tdnf '
+                        'to install required system dependencies: gcc, libpq-devel, python3-devel, binutils, '
+                        'glibc-devel, kernel-headers.'
+                    )
+                rpm_packages = ['gcc', 'libpq-devel', 'python3-devel', 'binutils', 'glibc-devel', 'kernel-headers']
+                rpm_install_cmd = ['tdnf', 'install', '-y'] + rpm_packages
+                if os.geteuid() != 0:  # pylint: disable=no-member
+                    rpm_install_cmd.insert(0, 'sudo')
+                logger.debug("Install dependencies with '%s'", " ".join(rpm_install_cmd))
+                logger.warning(
+                    'This extension depends on %s and will now be installed.',
+                    ' '.join(rpm_packages)
+                )
+                exit_code = subprocess.call(rpm_install_cmd)
+                if exit_code != 0:
+                    raise CLIError(
+                        'Failed to install required system dependencies for psycopg2: {}.'
+                        .format(' '.join(rpm_packages))
+                    )
         elif installer == 'DOCKER' or any(x in distname for x in ['alpine linux']):
             apk_install_cmd = 'apk add --no-cache libpq-dev'.split()
             logger.debug("Install dependencies with '%s'", " ".join(apk_install_cmd))
@@ -306,7 +338,7 @@ def check_version_compatibility(azext_metadata):
 
 def add_extension(cmd=None, source=None, extension_name=None, index_url=None, yes=None,  # pylint: disable=unused-argument, too-many-statements
                   pip_extra_index_urls=None, pip_proxy=None, system=None,
-                  version=None, cli_ctx=None, upgrade=None):
+                  version=None, cli_ctx=None, upgrade=None, allow_preview=None):
     ext_sha256 = None
     update_to_latest = version == 'latest' and not source
 
@@ -315,7 +347,7 @@ def add_extension(cmd=None, source=None, extension_name=None, index_url=None, ye
     if extension_name:
         cmd_cli_ctx.get_progress_controller().add(message='Searching')
         try:
-            source, ext_sha256 = resolve_from_index(extension_name, index_url=index_url, target_version=version, cli_ctx=cmd_cli_ctx)
+            source, ext_sha256 = resolve_from_index(extension_name, index_url=index_url, target_version=version, cli_ctx=cmd_cli_ctx, allow_preview=allow_preview)
         except NoExtensionCandidatesError as err:
             logger.debug(err)
             err = "{}\n\nUse --debug for more information".format(err.args[0])
@@ -399,7 +431,7 @@ def show_extension(extension_name):
         raise CLIError(e)
 
 
-def update_extension(cmd=None, extension_name=None, index_url=None, pip_extra_index_urls=None, pip_proxy=None, cli_ctx=None, version=None, download_url=None, ext_sha256=None):
+def update_extension(cmd=None, extension_name=None, index_url=None, pip_extra_index_urls=None, pip_proxy=None, allow_preview=None, cli_ctx=None, version=None, download_url=None, ext_sha256=None):
     try:
         cmd_cli_ctx = cli_ctx or cmd.cli_ctx
         ext = get_extension(extension_name, ext_type=WheelExtension)
@@ -409,7 +441,7 @@ def update_extension(cmd=None, extension_name=None, index_url=None, pip_extra_in
         cur_version = ext.get_version()
         try:
             if not download_url:
-                download_url, ext_sha256 = resolve_from_index(extension_name, cur_version=cur_version, index_url=index_url, target_version=version, cli_ctx=cmd_cli_ctx)
+                download_url, ext_sha256 = resolve_from_index(extension_name, cur_version=cur_version, index_url=index_url, target_version=version, cli_ctx=cmd_cli_ctx, allow_preview=allow_preview)
             _, ext_version = _get_extension_info_from_source(download_url)
             set_extension_management_detail(extension_name, ext_version)
         except NoExtensionCandidatesError as err:
@@ -465,8 +497,8 @@ def list_available_extensions(index_url=None, show_details=False, cli_ctx=None):
             'name': name,
             'version': latest['metadata']['version'],
             'summary': latest['metadata']['summary'],
-            'preview': latest['metadata'].get(EXT_METADATA_ISPREVIEW, False),
-            'experimental': latest['metadata'].get(EXT_METADATA_ISEXPERIMENTAL, False),
+            'preview': is_preview_from_extension_meta(latest['metadata']),
+            'experimental': False,
             'installed': installed
         })
     return results
@@ -502,8 +534,8 @@ def list_versions(extension_name, index_url=None, cli_ctx=None):
         results.append({
             'name': extension_name,
             'version': version,
-            'preview': ext['metadata'].get(EXT_METADATA_ISPREVIEW, False),
-            'experimental': ext['metadata'].get(EXT_METADATA_ISEXPERIMENTAL, False),
+            'preview': is_preview_from_extension_meta(ext['metadata']),
+            'experimental': False,
             'installed': installed,
             'compatible': compatible
         })

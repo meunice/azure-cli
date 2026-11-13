@@ -68,9 +68,29 @@ type: group
 short-summary: Manage Azure API Management API Schema's.
 """
 
+helps['apim graphql'] = """
+type: group
+short-summary: Manage Azure API Management GraphQL API's.
+"""
+
+helps['apim graphql resolver'] = """
+type: group
+short-summary: Manage Azure API Management GraphQL API's Resolvers.
+"""
+
+helps['apim graphql resolver policy'] = """
+type: group
+short-summary: Manage Azure API Management GraphQL API's Resolvers Policies.
+"""
+
 helps['apim deletedservice'] = """
 type: group
 short-summary: Manage soft-deleted Azure API Management services.
+"""
+
+helps['apim backend'] = """
+type: group
+short-summary: Manage Azure API Management Backends.
 """
 
 helps['apim backup'] = """
@@ -226,6 +246,15 @@ examples:
   - name: Import an API Management API From a file or a url
     text: |-
         az apim api import -g MyResourceGroup --service-name MyApim --path MyApi --specification-url https://MySpecificationURL --specification-format OpenApiJson
+"""
+
+helps['apim api export'] = """
+type: command
+short-summary: Export an API Management API.
+examples:
+  - name: Export an API Management API to a file or returns a response containing a link of the export.
+    text: |-
+        az apim api export -g MyResourceGroup --service-name MyApim --api-id MyApi --export-format OpenApiJson --file-path path
 """
 
 helps['apim product api list'] = """
@@ -652,4 +681,139 @@ examples:
   - name: Purge a soft-deleted serivce.
     text: |
         az apim deletedservice purge --service-name MyApim --location westus
+"""
+
+helps['apim graphql resolver create'] = """
+type: command
+short-summary: Create a new resolver in the GraphQL API or updates an existing one.
+examples:
+  - name: Create a new resolver.
+    text: |
+        az apim graphql resolver create --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId --display-name "Query-allFamilies" --path "Query/allFamilies" --description "A GraphQL Resolver example"
+"""
+
+helps['apim graphql resolver delete'] = """
+type: command
+short-summary: Delete the specified resolver in the GraphQL API.
+examples:
+  - name: Delete resolver.
+    text: |
+        az apim graphql resolver delete --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId
+"""
+
+helps['apim graphql resolver show'] = """
+type: command
+short-summary: Get the details of the GraphQL API Resolver specified by its identifier.
+examples:
+  - name: Get details of resolver.
+    text: |
+        az apim graphql resolver show --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId
+"""
+
+helps['apim graphql resolver list'] = """
+type: command
+short-summary: List a collection of the resolvers for the specified GraphQL API.
+examples:
+  - name: Get list of resolvers of an API.
+    text: |
+        az apim graphql resolver list --service-name MyApim -g MyResourceGroup --api-id MyApi
+"""
+
+helps['apim graphql resolver policy create'] = """
+type: command
+short-summary: Create or updates policy configuration for the GraphQL API Resolver level.
+examples:
+  - name: Create a resolver policy.
+    text: |
+        az apim graphql resolver policy create --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId --policy-format xml --value-path 'path to xml file'
+"""
+
+helps['apim graphql resolver policy show'] = """
+type: command
+short-summary: Get the policy configuration at the GraphQL API Resolver level.
+examples:
+  - name: Get policy configuration.
+    text: |
+        az apim graphql resolver policy show --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId
+"""
+
+helps['apim graphql resolver policy delete'] = """
+type: command
+short-summary: Delete the policy configuration at the GraphQL Api Resolver.
+examples:
+  - name: Delete policy configuration.
+    text: |
+        az apim graphql resolver policy delete --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId
+"""
+
+helps['apim graphql resolver policy list'] = """
+type: command
+short-summary: Get the list of policy configuration at the GraphQL API Resolver level.
+examples:
+  - name: Get list of policy configuration.
+    text: |
+        az apim graphql resolver policy list --service-name MyApim -g MyResourceGroup --api-id MyApi --resolver-id MyResolverId
+"""
+
+helps['apim backend list'] = """
+type: command
+short-summary: List API Management Backends.
+examples:
+  - name: List all Backends in an APIM instance.
+    text: |-
+        az apim backend list --resource-group MyResourceGroup --service-name MyServiceName
+"""
+
+helps['apim backend show'] = """
+type: command
+short-summary: Show details of an API Management Backend.
+examples:
+  - name: Show details of a Backend in an APIM instance.
+    text: |-
+        az apim backend show --resource-group MyResourceGroup --service-name MyServiceName --backend-id MyBackendId
+"""
+
+helps['apim backend delete'] = """
+type: command
+short-summary: Delete an API Management Backend.
+examples:
+  - name: Delete a Backend in an APIM instance.
+    text: |-
+        az apim backend delete --resource-group MyResourceGroup --service-name MyServiceName --backend-id MyBackendId
+"""
+
+helps['apim backend create'] = """
+type: command
+short-summary: Create or Update an API Management Backend.
+parameters:
+  - name: --backend-id
+    type: string
+    short-summary: unique name for the Backend to be created or updated
+    long-summary: |
+        Must be unique in the current API Management service instance.
+  - name: --url
+    type: string
+    short-summary: The URL of the backend service.
+  - name: --protocol
+    type: string
+    short-summary: The protocol used to communicate with the backend service.
+examples:
+  - name: Create a Backend.
+    text: |-
+        az apim backend create --service-name MyApim -g MyResourceGroup --backend-id MyBackendId --url https://mybackend.com --protocol http
+"""
+
+helps['apim backend update'] = """
+type: command
+short-summary: Update an API Management Backend.
+parameters:
+  - name: --backend-id
+    type: string
+    short-summary: unique name of the Backend to be updated
+    long-summary: |
+        Must be unique in the current API Management service instance.
+examples:
+  - name: Update a Backend.
+    text: |-
+        az apim backend update --service-name MyApim -g MyResourceGroup --backend-id MyBackendId --url https://mynewbackend.com
 """

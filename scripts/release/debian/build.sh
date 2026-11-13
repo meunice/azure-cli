@@ -15,23 +15,14 @@ set -exv
 ls -Rl /mnt/artifacts
 
 WORKDIR=`cd $(dirname $0); cd ../../../; pwd`
-PYTHON_VERSION="3.10.10"
+PYTHON_VERSION="3.14.10"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Update APT packages
 apt-get update
 # uuid-dev is used to build _uuid module: https://github.com/python/cpython/pull/3796
-apt-get install -y libssl-dev libffi-dev python3-dev zlib1g-dev uuid-dev wget
-
-# In Ubuntu 18.04, debhelper 11.1.6 has bug which makes it fail to dpkg-buildpackage. Use backport version instead.
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=897569
-if cat /etc/lsb-release | grep 18.04
-then
-  apt-get install -y debhelper -t bionic-backports
-else
-  apt-get install -y debhelper
-fi
-
+# libbz2-dev is used to install bz2 module: https://github.com/Azure/azure-cli/pull/32163
+apt-get install -y libssl-dev libffi-dev python3-dev zlib1g-dev uuid-dev wget debhelper libbz2-dev
 # Git is not strictly necessary, but it would allow building an experimental package
 # with dependency which is currently only available in its git repo feature branch.
 apt-get install -y git
@@ -42,16 +33,18 @@ wget -qO- https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSI
 echo "Python source code is in $PYTHON_SRC_DIR"
 
 # Build Python
-$PYTHON_SRC_DIR/*/configure --srcdir $PYTHON_SRC_DIR/* --prefix $WORKDIR/python_env
+$PYTHON_SRC_DIR/*/configure --srcdir $PYTHON_SRC_DIR/* --prefix $WORKDIR/python_env --disable-test-modules
 make
 make install
 
-$WORKDIR/python_env/bin/python3 -m pip install --upgrade pip setuptools
+# Keep setuptools at or above the security floor.
+$WORKDIR/python_env/bin/python3 -m pip install --upgrade pip "setuptools>=78.1.1"
 
 export PATH=$PATH:$WORKDIR/python_env/bin
 
-find ${WORKDIR}/src/ -name setup.py -type f | xargs -I {} dirname {} | grep -v azure-cli-testsdk | xargs pip3 install --no-deps
+find ${WORKDIR}/src/ -name pyproject.toml -type f | xargs -I {} dirname {} | grep -v azure-cli-testsdk | xargs pip3 install --no-deps
 pip3 install -r ${WORKDIR}/src/azure-cli/requirements.py3.$(uname).txt
+$WORKDIR/python_env/bin/python3 ${WORKDIR}/scripts/trim_sdk.py
 
 # Create create directory for debian build
 mkdir -p $WORKDIR/debian

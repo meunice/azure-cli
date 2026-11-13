@@ -5,6 +5,7 @@
 
 # pylint: disable=too-many-lines
 
+import datetime
 from enum import Enum
 from knack.log import get_logger
 from knack.util import CLIError
@@ -56,6 +57,7 @@ from azure.mgmt.cosmosdb.models import (
     AnalyticalStorageConfiguration,
     RestoreParameters,
     ContinuousModeBackupPolicy,
+    ContinuousModeProperties,
     ContinuousBackupRestoreLocation,
     CreateMode,
     ManagedServiceIdentityUserAssignedIdentity,
@@ -66,8 +68,20 @@ from azure.mgmt.cosmosdb.models import (
     DataCenterResourceProperties,
     ManagedCassandraManagedServiceIdentity,
     ServiceResourceCreateUpdateParameters,
+    SqlDedicatedGatewayServiceResourceCreateUpdateProperties,
+    DedicatedGatewayType,
+    ServiceType,
     MongoRoleDefinitionCreateUpdateParameters,
-    MongoUserDefinitionCreateUpdateParameters
+    MongoUserDefinitionCreateUpdateParameters,
+    Privilege,
+    PrivilegeResource,
+    Role,
+    RegionForOnlineOffline,
+    FleetResource,
+    FleetspaceResource,
+    FleetspacePropertiesThroughputPoolConfiguration,
+    FleetspaceAccountResource,
+    FleetspaceAccountPropertiesGlobalDatabaseAccountProperties
 )
 
 logger = get_logger(__name__)
@@ -113,8 +127,9 @@ def cli_cosmosdb_create(cmd,
                         virtual_network_rules=None,
                         enable_multiple_write_locations=None,
                         disable_key_based_metadata_write_access=None,
+                        disable_local_auth=None,
                         key_uri=None,
-                        enable_public_network=None,
+                        public_network_access=None,
                         enable_analytical_storage=None,
                         enable_free_tier=None,
                         server_version=None,
@@ -127,12 +142,19 @@ def cli_cosmosdb_create(cmd,
                         default_identity=None,
                         analytical_storage_schema_type=None,
                         backup_policy_type=None,
+                        continuous_tier=None,
                         databases_to_restore=None,
                         gremlin_databases_to_restore=None,
                         tables_to_restore=None,
                         is_restore_request=None,
                         restore_source=None,
-                        restore_timestamp=None):
+                        restore_timestamp=None,
+                        enable_partition_merge=None,
+                        enable_burst_capacity=None,
+                        enable_prpp_autoscale=None,
+                        minimal_tls_version=None,
+                        enable_pbe=None,
+                        default_priority_level=None):
     """Create a new Azure Cosmos DB database account."""
 
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
@@ -163,8 +185,9 @@ def cli_cosmosdb_create(cmd,
                                     virtual_network_rules=virtual_network_rules,
                                     enable_multiple_write_locations=enable_multiple_write_locations,
                                     disable_key_based_metadata_write_access=disable_key_based_metadata_write_access,
+                                    disable_local_auth=disable_local_auth,
                                     key_uri=key_uri,
-                                    enable_public_network=enable_public_network,
+                                    public_network_access=public_network_access,
                                     enable_analytical_storage=enable_analytical_storage,
                                     enable_free_tier=enable_free_tier,
                                     server_version=server_version,
@@ -175,6 +198,7 @@ def cli_cosmosdb_create(cmd,
                                     restore_timestamp=restore_timestamp_utc,
                                     analytical_storage_schema_type=analytical_storage_schema_type,
                                     backup_policy_type=backup_policy_type,
+                                    continuous_tier=continuous_tier,
                                     backup_interval=backup_interval,
                                     backup_redundancy=backup_redundancy,
                                     assign_identity=assign_identity,
@@ -183,7 +207,13 @@ def cli_cosmosdb_create(cmd,
                                     databases_to_restore=databases_to_restore,
                                     gremlin_databases_to_restore=gremlin_databases_to_restore,
                                     tables_to_restore=tables_to_restore,
-                                    arm_location=resource_group_location)
+                                    arm_location=resource_group_location,
+                                    enable_partition_merge=enable_partition_merge,
+                                    enable_burst_capacity=enable_burst_capacity,
+                                    enable_prpp_autoscale=enable_prpp_autoscale,
+                                    minimal_tls_version=minimal_tls_version,
+                                    enable_pbe=enable_pbe,
+                                    default_priority_level=default_priority_level)
 
 
 # pylint: disable=too-many-statements
@@ -204,8 +234,9 @@ def _create_database_account(client,
                              virtual_network_rules=None,
                              enable_multiple_write_locations=None,
                              disable_key_based_metadata_write_access=None,
+                             disable_local_auth=None,
                              key_uri=None,
-                             enable_public_network=None,
+                             public_network_access=None,
                              enable_analytical_storage=None,
                              enable_free_tier=None,
                              server_version=None,
@@ -217,6 +248,7 @@ def _create_database_account(client,
                              assign_identity=None,
                              default_identity=None,
                              backup_policy_type=None,
+                             continuous_tier=None,
                              analytical_storage_schema_type=None,
                              databases_to_restore=None,
                              gremlin_databases_to_restore=None,
@@ -224,7 +256,15 @@ def _create_database_account(client,
                              is_restore_request=None,
                              restore_source=None,
                              restore_timestamp=None,
-                             arm_location=None):
+                             arm_location=None,
+                             enable_partition_merge=None,
+                             enable_burst_capacity=None,
+                             enable_prpp_autoscale=None,
+                             minimal_tls_version=None,
+                             disable_ttl=None,
+                             enable_pbe=None,
+                             default_priority_level=None,
+                             source_backup_location=None):
 
     consistency_policy = None
     if default_consistency_level is not None:
@@ -236,9 +276,21 @@ def _create_database_account(client,
         locations = []
         locations.append(Location(location_name=arm_location, failover_priority=0, is_zone_redundant=False))
 
-    public_network_access = None
-    if enable_public_network is not None:
-        public_network_access = 'Enabled' if enable_public_network else 'Disabled'
+    # For cross-region restore (CRR), the caller intentionally passes
+    # arm_location set to the SOURCE region while locations[priority=0] is
+    # the TARGET region. The Cosmos ARM contract for restore requires the
+    # top-level `location` on DatabaseAccountCreateUpdateParameters to match
+    # the `restoreSource` URI region (the source). Overwriting arm_location
+    # with the priority-0 target here causes the backend to reject the
+    # request with "Location provided in 'restoreSource' does not match the
+    # location of the request" (BadRequest). Skip this normalization for
+    # restore requests; for regular create the loop preserves existing
+    # behavior of aligning arm_location with the priority-0 location.
+    if not is_restore_request:
+        for loc in locations:
+            if loc.failover_priority == 0:
+                arm_location = loc.location_name
+                break
 
     managed_service_identity = None
     SYSTEM_ID = '[system]'
@@ -288,6 +340,15 @@ def _create_database_account(client,
             backup_policy.periodic_mode_properties = periodic_mode_properties
         elif backup_policy_type.lower() == 'continuous':
             backup_policy = ContinuousModeBackupPolicy()
+            if continuous_tier is not None:
+                continuous_mode_properties = ContinuousModeProperties(
+                    tier=continuous_tier
+                )
+            else:
+                continuous_mode_properties = ContinuousModeProperties(
+                    tier='Continuous30Days'
+                )
+            backup_policy.continuous_mode_properties = continuous_mode_properties
         else:
             raise CLIError('backup-policy-type argument is invalid.')
     elif backup_interval is not None or backup_retention is not None or backup_redundancy is not None:
@@ -325,6 +386,12 @@ def _create_database_account(client,
         if tables_to_restore is not None:
             restore_parameters.tables_to_restore = tables_to_restore
 
+        if disable_ttl is not None:
+            restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+        if source_backup_location is not None:
+            restore_parameters.source_backup_location = source_backup_location
+
     params = DatabaseAccountCreateUpdateParameters(
         location=arm_location,
         locations=locations,
@@ -338,6 +405,7 @@ def _create_database_account(client,
         virtual_network_rules=virtual_network_rules,
         enable_multiple_write_locations=enable_multiple_write_locations,
         disable_key_based_metadata_write_access=disable_key_based_metadata_write_access,
+        disable_local_auth=disable_local_auth,
         key_vault_key_uri=key_uri,
         public_network_access=public_network_access,
         api_properties=api_properties,
@@ -350,12 +418,32 @@ def _create_database_account(client,
         default_identity=default_identity,
         analytical_storage_configuration=analytical_storage_configuration,
         create_mode=create_mode,
-        restore_parameters=restore_parameters
+        restore_parameters=restore_parameters,
+        enable_partition_merge=enable_partition_merge,
+        enable_burst_capacity=enable_burst_capacity,
+        enable_per_region_per_partition_autoscale=enable_prpp_autoscale,
+        minimal_tls_version=minimal_tls_version,
+        enable_priority_based_execution=enable_pbe,
+        default_priority_level=default_priority_level
     )
 
     async_docdb_create = client.begin_create_or_update(resource_group_name, account_name, params)
-    docdb_account = async_docdb_create.result()
-    docdb_account = client.get(resource_group_name, account_name)  # Workaround
+    try:
+        docdb_account = async_docdb_create.result()
+    except HttpResponseError as ex:
+        message = str(ex)
+        if (is_restore_request and
+                ex.status_code == 403 and
+                "does not exist" in message and
+                ("Database Account" in message or "Forbidden" in message)):
+            logger.warning(
+                "Encountered known service issue (403 'does not exist') while restoring Cosmos DB account '%s' "
+                "in resource group '%s'. Using client.get() as a workaround. Raw error: %s",
+                account_name, resource_group_name, ex
+            )
+            docdb_account = client.get(resource_group_name, account_name)
+        else:
+            raise ex
     return docdb_account
 
 
@@ -375,8 +463,9 @@ def cli_cosmosdb_update(client,
                         virtual_network_rules=None,
                         enable_multiple_write_locations=None,
                         disable_key_based_metadata_write_access=None,
+                        disable_local_auth=None,
                         key_uri=None,
-                        enable_public_network=None,
+                        public_network_access=None,
                         enable_analytical_storage=None,
                         network_acl_bypass=None,
                         network_acl_bypass_resource_ids=None,
@@ -386,7 +475,14 @@ def cli_cosmosdb_update(client,
                         backup_redundancy=None,
                         default_identity=None,
                         analytical_storage_schema_type=None,
-                        backup_policy_type=None):
+                        backup_policy_type=None,
+                        continuous_tier=None,
+                        enable_partition_merge=None,
+                        enable_burst_capacity=None,
+                        enable_prpp_autoscale=None,
+                        minimal_tls_version=None,
+                        enable_pbe=None,
+                        default_priority_level=None):
     """Update an existing Azure Cosmos DB database account. """
     existing = client.get(resource_group_name, account_name)
 
@@ -397,10 +493,10 @@ def cli_cosmosdb_update(client,
         update_consistency_policy = True
 
     if network_acl_bypass_resource_ids is not None:
-        from msrestazure.tools import is_valid_resource_id
         from azure.cli.core.azclierror import InvalidArgumentValueError
+        from azure.cli.command_modules.cosmosdb._validators import is_valid_network_acl_bypass_resource_id
         for resource_id in network_acl_bypass_resource_ids:
-            if not is_valid_resource_id(resource_id):
+            if not is_valid_network_acl_bypass_resource_id(resource_id):
                 raise InvalidArgumentValueError(
                     f'{resource_id} is not a valid resource ID for --network-acl-bypass-resource-ids')
 
@@ -418,10 +514,6 @@ def cli_cosmosdb_update(client,
         consistency_policy = ConsistencyPolicy(default_consistency_level=default_consistency_level,
                                                max_staleness_prefix=max_staleness_prefix,
                                                max_interval_in_seconds=max_interval)
-
-    public_network_access = None
-    if enable_public_network is not None:
-        public_network_access = 'Enabled' if enable_public_network else 'Disabled'
 
     api_properties = {'ServerVersion': server_version}
 
@@ -443,6 +535,22 @@ def cli_cosmosdb_update(client,
     elif backup_policy_type is not None and backup_policy_type.lower() == 'continuous':
         if isinstance(existing.backup_policy, PeriodicModeBackupPolicy):
             backup_policy = ContinuousModeBackupPolicy()
+            if continuous_tier is not None:
+                continuous_mode_properties = ContinuousModeProperties(
+                    tier=continuous_tier
+                )
+            else:
+                continuous_mode_properties = ContinuousModeProperties(
+                    tier='Continuous30Days'
+                )
+            backup_policy.continuous_mode_properties = continuous_mode_properties
+        else:
+            backup_policy = existing.backup_policy
+            if continuous_tier is not None:
+                continuous_mode_properties = ContinuousModeProperties(
+                    tier=continuous_tier
+                )
+                backup_policy.continuous_mode_properties = continuous_mode_properties
 
     analytical_storage_configuration = None
     if analytical_storage_schema_type is not None:
@@ -460,6 +568,7 @@ def cli_cosmosdb_update(client,
         virtual_network_rules=virtual_network_rules,
         enable_multiple_write_locations=enable_multiple_write_locations,
         disable_key_based_metadata_write_access=disable_key_based_metadata_write_access,
+        disable_local_auth=disable_local_auth,
         key_vault_key_uri=key_uri,
         public_network_access=public_network_access,
         enable_analytical_storage=enable_analytical_storage,
@@ -468,12 +577,23 @@ def cli_cosmosdb_update(client,
         api_properties=api_properties,
         backup_policy=backup_policy,
         default_identity=default_identity,
-        analytical_storage_configuration=analytical_storage_configuration)
+        analytical_storage_configuration=analytical_storage_configuration,
+        enable_partition_merge=enable_partition_merge,
+        enable_burst_capacity=enable_burst_capacity,
+        enable_per_region_per_partition_autoscale=enable_prpp_autoscale,
+        minimal_tls_version=minimal_tls_version,
+        enable_priority_based_execution=enable_pbe,
+        default_priority_level=default_priority_level)
 
     async_docdb_update = client.begin_update(resource_group_name, account_name, params)
     docdb_account = async_docdb_update.result()
     docdb_account = client.get(resource_group_name, account_name)  # Workaround
     return docdb_account
+
+
+def cli_cosmosdb_delete(client, resource_group_name, account_name, no_wait=False):
+    return sdk_no_wait(no_wait, client.begin_delete,
+                       resource_group_name=resource_group_name, account_name=account_name)
 
 
 def cli_cosmosdb_list(client, resource_group_name=None):
@@ -546,9 +666,11 @@ def _populate_sql_container_definition(sql_container_resource,
                                        client_encryption_policy,
                                        partition_key_version,
                                        conflict_resolution_policy,
-                                       analytical_storage_ttl):
+                                       analytical_storage_ttl,
+                                       vector_embedding_policy,
+                                       full_text_policy):
     if all(arg is None for arg in
-           [partition_key_path, partition_key_version, default_ttl, indexing_policy, unique_key_policy, client_encryption_policy, conflict_resolution_policy, analytical_storage_ttl]):
+           [partition_key_path, partition_key_version, default_ttl, indexing_policy, unique_key_policy, client_encryption_policy, conflict_resolution_policy, analytical_storage_ttl, vector_embedding_policy, full_text_policy]):
         return False
 
     if partition_key_path is not None:
@@ -577,6 +699,12 @@ def _populate_sql_container_definition(sql_container_resource,
     if analytical_storage_ttl is not None:
         sql_container_resource.analytical_storage_ttl = analytical_storage_ttl
 
+    if vector_embedding_policy is not None:
+        sql_container_resource.vector_embedding_policy = vector_embedding_policy
+
+    if full_text_policy is not None:
+        sql_container_resource.full_text_policy = full_text_policy
+
     return True
 
 
@@ -594,7 +722,9 @@ def cli_cosmosdb_sql_container_create(client,
                                       max_throughput=None,
                                       unique_key_policy=None,
                                       conflict_resolution_policy=None,
-                                      analytical_storage_ttl=None):
+                                      analytical_storage_ttl=None,
+                                      vector_embedding_policy=None,
+                                      full_text_policy=None):
     """Creates an Azure Cosmos DB SQL container """
     sql_container_resource = SqlContainerResource(id=container_name)
 
@@ -606,7 +736,9 @@ def cli_cosmosdb_sql_container_create(client,
                                        client_encryption_policy,
                                        partition_key_version,
                                        conflict_resolution_policy,
-                                       analytical_storage_ttl)
+                                       analytical_storage_ttl,
+                                       vector_embedding_policy,
+                                       full_text_policy)
 
     options = _get_options(throughput, max_throughput)
 
@@ -628,7 +760,9 @@ def cli_cosmosdb_sql_container_update(client,
                                       container_name,
                                       default_ttl=None,
                                       indexing_policy=None,
-                                      analytical_storage_ttl=None):
+                                      analytical_storage_ttl=None,
+                                      vector_embedding_policy=None,
+                                      full_text_policy=None):
     """Updates an Azure Cosmos DB SQL container """
     logger.debug('reading SQL container')
     sql_container = client.get_sql_container(resource_group_name, account_name, database_name, container_name)
@@ -639,6 +773,9 @@ def cli_cosmosdb_sql_container_update(client,
     sql_container_resource.default_ttl = sql_container.resource.default_ttl
     sql_container_resource.unique_key_policy = sql_container.resource.unique_key_policy
     sql_container_resource.conflict_resolution_policy = sql_container.resource.conflict_resolution_policy
+    sql_container_resource.computed_properties = sql_container.resource.computed_properties
+    sql_container_resource.vector_embedding_policy = sql_container.resource.vector_embedding_policy
+    sql_container_resource.full_text_policy = sql_container.resource.full_text_policy
 
     # client encryption policy is immutable
     sql_container_resource.client_encryption_policy = sql_container.resource.client_encryption_policy
@@ -651,7 +788,9 @@ def cli_cosmosdb_sql_container_update(client,
                                           None,
                                           None,
                                           None,
-                                          analytical_storage_ttl):
+                                          analytical_storage_ttl,
+                                          vector_embedding_policy,
+                                          full_text_policy):
         logger.debug('replacing SQL container')
 
     sql_container_create_update_resource = SqlContainerCreateUpdateParameters(
@@ -1615,7 +1754,7 @@ def cli_cosmosdb_identity_remove(client,
 
 def _get_virtual_network_id(cmd, resource_group_name, subnet, virtual_network):
     from azure.cli.core.commands.client_factory import get_subscription_id
-    from msrestazure.tools import is_valid_resource_id, resource_id
+    from azure.mgmt.core.tools import is_valid_resource_id, resource_id
     if not is_valid_resource_id(subnet):
         if virtual_network is None:
             raise CLIError("usage error: --subnet ID | --subnet NAME --vnet-name NAME")
@@ -1746,9 +1885,15 @@ def cli_cosmosdb_restore(cmd,
                          target_database_account_name,
                          restore_timestamp,
                          location,
+                         assign_identity=None,
+                         default_identity=None,
                          databases_to_restore=None,
                          gremlin_databases_to_restore=None,
-                         tables_to_restore=None):
+                         tables_to_restore=None,
+                         public_network_access=None,
+                         disable_ttl=None,
+                         source_backup_location=None,
+                         disable_local_auth=None):
     from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
     restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
     restorable_database_accounts = restorable_database_accounts_client.list()
@@ -1757,22 +1902,20 @@ def cli_cosmosdb_restore(cmd,
     restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
 
     # If restore timestamp is timezone aware, get the utcnow as timezone aware as well
-    from datetime import datetime, timezone
-    current_dateTime = datetime.utcnow()
+    from datetime import timezone
+    current_dateTime = datetime.datetime.utcnow()
     if restore_timestamp_datetime_utc.tzinfo is not None and restore_timestamp_datetime_utc.tzinfo.utcoffset(restore_timestamp_datetime_utc) is not None:
-        current_dateTime = datetime.now(timezone.utc)
+        current_dateTime = datetime.datetime.now(timezone.utc)
 
     # Fail if provided restoretimesamp is greater than current timestamp
     if restore_timestamp_datetime_utc > current_dateTime:
         raise CLIError("Restore timestamp {} should be less than current timestamp {}".format(restore_timestamp_datetime_utc, current_dateTime))
 
-    is_source_restorable_account_deleted = False
     for account in restorable_database_accounts_list:
         if account.account_name == account_name:
             if account.deletion_time is not None:
                 if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
                     target_restorable_account = account
-                    is_source_restorable_account_deleted = True
                     break
             else:
                 if restore_timestamp_datetime_utc >= account.creation_time:
@@ -1782,61 +1925,6 @@ def cli_cosmosdb_restore(cmd,
     if target_restorable_account is None:
         raise CLIError("Cannot find a database account with name {} that is online at {}".format(account_name, restore_timestamp))
 
-    # Validate if source account is empty only for live account restores. For deleted account restores the api will not work
-    if not is_source_restorable_account_deleted:
-        restorable_resources = None
-        api_type = target_restorable_account.api_type.lower()
-        arm_location_normalized = target_restorable_account.location.lower().replace(" ", "")
-        if api_type == "sql":
-            try:
-                from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_sql_resources
-                restorable_sql_resources_client = cf_restorable_sql_resources(cmd.cli_ctx, [])
-                restorable_resources = restorable_sql_resources_client.list(
-                    arm_location_normalized,
-                    target_restorable_account.name,
-                    location,
-                    restore_timestamp_datetime_utc)
-            except ResourceNotFoundError:
-                raise CLIError("Cannot find a database account with name {} that is online at {} in location {}".format(account_name, restore_timestamp, location))
-        elif api_type == "mongodb":
-            try:
-                from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_mongodb_resources
-                restorable_mongodb_resources_client = cf_restorable_mongodb_resources(cmd.cli_ctx, [])
-                restorable_resources = restorable_mongodb_resources_client.list(
-                    arm_location_normalized,
-                    target_restorable_account.name,
-                    location,
-                    restore_timestamp_datetime_utc)
-            except ResourceNotFoundError:
-                raise CLIError("Cannot find a database account with name {} that is online at {} in location {}".format(account_name, restore_timestamp, location))
-        elif "sql" in api_type and "gremlin" in api_type:
-            try:
-                from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_gremlin_resources
-                restorable_gremlin_resources_client = cf_restorable_gremlin_resources(cmd.cli_ctx, [])
-                restorable_resources = restorable_gremlin_resources_client.list(
-                    target_restorable_account.location,
-                    target_restorable_account.name,
-                    location,
-                    restore_timestamp_datetime_utc)
-            except ResourceNotFoundError:
-                raise CLIError("Cannot find a database account with name {} that is online at {} in location {}".format(account_name, restore_timestamp, location))
-        elif "sql" in api_type and "table" in api_type:
-            try:
-                from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_table_resources
-                restorable_table_resources_client = cf_restorable_table_resources(cmd.cli_ctx, [])
-                restorable_resources = restorable_table_resources_client.list(
-                    target_restorable_account.location,
-                    target_restorable_account.name,
-                    location,
-                    restore_timestamp_datetime_utc)
-            except ResourceNotFoundError:
-                raise CLIError("Cannot find a database account with name {} that is online at {} in location {}".format(account_name, restore_timestamp, location))
-        else:
-            raise CLIError("Provided API Type {} is not supported for account {}".format(target_restorable_account.api_type, account_name))
-
-        if restorable_resources is None or not any(restorable_resources):
-            raise CLIError("Database account {} contains no restorable resources in location {} at given restore timestamp {}".format(target_restorable_account, location, restore_timestamp_datetime_utc))
-
     # Trigger restore
     locations = []
     locations.append(Location(location_name=location, failover_priority=0))
@@ -1845,18 +1933,23 @@ def cli_cosmosdb_restore(cmd,
                                     resource_group_name=resource_group_name,
                                     account_name=target_database_account_name,
                                     locations=locations,
+                                    assign_identity=assign_identity,
+                                    default_identity=default_identity,
                                     is_restore_request=True,
                                     restore_source=target_restorable_account.id,
                                     restore_timestamp=restore_timestamp_datetime_utc.isoformat(),
                                     databases_to_restore=databases_to_restore,
                                     gremlin_databases_to_restore=gremlin_databases_to_restore,
                                     tables_to_restore=tables_to_restore,
-                                    arm_location=target_restorable_account.location)
+                                    arm_location=target_restorable_account.location,
+                                    public_network_access=public_network_access,
+                                    disable_ttl=disable_ttl,
+                                    source_backup_location=source_backup_location,
+                                    disable_local_auth=disable_local_auth)
 
 
 def _convert_to_utc_timestamp(timestamp_string):
     import dateutil
-    import datetime
     import dateutil.parser
     timestamp_datetime = dateutil.parser.parse(timestamp_string)
     timestamp_datetime_utc = None
@@ -2085,7 +2178,9 @@ def _populate_collection_definition(collection,
                                     partition_key_path=None,
                                     default_ttl=None,
                                     indexing_policy=None,
-                                    client_encryption_policy=None):
+                                    client_encryption_policy=None,
+                                    vector_embedding_policy=None,
+                                    full_text_policy=None):
     if all(arg is None for arg in [partition_key_path, default_ttl, indexing_policy]):
         return False
 
@@ -2106,6 +2201,12 @@ def _populate_collection_definition(collection,
     if client_encryption_policy is not None:
         collection['clientEncryptionPolicy'] = client_encryption_policy
 
+    if vector_embedding_policy is not None:
+        collection['vectorIndexingPolicy'] = vector_embedding_policy
+
+    if full_text_policy is not None:
+        collection['fullTextPolicy'] = full_text_policy
+
     return True
 
 
@@ -2116,7 +2217,9 @@ def cli_cosmosdb_collection_create(client,
                                    partition_key_path=None,
                                    default_ttl=None,
                                    indexing_policy=DEFAULT_INDEXING_POLICY,
-                                   client_encryption_policy=None):
+                                   client_encryption_policy=None,
+                                   vector_embedding_policy=None,
+                                   full_text_policy=None):
     """Creates an Azure Cosmos DB collection """
     collection = {'id': collection_id}
 
@@ -2128,7 +2231,9 @@ def cli_cosmosdb_collection_create(client,
                                     partition_key_path,
                                     default_ttl,
                                     indexing_policy,
-                                    client_encryption_policy)
+                                    client_encryption_policy,
+                                    vector_embedding_policy,
+                                    full_text_policy)
 
     created_collection = client.CreateContainer(_get_database_link(database_id), collection,
                                                 options)
@@ -2179,6 +2284,27 @@ def cli_cosmosdb_collection_update(client,
     return result
 
 
+def _convert_mongo_privileges(privileges):
+    """Convert privileges from the user-provided (PascalCase) body into SDK model objects."""
+    if not privileges:
+        return privileges
+    converted = []
+    for privilege in privileges:
+        resource = privilege.get('Resource')
+        privilege_resource = None
+        if resource is not None:
+            privilege_resource = PrivilegeResource(db=resource.get('Db'), collection=resource.get('Collection'))
+        converted.append(Privilege(resource=privilege_resource, actions=privilege.get('Actions')))
+    return converted
+
+
+def _convert_mongo_roles(roles):
+    """Convert roles from the user-provided (PascalCase) body into SDK model objects."""
+    if not roles:
+        return roles
+    return [Role(db=role.get('Db'), role=role.get('Role')) for role in roles]
+
+
 def cli_cosmosdb_mongo_role_definition_create(client,
                                               resource_group_name,
                                               account_name,
@@ -2188,8 +2314,8 @@ def cli_cosmosdb_mongo_role_definition_create(client,
         role_name=mongo_role_definition_body['RoleName'],
         type=mongo_role_definition_body['Type'],
         database_name=mongo_role_definition_body['DatabaseName'],
-        privileges=mongo_role_definition_body['Privileges'],
-        roles=mongo_role_definition_body['Roles'])
+        privileges=_convert_mongo_privileges(mongo_role_definition_body['Privileges']),
+        roles=_convert_mongo_roles(mongo_role_definition_body['Roles']))
 
     return client.begin_create_update_mongo_role_definition(mongo_role_definition_body['Id'], resource_group_name, account_name, mongo_role_definition_create_resource)
 
@@ -2209,8 +2335,8 @@ def cli_cosmosdb_mongo_role_definition_update(client,
         role_name=mongo_role_definition.role_name,
         type=mongo_role_definition_body['Type'],
         database_name=mongo_role_definition_body['DatabaseName'],
-        privileges=mongo_role_definition_body['Privileges'],
-        roles=mongo_role_definition_body['Roles'])
+        privileges=_convert_mongo_privileges(mongo_role_definition_body['Privileges']),
+        roles=_convert_mongo_roles(mongo_role_definition_body['Roles']))
 
     return client.begin_create_update_mongo_role_definition(mongo_role_definition_body['Id'], resource_group_name, account_name, mongo_role_definition_update_resource)
 
@@ -2239,7 +2365,7 @@ def cli_cosmosdb_mongo_user_definition_create(client,
         database_name=mongo_user_definition_body['DatabaseName'],
         custom_data=mongo_user_definition_body['CustomData'],
         mechanisms=mongo_user_definition_body['Mechanisms'],
-        roles=mongo_user_definition_body['Roles'])
+        roles=_convert_mongo_roles(mongo_user_definition_body['Roles']))
 
     return client.begin_create_update_mongo_user_definition(mongo_user_definition_body['Id'], resource_group_name, account_name, mongo_user_definition_create_resource)
 
@@ -2259,7 +2385,7 @@ def cli_cosmosdb_mongo_user_definition_update(client,
         database_name=mongo_user_definition_body['DatabaseName'],
         custom_data=mongo_user_definition_body['CustomData'],
         mechanisms=mongo_user_definition_body['Mechanisms'],
-        roles=mongo_user_definition_body['Roles'])
+        roles=_convert_mongo_roles(mongo_user_definition_body['Roles']))
 
     return sdk_no_wait(no_wait, client.begin_create_update_mongo_user_definition, mongo_user_definition_body['Id'], resource_group_name, account_name, mongo_user_definition_update_resource)
 
@@ -2685,17 +2811,736 @@ def cli_cosmosdb_managed_cassandra_datacenter_update(client,
     return client.begin_create_update(resource_group_name, cluster_name, data_center_name, data_center_resource)
 
 
+def process_restorable_databases(restorable_databases, database_name):
+
+    latest_database_delete_time = datetime.datetime.utcfromtimestamp(0)
+    latest_database_create_or_recreate_time = datetime.datetime.utcfromtimestamp(0)
+    database_rid = None
+
+    for restorable_database in restorable_databases:
+        resource = restorable_database.resource
+        if resource.owner_id == database_name:
+            database_rid = resource.owner_resource_id
+            event_timestamp = datetime.datetime.strptime(resource.event_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+            if resource.operation_type == "Delete" and latest_database_delete_time < event_timestamp:
+                latest_database_delete_time = event_timestamp
+
+            if (resource.operation_type == "Create" or resource.operation_type == "Recreate") and latest_database_create_or_recreate_time < event_timestamp:
+                latest_database_create_or_recreate_time = event_timestamp
+
+    if database_rid is None:
+        raise CLIError("No restorable database found with name: {}".format(database_name))
+
+    # Database never deleted then reset it to max time
+    latest_database_delete_time = datetime.datetime.max if latest_database_delete_time == datetime.datetime.utcfromtimestamp(0) else latest_database_delete_time
+
+    logger.debug('process_restorable_databases: latest_database_delete_time {} latest_database_create_or_recreate_time {} database_name {}'.format(latest_database_delete_time, latest_database_create_or_recreate_time, database_name))  # pylint: disable=logging-format-interpolation
+
+    return latest_database_delete_time, latest_database_create_or_recreate_time, database_rid
+
+
+def process_restorable_collections(restorable_collections, collection_name, database_name):
+    latest_collection_delete_time = datetime.datetime.utcfromtimestamp(0)
+    latest_collection_create_or_recreate_time = datetime.datetime.utcfromtimestamp(0)
+    collection_rid = None
+
+    for restorable_collection in restorable_collections:
+        resource = restorable_collection.resource
+        if resource.owner_id == collection_name:
+            collection_rid = resource.owner_resource_id
+            event_timestamp = datetime.datetime.strptime(resource.event_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+            if resource.operation_type == "Delete" and latest_collection_delete_time < event_timestamp:
+                latest_collection_delete_time = event_timestamp
+
+            if (resource.operation_type == "Create" or resource.operation_type == "Recreate") and latest_collection_create_or_recreate_time < event_timestamp:
+                latest_collection_create_or_recreate_time = event_timestamp
+
+    if collection_rid is None:
+        raise CLIError("No restorable collection with name: {} found in the database with name: {}".format(collection_name, database_name))
+
+    # Collection never deleted then reset it to max time
+    latest_collection_delete_time = datetime.datetime.max if latest_collection_delete_time == datetime.datetime.utcfromtimestamp(0) else latest_collection_delete_time
+
+    logger.debug('process_restorable_databases: latest_collection_delete_time {} latest_collection_create_or_recreate_time {} database_name {} collection_name {}'.format(latest_collection_delete_time, latest_collection_create_or_recreate_time, database_name, collection_name))  # pylint: disable=logging-format-interpolation
+
+    return latest_collection_delete_time, latest_collection_create_or_recreate_time
+
+
+def cli_cosmosdb_sql_database_restore(cmd,
+                                      client,
+                                      resource_group_name,
+                                      account_name,
+                                      database_name,
+                                      restore_timestamp=None,
+                                      disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted database account {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online".format(account_name))
+
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_sql_databases
+            restorable_databases_client = cf_restorable_sql_databases(cmd.cli_ctx, [])
+            restorable_databases = restorable_databases_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_database_delete_time, latest_database_create_or_recreate_time, database_rid = process_restorable_databases(restorable_databases, database_name)  # pylint: disable=unused-variable
+
+            # Database is alive if create or recreate timestamp is later than latest delete timestamp
+            database_alive = latest_database_create_or_recreate_time > latest_database_delete_time or latest_database_delete_time == datetime.datetime.max
+
+            if database_alive:
+                raise CLIError("Database with name {} already exists in this account with name {} in location {}".format(database_name, account_name, restorable_database_account.location))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_database_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a database account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB SQL database"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    sql_database_resource = SqlDatabaseCreateUpdateParameters(
+        resource=SqlDatabaseResource(
+            id=database_name,
+            create_mode=create_mode,
+            restore_parameters=restore_parameters)
+    )
+
+    return client.begin_create_update_sql_database(resource_group_name,
+                                                   account_name,
+                                                   database_name,
+                                                   sql_database_resource)
+
+
+def cli_cosmosdb_sql_container_restore(cmd,
+                                       client,
+                                       resource_group_name,
+                                       account_name,
+                                       database_name,
+                                       container_name,
+                                       restore_timestamp=None,
+                                       disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    # """Restores the deleted Azure Cosmos DB SQL container """
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted database account {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online".format(account_name))
+
+        database_rid = None
+
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_sql_databases
+            restorable_databases_client = cf_restorable_sql_databases(cmd.cli_ctx, [])
+            restorable_databases = restorable_databases_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_database_delete_time, latest_database_create_or_recreate_time, database_rid = process_restorable_databases(restorable_databases, database_name)
+
+            # Database is alive if create or recreate timestamp is later than latest delete timestamp
+            database_alive = latest_database_delete_time == datetime.datetime.max or latest_database_create_or_recreate_time > latest_database_delete_time
+
+            if not database_alive:
+                raise CLIError("No active database with name {} found that contains the collection {}".format(database_name, container_name))
+
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_sql_containers
+            restorable_containers_client = cf_restorable_sql_containers(cmd.cli_ctx, [])
+            restorable_containers = restorable_containers_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name,
+                restorable_sql_database_rid=database_rid)
+
+            latest_container_delete_time, latest_container_create_or_recreate_time = process_restorable_collections(restorable_containers, container_name, database_name)
+
+            # Container is alive if create or recreate timestamp is later than latest delete timestamp
+            container_alive = latest_container_create_or_recreate_time > latest_container_delete_time or latest_container_delete_time == datetime.datetime.max
+
+            if container_alive:
+                raise CLIError("The collection {} is currently online. Please delete the collection and provide a restore timestamp for restoring different instance of the collection.".format(container_name))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_container_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a database account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB SQL container"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    sql_container_resource = SqlContainerResource(
+        id=container_name,
+        create_mode=create_mode,
+        restore_parameters=restore_parameters)
+
+    sql_container_create_update_resource = SqlContainerCreateUpdateParameters(
+        resource=sql_container_resource,
+        options={})
+
+    return client.begin_create_update_sql_container(resource_group_name,
+                                                    account_name,
+                                                    database_name,
+                                                    container_name,
+                                                    sql_container_create_update_resource)
+
+
+def cli_cosmosdb_mongodb_database_restore(cmd,
+                                          client,
+                                          resource_group_name,
+                                          account_name,
+                                          database_name,
+                                          restore_timestamp=None,
+                                          disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    # """Restores the deleted Azure Cosmos DB MongoDB database"""
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted database account {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online".format(account_name))
+
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_mongodb_databases
+            restorable_databases_client = cf_restorable_mongodb_databases(cmd.cli_ctx, [])
+            restorable_databases = restorable_databases_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_database_delete_time, latest_database_create_or_recreate_time, database_rid = process_restorable_databases(restorable_databases, database_name)  # pylint: disable=unused-variable
+
+            # Database is alive if create or recreate timestamp is later than latest delete timestamp
+            database_alive = latest_database_create_or_recreate_time > latest_database_delete_time or latest_database_delete_time == datetime.datetime.max
+
+            if database_alive:
+                raise CLIError("Database with name {} already exists in this account with name {} in location {}".format(database_name, account_name, restorable_database_account.location))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_database_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a database account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB MongoDB database"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    mongodb_database_resource = MongoDBDatabaseCreateUpdateParameters(
+        resource=MongoDBDatabaseResource(id=database_name,
+                                         create_mode=create_mode,
+                                         restore_parameters=restore_parameters),
+        options={})
+
+    return client.begin_create_update_mongo_db_database(resource_group_name,
+                                                        account_name,
+                                                        database_name,
+                                                        mongodb_database_resource)
+
+
+def cli_cosmosdb_mongodb_collection_restore(cmd,
+                                            client,
+                                            resource_group_name,
+                                            account_name,
+                                            database_name,
+                                            collection_name,
+                                            restore_timestamp=None,
+                                            disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    # """Restores the Azure Cosmos DB MongoDB collection """
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted database account {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online".format(account_name))
+
+        database_rid = None
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_mongodb_databases
+            restorable_databases_client = cf_restorable_mongodb_databases(cmd.cli_ctx, [])
+            restorable_databases = restorable_databases_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_database_delete_time, latest_database_create_or_recreate_time, database_rid = process_restorable_databases(restorable_databases, database_name)
+
+            # Database is alive if create or recreate timestamp is later than latest delete timestamp
+            database_alive = latest_database_delete_time == datetime.datetime.max or latest_database_create_or_recreate_time > latest_database_delete_time
+
+            if not database_alive:
+                raise CLIError("Cannot find a database account with name {} that is online when latest collection instance was deleted".format(account_name))
+
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_mongodb_collections
+            restorable_collections_client = cf_restorable_mongodb_collections(cmd.cli_ctx, [])
+            restorable_collections = restorable_collections_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name,
+                restorable_mongodb_database_rid=database_rid)
+
+            latest_collection_delete_time, latest_collection_create_or_recreate_time = process_restorable_collections(restorable_collections, collection_name, database_name)
+
+            # Collection is alive if create or recreate timestamp is later than latest delete timestamp
+            collection_alive = latest_collection_create_or_recreate_time > latest_collection_delete_time or latest_collection_delete_time == datetime.datetime.max
+
+            if collection_alive:
+                raise CLIError("The collection {} is currently online. Please delete the collection and provide a restore timestamp for restoring different instance of the collection.".format(collection_name))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_collection_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a database account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB MongoDB collection"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    mongodb_collection_resource = MongoDBCollectionResource(id=collection_name,
+                                                            create_mode=create_mode,
+                                                            restore_parameters=restore_parameters
+                                                            )
+
+    mongodb_collection_create_update_resource = MongoDBCollectionCreateUpdateParameters(
+        resource=mongodb_collection_resource,
+        options={})
+
+    return client.begin_create_update_mongo_db_collection(resource_group_name,
+                                                          account_name,
+                                                          database_name,
+                                                          collection_name,
+                                                          mongodb_collection_create_update_resource)
+
+
+def cli_cosmosdb_gremlin_database_restore(cmd,
+                                          client,
+                                          resource_group_name,
+                                          account_name,
+                                          database_name,
+                                          restore_timestamp=None,
+                                          disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted database account {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a Gremlin database account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a Gremlin database account with name {} that is online".format(account_name))
+
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_gremlin_databases
+            restorable_databases_client = cf_restorable_gremlin_databases(cmd.cli_ctx, [])
+            restorable_databases = restorable_databases_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_database_delete_time, latest_database_create_or_recreate_time, database_rid = process_restorable_databases(restorable_databases, database_name)  # pylint: disable=unused-variable
+
+            # Database is alive if create or recreate timestamp is later than latest delete timestamp
+            database_alive = latest_database_create_or_recreate_time > latest_database_delete_time or latest_database_delete_time == datetime.datetime.max
+
+            if database_alive:
+                raise CLIError("Database with name {} already exists in this account with name {} in location {}".format(database_name, account_name, restorable_database_account.location))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_database_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a Gremlin database account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB Gremlin database"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    gremlin_database_resource = GremlinDatabaseCreateUpdateParameters(
+        resource=SqlDatabaseResource(
+            id=database_name,
+            create_mode=create_mode,
+            restore_parameters=restore_parameters)
+    )
+
+    return client.begin_create_update_gremlin_database(resource_group_name,
+                                                       account_name,
+                                                       database_name,
+                                                       gremlin_database_resource)
+
+
+def cli_cosmosdb_gremlin_graph_restore(cmd,
+                                       client,
+                                       resource_group_name,
+                                       account_name,
+                                       database_name,
+                                       graph_name,
+                                       restore_timestamp=None,
+                                       disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    # """Restores the deleted Azure Cosmos DB Gremlin graph """
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted gremlin database account {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online".format(account_name))
+
+        database_rid = None
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_gremlin_databases
+            restorable_databases_client = cf_restorable_gremlin_databases(cmd.cli_ctx, [])
+            restorable_databases = restorable_databases_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_database_delete_time, latest_database_create_or_recreate_time, database_rid = process_restorable_databases(restorable_databases, database_name)
+
+            # Database is alive if create or recreate timestamp is later than latest delete timestamp
+            database_alive = latest_database_delete_time == datetime.datetime.max or latest_database_create_or_recreate_time > latest_database_delete_time
+
+            if not database_alive:
+                raise CLIError("No active database with name {} found that contains the graph {}".format(database_name, graph_name))
+
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_gremlin_graphs
+            restorable_graphs_client = cf_restorable_gremlin_graphs(cmd.cli_ctx, [])
+            restorable_graphs = restorable_graphs_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name,
+                restorable_gremlin_database_rid=database_rid)
+
+            latest_graph_delete_time, latest_graph_create_or_recreate_time = process_restorable_collections(restorable_graphs, graph_name, database_name)
+
+            # Graph is alive if create or recreate timestamp is later than latest delete timestamp
+            graph_alive = latest_graph_create_or_recreate_time > latest_graph_delete_time or latest_graph_delete_time == datetime.datetime.max
+
+            if graph_alive:
+                raise CLIError("The graph {} is currently online. Please delete the graph and provide a restore timestamp for restoring different instance of the graph.".format(graph_name))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_graph_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a database account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB Gremlin graph"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    gremlin_graph_resource = GremlinGraphResource(
+        id=graph_name,
+        create_mode=create_mode,
+        restore_parameters=restore_parameters)
+
+    gremlin_graph_create_update_resource = GremlinGraphCreateUpdateParameters(
+        resource=gremlin_graph_resource,
+        options={})
+
+    return client.begin_create_update_gremlin_graph(resource_group_name,
+                                                    account_name,
+                                                    database_name,
+                                                    graph_name,
+                                                    gremlin_graph_create_update_resource)
+
+
+def cli_cosmosdb_table_restore(cmd,
+                               client,
+                               resource_group_name,
+                               account_name,
+                               table_name,
+                               restore_timestamp=None,
+                               disable_ttl=None):
+
+    from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_database_accounts
+    # """Restores the deleted Azure Cosmos DB Table"""
+    restorable_database_accounts_client = cf_restorable_database_accounts(cmd.cli_ctx, [])
+    restorable_database_accounts = restorable_database_accounts_client.list()
+    restorable_database_accounts_list = list(restorable_database_accounts)
+    restorable_database_account = None
+
+    if restore_timestamp is not None:
+        restore_timestamp_datetime_utc = _convert_to_utc_timestamp(restore_timestamp)
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if account.deletion_time is not None:
+                    if account.deletion_time >= restore_timestamp_datetime_utc >= account.creation_time:
+                        raise CLIError("Cannot perform inaccount restore on a deleted table {}".format(account_name))
+                else:
+                    if restore_timestamp_datetime_utc >= account.creation_time:
+                        restorable_database_account = account
+                        break
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a account with name {} that is online at {}".format(account_name, restore_timestamp))
+    else:
+        latest_account_to_restore = None
+        for account in restorable_database_accounts_list:
+            if account.account_name == account_name:
+                if latest_account_to_restore is None or account.creation_time > latest_account_to_restore.creation_time:
+                    if account.deletion_time is None:
+                        latest_account_to_restore = account
+
+        restorable_database_account = latest_account_to_restore
+
+        if restorable_database_account is None:
+            raise CLIError("Cannot find a database account with name {} that is online".format(account_name))
+
+        try:
+            from azure.cli.command_modules.cosmosdb._client_factory import cf_restorable_tables
+            restorable_tables_client = cf_restorable_tables(cmd.cli_ctx, [])
+            restorable_tables = restorable_tables_client.list(
+                restorable_database_account.location,
+                restorable_database_account.name)
+
+            latest_table_delete_time, latest_table_create_or_recreate_time, table_rid = process_restorable_databases(restorable_tables, table_name)  # pylint: disable=unused-variable
+
+            # Table is alive if create or recreate timestamp is later than latest delete timestamp
+            table_alive = latest_table_create_or_recreate_time > latest_table_delete_time or latest_table_delete_time == datetime.datetime.max
+
+            if table_alive:
+                raise CLIError("Table with name {} already exists in this account with name {} in location {}".format(table_name, account_name, restorable_database_account.location))
+
+            # """Subtracting -1 second from the deleted timestamp to restore till end of logchain"""
+            restore_time = latest_table_delete_time + datetime.timedelta(seconds=-1)
+            restore_timestamp = restore_time.strftime("%Y-%m-%dT%H:%M:%S%Z")
+        except ResourceNotFoundError:
+            raise CLIError("Cannot find a table account with name {} that is online in location {}".format(account_name, restorable_database_account.location))
+
+    # """Restores the deleted Azure Cosmos DB Table"""
+    create_mode = CreateMode.restore.value
+    restore_parameters = RestoreParameters(
+        restore_source=restorable_database_account.id,
+        restore_timestamp_in_utc=restore_timestamp
+    )
+
+    if disable_ttl is not None:
+        restore_parameters.restore_with_ttl_disabled = disable_ttl
+
+    table_resource = TableCreateUpdateParameters(
+        resource=TableResource(id=table_name,
+                               create_mode=create_mode,
+                               restore_parameters=restore_parameters),
+        options={})
+
+    return client.begin_create_update_table(resource_group_name,
+                                            account_name,
+                                            table_name,
+                                            table_resource)
+
+
 # Create function for CosmosDB ComputeV2 services
 def cli_cosmosdb_service_create(client,
                                 account_name,
                                 resource_group_name,
                                 service_name,
                                 instance_count=1,
-                                instance_size="Cosmos.D4s"):
-    service_kind = "SqlDedicatedGateway"
-    params = ServiceResourceCreateUpdateParameters(service_type=service_kind,
-                                                   instance_count=instance_count,
-                                                   instance_size=instance_size)
+                                instance_size="Cosmos.D4s",
+                                dedicated_gateway_type=DedicatedGatewayType.INTEGRATED_CACHE.value):
+
+    properties = SqlDedicatedGatewayServiceResourceCreateUpdateProperties(instance_count=instance_count,
+                                                                          instance_size=instance_size,
+                                                                          dedicated_gateway_type=dedicated_gateway_type)
+
+    properties.service_type = ServiceType.SQL_DEDICATED_GATEWAY.value
+    params = ServiceResourceCreateUpdateParameters(
+        properties=properties
+    )
 
     return client.begin_create(resource_group_name, account_name, service_name, create_update_parameters=params)
 
@@ -2706,9 +3551,178 @@ def cli_cosmosdb_service_update(client,
                                 service_name,
                                 instance_count,
                                 instance_size=None):
-    service_kind = "SqlDedicatedGateway"
-    params = ServiceResourceCreateUpdateParameters(service_type=service_kind,
-                                                   instance_count=instance_count,
-                                                   instance_size=instance_size)
+
+    properties = SqlDedicatedGatewayServiceResourceCreateUpdateProperties(instance_count=instance_count,
+                                                                          instance_size=instance_size)
+
+    properties.service_type = ServiceType.SQL_DEDICATED_GATEWAY.value
+    params = ServiceResourceCreateUpdateParameters(
+        properties=properties
+    )
 
     return client.begin_create(resource_group_name, account_name, service_name, create_update_parameters=params)
+
+
+def cli_offline_region(client,
+                       account_name,
+                       resource_group_name,
+                       region):
+
+    # Function to normalize region name
+    def _normalize_region(region_name):
+        return region_name.replace(' ', '').lower()
+
+    # Get the account to check for the region name
+    account = client.get(resource_group_name, account_name)
+    input_region_normalized = _normalize_region(region)
+    matched_region = None
+
+    # Check matches in both read and write locations
+    for loc in account.locations:
+        if _normalize_region(loc.location_name) == input_region_normalized:
+            matched_region = loc.location_name
+            break
+
+    if matched_region:
+        region = matched_region
+
+    region_parameter_for_offline = RegionForOnlineOffline(region=region)
+    return client.begin_offline_region(
+        resource_group_name=resource_group_name,
+        account_name=account_name,
+        region_parameter_for_offline=region_parameter_for_offline
+    )
+
+
+def cli_cosmosdb_fleet_create(client,
+                              resource_group_name,
+                              fleet_name,
+                              location,
+                              tags=None):
+    """Creates an Azure Cosmos DB Fleet."""
+
+    fleet_parameters = FleetResource(location=location)
+
+    if tags:
+        fleet_parameters.tags = tags
+
+    return client.create(
+        resource_group_name=resource_group_name,
+        fleet_name=fleet_name,
+        body=fleet_parameters)
+
+
+def cli_list_cosmosdb_fleets(client, resource_group_name=None):
+    """Lists Azure Cosmos DB Fleets."""
+    if resource_group_name:
+        return client.list_by_resource_group(resource_group_name=resource_group_name)
+    return client.list()
+
+
+def cli_cosmosdb_fleetspace_create(client,
+                                   resource_group_name,
+                                   fleet_name,
+                                   fleetspace_name,
+                                   fleetspace_body):
+
+    """Creates an Azure Cosmos DB Fleetspace."""
+
+    # Extract service_tier and data_regions from base level (mandatory for create)
+    service_tier = fleetspace_body['properties'].get('serviceTier')
+    data_regions = fleetspace_body['properties'].get('dataRegions')
+
+    if not service_tier:
+        raise CLIError('Missing required field "serviceTier" in properties.')
+
+    if not data_regions:
+        raise CLIError('Missing required field "dataRegions" in properties.')
+
+    pool_properties = fleetspace_body['properties'].get('throughputPoolConfiguration')
+    throughput_pool_config = None
+    if pool_properties:
+        throughput_pool_config = FleetspacePropertiesThroughputPoolConfiguration(
+            min_throughput=pool_properties['minThroughput'],
+            max_throughput=pool_properties['maxThroughput']
+        )
+
+    fleetspace_resource = FleetspaceResource(
+        fleetspace_api_kind="NoSQL",
+        throughput_pool_configuration=throughput_pool_config,
+        service_tier=service_tier,
+        data_regions=data_regions
+    )
+
+    return client.begin_create(
+        resource_group_name=resource_group_name,
+        fleet_name=fleet_name,
+        fleetspace_name=fleetspace_name,
+        body=fleetspace_resource
+    )
+
+
+def cli_cosmosdb_fleetspace_update(client,
+                                   resource_group_name,
+                                   fleet_name,
+                                   fleetspace_name,
+                                   fleetspace_body):
+
+    """Updates an existing Azure Cosmos DB Fleetspace."""
+
+    # Extract service_tier and data_regions from base level (optional for update)
+    service_tier = fleetspace_body['properties'].get('serviceTier')
+    data_regions = fleetspace_body['properties'].get('dataRegions')
+
+    throughput_pool_config = FleetspacePropertiesThroughputPoolConfiguration(
+        min_throughput=fleetspace_body['properties']['throughputPoolConfiguration']['minThroughput'],
+        max_throughput=fleetspace_body['properties']['throughputPoolConfiguration']['maxThroughput']
+    )
+
+    fleetspace_resource = FleetspaceResource(
+        fleetspace_api_kind="NoSQL",
+        throughput_pool_configuration=throughput_pool_config,
+        service_tier=service_tier,
+        data_regions=data_regions
+    )
+
+    return client.begin_update(
+        resource_group_name=resource_group_name,
+        fleet_name=fleet_name,
+        fleetspace_name=fleetspace_name,
+        body=fleetspace_resource
+    )
+
+
+def cli_cosmosdb_fleetspace_account_create(client,
+                                           resource_group_name,
+                                           fleet_name,
+                                           fleetspace_name,
+                                           fleetspace_account_name,
+                                           fleetspace_account_body):
+
+    """Creates an Azure Cosmos DB Fleetspace Account."""
+
+    from azure.cli.core.azclierror import InvalidArgumentValueError
+    from ._validators import _parse_fleetspace_account_resource_id
+
+    account_properties = fleetspace_account_body['properties']['globalDatabaseAccountProperties']
+    account_name = _parse_fleetspace_account_resource_id(account_properties['resourceId'])['name']
+    if fleetspace_account_name.lower() != account_name.lower():
+        raise InvalidArgumentValueError(
+            f'--fleetspace-account-name "{fleetspace_account_name}" must match the database account name "{account_name}" in resourceId.')
+
+    fleetspaceAccountPropertiesGlobalDatabaseAccountProperties = FleetspaceAccountPropertiesGlobalDatabaseAccountProperties(
+        resource_id=fleetspace_account_body['properties']['globalDatabaseAccountProperties']['resourceId'],
+        arm_location=fleetspace_account_body['properties']['globalDatabaseAccountProperties']['armLocation'],
+    )
+
+    fleetspace_account_body = FleetspaceAccountResource(
+        global_database_account_properties=fleetspaceAccountPropertiesGlobalDatabaseAccountProperties
+    )
+
+    return client.begin_create(
+        resource_group_name=resource_group_name,
+        fleet_name=fleet_name,
+        fleetspace_name=fleetspace_name,
+        fleetspace_account_name=fleetspace_account_name,
+        body=fleetspace_account_body
+    )

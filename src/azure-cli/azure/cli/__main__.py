@@ -9,24 +9,17 @@ import timeit
 start_time = timeit.default_timer()
 
 import sys
-import uuid
 
 from azure.cli.core import telemetry
 from azure.cli.core import get_default_cli
+from azure.cli.core._output import apply_output_newline
 from azure.cli.core.intercept_survey import prompt_survey_message
 from knack.completion import ARGCOMPLETE_ENV_NAME
+from knack.events import EVENT_CLI_PRE_EXECUTE
 from knack.log import get_logger
 
 __author__ = "Microsoft Corporation <python@microsoft.com>"
-__version__ = "2.46.0"
-
-
-# A workaround for https://bugs.python.org/issue32502 (https://github.com/Azure/azure-cli/issues/5184)
-# If uuid1 raises ValueError, use uuid4 instead.
-try:
-    uuid.uuid1()
-except ValueError:
-    uuid.uuid1 = uuid.uuid4
+__version__ = "2.93.0"
 
 
 logger = get_logger(__name__)
@@ -37,6 +30,8 @@ def cli_main(cli, args):
 
 
 az_cli = get_default_cli()
+
+az_cli.register_event(EVENT_CLI_PRE_EXECUTE, apply_output_newline)
 
 telemetry.set_application(az_cli, ARGCOMPLETE_ENV_NAME)
 
@@ -81,7 +76,7 @@ finally:
                 if datetime.datetime.now() > version_update_time + datetime.timedelta(days=11):
                     get_cached_latest_versions()
                 from packaging.version import parse
-                if parse(VERSIONS['versions']['core']['local']) < parse(VERSIONS['versions']['core']['pypi']):  # pylint: disable=line-too-long
+                if 'pypi' in VERSIONS['versions']['core'] and parse(VERSIONS['versions']['core']['local']) < parse(VERSIONS['versions']['core']['pypi']):  # pylint: disable=line-too-long
                     import subprocess
                     import platform
                     from azure.cli.core.azclierror import UnclassifiedUserFault  # pylint: disable=ungrouped-imports

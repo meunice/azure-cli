@@ -24,14 +24,6 @@ def cf_security_alerts_suppression_rule(cli_ctx, _):
     return _cf_security(cli_ctx).alerts_suppression_rules
 
 
-def cf_security_settings(cli_ctx, _):
-    return _cf_security(cli_ctx).settings
-
-
-def cf_security_contacts(cli_ctx, _):
-    return _cf_security(cli_ctx).security_contacts
-
-
 def cf_security_auto_provisioning_settings(cli_ctx, _):
     return _cf_security(cli_ctx).auto_provisioning_settings
 
@@ -69,18 +61,6 @@ def cf_security_workspace_settings(cli_ctx, _):
 
 def cf_security_advanced_threat_protection(cli_ctx, _):
     return _cf_security(cli_ctx).advanced_threat_protection
-
-
-def cf_sql_vulnerability_assessment_scans(cli_ctx, _):
-    return _cf_security(cli_ctx).sql_vulnerability_assessment_scans
-
-
-def cf_sql_vulnerability_assessment_results(cli_ctx, _):
-    return _cf_security(cli_ctx).sql_vulnerability_assessment_scan_results
-
-
-def cf_sql_vulnerability_assessment_baseline(cli_ctx, _):
-    return _cf_security(cli_ctx).sql_vulnerability_assessment_baseline_rules
 
 
 def cf_security_assessment(cli_ctx, _):

@@ -21,6 +21,7 @@ from azure.cli.command_modules.vm._validators import (validate_ssh_key,
                                                       _get_next_subnet_addr_suffix,
                                                       _validate_vm_vmss_msi,
                                                       _validate_vm_vmss_accelerated_networking,
+                                                      _get_resource_group_from_vault_name,
                                                       process_gallery_image_version_namespace)
 from azure.cli.command_modules.vm._vm_utils import normalize_disk_info, update_disk_sku_info
 from azure.cli.core.mock import DummyCli
@@ -203,58 +204,6 @@ class TestActions(unittest.TestCase):
         _validate_admin_password('Password22!!!', 'windows')
         _validate_admin_password('Pas' + '1' * 70, 'windows')
 
-    @mock.patch('azure.cli.command_modules.vm._validators._compute_client_factory', autospec=True)
-    def test_parse_image_argument(self, client_factory_mock):
-        compute_client = mock.MagicMock()
-        image = mock.MagicMock()
-        cmd = mock.MagicMock()
-        cmd.cli_ctx = DummyCli()
-        image.plan.name = 'plan1'
-        image.plan.product = 'product1'
-        image.plan.publisher = 'publisher1'
-        compute_client.virtual_machine_images.get.return_value = image
-        client_factory_mock.return_value = compute_client
-
-        np = mock.MagicMock()
-        np.location = 'some region'
-        np.plan_name, np.plan_publisher, np.plan_product = '', '', ''
-        np.image = 'publisher1:offer1:sku1:1.0.0'
-
-        # action
-        _parse_image_argument(cmd, np)
-
-        # assert
-        self.assertEqual('plan1', np.plan_name)
-        self.assertEqual('product1', np.plan_product)
-        self.assertEqual('publisher1', np.plan_publisher)
-
-    @mock.patch('azure.cli.command_modules.vm._validators._compute_client_factory', autospec=True)
-    @mock.patch('azure.cli.command_modules.vm._validators.logger.warning', autospec=True)
-    def test_parse_staging_image_argument(self, logger_mock, client_factory_mock):
-        from azure.core.exceptions import ResourceNotFoundError
-        compute_client = mock.MagicMock()
-        resp = mock.MagicMock()
-        cmd = mock.MagicMock()
-        cmd.cli_ctx = DummyCli()
-        resp.status_code = 404
-        resp.text = '{"Message": "Not Found"}'
-
-        compute_client.virtual_machine_images.get.side_effect = ResourceNotFoundError('image not found')
-        client_factory_mock.return_value = compute_client
-
-        np = mock.MagicMock()
-        np.location = 'some region'
-        np.image = 'publisher1:offer1:sku1:1.0.0'
-        np.plan_name, np.plan_publisher, np.plan_product = '', '', ''
-
-        # action
-        _parse_image_argument(cmd, np)
-
-        # assert
-        logger_mock.assert_called_with("Querying the image of '%s' failed for an error '%s'. "
-                                       "Configuring plan settings will be skipped", 'publisher1:offer1:sku1:1.0.0',
-                                       'image not found')
-
     def test_parse_unmanaged_image_argument(self):
         np = mock.MagicMock()
         np.image = 'https://foo.blob.core.windows.net/vhds/1'
@@ -373,7 +322,8 @@ class TestActions(unittest.TestCase):
         from azure.cli.core.azclierror import ArgumentUsageError
         with self.assertRaises(ArgumentUsageError) as err:
             _validate_vm_vmss_msi(cmd, np_mock, is_identity_assign=True)
-        self.assertTrue("usage error: please specify --scope when assigning a role to the managed identity"
+        self.assertTrue("usage error: please specify both --role and --scope "
+                        "when assigning a role to the managed identity"
                         in str(err.exception))
 
         # check we set right role id
@@ -574,76 +524,6 @@ class TestActions(unittest.TestCase):
 
         self.assertEqual(len(r), 11)  # length of data and os disks
 
-    @mock.patch('azure.cli.command_modules.vm._validators._compute_client_factory', autospec=True)
-    def test_validate_vm_vmss_accelerated_networking(self, client_factory_mock):
-        client_mock, size_mock = mock.MagicMock(), mock.MagicMock()
-        client_mock.virtual_machine_sizes.list.return_value = [size_mock]
-        client_factory_mock.return_value = client_mock
-        # not a qualified size
-        np = mock.MagicMock()
-        np.size = 'Standard_Ds1_v2'
-        np.accelerated_networking = None
-        _validate_vm_vmss_accelerated_networking(None, np)
-        self.assertIsNone(np.accelerated_networking)
-
-        # qualified size and recognized distro
-        np = mock.MagicMock()
-        np.size = 'Standard_f8'
-        size_mock.number_of_cores, size_mock.name = 8, 'Standard_f8'
-        np.accelerated_networking = None
-        np.os_publisher, np.os_offer, np.os_sku = 'Canonical', 'UbuntuServer', '16.04'
-        _validate_vm_vmss_accelerated_networking(mock.MagicMock(), np)
-        self.assertTrue(np.accelerated_networking)
-
-        np = mock.MagicMock()
-        np.size = 'Standard_DS4_v2'
-        np.accelerated_networking = None
-        np.os_publisher, np.os_offer, np.os_sku = 'kinvolk', 'flatcar-container-linux-free', 'alpha'
-        size_mock.number_of_cores, size_mock.name = 8, 'Standard_DS4_v2'
-        _validate_vm_vmss_accelerated_networking(mock.MagicMock(), np)
-        self.assertTrue(np.accelerated_networking)
-
-        np = mock.MagicMock()
-        np.size = 'Standard_D3_v2'  # known supported 4 core size
-        np.accelerated_networking = None
-        np.os_publisher, np.os_offer, np.os_sku = 'kinvolk', 'flatcar-container-linux-free', 'alpha'
-        _validate_vm_vmss_accelerated_networking(None, np)
-        self.assertTrue(np.accelerated_networking)
-
-        # not a qualified size, but user want it
-        np = mock.MagicMock()
-        np.size = 'Standard_Ds1_v2'
-        np.accelerated_networking = True
-        _validate_vm_vmss_accelerated_networking(None, np)
-        self.assertTrue(np.accelerated_networking)
-
-        # qualified size, but distro version not good
-        np = mock.MagicMock()
-        np.size = 'Standard_f8'
-        size_mock.number_of_cores, size_mock.name = 8, 'Standard_f8'
-        np.accelerated_networking = None
-        np.os_publisher, np.os_offer, np.os_sku = 'canonical', 'UbuntuServer', '14.04.5-LTS'
-        _validate_vm_vmss_accelerated_networking(mock.MagicMock(), np)
-        self.assertIsNone(np.accelerated_networking)
-
-        # qualified size, but distro infor is not available (say, custom images)
-        np = mock.MagicMock()
-        np.size = 'Standard_f8'
-        size_mock.number_of_cores, size_mock.name = 8, 'Standard_f8'
-        np.accelerated_networking = None
-        np.os_publisher = None
-        _validate_vm_vmss_accelerated_networking(mock.MagicMock(), np)
-        self.assertIsNone(np.accelerated_networking)
-
-        # qualified size, but distro version is not right
-        np = mock.MagicMock()
-        np.size = 'Standard_f8'
-        size_mock.number_of_cores, size_mock.name = 8, 'Standard_f8'
-        np.accelerated_networking = None
-        np.os_publisher, np.os_offer, np.os_sku = 'oracle', 'oracle-linux', '7.3'
-        _validate_vm_vmss_accelerated_networking(mock.MagicMock(), np)
-        self.assertIsNone(np.accelerated_networking)
-
     def test_update_sku_from_dict(self):
         sku_tests = {"test_empty": ([""], {}),
                      "test_all": (["sku"], {"os": "sku", 1: "sku", 3: "sku"}),
@@ -661,7 +541,7 @@ class TestActions(unittest.TestCase):
         for test_sku, expected in sku_tests.values():
             if isinstance(expected, dict):
                 # build info dict from expected values.
-                info_dict = {lun: dict(managedDisk={'storageAccountType': None}) for lun in expected if lun != "os"}
+                info_dict = {lun: {"managedDisk": {'storageAccountType': None}} for lun in expected if lun != "os"}
                 if "os" in expected:
                     info_dict["os"] = {}
 
@@ -673,7 +553,10 @@ class TestActions(unittest.TestCase):
                         self.assertEqual(info_dict[lun]['managedDisk']['storageAccountType'], expected[lun])
             elif expected is None:
                 dummy_expected = ["os", 1, 2]
-                info_dict = {lun: dict(managedDisk={'storageAccountType': None}) for lun in dummy_expected if lun != "os"}
+                info_dict = {
+                    lun: {"managedDisk": {'storageAccountType': None}}
+                    for lun in dummy_expected if lun != "os"
+                }
                 if "os" in dummy_expected:
                     info_dict["os"] = {}
 
@@ -683,19 +566,8 @@ class TestActions(unittest.TestCase):
                 self.fail("Test Expected value should be a dict or None, instead it is {}.".format(expected))
 
     def test_process_gallery_image_version_namespace(self):
-        from azure.cli.core.profiles._shared import AZURE_API_PROFILES, ResourceType
         np = mock.MagicMock(spec='target_regions')
-        api_version = AZURE_API_PROFILES['latest'][ResourceType.MGMT_COMPUTE].profile['gallery_images']
-        TargetRegion = self._get_compute_model('TargetRegion', api_version)
-        EncryptionImages = self._get_compute_model('EncryptionImages', api_version)
-        OSDiskImageEncryption = self._get_compute_model('OSDiskImageEncryption', api_version)
-        DataDiskImageEncryption = self._get_compute_model('DataDiskImageEncryption', api_version)
-        ConfidentialVMEncryptionType = self._get_compute_model('ConfidentialVMEncryptionType', api_version)
-        GalleryTargetExtendedLocation = self._get_compute_model('GalleryTargetExtendedLocation', api_version)
-        GalleryExtendedLocation = self._get_compute_model('GalleryExtendedLocation', api_version)
         cmd = mock.MagicMock()
-        cmd.get_models.return_value = [TargetRegion, EncryptionImages, OSDiskImageEncryption, DataDiskImageEncryption,
-                                       ConfidentialVMEncryptionType, GalleryTargetExtendedLocation, GalleryExtendedLocation]
 
         target_regions_list = ["southcentralus", "westus=1", "westus2=standard_zrs", "eastus=2=standard_lrs", 'CentralUSEUAP=1']
         np.target_regions = target_regions_list
@@ -703,10 +575,45 @@ class TestActions(unittest.TestCase):
         process_gallery_image_version_namespace(cmd, np)
         target_regions_objs = np.target_regions
 
-        self.assertEqual(target_regions_objs[0], TargetRegion(name="southcentralus"))
-        self.assertEqual(target_regions_objs[1], TargetRegion(name="westus", regional_replica_count=1))
-        self.assertEqual(target_regions_objs[2], TargetRegion(name="westus2", storage_account_type="standard_zrs"))
-        self.assertEqual(target_regions_objs[3], TargetRegion(name="eastus", regional_replica_count=2, storage_account_type="standard_lrs"))
+        self.assertEqual(target_regions_objs[0]["name"], "southcentralus")
+        self.assertEqual(target_regions_objs[1]["name"], "westus")
+        self.assertEqual(target_regions_objs[1]["regional_replica_count"], 1)
+        self.assertEqual(target_regions_objs[2]["name"], "westus2")
+        self.assertEqual(target_regions_objs[2]["storage_account_type"], "standard_zrs")
+        self.assertEqual(target_regions_objs[3]["name"], "eastus")
+        self.assertEqual(target_regions_objs[3]["regional_replica_count"], 2)
+        self.assertEqual(target_regions_objs[3]["storage_account_type"], "standard_lrs")
+
+        # three-part region=replica=storage_type must accept mixed-case storage types
+        # the same way the two-part region=storage_type form does
+        target_regions_list = ["southeastasia=1=Standard_LRS", "westus2=Premium_LRS"]
+        np.target_regions = target_regions_list
+        process_gallery_image_version_namespace(cmd, np)
+        target_regions_objs = np.target_regions
+        self.assertEqual(target_regions_objs[0]["name"], "southeastasia")
+        self.assertEqual(target_regions_objs[0]["regional_replica_count"], 1)
+        self.assertEqual(target_regions_objs[0]["storage_account_type"], "Standard_LRS")
+        self.assertEqual(target_regions_objs[1]["name"], "westus2")
+        self.assertEqual(target_regions_objs[1]["storage_account_type"], "Premium_LRS")
+
+        # four-part region=edgeZone=replica=storage_type must accept mixed-case storage types
+        np.target_regions = None
+        np.target_edge_zones = [
+            "westus=microsoftlosangeles1=1=Standard_LRS",
+            "eastus=microsoftlosangeles1=2=Premium_LRS",
+        ]
+        process_gallery_image_version_namespace(cmd, np)
+        target_edge_zone_objs = np.target_edge_zones
+        self.assertEqual(target_edge_zone_objs[0]["name"], "westus")
+        self.assertEqual(target_edge_zone_objs[0]["extended_location"]["name"], "microsoftlosangeles1")
+        self.assertEqual(target_edge_zone_objs[0]["extended_location_replica_count"], 1)
+        self.assertEqual(target_edge_zone_objs[0]["storage_account_type"], "Standard_LRS")
+        self.assertEqual(target_edge_zone_objs[1]["name"], "eastus")
+        self.assertEqual(target_edge_zone_objs[1]["extended_location_replica_count"], 2)
+        self.assertEqual(target_edge_zone_objs[1]["storage_account_type"], "Premium_LRS")
+
+        # restore target_regions for the remaining invalid-input cases
+        np.target_edge_zones = None
 
         # handle invalid storage account / replica count
         with self.assertRaises(CLIError):
@@ -741,6 +648,20 @@ class TestActions(unittest.TestCase):
             target_regions_list = ["westus=standard_lrs=2"]
             np.target_regions = target_regions_list
             process_gallery_image_version_namespace(cmd, np)
+
+    def test_get_resource_group_from_vault_name_uses_2015_11_01_on_every_page(self):
+        from urllib.parse import parse_qs, urlparse
+        from azure.cli.command_modules.keyvault.tests.latest.test_validators import \
+            _two_page_vaults_list_client_factory
+
+        requested_urls = []
+        with mock.patch('azure.cli.core.commands.client_factory.get_mgmt_service_client',
+                        _two_page_vaults_list_client_factory(requested_urls)):
+            self.assertEqual(_get_resource_group_from_vault_name(None, 'vault2'), 'rg2')
+
+        self.assertEqual(len(requested_urls), 2)
+        for url in requested_urls:
+            self.assertEqual(parse_qs(urlparse(url).query)['api-version'], ['2015-11-01'])
 
 
 if __name__ == '__main__':

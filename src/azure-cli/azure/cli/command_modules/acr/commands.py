@@ -44,7 +44,6 @@ from ._client_factory import (
     cf_acr_private_endpoint_connections,
     cf_acr_agentpool,
     cf_acr_connected_registries,
-    cf_acr_network_rules,
     cf_acr_cache,
     cf_acr_cred_sets
 )
@@ -53,6 +52,10 @@ from ._client_factory import (
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
 def load_command_table(self, _):
+
+    acr_artifact_streaming_util = CliCommandType(
+        operations_tmpl='azure.cli.command_modules.acr.artifact_streaming#{}'
+    )
 
     acr_custom_util = CliCommandType(
         operations_tmpl='azure.cli.command_modules.acr.custom#{}',
@@ -135,8 +138,7 @@ def load_command_table(self, _):
     )
 
     acr_network_rule_util = CliCommandType(
-        operations_tmpl='azure.cli.command_modules.acr.network_rule#{}',
-        client_factory=cf_acr_network_rules
+        operations_tmpl='azure.cli.command_modules.acr.network_rule#{}'
     )
 
     acr_check_health_util = CliCommandType(
@@ -208,6 +210,13 @@ def load_command_table(self, _):
 
     with self.command_group('acr', acr_import_util) as g:
         g.command('import', 'acr_import', supports_no_wait=True)
+
+    with self.command_group('acr artifact-streaming', acr_artifact_streaming_util, is_preview=True) as g:
+        g.show_command('operation show', 'acr_artifact_streaming_operation_show')
+        g.command('operation cancel', 'acr_artifact_streaming_operation_cancel')
+        g.command('create', 'acr_artifact_streaming_create', supports_no_wait=True)
+        g.show_command('show', 'acr_artifact_streaming_show')
+        g.command('update', 'acr_artifact_streaming_update')
 
     with self.command_group('acr credential', acr_cred_util) as g:
         g.show_command('show', 'acr_credential_show')
@@ -293,7 +302,8 @@ def load_command_table(self, _):
     with self.command_group('acr', acr_run_util) as g:
         g.command('run', 'acr_run', supports_no_wait=True)
 
-    with self.command_group('acr pack', acr_pack_util, is_preview=True) as g:
+    with self.command_group('acr pack', acr_pack_util, is_preview=True,
+                            deprecate_info=self.deprecate(hide=False)) as g:
         g.command('build', 'acr_pack_build', supports_no_wait=True)
 
     with self.command_group('acr task', acr_task_util) as g:
@@ -333,7 +343,14 @@ def load_command_table(self, _):
         g.command('logs', 'acr_taskrun_logs', client_factory=cf_acr_runs,
                   table_transformer=None)
 
-    with self.command_group('acr config content-trust', acr_policy_util) as g:
+    def _dct_deprecate_message(self):
+        msg = "This {} has been deprecated and will be removed in a future release.".format(self.object_type)
+        msg += " Learn more about the transition from Docker Content Trust to the Notary Project: "
+        msg += "https://aka.ms/acr/dctdeprecation"
+        return msg
+
+    with self.command_group('acr config content-trust', acr_policy_util,
+                            deprecate_info=self.deprecate(message_func=_dct_deprecate_message, hide=False)) as g:
         g.show_command('show', 'acr_config_content_trust_show')
         g.command('update', 'acr_config_content_trust_update')
 
@@ -349,16 +366,7 @@ def load_command_table(self, _):
         g.show_command('show', 'acr_config_authentication_as_arm_show')
         g.command('update', 'acr_config_authentication_as_arm_update')
 
-    def _helm_deprecate_message(self):
-        msg = "This {} has been deprecated and will be removed in future release.".format(self.object_type)
-        msg += " Use '{}' instead.".format(self.redirect)
-        msg += " For more information go to"
-        msg += " https://aka.ms/acr/helm"
-        return msg
-
-    with self.command_group('acr helm', acr_helm_util,
-                            deprecate_info=self.deprecate(redirect="helm v3",
-                                                          message_func=_helm_deprecate_message)) as g:
+    with self.command_group('acr helm', acr_helm_util) as g:
         g.command('list', 'acr_helm_list', table_transformer=helm_list_output_format)
         g.show_command('show', 'acr_helm_show', table_transformer=helm_show_output_format)
         g.command('delete', 'acr_helm_delete')
@@ -418,7 +426,7 @@ def load_command_table(self, _):
         g.show_command('show', 'show_encryption')
         g.command('rotate-key', "rotate_key")
 
-    with self.command_group('acr connected-registry', acr_connected_registry_util, is_preview=True) as g:
+    with self.command_group('acr connected-registry', acr_connected_registry_util) as g:
         g.command('create', 'acr_connected_registry_create')
         g.command('delete', 'acr_connected_registry_delete')
         g.show_command('show', 'acr_connected_registry_show')
@@ -434,6 +442,7 @@ def load_command_table(self, _):
                   table_transformer=token_output_format)
         g.command('repo', 'acr_connected_registry_permissions_update',
                   deprecate_info=self.deprecate(redirect='permissions update', hide=True))
+        g.command('resync', 'acr_connected_registry_resync', is_preview=True)
 
     with self.command_group('acr connected-registry install', acr_connected_registry_util,
                             deprecate_info=self.deprecate(redirect='acr connected-registry get-settings',

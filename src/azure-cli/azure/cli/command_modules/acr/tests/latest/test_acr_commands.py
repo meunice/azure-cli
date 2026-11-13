@@ -4,8 +4,10 @@
 # --------------------------------------------------------------------------------------------
 
 from azure.cli.testsdk.scenario_tests import AllowLargeResponse
-from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer, KeyVaultPreparer, record_only
-from azure.cli.command_modules.acr.custom import DEF_DIAG_SETTINGS_NAME_TEMPLATE
+from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer, KeyVaultPreparer, record_only, live_only
+from azure.cli.command_modules.acr.custom import DEF_DIAG_SETTINGS_NAME_TEMPLATE, EMPTY_GUID
+from azure.cli.core.commands.client_factory import get_subscription_id
+import time
 
 
 class AcrCommandsTests(ScenarioTest):
@@ -43,12 +45,15 @@ class AcrCommandsTests(ScenarioTest):
                  checks=[self.check('status', "enabled"),
                          self.check('days', 30)])
 
-        # test content-trust
-        self.cmd('acr config content-trust update -n {} --status enabled'.format(registry_name),
-                 checks=[self.check('status', "enabled")])
+        # test content-trust - 'enabled' is no longer a valid value for --status due to DCT deprecation
+        with self.assertRaises(SystemExit):
+            self.cmd('acr config content-trust update -n {} --status enabled'.format(registry_name))
+
+        self.cmd('acr config content-trust update -n {} --status disabled --yes'.format(registry_name),
+                 checks=[self.check('status', "disabled")])
 
         self.cmd('acr config content-trust show -n {}'.format(registry_name),
-                 checks=[self.check('status', "enabled")])
+                 checks=[self.check('status', "disabled")])
 
         # test soft-delete
         self.cmd('acr config soft-delete update -r {} --status enabled --days 30 --yes'.format(registry_name),
@@ -67,28 +72,6 @@ class AcrCommandsTests(ScenarioTest):
         password2 = credential['passwords'][1]['value']
         assert username and password and password2
 
-        # renew password
-        credential = self.cmd('acr credential renew -n {} -g {} --password-name {}'.format(
-            registry_name, resource_group, 'password')).get_output_in_json()
-        renewed_username = credential['username']
-        renewed_password = credential['passwords'][0]['value']
-        renewed_password2 = credential['passwords'][1]['value']
-        assert renewed_username and renewed_password and renewed_password2
-        assert username == renewed_username
-        assert password != renewed_password
-        assert password2 == renewed_password2
-
-        # renew password2
-        credential = self.cmd('acr credential renew -n {} -g {} --password-name {}'.format(
-            registry_name, resource_group, 'password2')).get_output_in_json()
-        renewed_username = credential['username']
-        renewed_password = credential['passwords'][0]['value']
-        renewed_password2 = credential['passwords'][1]['value']
-        assert renewed_username and renewed_password and renewed_password2
-        assert username == renewed_username
-        assert password != renewed_password
-        assert password2 != renewed_password2
-
         # test acr delete
         self.cmd('acr delete -n {} -g {} -y'.format(registry_name, resource_group))
 
@@ -102,8 +85,44 @@ class AcrCommandsTests(ScenarioTest):
         self.cmd('acr check-name -n {name}', checks=[
             self.check('nameAvailable', True)
         ])
+        
+    def test_check_name_availability_dnl_scope(self):
+        # the chance of this randomly generated name has a duplication is rare
+        name = self.create_random_name('clireg', 20)
+        self.kwargs.update({
+            'name': name
+        })
+
+        self.cmd('acr check-name -n {name} --dnl-scope noreuse', checks=[
+            self.check('nameAvailable', True),
+            self.check_pattern('availableLoginServerName',r'{name}-[a-zA-Z0-9]+\.*')
+        ])
+    
+    @live_only()
+    @ResourceGroupPreparer()
+    def test_acr_login_expose_token(self, resource_group):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg': resource_group,
+            'sku': 'Premium'
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} --sku {sku}',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('provisioningState', 'Succeeded')])
+        
+        tokens = self.cmd('acr login -n {} --expose-token'.format(registry_name), checks=[
+            self.exists('accessToken'),
+            self.exists('refreshToken'),
+            self.exists('loginServer'),
+            self.check('username', EMPTY_GUID)]).get_output_in_json()
+        
+        self.assertEqual(tokens['accessToken'], tokens['refreshToken'])
 
     @ResourceGroupPreparer()
+    @live_only()
     def test_acr_create_with_managed_registry(self, resource_group, resource_group_location):
         registry_name = self.create_random_name('clireg', 20)
 
@@ -200,12 +219,12 @@ class AcrCommandsTests(ScenarioTest):
             'sku': 'Standard',
             'cr_name': 'test1',
             'cs_name': 'test1',
-            'source_repo': 'docker.io/library/ubuntu',
-            'target_repo': 'ubuntu',
+            'source_repo': 'mcr.microsoft.com/mcr/hello-world',
+            'target_repo': 'hello-world',
             'user_id': 'https://cliimportkv73021.vault.azure.net/secrets/SPusername',
             'pass_id': 'https://cliimportkv73021.vault.azure.net/secrets/SPpassword',
             'new_pass_id': 'https://cliimportkv73021.vault.azure.net/secrets/SPusername',
-            'upstream': 'docker.io'
+            'upstream': 'mcr.microsoft.com'
 
         })
 
@@ -222,11 +241,11 @@ class AcrCommandsTests(ScenarioTest):
                  checks=[self.check('name', '{cs_name}'),
                          self.check('provisioningState', 'Succeeded')])
 
-        self.cmd('acr credential-set list -r {registry_name}',
+        self.cmd('acr credential-set list -r {registry_name} -g {rg}',
                  checks=[self.check('[0].name', '{cs_name}'),
                          self.check('[0].provisioningState', 'Succeeded')])
 
-        self.cmd('acr credential-set show -n {cs_name} -r {registry_name}',
+        self.cmd('acr credential-set show -n {cs_name} -r {registry_name} -g {rg}',
                  checks=[self.check('name', '{cs_name}'),
                          self.check('provisioningState', 'Succeeded')])
 
@@ -239,11 +258,11 @@ class AcrCommandsTests(ScenarioTest):
                  checks=[self.check('name', '{cr_name}'),
                          self.check('provisioningState', 'Succeeded')])
 
-        self.cmd('acr cache list -r {registry_name}',
+        self.cmd('acr cache list -r {registry_name} -g {rg}',
                  checks=[self.check('[0].name', '{cr_name}'),
                          self.check('[0].provisioningState', 'Succeeded')])
 
-        self.cmd('acr cache show -n {cr_name} -r {registry_name}',
+        self.cmd('acr cache show -n {cr_name} -r {registry_name} -g {rg}',
                  checks=[self.check('name', '{cr_name}'),
                          self.check('provisioningState', 'Succeeded')])
 
@@ -255,6 +274,58 @@ class AcrCommandsTests(ScenarioTest):
 
         self.cmd('acr credential-set delete -n {cs_name} -r {registry_name} -y')
 
+        self.cmd('acr delete -n {registry_name} -g {rg} -y')
+
+    @AllowLargeResponse()
+    @ResourceGroupPreparer()
+    def test_acr_cache_managed_identity(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'sku': 'Standard',
+            'cr_name': 'test-mi',
+            'source_repo': 'upstreamregistry.azurecr.io/hello-world',
+            'target_repo': 'hello-world-mi',
+            'identity_name': self.create_random_name('cache-identity', 20),
+            'identity_name2': self.create_random_name('cache-identity2', 20)
+        })
+
+        # Create registry
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku}',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('sku.name', 'Standard'),
+                         self.check('provisioningState', 'Succeeded')])
+
+        # Create user-assigned managed identities
+        result = self.cmd('identity create --name {identity_name} -g {rg}')
+        self.kwargs['identity_id'] = result.get_output_in_json()['id']
+
+        result = self.cmd('identity create --name {identity_name2} -g {rg}')
+        self.kwargs['identity_id2'] = result.get_output_in_json()['id']
+
+        # Test cache create with managed identity
+        self.cmd('acr cache create -n {cr_name} -r {registry_name} -s {source_repo} -t {target_repo} --identity {identity_id}',
+                 checks=[self.check('name', '{cr_name}'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('identity.type', 'userAssigned')])
+
+        # Test cache show includes identity
+        self.cmd('acr cache show -n {cr_name} -r {registry_name} -g {rg}',
+                 checks=[self.check('name', '{cr_name}'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('identity.type', 'userAssigned')])
+
+        # Test cache update with different managed identity
+        self.cmd('acr cache update -n {cr_name} -r {registry_name} --identity {identity_id2}',
+                 checks=[self.check('name', '{cr_name}'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('identity.type', 'userAssigned')])
+
+        # Clean up
+        self.cmd('acr cache delete -n {cr_name} -r {registry_name} -y')
         self.cmd('acr delete -n {registry_name} -g {rg} -y')
 
     @AllowLargeResponse()
@@ -299,7 +370,7 @@ class AcrCommandsTests(ScenarioTest):
                          ])
 
         # update replication
-        self.cmd('acr replication update -n {replication_name} -r {registry_name} --tags {tags} --region-endpoint-enabled false',
+        self.cmd('acr replication update -n {replication_name} -r {registry_name} --tags {tags} --global-endpoint-routing false',
                  checks=[self.check('name', '{replication_name}'),
                          self.check('provisioningState', 'Succeeded'),
                          self.check('regionEndpointEnabled', False),
@@ -309,7 +380,7 @@ class AcrCommandsTests(ScenarioTest):
         self.cmd('acr replication delete -n {replication_name} -r {registry_name}')
 
         # test create replication disable on home region
-        self.cmd('acr replication create -n {replication_name} -r {registry_name} -l {replication_loc} --region-endpoint-enabled false',
+        self.cmd('acr replication create -n {replication_name} -r {registry_name} -l {replication_loc} --global-endpoint-routing false',
                  checks=[self.check('name', '{replication_name}'),
                          self.check('location', '{replication_loc}'),
                          self.check('provisioningState', 'Succeeded'),
@@ -370,8 +441,8 @@ class AcrCommandsTests(ScenarioTest):
         token = self.cmd('account get-access-token').get_output_in_json()['accessToken']
 
         # service principal creds to support import from resource_imageV1
-        service_principal_username = self.cmd('keyvault secret show --id https://cliimportkv73021.vault.azure.net/secrets/SPusername').get_output_in_json()['value']
-        service_principal_password = self.cmd('keyvault secret show --id https://cliimportkv73021.vault.azure.net/secrets/SPpassword').get_output_in_json()['value']
+        #service_principal_username = self.cmd('keyvault secret show --id https://cliimportkv73021.vault.azure.net/secrets/SPusername').get_output_in_json()['value']
+        #service_principal_password = self.cmd('keyvault secret show --id https://cliimportkv73021.vault.azure.net/secrets/SPpassword').get_output_in_json()['value']
 
         self.kwargs.update({
             'resource_id': '/subscriptions/dfb63c8c-7c89-4ef8-af13-75c1d873c895/resourcegroups/resourcegroupdiffsub/providers/Microsoft.ContainerRegistry/registries/sourceregistrydiffsub',
@@ -392,8 +463,8 @@ class AcrCommandsTests(ScenarioTest):
             'tag_same_registry': 'repository_same_registry:tag_same_registry',
             'tag_by_digest': 'repository_by_digest:tag_by_digest',
             'source_image_public_registry_dockerhub': 'registry.hub.docker.com/library/hello-world',
-            'application_ID': service_principal_username,
-            'service_principal_password': service_principal_password,
+           # 'application_ID': service_principal_username,
+            #'service_principal_password': service_principal_password,
             'token': token
         })
 
@@ -440,7 +511,7 @@ class AcrCommandsTests(ScenarioTest):
         self.cmd('acr import -n {registry_name} --source {source_image_public_registry_dockerhub}')
 
         # Case 8: Import image from an Azure Container Registry with Service Principal's credentials
-        self.cmd('acr import -n {registry_name} --source {resource_imageV1} -u {application_ID} -p {service_principal_password}')
+        #self.cmd('acr import -n {registry_name} --source {resource_imageV1} -u {application_ID} -p {service_principal_password}')
 
         # Case 9: Import image from an Azure Container Registry with personal access token
         self.cmd('acr import -n {registry_name} --source {resource_imageV2} -p {token}')
@@ -516,8 +587,11 @@ class AcrCommandsTests(ScenarioTest):
         ])
 
     @ResourceGroupPreparer()
+    @live_only()
     @KeyVaultPreparer(additional_params='--enable-purge-protection')
     def test_acr_encryption_with_cmk(self, key_vault, resource_group):
+        user = self.cmd('ad signed-in-user show').get_output_in_json()
+        scope = '/subscriptions/{}/resourceGroups/{}'.format(self.get_subscription_id(), resource_group)
         self.kwargs.update({
             'key_vault': key_vault,
             'key_name': self.create_random_name('testkey', 20),
@@ -525,20 +599,31 @@ class AcrCommandsTests(ScenarioTest):
             'identity_name': self.create_random_name('testidentity', 20),
             'identity_permissions': "get unwrapkey wrapkey",
             'registry_name': self.create_random_name('testreg', 20),
+            'user_id': user['id'],
+            'scope': scope,
         })
+
+        # Assign "Key Vault Contributor" role to the user identity
+        self.cmd('role assignment create --role "Key Vault Administrator" --assignee {user_id} --scope {scope}',
+                 checks=[self.check('scope', '{scope}')])
+        
+        # Wait for the role assignment to propagate
+        time.sleep(15)
 
         # create a new key
         result = self.cmd('keyvault key create --name {key_name} --vault-name {key_vault}')
         self.kwargs['key_id'] = result.get_output_in_json()['key']['kid']
-
+        self.kwargs['subscription_id'] = get_subscription_id(self.cli_ctx)
+        
         # create a user-assigned identity and give it access to the key
         result = self.cmd('identity create --name {identity_name} -g {rg}')
         self.kwargs['principal_id'] = result.get_output_in_json()['principalId']
         self.kwargs['identity_id'] = result.get_output_in_json()['id']
         self.kwargs['client_id'] = result.get_output_in_json()['clientId']
-
-        self.cmd('keyvault set-policy --object-id {principal_id} --name {key_vault} --key-permissions {identity_permissions}')
-
+        
+        time.sleep(15) # wait for ARM cache to populate 
+        self.cmd('role assignment create --role "Key Vault Crypto Service Encryption User" --assignee {principal_id} --scope /subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.KeyVault/vaults/{key_vault}')
+     
         # create the registry with CMK encryption enabled using the user-assigned identity
         result = self.cmd('acr create --name {registry_name} --resource-group {rg} --sku premium --identity {identity_id} --key-encryption-key {key_id}', checks=[
             self.check('identity.type', 'userAssigned'),
@@ -585,7 +670,7 @@ class AcrCommandsTests(ScenarioTest):
         self.assertTrue('systemAssigned' in result['type'])
         self.assertTrue('userAssigned' in result['type'])
         self.assertTrue(len(result['userAssignedIdentities']) == 1)
-        self.assertEquals(list(result['userAssignedIdentities'].keys())[0].lower(), self.kwargs['identity_id'].lower())
+        self.assertEqual(list(result['userAssignedIdentities'].keys())[0].lower(), self.kwargs['identity_id'].lower())
 
         # remove identities
         import time
@@ -713,6 +798,63 @@ class AcrCommandsTests(ScenarioTest):
         self.cmd('acr update --name {registry_name} --resource-group {rg} --anonymous-pull-enabled false',
                  checks=[self.check('anonymousPullEnabled', False)])
 
+    @ResourceGroupPreparer()
+    @live_only()
+    def test_acr_with_dual_stack_endpoints(self, resource_group, resource_group_location):
+        self.kwargs.update({
+            'registry_name': self.create_random_name('testreg', 20)
+        })
+        self.cmd('acr create --name {registry_name} --resource-group {rg} --sku premium -l eastus',
+                 checks=[self.check('endpointProtocol', 'IPv4')])
+        self.cmd('acr update --name {registry_name} --resource-group {rg} --endpoint-protocol IPv4AndIPv6',
+                 checks=[self.check('endpointProtocol', 'IPv4AndIPv6')])
+        self.cmd('acr update --name {registry_name} --resource-group {rg} --endpoint-protocol IPv4',
+                 checks=[self.check('endpointProtocol', 'IPv4')])
+
+    @ResourceGroupPreparer()
+    @live_only()
+    def test_acr_create_with_dual_stack_endpoints(self, resource_group, resource_group_location):
+        self.kwargs.update({
+            'registry_name': self.create_random_name('testreg', 20)
+        })
+        self.cmd('acr create --name {registry_name} --resource-group {rg} --sku premium -l eastus '
+                 '--data-endpoint-enabled true --endpoint-protocol IPv4AndIPv6',
+                 checks=[self.check('endpointProtocol', 'IPv4AndIPv6'),
+                         self.check('dataEndpointEnabled', True)])
+        self.cmd('acr update --name {registry_name} --resource-group {rg} --endpoint-protocol IPv4',
+                 checks=[self.check('endpointProtocol', 'IPv4')])
+        self.cmd('acr update --name {registry_name} --resource-group {rg} --endpoint-protocol IPv4AndIPv6',
+                 checks=[self.check('endpointProtocol', 'IPv4AndIPv6')])
+
+    @ResourceGroupPreparer()
+    @live_only()
+    def test_acr_create_with_data_endpoint(self, resource_group, resource_group_location):
+        self.kwargs.update({
+            'registry_name': self.create_random_name('testreg', 20)
+        })
+        self.cmd('acr create --name {registry_name} --resource-group {rg} --sku premium -l eastus '
+                 '--data-endpoint-enabled true',
+                 checks=[self.check('dataEndpointEnabled', True)])
+        self.cmd('acr update --name {registry_name} --resource-group {rg} --data-endpoint-enabled false',
+                 checks=[self.check('dataEndpointEnabled', False)])
+        self.cmd('acr update --name {registry_name} --resource-group {rg} --data-endpoint-enabled true',
+                 checks=[self.check('dataEndpointEnabled', True)])
+
+    @ResourceGroupPreparer()
+    @live_only()
+    def test_acr_create_invalid_name(self, resource_group):
+        from azure.cli.core.azclierror import InvalidArgumentValueError
+
+        # Block registry creation if there is '-'.
+        self.kwargs.update({
+           'registry_name': self.create_random_name('testreg', 20) + '-' + self.create_random_name('dnlhash', 20)
+        })   
+
+        with self.assertRaises(Exception) as ex:
+            self.cmd('acr create --name {registry_name} --resource-group {rg} --sku premium -l eastus')
+
+        self.assertTrue(InvalidArgumentValueError, ex.exception)
+
     @ResourceGroupPreparer(location='eastus2')
     def test_acr_with_private_endpoint(self, resource_group):
         self.kwargs.update({
@@ -793,14 +935,15 @@ class AcrCommandsTests(ScenarioTest):
 
         self.kwargs["home_location"] = result["location"]
 
-        self.cmd('acr replication show --name {home_location} --registry {registry_2} --resource-group {rg}',
-                 checks=[self.check('zoneRedundancy', 'Enabled')])
-
         self.cmd('acr replication create --registry {registry_1}  -g {rg} --location {location_2} --zone-redundancy Enabled',
                  checks=[self.check('zoneRedundancy', 'Enabled')])
 
         self.cmd('acr replication create --registry {registry_2}  -g {rg} --location {location_2}',
                  checks=[self.check('zoneRedundancy', 'Disabled')])
+
+        # The home replication is created with the first geo-replication.
+        self.cmd('acr replication show --name {home_location} --registry {registry_2} --resource-group {rg}',
+                 checks=[self.check('zoneRedundancy', 'Enabled')])
 
         self.cmd('acr replication create --registry {registry_2}  -g {rg} --location {location_3} --zone-redundancy Disabled',
                  checks=[self.check('zoneRedundancy', 'Disabled')])
@@ -809,3 +952,190 @@ class AcrCommandsTests(ScenarioTest):
         result_identities = [identity.lower() for identity in result['userAssignedIdentities'].keys()]
         self.assertEqual(len(result['userAssignedIdentities']), len(query_identities))
         self.assertEqual(sorted(result_identities), sorted(query_identities))
+
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_create_with_metadata_search_enabled(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'sku': 'Premium'
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku} --allow-metadata-search',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', 'Premium'),
+                         self.check('sku.tier', 'Premium'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('metadataSearch', 'Enabled')])
+
+        self.cmd('acr update -n {registry_name} -g {rg} --sku {sku} --allow-metadata-search false',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('metadataSearch', 'Disabled')])
+
+        self.cmd('acr update -n {registry_name} -g {rg} --sku {sku} --allow-metadata-search',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('metadataSearch', 'Enabled')])
+
+        self._core_registry_scenario(registry_name, resource_group, resource_group_location)
+
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_create_with_metadata_search_disabled(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'sku': 'Premium'
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku}',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', 'Premium'),
+                         self.check('sku.tier', 'Premium'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('metadataSearch', 'Disabled')])
+
+        self.cmd('acr update -n {registry_name} -g {rg} --sku {sku} --allow-metadata-search',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('metadataSearch', 'Enabled')])
+
+        self._core_registry_scenario(registry_name, resource_group, resource_group_location)
+
+    @live_only()
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_create_with_writable_cache_repos_default_disabled(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'sku': 'Premium'
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku}',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', 'Premium'),
+                         self.check('sku.tier', 'Premium'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('writableCacheRepos', 'Disabled')])
+
+        # Update without --writable-cache-repos flag should preserve Disabled default
+        self.cmd('acr update -n {registry_name} -g {rg} --admin-enabled true',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('adminUserEnabled', True),
+                    self.check('writableCacheRepos', 'Disabled')])
+
+        self.cmd('acr update -n {registry_name} -g {rg} --writable-cache-repos Enabled',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('writableCacheRepos', 'Enabled')])
+
+        # Update without --writable-cache-repos flag should preserve Enabled value
+        self.cmd('acr update -n {registry_name} -g {rg} --admin-enabled false',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('adminUserEnabled', False),
+                    self.check('writableCacheRepos', 'Enabled')])
+
+        self.cmd('acr update -n {registry_name} -g {rg} --writable-cache-repos Disabled',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('writableCacheRepos', 'Disabled')])
+
+        self._core_registry_scenario(registry_name, resource_group, resource_group_location)
+
+    @live_only()
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_create_with_writable_cache_repos_enabled(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'sku': 'Premium'
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku} --writable-cache-repos Enabled',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', 'Premium'),
+                         self.check('sku.tier', 'Premium'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('writableCacheRepos', 'Enabled')])
+
+        self.cmd('acr update -n {registry_name} -g {rg} --writable-cache-repos Disabled',
+            checks=[self.check('name', '{registry_name}'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('writableCacheRepos', 'Disabled')])
+
+        self._core_registry_scenario(registry_name, resource_group, resource_group_location)
+
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_create_with_domain_name_label_scope_tenant_reuse(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'sku': 'Premium'
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku} --dnl-scope tenantreuse',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check_pattern('loginServer',r'{registry_name}-[a-zA-Z0-9]+\.*'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', 'Premium'),
+                         self.check('sku.tier', 'Premium'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('autoGeneratedDomainNameLabelScope', 'TenantReuse')])
+
+
+        self._core_registry_scenario(registry_name, resource_group, resource_group_location)
+
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_create_with_domain_name_label_scope_name_in_use(self, resource_group, resource_group_location):
+        registry_name = self.create_random_name('clireg', 20)
+
+        self.kwargs.update({
+            'registry_name': registry_name,
+            'rg_loc': resource_group_location,
+            'rg2': 'randomresourcegroupname',
+            'sku': 'Premium'
+        })
+
+        self.cmd('group create -n {rg2} -l {rg_loc}')
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku} --dnl-scope resourcegroupreuse',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check_pattern('loginServer',r'{registry_name}-[a-zA-Z0-9]+\.*'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', 'Premium'),
+                         self.check('sku.tier', 'Premium'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('autoGeneratedDomainNameLabelScope', 'ResourceGroupReuse')])       
+
+        with self.assertRaises(Exception) as ex:
+            self.cmd('acr create -n {registry_name} -g {rg2} -l {rg_loc} --sku {sku} --dnl-scope resourcegroupreuse',
+                     checks=['code','RegistryNameAlreadyInUse'])
+

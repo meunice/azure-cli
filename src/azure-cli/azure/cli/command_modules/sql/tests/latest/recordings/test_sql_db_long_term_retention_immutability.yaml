@@ -1,0 +1,53 @@
+interactions:
+- request:
+    body: '{"properties": {"weeklyRetention": "P4W", "timeBasedImmutability": "Enabled"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - sql db ltr-policy set
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '78'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -s -n --weekly-retention --tb-immutability --yes
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_donnotdelete/providers/Microsoft.Sql/servers/clitestserverdonotdeletecanaryeast/databases/cli_test_donnotdelete1/backupLongTermRetentionPolicies/default?api-version=2026-08-01-preview
+  response:
+    body:
+      string: '{"error":{"code":"ResourceGroupNotFound","message":"Resource group
+        ''cli_test_donnotdelete'' could not be found."}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '113'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 26 Oct 2026 13:17:47 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-failure-cause:
+      - gateway
+      x-msedge-ref:
+      - 'Ref A: 575BA6E7ED2C42788116108C2103F0F8 Ref B: PNQ241100405023 Ref C: 2026-10-26T13:17:46Z'
+    status:
+      code: 404
+      message: Not Found
+version: 1

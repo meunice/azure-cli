@@ -62,6 +62,10 @@ class AAZLROPoller:
         self._done = None
         self._exception = None
 
+        # MSAL lazily imports requests when the credential is created on the polling thread,
+        # which can raise _DeadlockError (seen on Python 3.14). Import it here on the main thread first.
+        import requests  # pylint: disable=unused-import
+
         self._done = threading.Event()
         self._thread = threading.Thread(
             target=with_current_context(self._start),
@@ -120,13 +124,11 @@ class AAZLROPoller:
         """
         if self._thread is None:
             return
+
         self._thread.join(timeout=timeout)
-        try:
-            # Let's handle possible None in forgiveness here
-            # https://github.com/python/mypy/issues/8165
-            raise self._exception  # type: ignore
-        except TypeError:  # Was None
-            pass
+
+        if self._exception:  # derive from BaseException
+            raise self._exception
 
     def done(self):
         """Check status of the long running operation.

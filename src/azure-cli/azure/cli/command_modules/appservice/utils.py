@@ -5,25 +5,48 @@
 
 import time
 import os
+import re
 import urllib
 import urllib3
 import certifi
+from datetime import datetime
 
 from knack.log import get_logger
 
-from azure.cli.core.azclierror import (RequiredArgumentMissingError, ValidationError, ResourceNotFoundError)
+from azure.cli.core.azclierror import (RequiredArgumentMissingError, ValidationError, ResourceNotFoundError,
+                                       CLIInternalError)
 from azure.cli.core.commands.parameters import get_subscription_locations
 from azure.cli.core.util import should_disable_connection_verify, send_raw_request
 from azure.cli.core.commands.client_factory import get_subscription_id
 
-from msrestazure.tools import parse_resource_id, is_valid_resource_id, resource_id
+from azure.mgmt.core.tools import parse_resource_id, is_valid_resource_id, resource_id
 
-from ._client_factory import web_client_factory
-from ._constants import LOGICAPP_KIND, FUNCTIONAPP_KIND
+from ._client_factory import web_client_factory, providers_client_factory
+from ._constants import LOGICAPP_KIND, FUNCTIONAPP_KIND, LINUXAPP_KIND, ISOLATED_V4_SKUS
 
 logger = get_logger(__name__)
 
 REQUESTS_CA_BUNDLE = "REQUESTS_CA_BUNDLE"
+
+
+def get_linux_runtime_list_command(runtime):
+    family = re.split(r'[:|]', runtime or '', maxsplit=1)[0].strip().lower()
+    runtime_filters = {
+        'dotnet': 'dotnet',
+        'dotnetcore': 'dotnet',
+        'aspnet': 'dotnet',
+        'node': 'node',
+        'php': 'php',
+        'python': 'python',
+        'java': 'java',
+        'tomcat': 'java',
+        'jbosseap': 'java',
+    }
+    command = "az webapp list-runtimes --os-type linux"
+    runtime_filter = runtime_filters.get(family)
+    if runtime_filter:
+        command += " --runtime {}".format(runtime_filter)
+    return command
 
 
 # get a RID when the name may be an RID
@@ -43,6 +66,21 @@ def get_resource_name_and_group(cmd, name, resource_group, namespace, type, **ri
     rid = get_resource_id(cmd, name, resource_group, namespace, type, **rid_kwargs)
     rid_parsed = parse_resource_id(rid)
     return rid_parsed.get("name"), rid_parsed.get("resource_group"), rid
+
+
+def get_site_server_farm_id(site):
+    """Get server_farm_id from a Site object, supporting both old and new SDK versions.
+
+    In azure-mgmt-web 11.0.0+, models use hybrid dict/model nature with camelCase keys.
+    This helper provides backward compatibility.
+    """
+    # Try new SDK dictionary-style access with camelCase
+    try:
+        return site["serverFarmId"]
+    except (KeyError, TypeError):
+        pass
+    # Fall back to old SDK attribute access
+    return getattr(site, 'server_farm_id', None)
 
 
 def str2bool(v):
@@ -84,14 +122,20 @@ def get_sku_tier(name):  # pylint: disable=too-many-return-statements
         return 'PREMIUMV3'
     if name in ['P1MV3', 'P2MV3', 'P3MV3', 'P4MV3', 'P5MV3']:
         return 'PREMIUMMV3'
+    if name in ['P0V4', 'P1V4', 'P2V4', 'P3V4']:
+        return 'PREMIUMV4'
+    if name in ['P1MV4', 'P2MV4', 'P3MV4', 'P4MV4', 'P5MV4']:
+        return 'PREMIUMMV4'
     if name in ['PC2', 'PC3', 'PC4']:
         return 'PremiumContainer'
     if name in ['EP1', 'EP2', 'EP3']:
         return 'ElasticPremium'
-    if name in ['I1', 'I2', 'I3']:
-        return 'Isolated'
     if name in ['I1V2', 'I2V2', 'I3V2', 'I4V2', 'I5V2', 'I6V2']:
         return 'IsolatedV2'
+    if name in ['I1MV2', 'I2MV2', 'I3MV2', 'I4MV2', 'I5MV2']:
+        return 'IsolatedMV2'
+    if name in ISOLATED_V4_SKUS:
+        return 'IsolatedV4'
     if name in ['WS1', 'WS2', 'WS3']:
         return 'WorkflowStandard'
     raise ValidationError("Invalid sku(pricing tier), please refer to command help for valid values")
@@ -101,6 +145,12 @@ def get_sku_tier(name):  # pylint: disable=too-many-return-statements
 # Keeping this for now so that we don't break extensions that use it
 def get_sku_name(tier):
     return get_sku_tier(name=tier)
+
+
+def is_sku_tier_enabled_for_managed_instance(sku_tier):
+    sku_tier = sku_tier.upper()
+    enabled_skus = ['PREMIUM0V3', 'PREMIUMV3', 'PREMIUMMV3', 'PREMIUMV4', 'PREMIUMMV4']
+    return sku_tier in enabled_skus
 
 
 # resource is client.web_apps for webapps, client.app_service_plans for ASPs, etc.
@@ -118,6 +168,8 @@ def normalize_sku_for_staticapp(sku):
         return 'Free'
     if sku.lower() == 'standard':
         return 'Standard'
+    if sku.lower() == 'dedicated':
+        return 'Dedicated'
     raise ValidationError("Invalid sku(pricing tier), please refer to command help for valid values")
 
 
@@ -128,13 +180,44 @@ def retryable_method(retries=3, interval_sec=5, excpt_type=Exception):
             while True:
                 try:
                     return func(*args, **kwargs)
-                except excpt_type as exception:  # pylint: disable=broad-except
+                except excpt_type:  # pylint: disable=broad-except
                     current_retry -= 1
                     if current_retry <= 0:
-                        raise exception
+                        raise
                 time.sleep(interval_sec)
         return call
     return decorate
+
+
+def register_app_provider(cmd):
+    from azure.mgmt.resource.resources.models import ProviderRegistrationRequest, ProviderConsentDefinition
+
+    namespace = "Microsoft.App"
+    providers_client = providers_client_factory(cmd.cli_ctx)
+    is_registered = False
+    try:
+        registration_state = providers_client.get(namespace).registration_state
+        is_registered = registration_state and registration_state.lower() == 'registered'
+    except Exception:  # pylint: disable=broad-except
+        logger.warning("An error occurred while trying to get the registration state of the '%s' provider.", namespace)
+
+    if not is_registered:
+        try:
+            logger.warning("Registering the '%s' provider.", namespace)
+            properties = ProviderRegistrationRequest(
+                third_party_provider_consent=ProviderConsentDefinition(consent_to_authorization=True))
+            providers_client.register(namespace, properties=properties)
+            timeout_secs = 120
+            start_time = datetime.now()
+            while not is_registered:
+                time.sleep(5)
+                registration_state = providers_client.get(namespace).registration_state
+                is_registered = registration_state and registration_state.lower() == 'registered'
+                if not is_registered and (datetime.now() - start_time).seconds >= timeout_secs:
+                    raise CLIInternalError("Timed out waiting for the '%s' provider to register." % namespace)
+            logger.warning("Successfully registered the '%s' provider.", namespace)
+        except Exception as ex:  # pylint: disable=broad-except
+            logger.warning("An error occurred while trying to register the '%s' provider: %s", namespace, str(ex))
 
 
 def raise_missing_token_suggestion():
@@ -161,19 +244,18 @@ def _get_location_from_resource_group(cli_ctx, resource_group_name):
     return group.location
 
 
-def show_raw_functionapp(cmd, resource_group_name, name):
-    client = web_client_factory(cmd.cli_ctx)
-    site_url_base = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Web/sites/{}?api-version={}'
-    subscription_id = get_subscription_id(cmd.cli_ctx)
-    site_url = site_url_base.format(subscription_id, resource_group_name, name, client.DEFAULT_API_VERSION)
-    request_url = cmd.cli_ctx.cloud.endpoints.resource_manager + site_url
-    response = send_raw_request(cmd.cli_ctx, "GET", request_url)
-    return response.json()
-
-
 def is_centauri_functionapp(cmd, resource_group, name):
-    function_app = show_raw_functionapp(cmd, resource_group, name)
-    return function_app.get("properties", {}).get("managedEnvironmentId", None) is not None
+    client = web_client_factory(cmd.cli_ctx)
+    functionapp = client.web_apps.get(resource_group, name)
+    return functionapp.managed_environment_id is not None
+
+
+def is_flex_functionapp(cli_ctx, resource_group, name):
+    app = get_raw_functionapp(cli_ctx, resource_group, name)
+    if app["properties"]["serverFarmId"] is None:
+        return False
+    sku = app["properties"]["sku"]
+    return sku and sku.lower() == 'flexconsumption'
 
 
 def _list_app(cli_ctx, resource_group_name=None):
@@ -189,9 +271,24 @@ def _list_app(cli_ctx, resource_group_name=None):
 
 def _rename_server_farm_props(webapp):
     # Should be renamed in SDK in a future release
-    setattr(webapp, 'app_service_plan_id', webapp.server_farm_id)
-    del webapp.server_farm_id
+    server_farm_id = get_site_server_farm_id(webapp)
+    setattr(webapp, 'app_service_plan_id', server_farm_id)
+    # Remove server_farm_id if it exists as an attribute (for old SDK compatibility)
+    if hasattr(webapp, 'server_farm_id'):
+        try:
+            del webapp.server_farm_id
+        except (AttributeError, TypeError):
+            pass
     return webapp
+
+
+def get_raw_functionapp(cli_ctx, resource_group_name, name, api_version='2023-12-01'):
+    site_url_base = '/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Web/sites/{}?api-version={}'
+    subscription_id = get_subscription_id(cli_ctx)
+    site_url = site_url_base.format(subscription_id, resource_group_name, name, api_version)
+    request_url = cli_ctx.cloud.endpoints.resource_manager + site_url
+    response = send_raw_request(cli_ctx, "GET", request_url)
+    return response.json()
 
 
 def _get_location_from_webapp(client, resource_group_name, webapp):
@@ -199,6 +296,10 @@ def _get_location_from_webapp(client, resource_group_name, webapp):
     if not webapp:
         raise ResourceNotFoundError("'{}' app doesn't exist".format(webapp))
     return webapp.location
+
+
+def _normalize_flex_location(location):
+    return location.lower().replace(" ", "")
 
 
 # can't just normalize locations with location.lower().replace(" ", "") because of UAE/UK regions
@@ -209,6 +310,42 @@ def _normalize_location(cmd, location):
         if loc.display_name.lower() == location or loc.name.lower() == location:
             return loc.name
     return location
+
+
+def _remove_list_duplicates(webapp):
+    """Remove duplicate outbound IP addresses from a Site object.
+
+    In azure-mgmt-web 11.0.0+, models use hybrid dict/model nature with camelCase keys.
+    This helper provides backward compatibility.
+    """
+    # Try new SDK dictionary-style access with camelCase
+    outbound_ips_value = None
+    try:
+        outbound_ips_value = webapp["possibleOutboundIpAddresses"]
+    except (KeyError, TypeError):
+        pass
+    # Fall back to old SDK attribute access
+    if outbound_ips_value is None:
+        outbound_ips_value = getattr(webapp, 'possible_outbound_ip_addresses', None)
+
+    if outbound_ips_value is None:
+        return
+
+    outbound_ips = outbound_ips_value.split(',')
+    outbound_ips_list = list(dict.fromkeys(outbound_ips))
+    outbound_ips_list.sort()
+    outbound_ips = ','.join(outbound_ips_list)
+
+    # Try setting with new SDK dict-style
+    try:
+        webapp["possibleOutboundIpAddresses"] = outbound_ips
+    except (TypeError, AttributeError):
+        # Fall back to old SDK attribute style
+        try:
+            del webapp.possible_outbound_ip_addresses
+        except AttributeError:
+            pass
+        setattr(webapp, 'possible_outbound_ip_addresses', outbound_ips)
 
 
 def get_pool_manager(url):
@@ -246,7 +383,7 @@ def get_pool_manager(url):
 
 def get_app_service_plan_from_webapp(cmd, webapp, api_version=None):
     client = web_client_factory(cmd.cli_ctx, api_version=api_version)
-    plan = parse_resource_id(webapp.server_farm_id)
+    plan = parse_resource_id(get_site_server_farm_id(webapp))
     return client.app_service_plans.get(plan['resource_group'], plan['name'])
 
 
@@ -262,10 +399,15 @@ def app_service_plan_exists(cmd, resource_group_name, plan, api_version=None):
 
 
 # Allows putting additional properties on an SDK model instance
+# Note: The new SDK uses a different pattern where properties are set directly on the properties object
 def use_additional_properties(resource):
-    resource.enable_additional_properties_sending()
-    existing_properties = resource.serialize().get("properties")
-    resource.additional_properties["properties"] = {} if existing_properties is None else existing_properties
+    # In the new SDK, enable_additional_properties_sending() is no longer available
+    # Instead, properties should be set directly on the model's properties object
+    # For backward compatibility with older SDK versions, call the method if it exists
+    if hasattr(resource, 'enable_additional_properties_sending'):
+        resource.enable_additional_properties_sending()
+        existing_properties = resource.serialize().get("properties")
+        resource.additional_properties["properties"] = {} if existing_properties is None else existing_properties
 
 
 def repo_url_to_name(repo_url):
@@ -304,3 +446,9 @@ def is_webapp(app):
     if app is None or app.kind is None:
         return False
     return not is_logicapp(app) and not is_functionapp(app) and "app" in app.kind
+
+
+def is_linux_webapp(app):
+    if not is_webapp(app):
+        return False
+    return LINUXAPP_KIND in app.kind

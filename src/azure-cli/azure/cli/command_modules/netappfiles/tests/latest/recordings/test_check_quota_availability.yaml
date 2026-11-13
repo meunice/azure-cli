@@ -1,0 +1,57 @@
+interactions:
+- request:
+    body: '{"name": "testName", "resourceGroup": "cli_netappfiles_test_resource_regioninfo_000001",
+      "type": "Microsoft.NetApp/netAppAccounts"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - netappfiles check-quota-availability
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '131'
+      Content-Type:
+      - application/json
+      ParameterSetName:
+      - -g -l --type --name
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.7 (Windows-11-10.0.26300-SP0)
+    method: POST
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.NetApp/locations/westus2/checkQuotaAvailability?api-version=2026-08-01
+  response:
+    body:
+      string: '{"isAvailable":true}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '20'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 29 Oct 2026 22:08:09 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-cache:
+      - CONFIG_NOCACHE
+      x-content-type-options:
+      - nosniff
+      x-ms-operation-identifier:
+      - tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47,objectId=b604ff9b-69a1-4c9c-ba68-e860283fe5fb/eastus2/0e00a568-7e29-412f-a461-d6090f0024ec
+      x-ms-ratelimit-remaining-subscription-global-writes:
+      - '11999'
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '799'
+      x-msedge-ref:
+      - 'Ref A: 705E7C672C6147568A93A52375AD96ED Ref B: MNZ221060618035 Ref C: 2026-10-29T22:08:09Z'
+    status:
+      code: 200
+      message: OK
+version: 1

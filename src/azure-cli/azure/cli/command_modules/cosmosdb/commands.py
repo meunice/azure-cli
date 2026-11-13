@@ -32,7 +32,10 @@ from azure.cli.command_modules.cosmosdb._client_factory import (
     cf_db_locations,
     cf_cassandra_cluster,
     cf_cassandra_data_center,
-    cf_service
+    cf_service,
+    cf_fleet,
+    cf_fleetspace,
+    cf_fleetspace_account
 )
 
 from azure.cli.command_modules.cosmosdb._format import (
@@ -165,8 +168,9 @@ def load_command_table(self, _):
         g.command('list-connection-strings', 'list_connection_strings', table_transformer=list_connection_strings_output, deprecate_info=g.deprecate(redirect='cosmosdb keys list --type connection-strings', hide=True))
         g.custom_command('regenerate-key', 'cli_cosmosdb_regenerate_key', deprecate_info=g.deprecate(redirect='cosmosdb keys regenerate', hide=True))
         g.command('check-name-exists', 'check_name_exists')
-        g.command('delete', 'begin_delete', confirmation=True)
+        g.custom_command('delete', 'cli_cosmosdb_delete', confirmation=True, supports_no_wait=True)
         g.command('failover-priority-change', 'begin_failover_priority_change')
+        g.custom_command('offline-region', 'cli_offline_region')
         g.custom_command('create', 'cli_cosmosdb_create', transform=transform_db_account_json_output)
         g.custom_command('update', 'cli_cosmosdb_update', transform=transform_db_account_json_output)
         g.custom_command('list', 'cli_cosmosdb_list', transform=transform_db_account_list_output)
@@ -197,6 +201,7 @@ def load_command_table(self, _):
         g.command('list', 'list_sql_databases')
         g.show_command('show', 'get_sql_database')
         g.command('delete', 'begin_delete_sql_database', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_sql_database_restore')
 
     with self.command_group('cosmosdb sql container', cosmosdb_sql_sdk, client_factory=cf_sql_resources) as g:
         g.custom_command('create', 'cli_cosmosdb_sql_container_create')
@@ -205,6 +210,7 @@ def load_command_table(self, _):
         g.command('list', 'list_sql_containers')
         g.show_command('show', 'get_sql_container')
         g.command('delete', 'begin_delete_sql_container', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_sql_container_restore')
 
     with self.command_group('cosmosdb sql stored-procedure', cosmosdb_sql_sdk, client_factory=cf_sql_resources) as g:
         g.custom_command('create', 'cli_cosmosdb_sql_stored_procedure_create_update')
@@ -236,6 +242,7 @@ def load_command_table(self, _):
         g.command('list', 'list_mongo_db_databases')
         g.show_command('show', 'get_mongo_db_database')
         g.command('delete', 'begin_delete_mongo_db_database', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_mongodb_database_restore')
 
     with self.command_group('cosmosdb mongodb collection', cosmosdb_mongo_sdk, client_factory=cf_mongo_db_resources) as g:
         g.custom_command('create', 'cli_cosmosdb_mongodb_collection_create')
@@ -244,6 +251,7 @@ def load_command_table(self, _):
         g.command('list', 'list_mongo_db_collections')
         g.show_command('show', 'get_mongo_db_collection')
         g.command('delete', 'begin_delete_mongo_db_collection', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_mongodb_collection_restore')
 
     # Cassandra api
     with self.command_group('cosmosdb cassandra'):
@@ -272,6 +280,7 @@ def load_command_table(self, _):
         g.command('list', 'list_gremlin_databases')
         g.show_command('show', 'get_gremlin_database')
         g.command('delete', 'begin_delete_gremlin_database', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_gremlin_database_restore')
 
     with self.command_group('cosmosdb gremlin graph', cosmosdb_gremlin_sdk, client_factory=cf_gremlin_resources) as g:
         g.custom_command('create', 'cli_cosmosdb_gremlin_graph_create')
@@ -280,6 +289,7 @@ def load_command_table(self, _):
         g.command('list', 'list_gremlin_graphs')
         g.show_command('show', 'get_gremlin_graph')
         g.command('delete', 'begin_delete_gremlin_graph', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_gremlin_graph_restore')
 
     # Table api
     with self.command_group('cosmosdb table', cosmosdb_table_sdk, client_factory=cf_table_resources) as g:
@@ -288,6 +298,7 @@ def load_command_table(self, _):
         g.command('list', 'list_tables')
         g.show_command('show', 'get_table')
         g.command('delete', 'begin_delete_table', confirmation=True)
+        g.custom_command('restore', 'cli_cosmosdb_table_restore')
 
     # Offer throughput
     with self.command_group('cosmosdb sql database throughput', cosmosdb_sql_sdk, client_factory=cf_sql_resources) as g:
@@ -491,3 +502,41 @@ def load_command_table(self, _):
         g.command('list', 'list')
         g.show_command('show', 'get')
         g.command('delete', 'begin_delete', confirmation=True, supports_no_wait=True)
+
+    setup_fleet_commands(self)
+
+
+def setup_fleet_commands(self):
+    # Fleet operations
+    cosmosdb_fleet_sdk = CliCommandType(
+        operations_tmpl='azure.mgmt.cosmosdb.operations#FleetOperations.{}',
+        client_factory=cf_fleet)
+
+    # Fleetspace operations
+    cosmosdb_fleetspace_sdk = CliCommandType(
+        operations_tmpl='azure.mgmt.cosmosdb.operations#FleetspaceOperations.{}',
+        client_factory=cf_fleetspace)
+
+    # Fleetspace account operations
+    cosmosdb_fleetspace_account_sdk = CliCommandType(
+        operations_tmpl='azure.mgmt.cosmosdb.operations#FleetspaceAccountOperations.{}',
+        client_factory=cf_fleetspace_account)
+
+    with self.command_group('cosmosdb fleet', cosmosdb_fleet_sdk, client_factory=cf_fleet) as g:
+        g.custom_command('create', 'cli_cosmosdb_fleet_create')
+        g.custom_command('list', 'cli_list_cosmosdb_fleets')
+        g.show_command('show', 'get')
+        g.command('delete', 'begin_delete', confirmation=True)
+
+    with self.command_group('cosmosdb fleetspace', cosmosdb_fleetspace_sdk, client_factory=cf_fleetspace) as g:
+        g.custom_command('create', 'cli_cosmosdb_fleetspace_create')
+        g.command('list', 'list')
+        g.show_command('show', 'get')
+        g.custom_command('update', 'cli_cosmosdb_fleetspace_update')
+        g.command('delete', 'begin_delete', confirmation=True)
+
+    with self.command_group('cosmosdb fleetspace account', cosmosdb_fleetspace_account_sdk, client_factory=cf_fleetspace_account) as g:
+        g.custom_command('create', 'cli_cosmosdb_fleetspace_account_create')
+        g.command('list', 'list')
+        g.show_command('show', 'get')
+        g.command('delete', 'begin_delete', confirmation=True)

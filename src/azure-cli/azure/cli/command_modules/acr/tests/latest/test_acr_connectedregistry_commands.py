@@ -4,11 +4,13 @@
 # --------------------------------------------------------------------------------------------
 
 from azure.cli.testsdk import ScenarioTest, StorageAccountPreparer, ResourceGroupPreparer, record_only
+from azure.cli.testsdk.scenario_tests import AllowLargeResponse
 
 
 class AcrConnectedRegistryCommandsTests(ScenarioTest):
 
     @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
     def test_acr_connectedregistry(self, resource_group):
         # Agentpool prerequisites for connected registry testing
         crName = 'connectedregistry'
@@ -37,9 +39,12 @@ class AcrConnectedRegistryCommandsTests(ScenarioTest):
             'defaultSyncSchedule': '* * * * *',
             'syncWindow': 'PT4H',
             'notificationStr': 'hello-world:tag:push',
-            'notificationStr2': '*:*'
+            'notificationStr2': '*:*',
+            'garbage_collection_enabled_true': True,
+            'garbage_collection_enabled_false': False,
+            'garbage_collection_schedule': '0 0 */2 * *',
         })
-        # Create Registr and enable data endpoint
+        # Create Registry and enable data endpoint
         self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku}',
                  checks=[self.check('name', '{registry_name}'),
                          self.check('location', '{rg_loc}'),
@@ -51,17 +56,23 @@ class AcrConnectedRegistryCommandsTests(ScenarioTest):
                  checks=self.check('dataEndpointEnabled', True))
 
         # Create a default connected registry.
-        self.cmd('acr connected-registry create -n {cr_name} -r {registry_name} --repository {repo_1} {repo_2} {repo_3}',
+        self.cmd('acr connected-registry create -n {cr_name} -r {registry_name} -m ReadWrite --repository {repo_1} {repo_2} {repo_3} --gc-enabled {garbage_collection_enabled_false}',
                  checks=[self.check('name', '{cr_name}'),
                          self.check('mode', 'ReadWrite'),
                          self.check('logging.logLevel', 'Information'),
                          self.check('provisioningState', 'Succeeded'),
-                         self.check('resourceGroup', '{rg}')])
+                         self.check('resourceGroup', '{rg}'),
+                         self.check('garbageCollection.enabled', False)])
 
+        # Resync should fail because it requires a deployed, on-prem agent that has
+        # completed the initial sync. The test environment lacks this, so we assert
+        # that the CLI surfaces the error properly.
+        self.cmd('acr connected-registry resync -n {cr_name} -r {registry_name}',
+                expect_failure=True)
         # Create a custom connected-registry with a previously created token.
         self.cmd('acr token create -r {registry_name} -n {syncToken} --repository {repo_1} content/read metadata/read --gateway {root_name} config/read config/write message/read message/write --no-passwords')
         self.cmd('acr token create -r {registry_name} -n {clientToken} --repository {repo_1} content/read --no-passwords')
-        self.cmd('acr connected-registry create -n {root_name} -r {registry_name} --sync-token {syncToken} -m ReadOnly --log-level Warning -s "{syncSchedule}" -w PT4H --client-tokens {clientToken} --notifications {notificationStr}',
+        self.cmd('acr connected-registry create -n {root_name} -r {registry_name} --sync-token {syncToken} --log-level Warning -s "{syncSchedule}" -w PT4H --client-tokens {clientToken} --notifications {notificationStr}',
                  checks=[self.check('name', '{root_name}'),
                          self.check('mode', 'ReadOnly'),
                          self.check('provisioningState', 'Succeeded'),
@@ -98,13 +109,14 @@ class AcrConnectedRegistryCommandsTests(ScenarioTest):
 
         # Update the connected registry
         self.cmd('acr token create -r {registry_name} -n {clientToken2} --repository {repo_2} metadata/read --no-passwords')
-        self.cmd('acr connected-registry update -n {root_name} -r {registry_name} --log-level Information -s "{defaultSyncSchedule}" --remove-client-tokens {clientToken} --add-client-tokens {clientToken2} --add-notifications {notificationStr2} --remove-notifications {notificationStr}',
+        self.cmd('acr connected-registry update -n {root_name} -r {registry_name} --log-level Information -s "{defaultSyncSchedule}"  --remove-client-tokens {clientToken} --add-client-tokens {clientToken2} --add-notifications {notificationStr2} --remove-notifications {notificationStr} --gc-enabled {garbage_collection_enabled_true} --gc-schedule "{garbage_collection_schedule}"',
                  checks=[self.check('name', '{root_name}'),
                          self.check('logging.logLevel', 'Information'),
                          self.check('parent.syncProperties.schedule', '{defaultSyncSchedule}'),
                          self.check('parent.syncProperties.syncWindow', 'None'),
                          self.check('resourceGroup', '{rg}'),
-                         self.check('notificationsList[0]', '{notificationStr2}')])
+                         self.check('notificationsList[0]', '{notificationStr2}'),
+                         self.check('garbageCollection.schedule', '{garbage_collection_schedule}')])
 
         # List client tokens
         self.cmd('acr connected-registry list-client-tokens -n {root_name} -r {registry_name}',
@@ -157,3 +169,223 @@ class AcrConnectedRegistryCommandsTests(ScenarioTest):
 
         # Delete registry
         self.cmd('acr delete -n {registry_name} -g {rg} -y')
+
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_connectedregistry_dedicated_endpoint_not_enabled(self, resource_group, resource_group_location):
+        # Agentpool prerequisites for connected registry testing
+        registryName = self.create_random_name('clireg', 20)
+        crName = 'connectedregistry'
+        rootName = 'rootregistry'
+        childName = 'child'
+        grandchildName = 'grandchild'
+        repo1 = 'repo1'
+        repo2 = 'repo2'
+        repo3 = 'repo3'
+        self.kwargs.update({
+            'registry_name': registryName,
+            'cr_name': crName,
+            'root_name': rootName,
+            'child_name': childName,
+            'grandchild_name': grandchildName,
+            'rg_loc': 'eastus',
+            'sku': 'Premium',
+            'syncToken': 'syncToken',
+            'clientToken': 'clientToken',
+            'clientToken2': 'clientToken2',
+            'scopeMap': 'scopeMap1',
+            'repo_1': repo1,
+            'repo_2': repo2,
+            'repo_3': repo3,
+            'syncSchedule': '0 0/10 * * *',
+            'defaultSyncSchedule': '* * * * *',
+            'syncWindow': 'PT4H',
+            'notificationStr': 'hello-world:tag:push',
+            'notificationStr2': '*:*',
+            'garbage_collection_enabled_true': True,
+            'garbage_collection_enabled_false': False,
+            'garbage_collection_schedule': '0 0 */2 * *',
+        })
+        # Create Registry without enabling data endpoint
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku}',
+                 checks=[self.check('name', '{registry_name}'),
+                         self.check('location', '{rg_loc}'),
+                         self.check('adminUserEnabled', False),
+                         self.check('sku.name', '{sku}'),
+                         self.check('sku.tier', '{sku}'),
+                         self.check('provisioningState', 'Succeeded')])
+
+        # Create a default connected registry.
+        self.cmd('acr connected-registry create -n {cr_name} -r {registry_name} -m ReadWrite --repository {repo_1} {repo_2} {repo_3} --gc-enabled {garbage_collection_enabled_false} -y',
+                 checks=[self.check('name', '{cr_name}'),
+                         self.check('mode', 'ReadWrite'),
+                         self.check('logging.logLevel', 'Information'),
+                         self.check('provisioningState', 'Succeeded'),
+                         self.check('resourceGroup', '{rg}'),
+                         self.check('garbageCollection.enabled', False)])
+
+        # Verify data endpoint is now enabled
+        self.cmd('acr show -n {registry_name} -g {rg}',
+                 checks=[self.check('dataEndpointEnabled', True),
+                         self.check('provisioningState', 'Succeeded')])
+
+        # Delete connected registry
+        self.cmd('acr connected-registry delete -n {cr_name} -r {registry_name} -y')
+
+        # Delete registry
+        self.cmd('acr delete -n {registry_name} -g {rg} -y')
+
+    @ResourceGroupPreparer()
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_connectedregistry_managed_identity(self):
+        # Managed-identity auth mode for connected registries. Recorded scenario is
+        # intentionally minimal (create + show + get-settings + delete) so the cassette
+        # does not depend on the SyncToken->ManagedIdentity migration.
+        # Client-side validation, the migration state machine, and MI-mode delete cleanup
+        # are covered by mock-based unit tests in test_acr_connected_registry_mi_unit.py.
+        # Note: This test does NOT import from azure.mgmt.containerregistry so the
+        # recording remains valid across future SDK model-namespace changes.
+
+        self.kwargs.update({
+        'registry_name': self.create_random_name('clireg', 20),
+        'cr_mi_name': 'crmiscen',
+        'rg_loc': 'eastus',
+        'sku': 'Premium',
+        'identity_name': self.create_random_name('cr-mi-id', 20),
+        })
+
+        # Registry + data endpoint + abac (required for connected-registry).
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku {sku} '
+                 '--role-assignment-mode rbac-abac',
+                checks=[self.check('name', '{registry_name}'),
+                        self.check('sku.name', '{sku}'),
+                        self.check('provisioningState', 'Succeeded'),
+                        self.check('roleAssignmentMode', 'AbacRepositoryPermissions')])
+        self.cmd('acr update -n {registry_name} -g {rg} --data-endpoint-enabled true',
+                checks=[self.check('dataEndpointEnabled', True),
+                        self.check('roleAssignmentMode', 'AbacRepositoryPermissions')])
+
+        # User-assigned identity.
+        result = self.cmd('identity create --name {identity_name} -g {rg}').get_output_in_json()
+        self.kwargs['identity_id'] = result['id']
+        self.kwargs['identity_client_id'] = result['clientId']
+
+        # --- Create with ManagedIdentity ---
+        self.cmd('acr connected-registry create -n {cr_mi_name} -r {registry_name} -g {rg} '
+                '-m ReadOnly --auth-type ManagedIdentity --identity {identity_id}',
+                checks=[self.check('name', '{cr_mi_name}'),
+                        self.check('mode', 'ReadOnly'),
+                        self.check('provisioningState', 'Succeeded'),
+                        self.check('parent.syncProperties.authType', 'ManagedIdentity'),
+                        self.check('identity.type', 'userAssigned')])
+
+        # --- Show reflects MI ---
+        self.cmd('acr connected-registry show -n {cr_mi_name} -r {registry_name} -g {rg}',
+                checks=[self.check('parent.syncProperties.authType', 'ManagedIdentity'),
+                        self.check('identity.type', 'userAssigned')])
+
+        # --- get-settings returns MI-flavored connection string ---
+        settings = self.cmd('acr connected-registry get-settings -n {cr_mi_name} -r {registry_name} '
+                        '-g {rg} --parent-protocol https').get_output_in_json()
+        connection_string = settings['ACR_REGISTRY_CONNECTION_STRING']
+        self.assertIn(
+            'ManagedIdentityClientId={};'.format(self.kwargs['identity_client_id']),
+            connection_string)
+        self.assertNotIn('SyncTokenName=', connection_string)
+        self.assertNotIn('SyncTokenPassword=', connection_string)
+        self.assertNotIn('SYNC_TOKEN_USER', settings)
+        self.assertNotIn('SYNC_TOKEN_PASSWORD', settings)
+        self.assertEqual(settings['ACR_MANAGED_IDENTITY_RESOURCE_ID'].lower(),
+                         self.kwargs['identity_id'].lower())
+
+        # --- MI-mode delete (no sync token / scope map cleanup path) ---
+        self.cmd('acr connected-registry delete -n {cr_mi_name} -r {registry_name} -g {rg} -y')
+        self.cmd('acr delete -n {registry_name} -g {rg} -y')
+        # Shared RG: clean up the user-assigned identity too.
+        self.cmd('identity delete --name {identity_name} -g {rg}')
+
+    @ResourceGroupPreparer(location='eastus')
+    @AllowLargeResponse(size_kb=99999)
+    def test_acr_connectedregistry_managed_identity_migration(self, resource_group_location):
+        self.kwargs.update({
+            'registry_name': self.create_random_name('clireg', 20),
+            'cr_name': 'crmigration',
+            'identity_name': self.create_random_name('cr-mi-id', 20),
+            'rg_loc': resource_group_location,
+            'repository': 'hello-world',
+            'sync_schedule': '0 0/10 * * *',
+            'notification': 'hello-world:tag:push',
+        })
+
+        self.cmd('acr create -n {registry_name} -g {rg} -l {rg_loc} --sku Premium '
+                 '--role-assignment-mode rbac-abac',
+                 checks=[self.check('provisioningState', 'Succeeded'),
+                         self.check('roleAssignmentMode', 'AbacRepositoryPermissions')])
+        self.cmd('acr update -n {registry_name} -g {rg} --data-endpoint-enabled true',
+                 checks=[self.check('dataEndpointEnabled', True),
+                         self.check('roleAssignmentMode', 'AbacRepositoryPermissions')])
+
+        identity = self.cmd('identity create -n {identity_name} -g {rg} -l {rg_loc}').get_output_in_json()
+        self.kwargs['identity_id'] = identity['id']
+
+        self.cmd('acr connected-registry create -n {cr_name} -r {registry_name} -g {rg} '
+                 '--mode ReadOnly --auth-type SyncToken --repository {repository} --log-level Warning '
+                 '--sync-schedule "{sync_schedule}" --sync-window PT4H '
+                 '--notifications {notification} --gc-enabled false')
+
+        # No agent is started, so the new registry is already offline and needs no deactivation.
+        before = self.cmd(
+            'acr connected-registry show -n {cr_name} -r {registry_name} -g {rg}',
+            checks=[self.check('name', '{cr_name}'),
+                    self.check('mode', 'ReadOnly'),
+                    self.check('provisioningState', 'Succeeded'),
+                    self.check('connectionState', 'Offline'),
+                    self.check('activation.status', 'Inactive'),
+                    self.check('parent.syncProperties.authType', 'SyncToken'),
+                    self.exists('parent.syncProperties.tokenId'),
+                    self.check('logging.logLevel', 'Warning'),
+                    self.check('parent.syncProperties.schedule', '{sync_schedule}'),
+                    self.check('parent.syncProperties.syncWindow', '4:00:00'),
+                    self.check('notificationsList[0]', '{notification}'),
+                    self.check('garbageCollection.enabled', False)]).get_output_in_json()
+
+        self.cmd('acr connected-registry update -n {cr_name} -r {registry_name} -g {rg} '
+                 '--auth-type ManagedIdentity --identity {identity_id}',
+                 checks=[self.check('provisioningState', 'Succeeded'),
+                         self.check('parent.syncProperties.authType', 'ManagedIdentity')])
+
+        after = self.cmd(
+            'acr connected-registry show -n {cr_name} -r {registry_name} -g {rg}',
+            checks=[self.check('provisioningState', 'Succeeded'),
+                    self.check('connectionState', 'Offline'),
+                    self.check('parent.syncProperties.authType', 'ManagedIdentity'),
+                    self.check('identity.type', 'userAssigned', case_sensitive=False)]).get_output_in_json()
+
+        assigned_identities = after['identity']['userAssignedIdentities']
+        self.assertEqual({resource_id.lower() for resource_id in assigned_identities},
+                         {identity['id'].lower()})
+        self.assertEqual(next(iter(assigned_identities.values()))['clientId'], identity['clientId'])
+
+        for property_name in ('id', 'name', 'mode', 'logging', 'notificationsList', 'garbageCollection'):
+            self.assertEqual(after[property_name], before[property_name], property_name)
+        self.assertEqual(after['parent'].get('id'), before['parent'].get('id'))
+        for property_name in ('schedule', 'syncWindow', 'messageTtl'):
+            self.assertEqual(after['parent']['syncProperties'][property_name],
+                             before['parent']['syncProperties'][property_name], property_name)
+
+        settings = self.cmd(
+            'acr connected-registry get-settings -n {cr_name} -r {registry_name} -g {rg} '
+            '--parent-protocol https').get_output_in_json()
+        connection_string = settings['ACR_REGISTRY_CONNECTION_STRING']
+        self.assertIn('ManagedIdentityClientId={};'.format(identity['clientId']), connection_string)
+        self.assertNotIn('SyncTokenName=', connection_string)
+        self.assertNotIn('SyncTokenPassword=', connection_string)
+        self.assertNotIn('SYNC_TOKEN_USER', settings)
+        self.assertNotIn('SYNC_TOKEN_PASSWORD', settings)
+        self.assertEqual(settings['ACR_MANAGED_IDENTITY_RESOURCE_ID'].lower(), identity['id'].lower())
+
+        self.cmd('acr connected-registry delete -n {cr_name} -r {registry_name} -g {rg} --cleanup -y')
+        self.cmd('identity show -n {identity_name} -g {rg}',
+                 checks=self.check('clientId', identity['clientId']))
+        self.cmd('acr delete -n {registry_name} -g {rg} -y')
+        self.cmd('identity delete -n {identity_name} -g {rg}')

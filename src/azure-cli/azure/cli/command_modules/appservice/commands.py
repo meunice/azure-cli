@@ -10,11 +10,14 @@ from azure.cli.core.util import empty_on_404
 from ._client_factory import cf_web_client, cf_plans, cf_webapps
 from ._validators import (validate_onedeploy_params, validate_staticsite_link_function, validate_staticsite_sku,
                           validate_vnet_integration, validate_asp_create, validate_functionapp_asp_create,
-                          validate_webapp_up, validate_app_exists, validate_add_vnet, validate_app_is_functionapp,
+                          validate_webapp_up_disabled, validate_app_exists, validate_add_vnet, validate_app_is_functionapp,
                           validate_app_is_webapp, validate_functionapp_on_containerapp_vnet,
                           validate_functionapp_on_containerapp_vnet_add, validate_centauri_delete_function,
                           validate_functionapp_on_containerapp_site_config_set,
-                          validate_functionapp_on_containerapp_site_config_show)
+                          validate_functionapp_on_containerapp_site_config_show,
+                          validate_functionapp_on_containerapp_container_settings_delete,
+                          validate_functionapp_on_containerapp_update, validate_functionapp_on_flex_plan,
+                          validate_functionapp, validate_is_flex_functionapp)
 
 
 def output_slots_in_table(slots):
@@ -29,12 +32,200 @@ def transform_web_output(web):
     props = ['name', 'state', 'location', 'resourceGroup', 'defaultHostName', 'appServicePlanId', 'ftpPublishingUrl']
     result = {k: web[k] for k in web if k in props}
     # to get width under control, also the plan usually is in the same RG
-    result['appServicePlan'] = result.pop('appServicePlanId').split('/')[-1]
+    app_service_plan_id = result.pop('appServicePlanId', None)
+    if app_service_plan_id is not None:
+        result['appServicePlan'] = app_service_plan_id.split('/')[-1]
     return result
 
 
 def transform_web_list_output(webs):
     return [transform_web_output(w) for w in webs]
+
+
+def _transform_site_output(result, remove_server_farm_id):
+    """Restore appServicePlanId after serializing azure-mgmt-web Site models."""
+    from azure.cli.core.util import todict
+    from azure.cli.core.commands import AzCliCommandInvoker
+
+    result = todict(result, AzCliCommandInvoker.remove_additional_prop_layer)
+    sites = result if isinstance(result, list) else [result]
+    for site in sites:
+        if not isinstance(site, dict):
+            continue
+
+        app_service_plan_id = site.get('appServicePlanId')
+        if app_service_plan_id is None:
+            app_service_plan_id = site.get('serverFarmId')
+
+        properties = site.get('properties')
+        if app_service_plan_id is None and isinstance(properties, dict):
+            app_service_plan_id = properties.get('appServicePlanId')
+            if app_service_plan_id is None:
+                app_service_plan_id = properties.get('serverFarmId')
+
+        if app_service_plan_id is not None:
+            site['appServicePlanId'] = app_service_plan_id
+
+        if remove_server_farm_id:
+            site.pop('serverFarmId', None)
+            if isinstance(properties, dict):
+                properties.pop('serverFarmId', None)
+
+    return result
+
+
+def transform_webapp_site_output(result):
+    return _transform_site_output(result, remove_server_farm_id=True)
+
+
+def transform_site_output(result):
+    return _transform_site_output(result, remove_server_farm_id=False)
+
+
+def transform_runtime_list_output(result):
+    from collections import OrderedDict
+    return [OrderedDict([
+        ('OS', r['os']), ('Runtime', r['runtime']), ('Version', r['version']),
+        ('Config', r['config']), ('Support', r['support']), ('End of Life', r['end_of_life'])
+    ]) for r in result]
+
+
+def transform_secure_build_output(result):
+    import sys
+    from .custom import _render_secure_build_table_report, _secure_build_finding_rows
+    if isinstance(result, dict):
+        _render_secure_build_table_report(result, file=sys.stdout)
+        return []
+    rows = _secure_build_finding_rows(result)
+    for row in rows:
+        row.pop('Details URL', None)
+    return rows
+
+
+def transform_troubleshoot_deployment_output(result):
+    from collections import OrderedDict
+
+    if not isinstance(result, dict):
+        return []
+    runtime = result.get('runtime') or {}
+    return [OrderedDict([
+        ('DeploymentId', result.get('deploymentId') or '-'),
+        ('State', result.get('state') or 'Unknown'),
+        ('Active', result.get('active', False)),
+        ('Succeeded', runtime.get('instancesSuccessful', '-')),
+        ('Failed', runtime.get('instancesFailed', '-')),
+        ('LastDeploymentTime', result.get('lastDeploymentTime') or '-'),
+    ])]
+
+
+def transform_troubleshoot_config_output(result):
+    """Flatten the troubleshoot config payload into a per-setting table.
+
+    Reads Settings out of the nested ``configCheck`` field (the verbatim SCM
+    body). Falls back gracefully for non-dict / empty payloads (e.g. --report
+    was passed and the command returned ``None``).
+    """
+    from collections import OrderedDict
+    if not isinstance(result, dict):
+        return []
+    config_check = result.get('configCheck') or {}
+    settings = config_check.get('Settings') or config_check.get('settings') or []
+    if not isinstance(settings, list):
+        return []
+    written_at = config_check.get('WrittenAt') or config_check.get('writtenAt')
+    if isinstance(written_at, str):
+        written_at = written_at.strip()
+    details_header = (
+        'Details (Last Updated: {})'.format(written_at)
+        if written_at else 'Details'
+    )
+    return [OrderedDict([
+        ('Setting', s.get('Setting') or s.get('setting') or ''),
+        ('Value', s.get('Value') if s.get('Value') is not None else s.get('value') or ''),
+        (details_header, s.get('Details') or s.get('details') or ''),
+    ]) for s in settings if isinstance(s, dict)]
+
+
+def transform_troubleshoot_status_output(result):
+    """Flatten the nested `instances` payload into one row per worker for `-o table`.
+    Column layout: InstanceId / State / Details / (LastError /
+    LastErrorTimestamp / LastErrorDetails only when any row has an error) /
+    Succeeded (last 24h) / Failed (last 24h).
+
+    Also queues a post-output hint trailer (via ``atexit``) when at least one
+    instance has a visible error, so users see the recommended follow-up
+    ``az webapp log`` commands under the table.
+
+    The framework's default table renderer would only surface top-level scalars
+    (name, resourceGroup) and drop every meaningful field."""
+    from collections import OrderedDict
+    from ._troubleshoot_status_report import _format_dt, _short_id, _startup_fetch_failed
+
+    items = (result or {}).get('instances') or []
+    app_name = (result or {}).get('name') or '<webapp>'
+    resource_group = (result or {}).get('resourceGroup') or '<resource-group>'
+
+    # LastError is nullable on the backend SiteRuntimeStatusOnWorker contract.
+    # A 'Started' instance is healthy, so any LastError it still carries is stale
+    # and must not be shown. Surface the LastError columns only when an instance
+    # reports a LastError while NOT 'Started'.
+    def _has_visible_error(item):
+        return bool(item.get('lastError')) and item.get('state') != 'Started'
+
+    def _dash(value):
+        # Render an empty cell as '-' so a missing value in a shown column is
+        # visually distinct from an accidentally blank row.
+        if value is None or value == '':
+            return '-'
+        return value
+
+    show_errors = any(_has_visible_error(item) for item in items)
+
+    rows = []
+    for item in items:
+        startup = item.get('startup') or {}
+        # KuduLite returns a SummaryFetchStatus failure reason when it couldn't
+        # read this worker's log directory; count/timestamp fields are
+        # meaningless in that case.
+        has_startup_error = bool(_startup_fetch_failed(startup))
+        succeeded = None if has_startup_error else startup.get('Succeeded')
+        failed = None if has_startup_error else startup.get('Failed')
+
+        row = OrderedDict([
+            ('InstanceId', _dash(_short_id(item.get('instanceId')))),
+            ('State', _dash(item.get('state'))),
+            ('Details', _dash(item.get('details'))),
+        ])
+        if show_errors:
+            if _has_visible_error(item):
+                row['LastError'] = _dash(item.get('lastError'))
+                row['LastErrorTimestamp'] = _dash(_format_dt(item.get('lastErrorTimestamp')))
+                row['LastErrorDetails'] = _dash(item.get('lastErrorDetails'))
+            else:
+                row['LastError'] = '-'
+                row['LastErrorTimestamp'] = '-'
+                row['LastErrorDetails'] = '-'
+        row['Succeeded (last 24h)'] = _dash(succeeded)
+        row['Failed (last 24h)'] = _dash(failed)
+        rows.append(row)
+
+    # Trailer is only meaningful for -o table; this transformer is only invoked
+    # by knack when the user selected table output, so guarding on show_errors
+    # is sufficient. Deferring via atexit ensures the hint prints AFTER knack
+    # has flushed the table to stdout.
+    if show_errors:
+        import atexit
+        import sys as _sys
+
+        def _print_hint(app=app_name, rg=resource_group):
+            _sys.stderr.write(
+                '\nHint:\n'
+                '  Check application logs:  az webapp log tail -n {name} -g {rg}\n'
+                '  Check startup logs:      az webapp log startup show -n {name} -g {rg}\n'
+                .format(name=app, rg=rg))
+
+        atexit.register(_print_hint)
+    return rows
 
 
 def ex_handler_factory(creating_plan=False):
@@ -82,11 +273,7 @@ def _polish_bad_errors(ex, creating_plan):
                         detail = ("Plan with requested features is not supported in current region. \n"
                                   "If creating an App Service Plan with --zone-redundant/-z, "
                                   "please see supported regions here: "
-                                  "https://docs.microsoft.com/en-us/azure/app-service/how-to-zone-redundancy#requirements")
-                    elif 'Not enough available reserved instance servers to satisfy' in detail:
-                        detail = ("Plan with Linux worker can only be created in a group " +
-                                  "which has never contained a Windows worker, and vice versa. " +
-                                  "Please use a new resource group. Original error:" + detail)
+                                  "https://learn.microsoft.com/en-us/azure/app-service/how-to-zone-redundancy#requirements")
         else:
             detail = json.loads(ex.error_msg.response.text())['Message']
         ex = CLIError(detail)
@@ -97,6 +284,10 @@ def _polish_bad_errors(ex, creating_plan):
 
 # pylint: disable=too-many-statements
 def load_command_table(self, _):
+    if self.cli_ctx.cloud.profile == 'latest':
+        from ._active_backup import load_command_table as load_active_backup_commands
+        load_active_backup_commands(self)
+
     webclient_sdk = CliCommandType(
         operations_tmpl='azure.mgmt.web.operations#WebSiteManagementClientOperationsMixin.{}',
         client_factory=cf_web_client
@@ -122,26 +313,44 @@ def load_command_table(self, _):
 
     logicapp_custom = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.logicapp.custom#{}')
 
+    webapp_exec_custom = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.webapp_exec#{}')
+
+    network_capture_custom = CliCommandType(
+        operations_tmpl='azure.cli.command_modules.appservice.network_capture#{}')
+
     with self.command_group('webapp', webapp_sdk) as g:
         g.custom_command('create', 'create_webapp', exception_handler=ex_handler_factory(), validator=validate_vnet_integration)
-        g.custom_command('up', 'webapp_up', exception_handler=ex_handler_factory(), validator=validate_webapp_up)
+        g.custom_command('up', 'webapp_up', exception_handler=ex_handler_factory(), validator=validate_webapp_up_disabled)
         g.custom_command('ssh', 'ssh_webapp', exception_handler=ex_handler_factory(), is_preview=True)
-        g.custom_command('list', 'list_webapp', table_transformer=transform_web_list_output)
-        g.custom_show_command('show', 'show_app', table_transformer=transform_web_output)
+        g.custom_command('exec', 'webapp_exec', custom_command_type=webapp_exec_custom, exception_handler=ex_handler_factory(), is_preview=True)
+        g.custom_command('list', 'list_webapp', transform=transform_webapp_site_output,
+                         table_transformer=transform_web_list_output)
+        g.custom_show_command('show', 'show_app', transform=transform_webapp_site_output,
+                              table_transformer=transform_web_output)
         g.custom_command('delete', 'delete_webapp')
         g.custom_command('stop', 'stop_webapp')
         g.custom_command('start', 'start_webapp')
         g.custom_command('restart', 'restart_webapp')
         g.custom_command('browse', 'view_in_browser')
         g.custom_command('list-instances', 'list_instances')
-        g.custom_command('list-runtimes', 'list_runtimes')
+        g.custom_command('list-runtimes', 'list_runtimes', table_transformer=transform_runtime_list_output)
         g.custom_command('identity assign', 'assign_identity')
         g.custom_show_command('identity show', 'show_identity')
         g.custom_command('identity remove', 'remove_identity')
         g.custom_command('create-remote-connection', 'create_tunnel', exception_handler=ex_handler_factory())
-        g.custom_command('deploy', 'perform_onedeploy', validator=validate_onedeploy_params, is_preview=True)
+        g.custom_command('deploy', 'perform_onedeploy_webapp', validator=validate_onedeploy_params)
         g.generic_update_command('update', getter_name='get_webapp', setter_name='set_webapp',
                                  custom_func_name='update_webapp', command_type=appservice_custom)
+
+    with self.command_group('webapp sitecontainers') as g:
+        g.custom_command('create', 'create_webapp_sitecontainers')
+        g.custom_command('update', 'update_webapp_sitecontainer')
+        g.custom_command('delete', 'delete_webapp_sitecontainer')
+        g.custom_show_command('show', 'get_webapp_sitecontainer')
+        g.custom_command('list', 'list_webapp_sitecontainers')
+        g.custom_command('status', 'get_webapp_sitecontainers_status')
+        g.custom_command('log', 'get_webapp_sitecontainer_log')
+        g.custom_command('convert', 'convert_webapp_sitecontainers')
 
     with self.command_group('webapp traffic-routing') as g:
         g.custom_command('set', 'set_traffic_routing')
@@ -156,6 +365,15 @@ def load_command_table(self, _):
     with self.command_group('webapp config') as g:
         g.custom_command('set', 'update_site_configs')
         g.custom_show_command('show', 'get_site_configs')
+
+    with self.command_group('webapp config egress', is_preview=True) as g:
+        g.custom_command('set', 'set_egress_config')
+        g.custom_show_command('show', 'show_egress_config')
+
+    with self.command_group('webapp config egress connection', is_preview=True) as g:
+        g.custom_command('add', 'add_egress_connection')
+        g.custom_command('remove', 'remove_egress_connection')
+        g.custom_show_command('show', 'show_egress_connection')
 
     with self.command_group('webapp config appsettings') as g:
         g.custom_command('list', 'get_app_settings', exception_handler=empty_on_404)
@@ -220,7 +438,7 @@ def load_command_table(self, _):
 
     with self.command_group('webapp deployment source') as g:
         g.custom_command('config-local-git', 'enable_local_git')
-        g.custom_command('config-zip', 'enable_zip_deploy_webapp', exception_handler=ex_handler_factory())
+        g.custom_command('config-zip', 'enable_zip_deploy_webapp', exception_handler=ex_handler_factory(), deprecate_info=g.deprecate(redirect='az webapp deploy', hide=True))
         g.custom_command('config', 'config_source_control', exception_handler=ex_handler_factory())
         g.custom_command('sync', 'sync_site_repo', exception_handler=ex_handler_factory())
         g.custom_show_command('show', 'show_source_control')
@@ -236,6 +454,27 @@ def load_command_table(self, _):
     with self.command_group('webapp log deployment') as g:
         g.custom_show_command('show', 'show_deployment_log')
         g.custom_command('list', 'list_deployment_logs')
+
+    with self.command_group('webapp log startup', is_preview=True) as g:
+        g.custom_command('list', 'list_startup_logs')
+        g.custom_show_command('show', 'show_startup_log')
+
+    with self.command_group('webapp troubleshoot', is_preview=True) as g:
+        g.custom_command('config', 'troubleshoot_config',
+                         table_transformer=transform_troubleshoot_config_output)
+        g.custom_command('status', 'troubleshoot_status',
+                         table_transformer=transform_troubleshoot_status_output)
+        g.custom_command('deployment', 'troubleshoot_deployment',
+                         table_transformer=transform_troubleshoot_deployment_output)
+
+    with self.command_group('webapp secure-build', is_preview=True) as g:
+        g.custom_show_command('show', 'show_secure_build_report',
+                              table_transformer=transform_secure_build_output)
+
+    with self.command_group('webapp troubleshoot collect', is_preview=True) as g:
+        g.custom_command('network-capture', 'collect_network_capture',
+                         custom_command_type=network_capture_custom,
+                         exception_handler=ex_handler_factory())
 
     with self.command_group('functionapp log deployment') as g:
         g.custom_show_command('show', 'show_deployment_log')
@@ -305,9 +544,39 @@ def load_command_table(self, _):
         g.command('delete', 'delete', confirmation=True)
         g.custom_command('list', 'list_app_service_plans')
         g.custom_show_command('show', 'show_plan')
-        g.generic_update_command('update', setter_name='begin_create_or_update', custom_func_name='update_app_service_plan',
-                                 setter_arg_name='app_service_plan', supports_no_wait=True,
+        g.generic_update_command('update', setter_name='update_app_service_plan_with_progress', custom_func_name='update_app_service_plan',
+                                 setter_arg_name='app_service_plan', setter_type=appservice_custom, supports_no_wait=True,
                                  exception_handler=ex_handler_factory())
+
+    with self.command_group('appservice plan managed-instance install-script') as g:
+        g.custom_command('list', 'list_plan_managed_instance_install_scripts')
+        g.custom_command('add', 'add_plan_managed_instance_install_script')
+        g.custom_command('remove', 'remove_plan_managed_instance_install_script')
+
+    with self.command_group('appservice plan managed-instance storage-mount') as g:
+        g.custom_command('list', 'list_plan_managed_instance_storage_mounts')
+        g.custom_command('add', 'add_plan_managed_instance_storage_mount')
+        g.custom_command('remove', 'remove_plan_managed_instance_storage_mount')
+
+    with self.command_group('appservice plan managed-instance registry-adapter') as g:
+        g.custom_command('list', 'list_plan_managed_instance_registry_adapters')
+        g.custom_command('add', 'add_plan_managed_instance_registry_adapter')
+        g.custom_command('remove', 'remove_plan_managed_instance_registry_adapter')
+
+    with self.command_group('appservice plan managed-instance network') as g:
+        g.custom_show_command('show', 'show_plan_managed_instance_network')
+        g.custom_command('add', 'add_plan_managed_instance_network')
+        g.custom_command('remove', 'remove_plan_managed_instance_network')
+
+    with self.command_group('appservice plan managed-instance instance', custom_command_type=appservice_custom) as g:
+        g.custom_command('connect', 'connect_to_plan_instance')
+        g.custom_command('recycle', 'recycle_plan_managed_instance')
+
+    with self.command_group('appservice plan identity') as g:
+        g.custom_show_command('show', 'show_plan_identity')
+        g.custom_command('assign', 'assign_plan_identity')
+        g.custom_command('remove', 'remove_plan_identity')
+        g.custom_command('set-default', 'set_plan_default_identity')
 
     with self.command_group('appservice') as g:
         g.custom_command('list-locations', 'list_locations', transform=transform_list_location_output)
@@ -317,30 +586,60 @@ def load_command_table(self, _):
 
     with self.command_group('functionapp') as g:
         g.custom_command('create', 'create_functionapp', exception_handler=ex_handler_factory(),
-                         validator=validate_vnet_integration)
+                         validator=validate_functionapp)
         g.custom_command('list-runtimes', 'list_function_app_runtimes')
-        g.custom_command('list', 'list_function_app', table_transformer=transform_web_list_output)
-        g.custom_show_command('show', 'show_functionapp', table_transformer=transform_web_output)
+        g.custom_command('list-flexconsumption-runtimes', 'list_flex_function_app_runtimes')
+        g.custom_command('list', 'list_function_app', transform=transform_site_output,
+                         table_transformer=transform_web_list_output)
+        g.custom_show_command('show', 'show_functionapp', transform=transform_site_output,
+                              table_transformer=transform_web_output)
         g.custom_command('delete', 'delete_function_app')
         g.custom_command('stop', 'stop_webapp')
         g.custom_command('start', 'start_webapp')
         g.custom_command('restart', 'restart_webapp')
         g.custom_command('list-consumption-locations', 'list_consumption_locations')
+        g.custom_command('list-flexconsumption-locations', 'list_flexconsumption_locations')
         g.custom_command('identity assign', 'assign_identity')
         g.custom_show_command('identity show', 'show_identity')
         g.custom_command('identity remove', 'remove_identity')
-        g.custom_command('deploy', 'perform_onedeploy', validator=validate_onedeploy_params, is_preview=True)
+        g.custom_command('deploy', 'perform_onedeploy_functionapp', validator=validate_onedeploy_params, is_preview=True)
         g.generic_update_command('update', getter_name="get_functionapp", setter_name='set_functionapp', exception_handler=update_function_ex_handler_factory(),
-                                 custom_func_name='update_functionapp', getter_type=appservice_custom, setter_type=appservice_custom, command_type=webapp_sdk)
+                                 custom_func_name='update_functionapp', getter_type=appservice_custom, setter_type=appservice_custom, command_type=webapp_sdk,
+                                 validator=validate_functionapp_on_containerapp_update)
+
+    with self.command_group('functionapp flex-migration') as g:
+        g.custom_command('start', 'migrate_consumption_to_flex', exception_handler=ex_handler_factory())
+        g.custom_command('revert', 'revert_flex_migration', exception_handler=ex_handler_factory(), is_preview=True)
+        g.custom_command('list', 'list_flex_migration_candidates', exception_handler=ex_handler_factory())
+
+    with self.command_group('functionapp deployment config') as g:
+        g.custom_command('set', 'update_deployment_configs', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+        g.custom_show_command('show', 'get_deployment_configs', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
 
     with self.command_group('functionapp config') as g:
-        g.custom_command('set', 'update_site_configs', validator=validate_functionapp_on_containerapp_site_config_set, exception_handler=ex_handler_factory())
+        g.custom_command('set', 'update_site_configs_functionapp', validator=validate_functionapp_on_containerapp_site_config_set, exception_handler=ex_handler_factory())
         g.custom_show_command('show', 'get_site_configs', validator=validate_functionapp_on_containerapp_site_config_show, exception_handler=ex_handler_factory())
 
     with self.command_group('functionapp config appsettings') as g:
         g.custom_command('list', 'get_app_settings', exception_handler=empty_on_404)
-        g.custom_command('set', 'update_app_settings', exception_handler=ex_handler_factory())
+        g.custom_command('set', 'update_app_settings_functionapp', exception_handler=ex_handler_factory())
         g.custom_command('delete', 'delete_app_settings', exception_handler=ex_handler_factory())
+
+    with self.command_group('functionapp runtime config') as g:
+        g.custom_show_command('show', 'get_runtime_config', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+        g.custom_command('set', 'update_runtime_config', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+
+    with self.command_group('functionapp scale config') as g:
+        g.custom_show_command('show', 'get_scale_config', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+        g.custom_command('set', 'update_scale_config', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+
+    with self.command_group('functionapp scale config always-ready') as g:
+        g.custom_command('delete', 'delete_always_ready_settings', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+        g.custom_command('set', 'update_always_ready_settings', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+
+    with self.command_group('functionapp update-strategy config') as g:
+        g.custom_show_command('show', 'get_update_strategy_config', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
+        g.custom_command('set', 'set_update_strategy_config', exception_handler=ex_handler_factory(), validator=validate_is_flex_functionapp)
 
     with self.command_group('functionapp config hostname') as g:
         g.custom_command('add', 'add_hostname', exception_handler=ex_handler_factory())
@@ -359,21 +658,21 @@ def load_command_table(self, _):
         g.custom_command('create', 'create_managed_ssl_cert', exception_handler=ex_handler_factory(), is_preview=True)
 
     with self.command_group('functionapp deployment source') as g:
-        g.custom_command('config-local-git', 'enable_local_git')
+        g.custom_command('config-local-git', 'enable_local_git', validator=validate_functionapp_on_flex_plan)
         g.custom_command('config-zip', 'enable_zip_deploy_functionapp')
-        g.custom_command('config', 'config_source_control', exception_handler=ex_handler_factory())
-        g.custom_command('sync', 'sync_site_repo')
-        g.custom_show_command('show', 'show_source_control')
-        g.custom_command('delete', 'delete_source_control')
+        g.custom_command('config', 'config_source_control', exception_handler=ex_handler_factory(), validator=validate_functionapp_on_flex_plan)
+        g.custom_command('sync', 'sync_site_repo', exception_handler=ex_handler_factory(), validator=validate_functionapp_on_flex_plan)
+        g.custom_show_command('show', 'show_source_control', exception_handler=ex_handler_factory(), validator=validate_functionapp_on_flex_plan)
+        g.custom_command('delete', 'delete_source_control', exception_handler=ex_handler_factory(), validator=validate_functionapp_on_flex_plan)
         g.custom_command('update-token', 'update_git_token', exception_handler=ex_handler_factory())
 
     with self.command_group('functionapp deployment user', webclient_sdk) as g:
         g.custom_command('set', 'set_deployment_user', exception_handler=ex_handler_factory())
-        g.show_command('show', 'get_publishing_user')
+        g.custom_show_command('show', 'get_publishing_user')
 
     with self.command_group('functionapp deployment') as g:
-        g.custom_command('list-publishing-profiles', 'list_publish_profiles')
-        g.custom_command('list-publishing-credentials', 'list_publishing_credentials')
+        g.custom_command('list-publishing-profiles', 'list_publish_profiles', validator=validate_functionapp_on_flex_plan)
+        g.custom_command('list-publishing-credentials', 'list_publishing_credentials', validator=validate_functionapp_on_flex_plan)
 
     with self.command_group('functionapp cors') as g:
         g.custom_command('add', 'add_cors')
@@ -397,16 +696,16 @@ def load_command_table(self, _):
         g.custom_command('show-cd-url', 'show_container_cd_url')
 
     with self.command_group('functionapp config container') as g:
-        g.custom_command('set', 'update_container_settings_functionapp')
-        g.custom_command('delete', 'delete_container_settings')
-        g.custom_show_command('show', 'show_container_settings_functionapp')
+        g.custom_command('set', 'update_container_settings_functionapp', validator=validate_functionapp_on_flex_plan)
+        g.custom_command('delete', 'delete_container_settings', validator=validate_functionapp_on_containerapp_container_settings_delete)
+        g.custom_show_command('show', 'show_container_settings_functionapp', validator=validate_functionapp_on_flex_plan)
 
     with self.command_group('functionapp deployment slot') as g:
-        g.custom_command('list', 'list_slots', table_transformer=output_slots_in_table)
-        g.custom_command('delete', 'delete_slot')
-        g.custom_command('auto-swap', 'config_slot_auto_swap')
-        g.custom_command('swap', 'swap_slot', exception_handler=ex_handler_factory())
-        g.custom_command('create', 'create_functionapp_slot', exception_handler=ex_handler_factory())
+        g.custom_command('list', 'list_slots', table_transformer=output_slots_in_table, validator=validate_functionapp_on_flex_plan)
+        g.custom_command('delete', 'delete_slot', validator=validate_functionapp_on_flex_plan)
+        g.custom_command('auto-swap', 'config_slot_auto_swap', validator=validate_functionapp_on_flex_plan)
+        g.custom_command('swap', 'swap_slot', exception_handler=ex_handler_factory(), validator=validate_functionapp_on_flex_plan)
+        g.custom_command('create', 'create_functionapp_slot', exception_handler=ex_handler_factory(), validator=validate_functionapp_on_flex_plan)
 
     with self.command_group('functionapp keys') as g:
         g.custom_command('set', 'update_host_key')
@@ -444,8 +743,8 @@ def load_command_table(self, _):
         g.custom_command('update', 'update_appserviceenvironment', supports_no_wait=True)
         g.custom_command('delete', 'delete_appserviceenvironment', supports_no_wait=True, confirmation=True)
         g.custom_command('create-inbound-services', 'create_ase_inbound_services', is_preview=True)
-        g.custom_command('upgrade', 'upgrade_appserviceenvironment', supports_no_wait=True, confirmation=True, is_preview=True)
-        g.custom_command('send-test-notification', 'send_test_notification_appserviceenvironment', is_preview=True)
+        g.custom_command('upgrade', 'upgrade_appserviceenvironment', supports_no_wait=True, confirmation=True)
+        g.custom_command('send-test-notification', 'send_test_notification_appserviceenvironment')
 
     with self.command_group('appservice domain', custom_command_type=appservice_domains, is_preview=True) as g:
         g.custom_command('create', 'create_domain')
@@ -517,8 +816,10 @@ def load_command_table(self, _):
 
     with self.command_group('logicapp', custom_command_type=logicapp_custom) as g:
         g.custom_command('create', 'create_logicapp', exception_handler=ex_handler_factory())
-        g.custom_command('list', 'list_logicapp', table_transformer=transform_web_list_output)
-        g.custom_show_command('show', 'show_logicapp', table_transformer=transform_web_output)
+        g.custom_command('list', 'list_logicapp', transform=transform_site_output,
+                         table_transformer=transform_web_list_output)
+        g.custom_show_command('show', 'show_logicapp', transform=transform_site_output,
+                              table_transformer=transform_web_output)
         g.custom_command('scale', 'scale_logicapp', exception_handler=ex_handler_factory())
 
     with self.command_group('logicapp config appsettings', custom_command_type=logicapp_custom) as g:

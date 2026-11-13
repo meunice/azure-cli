@@ -4,11 +4,11 @@
 # --------------------------------------------------------------------------------------------
 
 """
-`az ad` module has been migrated to use Microsoft Graph API: https://docs.microsoft.com/en-us/graph/api/overview
+`az ad` module has been migrated to use Microsoft Graph API: https://learn.microsoft.com/en-us/graph/api/overview
 
 See:
 Property differences between Azure AD Graph and Microsoft Graph
-https://docs.microsoft.com/en-us/graph/migrate-azure-ad-graph-property-differences
+https://learn.microsoft.com/en-us/graph/migrate-azure-ad-graph-property-differences
 """
 
 import base64
@@ -18,18 +18,143 @@ import json
 import os
 import re
 import uuid
+from enum import Enum as _Enum
 
 import dateutil.parser
 from dateutil.relativedelta import relativedelta
 from knack.log import get_logger
-from knack.util import CLIError, todict
-from msrestazure.azure_exceptions import CloudError
+from knack.util import CLIError
+from azure.core.exceptions import HttpResponseError
 
-from azure.cli.core.profiles import ResourceType
+from azure.cli.core.profiles import ResourceType, get_sdk
 from azure.cli.core.util import get_file_json, shell_safe_json_parse, is_guid
+from azure.cli.core.azclierror import ArgumentUsageError
+
 from ._client_factory import _auth_client_factory, _graph_client_factory
-from ._multi_api_adaptor import MultiAPIAdaptor
 from ._msgrpah import GraphError, set_object_properties
+
+# ----------------------------------------------------------------------------
+# SDK shape adapters
+# ----------------------------------------------------------------------------
+# In azure-mgmt-authorization 5.x (TypeSpec-generated), RoleAssignment and DenyAssignment
+# wrap their domain attributes in a nested ``properties`` envelope. The Track 1 SDK shape
+# previously exposed everything at the top level, and downstream code (this module, table
+# transformers, scenario tests) assumes that flat shape. ``knack.util.todict`` does not
+# walk these new MutableMapping models (it inspects ``__dict__``), so we need explicit
+# adapters to project them back to the legacy flat camelCase shape.
+
+
+def _coerce(value):
+    """Best-effort coerce an SDK attribute value to a JSON-safe scalar/list."""
+    if value is None:
+        return None
+    if isinstance(value, _Enum):
+        return value.value
+    if isinstance(value, list):
+        return [_coerce(v) for v in value]
+    if isinstance(value, datetime.datetime):
+        return value.isoformat()
+    return value
+
+
+_RA_FLAT_KEYS = (
+    ('scope', 'scope'),
+    ('role_definition_id', 'roleDefinitionId'),
+    ('principal_id', 'principalId'),
+    ('principal_type', 'principalType'),
+    ('description', 'description'),
+    ('condition', 'condition'),
+    ('condition_version', 'conditionVersion'),
+    ('created_on', 'createdOn'),
+    ('updated_on', 'updatedOn'),
+    ('created_by', 'createdBy'),
+    ('updated_by', 'updatedBy'),
+    ('delegated_managed_identity_resource_id', 'delegatedManagedIdentityResourceId'),
+)
+
+
+def _role_assignment_to_dict(ra):
+    """Project a TypeSpec-generated RoleAssignment model to the legacy flat camelCase dict."""
+    if ra is None:
+        return None
+    result = {}
+    for attr in ('id', 'name', 'type'):
+        value = getattr(ra, attr, None)
+        if value is not None:
+            result[attr] = _coerce(value)
+    for snake_attr, camel_key in _RA_FLAT_KEYS:
+        value = getattr(ra, snake_attr, None)
+        if value is not None:
+            result[camel_key] = _coerce(value)
+    return result
+
+
+_DA_FLAT_KEYS = (
+    ('deny_assignment_name', 'denyAssignmentName'),
+    ('description', 'description'),
+    ('scope', 'scope'),
+    ('do_not_apply_to_child_scopes', 'doNotApplyToChildScopes'),
+    ('is_system_protected', 'isSystemProtected'),
+    ('deny_assignment_effect', 'denyAssignmentEffect'),
+    ('condition', 'condition'),
+    ('condition_version', 'conditionVersion'),
+    ('created_on', 'createdOn'),
+    ('updated_on', 'updatedOn'),
+    ('created_by', 'createdBy'),
+    ('updated_by', 'updatedBy'),
+)
+
+
+def _deny_assignment_principal_to_dict(p):
+    if p is None:
+        return None
+    out = {}
+    for attr, key in (('id', 'id'), ('type', 'type'), ('display_name', 'displayName'),
+                      ('email', 'email'), ('principal_type', 'principalType'),
+                      ('object_type', 'objectType')):
+        value = getattr(p, attr, None)
+        if value is not None:
+            out[key] = _coerce(value)
+    return out
+
+
+def _deny_assignment_permission_to_dict(perm):
+    if perm is None:
+        return None
+    out = {}
+    for attr, key in (('actions', 'actions'), ('not_actions', 'notActions'),
+                      ('data_actions', 'dataActions'), ('not_data_actions', 'notDataActions'),
+                      ('condition', 'condition'), ('condition_version', 'conditionVersion')):
+        value = getattr(perm, attr, None)
+        if value is not None:
+            out[key] = _coerce(value)
+    return out
+
+
+def _deny_assignment_to_dict(da):
+    """Project a TypeSpec-generated DenyAssignment model to the legacy flat camelCase dict."""
+    if da is None:
+        return None
+    result = {}
+    for attr in ('id', 'name', 'type'):
+        value = getattr(da, attr, None)
+        if value is not None:
+            result[attr] = _coerce(value)
+    for snake_attr, camel_key in _DA_FLAT_KEYS:
+        value = getattr(da, snake_attr, None)
+        if value is not None:
+            result[camel_key] = _coerce(value)
+    permissions = getattr(da, 'permissions', None)
+    if permissions is not None:
+        result['permissions'] = [_deny_assignment_permission_to_dict(p) for p in permissions]
+    principals = getattr(da, 'principals', None)
+    if principals is not None:
+        result['principals'] = [_deny_assignment_principal_to_dict(p) for p in principals]
+    excludes = getattr(da, 'exclude_principals', None)
+    if excludes is not None:
+        result['excludePrincipals'] = [_deny_assignment_principal_to_dict(p) for p in excludes]
+    return result
+
 
 # ARM RBAC's principalType
 USER = 'User'
@@ -50,10 +175,6 @@ CREDENTIAL_WARNING = (
     "The output includes credentials that you must protect. Be sure that you do not include these credentials in "
     "your code or check the credentials into your source control. For more information, see https://aka.ms/azadsp-cli")
 
-SCOPE_WARNING = (
-    "--scope argument will become required for creating a role assignment in the breaking change release of the fall "
-    "of 2023. Please explicitly specify --scope.")
-
 logger = get_logger(__name__)
 
 # pylint: disable=too-many-lines, protected-access
@@ -64,7 +185,21 @@ def list_role_definitions(cmd, name=None, resource_group_name=None, scope=None,
     definitions_client = _auth_client_factory(cmd.cli_ctx, scope).role_definitions
     scope = _build_role_scope(resource_group_name, scope,
                               definitions_client._config.subscription_id)
-    return _search_role_definitions(cmd.cli_ctx, definitions_client, name, [scope], custom_role_only)
+    return _search_role_definitions(definitions_client, name, [scope], custom_role_only)
+
+
+def show_role_definition(cmd, scope=None, name=None, role_id=None):
+    if not any((scope, name, role_id)):
+        raise CLIError('Usage error: Provide --scope and --name, or --id')
+    if not role_id and not (name and scope):
+        raise CLIError('Usage error: Provide both --scope and --name')
+
+    definitions_client = _auth_client_factory(cmd.cli_ctx, scope).role_definitions
+    # https://learn.microsoft.com/en-us/rest/api/authorization/role-definitions/get-by-id?view=rest-authorization-2022-04-01&tabs=HTTP
+    if role_id:
+        return definitions_client.get_by_id(role_id)
+    # https://learn.microsoft.com/en-us/rest/api/authorization/role-definitions/get?view=rest-authorization-2022-04-01&tabs=HTTP
+    return definitions_client.get(scope, name)
 
 
 def create_role_definition(cmd, role_definition):
@@ -90,7 +225,7 @@ def _create_update_role_definition(cmd, role_definition, for_update):
         new_name = n[:1].lower() + n[1:]
         role_definition[new_name] = role_definition.pop(n)
 
-    worker = MultiAPIAdaptor(cmd.cli_ctx)
+    worker = RoleApiHelper(cmd.cli_ctx)
     if for_update:  # for update, we need to use guid style unique name
         role_resource_id = role_definition.get('id')
         if not role_resource_id:
@@ -100,18 +235,18 @@ def _create_update_role_definition(cmd, role_definition, for_update):
         scopes = (scopes_in_definition if scopes_in_definition else
                   ['/subscriptions/' + definitions_client._config.subscription_id])
         if role_resource_id:
-            from msrestazure.tools import parse_resource_id
+            from azure.mgmt.core.tools import parse_resource_id
             role_id = parse_resource_id(role_resource_id)['name']
             role_name = role_definition['roleName']
         else:
-            matched = _search_role_definitions(cmd.cli_ctx, definitions_client, role_definition['name'], scopes)
+            matched = _search_role_definitions(definitions_client, role_definition['name'], scopes)
             if len(matched) > 1:
                 raise CLIError('More than 2 definitions are found with the name of "{}"'.format(
                     role_definition['name']))
             if not matched:
                 raise CLIError('No definition was found with the name of "{}"'.format(role_definition['name']))
             role_id = role_definition['name'] = matched[0].name
-            role_name = worker.get_role_property(matched[0], 'role_name')
+            role_name = matched[0].role_name
     else:  # for create
         definitions_client = _auth_client_factory(cmd.cli_ctx).role_definitions
         role_id = _gen_guid()
@@ -130,31 +265,32 @@ def delete_role_definition(cmd, name, resource_group_name=None, scope=None,
     definitions_client = _auth_client_factory(cmd.cli_ctx, scope).role_definitions
     scope = _build_role_scope(resource_group_name, scope,
                               definitions_client._config.subscription_id)
-    roles = _search_role_definitions(cmd.cli_ctx, definitions_client, name, [scope], custom_role_only)
+    roles = _search_role_definitions(definitions_client, name, [scope], custom_role_only)
     for r in roles:
         definitions_client.delete(role_definition_id=r.name, scope=scope)
 
 
-def _search_role_definitions(cli_ctx, definitions_client, name, scopes, custom_role_only=False):
+def _search_role_definitions(definitions_client, name, scopes, custom_role_only=False):
     for scope in scopes:
-        roles = list(definitions_client.list(scope))
-        worker = MultiAPIAdaptor(cli_ctx)
+        # name argument matches the role definition's name (GUID) or roleName (e.g. 'Reader') property.
+        # Only roleName can be used as a filter in Role Definitions - List API.
+        # If name is a GUID, the filtering is performed on the client side.
+        filter_query = f"roleName eq '{name}'" if name and not is_guid(name) else None
+        roles = list(definitions_client.list(scope, filter=filter_query))
         if name:
-            roles = [r for r in roles if r.name == name or worker.get_role_property(r, 'role_name') == name]
+            roles = [rd for rd in roles if rd.name == name or rd.role_name == name]
         if custom_role_only:
-            roles = [r for r in roles if worker.get_role_property(r, 'role_type') == 'CustomRole']
+            roles = [rd for rd in roles if rd.role_type == 'CustomRole']
         if roles:
             return roles
     return []
 
 
-def create_role_assignment(cmd, role, assignee=None, assignee_object_id=None, resource_group_name=None,
-                           scope=None, assignee_principal_type=None, description=None,
+def create_role_assignment(cmd, role, scope,
+                           assignee=None, assignee_object_id=None,
+                           assignee_principal_type=None, description=None,
                            condition=None, condition_version=None, assignment_name=None):
     """Check parameters are provided correctly, then call _create_role_assignment."""
-    if not scope:
-        logger.warning(SCOPE_WARNING)
-
     if bool(assignee) == bool(assignee_object_id):
         raise CLIError('usage error: --assignee STRING | --assignee-object-id GUID')
 
@@ -183,13 +319,13 @@ def create_role_assignment(cmd, role, assignee=None, assignee_object_id=None, re
             principal_type = _get_principal_type_from_object_id(cmd.cli_ctx, assignee_object_id)
 
     try:
-        return _create_role_assignment(cmd.cli_ctx, role, object_id, resource_group_name, scope, resolve_assignee=False,
+        return _create_role_assignment(cmd.cli_ctx, role, object_id, scope=scope, resolve_assignee=False,
                                        assignee_principal_type=principal_type, description=description,
                                        condition=condition, condition_version=condition_version,
                                        assignment_name=assignment_name)
     except Exception as ex:  # pylint: disable=broad-except
         if _error_caused_by_role_assignment_exists(ex):  # for idempotent
-            return list_role_assignments(cmd, assignee, role, resource_group_name, scope)[0]
+            return list_role_assignments(cmd, assignee_object_id=object_id, role=role, scope=scope)[0]
         raise
 
 
@@ -206,19 +342,22 @@ def _create_role_assignment(cli_ctx, role, assignee, resource_group_name=None, s
 
     role_id = _resolve_role_id(role, scope, definitions_client)
     object_id = _resolve_object_id(cli_ctx, assignee) if resolve_assignee else assignee
-    worker = MultiAPIAdaptor(cli_ctx)
+    worker = RoleApiHelper(cli_ctx)
     return worker.create_role_assignment(assignments_client, assignment_name, role_id, object_id, scope,
                                          assignee_principal_type, description=description,
                                          condition=condition, condition_version=condition_version)
 
 
-def list_role_assignments(cmd, assignee=None, role=None, resource_group_name=None,
-                          scope=None, include_inherited=False,
-                          show_all=False, include_groups=False, include_classic_administrators=False):
-    '''
-    :param include_groups: include extra assignments to the groups of which the user is a
-    member(transitively).
-    '''
+def list_role_assignments(cmd,  # pylint: disable=too-many-locals, too-many-branches
+                          assignee=None, assignee_object_id=None,
+                          role=None,
+                          resource_group_name=None, scope=None,
+                          include_inherited=False,
+                          show_all=False, include_groups=False,
+                          fill_role_definition_name=True, fill_principal_name=True):
+    if assignee and assignee_object_id:
+        raise CLIError('Usage error: Provide only one of --assignee or --assignee-object-id.')
+
     graph_client = _graph_client_factory(cmd.cli_ctx)
     authorization_client = _auth_client_factory(cmd.cli_ctx, scope)
     assignments_client = authorization_client.role_assignments
@@ -232,49 +371,42 @@ def list_role_assignments(cmd, assignee=None, role=None, resource_group_name=Non
         scope = _build_role_scope(resource_group_name, scope,
                                   definitions_client._config.subscription_id)
 
-    assignments = _search_role_assignments(cmd.cli_ctx, assignments_client, definitions_client,
-                                           scope, assignee, role,
+    if assignee and not assignee_object_id:
+        assignee_object_id = _resolve_object_id(cmd.cli_ctx, assignee, fallback_to_object_id=True)
+    assignments = _search_role_assignments(assignments_client, definitions_client,
+                                           scope, assignee_object_id, role,
                                            include_inherited, include_groups)
 
-    results = todict(assignments) if assignments else []
-    if include_classic_administrators:
-        results += _backfill_assignments_for_co_admins(cmd.cli_ctx, authorization_client, assignee)
+    # In azure-mgmt-authorization 5.x the SDK models nest properties under a ``properties``
+    # field and ``knack.util.todict`` does not walk MutableMapping models, so use the
+    # explicit adapter to keep the legacy flat camelCase shape downstream code expects.
+    results = [_role_assignment_to_dict(ra) for ra in assignments] if assignments else []
 
     if not results:
         return []
 
-    # 1. fill in logic names to get things understandable.
-    # (it's possible that associated roles and principals were deleted, and we just do nothing.)
-    # 2. fill in role names
-    role_defs = list(definitions_client.list(
-        scope=scope or ('/subscriptions/' + definitions_client._config.subscription_id)))
-    worker = MultiAPIAdaptor(cmd.cli_ctx)
-    role_dics = {i.id: worker.get_role_property(i, 'role_name') for i in role_defs}
-    for i in results:
-        if not i.get('roleDefinitionName'):
-            if role_dics.get(worker.get_role_property(i, 'roleDefinitionId')):
-                worker.set_role_property(i, 'roleDefinitionName',
-                                         role_dics[worker.get_role_property(i, 'roleDefinitionId')])
-            else:
-                i['roleDefinitionName'] = None  # the role definition might have been deleted
+    # Fill in role definition names
+    if fill_role_definition_name:
+        role_defs = list(definitions_client.list(
+            scope=scope or ('/subscriptions/' + definitions_client._config.subscription_id)))
+        role_dics = {rd.id: rd.role_name for rd in role_defs}
+        for ra in results:
+            ra['roleDefinitionName'] = role_dics.get(ra['roleDefinitionId'])
 
-    # fill in principal names
-    principal_ids = set(worker.get_role_property(i, 'principalId')
-                        for i in results if worker.get_role_property(i, 'principalId'))
+    # Fill in principal names
+    if fill_principal_name:
+        principal_ids = set(ra['principalId'] for ra in results)
 
-    if principal_ids:
-        try:
-            principals = _get_object_stubs(graph_client, principal_ids)
-            principal_dics = {i[ID]: _get_displayable_name(i) for i in principals}
+        if principal_ids:
+            try:
+                principals = _get_object_stubs(graph_client, principal_ids)
+                principal_dics = {i[ID]: _get_displayable_name(i) for i in principals}
 
-            for i in [r for r in results if not r.get('principalName')]:
-                i['principalName'] = ''
-                if principal_dics.get(worker.get_role_property(i, 'principalId')):
-                    worker.set_role_property(i, 'principalName',
-                                             principal_dics[worker.get_role_property(i, 'principalId')])
-        except (CloudError, GraphError) as ex:
-            # failure on resolving principal due to graph permission should not fail the whole thing
-            logger.info("Failed to resolve graph object information per error '%s'", ex)
+                for ra in results:
+                    ra['principalName'] = principal_dics.get(ra['principalId']) or ''
+            except (HttpResponseError, GraphError) as ex:
+                # failure on resolving principal due to graph permission should not fail the whole thing
+                logger.info("Failed to resolve graph object information per error '%s'", ex)
 
     for r in results:
         if not r.get('additionalProperties'):  # remove the useless "additionalProperties"
@@ -289,14 +421,26 @@ def update_role_assignment(cmd, role_assignment):
     else:
         role_assignment = shell_safe_json_parse(role_assignment)
 
-    # Updating role assignment is only supported after 2020-04-01-preview, so we don't need to use MultiAPIAdaptor.
-    from azure.cli.core.profiles import get_sdk
+    if not isinstance(role_assignment, dict):
+        raise CLIError("--role-assignment must be a JSON object.")
 
-    RoleAssignment = get_sdk(cmd.cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'RoleAssignment', mod='models',
-                             operation_group='role_assignments')
-    assignment = RoleAssignment.from_dict(role_assignment)
-    scope = assignment.scope
-    name = assignment.name
+    # The user supplies the legacy flat camelCase shape (typically the output of
+    # ``az role assignment create`` or ``... show``). Read the resource address from
+    # there directly. The new TypeSpec-generated SDK does not reliably surface these
+    # fields when the model is constructed from a flat dict, so don't round-trip
+    # through ``RoleAssignment(...)`` to extract them.
+    scope = role_assignment.get('scope')
+    name = role_assignment.get('name')
+    if not scope or not name:
+        raise CLIError("'scope' and 'name' are required in the role assignment JSON.")
+
+    new_principal_type = role_assignment.get('principalType')
+    new_condition = role_assignment.get('condition')
+    new_condition_version = role_assignment.get('conditionVersion')
+    new_description = role_assignment.get('description')
+    new_role_definition_id = role_assignment.get('roleDefinitionId')
+    new_principal_id = role_assignment.get('principalId')
+    new_delegated_id = role_assignment.get('delegatedManagedIdentityResourceId')
 
     auth_client = _auth_client_factory(cmd.cli_ctx, scope)
     assignments_client = auth_client.role_assignments
@@ -306,14 +450,36 @@ def update_role_assignment(cmd, role_assignment):
 
     # Forbid condition version downgrading.
     # This should be implemented on the service-side in the future.
-    if (assignment.condition_version and original_assignment.condition_version and
-            original_assignment.condition_version.startswith('2.') and assignment.condition_version.startswith('1.')):
+    if (new_condition_version and original_assignment.condition_version and
+            original_assignment.condition_version.startswith('2.') and
+            new_condition_version.startswith('1.')):
         raise CLIError("Condition version cannot be downgraded to '1.X'.")
 
-    if not assignment.principal_type:
-        assignment.principal_type = original_assignment.principal_type
+    # PUT semantics: build a complete properties body, defaulting any field the user
+    # did not include to the existing value.
+    properties_body = {
+        'roleDefinitionId': new_role_definition_id or original_assignment.role_definition_id,
+        'principalId': new_principal_id or original_assignment.principal_id,
+        'principalType': new_principal_type or original_assignment.principal_type,
+        'description': new_description if new_description is not None
+        else original_assignment.description,
+        'condition': new_condition if new_condition is not None
+        else original_assignment.condition,
+        'conditionVersion': new_condition_version if new_condition_version is not None
+        else original_assignment.condition_version,
+    }
+    if new_delegated_id is not None or original_assignment.delegated_managed_identity_resource_id:
+        properties_body['delegatedManagedIdentityResourceId'] = (
+            new_delegated_id or original_assignment.delegated_managed_identity_resource_id)
 
-    return assignments_client.create(scope, name, parameters=assignment)
+    # Strip None values so we don't clobber server defaults with explicit nulls.
+    properties_body = {k: v for k, v in properties_body.items() if v is not None}
+
+    # The .create() overload accepts a JSON dict directly via the {"properties": {...}}
+    # envelope - simpler than wrapping in RoleAssignmentCreateParameters and avoids the
+    # flatten/unflatten gymnastics of the new TypeSpec models.
+    return _role_assignment_to_dict(
+        assignments_client.create(scope, name, parameters={'properties': properties_body}))
 
 
 def _get_assignment_events(cli_ctx, start_time=None, end_time=None):
@@ -361,7 +527,6 @@ def _get_assignment_events(cli_ctx, start_time=None, end_time=None):
 def list_role_assignment_change_logs(cmd, start_time=None, end_time=None):  # pylint: disable=too-many-branches
     # pylint: disable=too-many-nested-blocks, too-many-statements
     result = []
-    worker = MultiAPIAdaptor(cmd.cli_ctx)
     start_events, end_events = _get_assignment_events(cmd.cli_ctx, start_time, end_time)
 
     # Use the resource `name` of roleDefinitions as keys, instead of `id`, because `id` can be inherited.
@@ -369,16 +534,16 @@ def list_role_assignment_change_logs(cmd, start_time=None, end_time=None):  # py
     #   id: /subscriptions/0b1f6471-1bf0-4dda-aec3-cb9272f09590/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c  # pylint: disable=line-too-long
     if start_events:
         # Only query Role Definitions and Graph when there are events returned
-        role_defs = {d.name: worker.get_role_property(d, 'role_name') for d in list_role_definitions(cmd)}
+        role_defs = {rd.name: rd.role_name for rd in list_role_definitions(cmd)}
 
-        for op_id in start_events:
-            e = end_events.get(op_id, None)
+        for k, v in start_events.items():
+            e = end_events.get(k, None)
             if not e:
                 continue
 
             entry = {}
             if e.status.value == 'Succeeded':
-                s, payload = start_events[op_id], None
+                s, payload = v, None
                 entry = dict.fromkeys(
                     ['principalId', 'principalName', 'scope', 'scopeName', 'scopeType', 'roleDefinitionId', 'roleName'],
                     None)
@@ -439,53 +604,6 @@ def list_role_assignment_change_logs(cmd, start_time=None, end_time=None):  # py
     return result
 
 
-def _backfill_assignments_for_co_admins(cli_ctx, auth_client, assignee=None):
-    worker = MultiAPIAdaptor(cli_ctx)
-    co_admins = auth_client.classic_administrators.list()  # known swagger bug on api-version handling
-    co_admins = [x for x in co_admins if x.email_address]
-    graph_client = _graph_client_factory(cli_ctx)
-    if assignee:  # apply assignee filter if applicable
-        if is_guid(assignee):
-            try:
-                result = _get_object_stubs(graph_client, [assignee])
-                if not result:
-                    return []
-                assignee = _get_displayable_name(result[0]).lower()
-            except ValueError:
-                pass
-        co_admins = [x for x in co_admins if assignee == x.email_address.lower()]
-
-    if not co_admins:
-        return []
-
-    result, users = [], []
-    for i in range(0, len(co_admins), 10):  # graph allows up to 10 query filters, so split into chunks here
-        upn_queries = ["userPrincipalName eq '{}'".format(x.email_address)
-                       for x in co_admins[i:i + 10]]
-        temp = list(list_users(graph_client, query_filter=' or '.join(upn_queries)))
-        users += temp
-    upns = {u['userPrincipalName']: u[ID] for u in users}
-    for admin in co_admins:
-        na_text = 'NA(classic admins)'
-        email = admin.email_address
-        result.append({
-            'id': na_text,
-            'name': na_text,
-        })
-        properties = {
-            'principalId': upns.get(email),
-            'principalName': email,
-            'roleDefinitionName': admin.role,
-            'roleDefinitionId': 'NA(classic admin role)',
-            'scope': '/subscriptions/' + auth_client._config.subscription_id
-        }
-        if worker.old_api:
-            result[-1]['properties'] = properties
-        else:
-            result[-1].update(properties)
-    return result
-
-
 def _get_displayable_name(graph_object):
     # user
     if 'userPrincipalName' in graph_object:
@@ -497,8 +615,20 @@ def _get_displayable_name(graph_object):
     return graph_object['displayName'] or ''
 
 
-def delete_role_assignments(cmd, ids=None, assignee=None, role=None, resource_group_name=None,
-                            scope=None, include_inherited=False, yes=None):
+def delete_role_assignments(cmd, ids=None,
+                            assignee=None, assignee_object_id=None,
+                            role=None,
+                            resource_group_name=None, scope=None,
+                            include_inherited=False,
+                            yes=None):  # pylint: disable=unused-argument
+    # yes is currently a no-op
+    if not any((ids, assignee, assignee_object_id, role, resource_group_name, scope)):
+        raise ArgumentUsageError('Please provide at least one of these arguments: '
+                                 '--ids, --assignee, --assignee-object-id, --role, --resource-group, --scope')
+
+    if assignee and assignee_object_id:
+        raise CLIError('Usage error: Provide only one of --assignee or --assignee-object-id.')
+
     factory = _auth_client_factory(cmd.cli_ctx, scope)
     assignments_client = factory.role_assignments
     definitions_client = factory.role_definitions
@@ -525,16 +655,14 @@ def delete_role_assignments(cmd, ids=None, assignee=None, role=None, resource_gr
         for i in ids:
             assignments_client.delete_by_id(i)
         return
-    if not any([ids, assignee, role, resource_group_name, scope, assignee, yes]):
-        from knack.prompting import prompt_y_n
-        msg = 'This will delete all role assignments under the subscription. Are you sure?'
-        if not prompt_y_n(msg, default="n"):
-            return
 
     scope = _build_role_scope(resource_group_name, scope,
                               assignments_client._config.subscription_id)
-    assignments = _search_role_assignments(cmd.cli_ctx, assignments_client, definitions_client,
-                                           scope, assignee, role, include_inherited,
+    # Delay resolving object ID, because if ids are provided, no need to resolve
+    if assignee and not assignee_object_id:
+        assignee_object_id = _resolve_object_id(cmd.cli_ctx, assignee, fallback_to_object_id=True)
+    assignments = _search_role_assignments(assignments_client, definitions_client,
+                                           scope, assignee_object_id, role, include_inherited,
                                            include_groups=False)
 
     if assignments:
@@ -544,17 +672,13 @@ def delete_role_assignments(cmd, ids=None, assignee=None, role=None, resource_gr
         raise CLIError('No matched assignments were found to delete')
 
 
-def _search_role_assignments(cli_ctx, assignments_client, definitions_client,
-                             scope, assignee, role, include_inherited, include_groups):
-    assignee_object_id = None
-    if assignee:
-        assignee_object_id = _resolve_object_id(cli_ctx, assignee, fallback_to_object_id=True)
-
-    # https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-list-rest
+def _search_role_assignments(assignments_client, definitions_client,
+                             scope, assignee_object_id, role, include_inherited, include_groups):
+    # https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-list-rest
     # "atScope()" and "principalId eq '{value}'" query cannot be used together (API limitation).
     # always use "scope" if provided, so we can get assignments beyond subscription e.g. management groups
     if scope:
-        f = 'atScope()'
+        f = 'atScope()'  # atScope() excludes role assignments at subscopes
         if assignee_object_id and include_groups:
             f = f + " and assignedTo('{}')".format(assignee_object_id)
         assignments = list(assignments_client.list_for_scope(scope=scope, filter=f))
@@ -567,24 +691,200 @@ def _search_role_assignments(cli_ctx, assignments_client, definitions_client,
     else:
         assignments = list(assignments_client.list_for_subscription())
 
-    worker = MultiAPIAdaptor(cli_ctx)
     if assignments:
-        assignments = [a for a in assignments if (
+        assignments = [ra for ra in assignments if (
+            # If no scope, list all assignments
             not scope or
-            include_inherited and re.match(worker.get_role_property(a, 'scope'), scope, re.I) or
-            worker.get_role_property(a, 'scope').lower() == scope.lower()
+            # If scope is provided with include_inherited, list assignments at and above the scope.
+            # Note that assignments below the scope are already excluded by atScope()
+            include_inherited or
+            # If scope is provided, list assignments at the scope
+            ra.scope.lower() == scope.lower()
         )]
 
         if role:
             role_id = _resolve_role_id(role, scope, definitions_client)
-            assignments = [i for i in assignments if worker.get_role_property(i, 'role_definition_id') == role_id]
+            assignments = [ra for ra in assignments if ra.role_definition_id == role_id]
 
         # filter the assignee if "include_groups" is not provided because service side
         # does not accept filter "principalId eq and atScope()"
         if assignee_object_id and not include_groups:
-            assignments = [i for i in assignments if worker.get_role_property(i, 'principal_id') == assignee_object_id]
+            assignments = [ra for ra in assignments if ra.principal_id == assignee_object_id]
 
     return assignments
+
+
+def list_deny_assignments(cmd, scope=None, filter_str=None):
+    """List deny assignments at a scope or for the entire subscription."""
+    authorization_client = _auth_client_factory(cmd.cli_ctx, scope)
+    deny_client = authorization_client.deny_assignments
+
+    if scope:
+        assignments = list(deny_client.list_for_scope(scope=scope, filter=filter_str))
+    else:
+        assignments = list(deny_client.list(filter=filter_str))
+
+    return [_deny_assignment_to_dict(da) for da in assignments] if assignments else []
+
+
+def show_deny_assignment(cmd, deny_assignment_id=None, deny_assignment_name=None, scope=None):
+    """Get a deny assignment by ID or name."""
+    # Validate args BEFORE creating the auth client so the missing-args path doesn't require login.
+    if not deny_assignment_id and not (deny_assignment_name and scope):
+        raise CLIError('Please provide --id, or both --name and --scope.')
+
+    authorization_client = _auth_client_factory(cmd.cli_ctx, scope)
+    deny_client = authorization_client.deny_assignments
+
+    if deny_assignment_id:
+        return _deny_assignment_to_dict(deny_client.get_by_id(deny_assignment_id))
+    return _deny_assignment_to_dict(
+        deny_client.get(scope=scope, deny_assignment_id=deny_assignment_name))
+
+
+def create_deny_assignment(cmd, scope=None, deny_assignment_name=None,
+                           actions=None, not_actions=None,
+                           description=None,
+                           principal_id=None, principal_type=None,
+                           exclude_principal_ids=None, exclude_principal_types=None,
+                           assignment_name=None):
+    """Create a user-assigned deny assignment.
+
+    Two modes are supported:
+    - Everyone mode (default): Denies actions for all principals at the scope. Requires at least one
+      excluded principal via --exclude-principal-ids.
+    - Per-principal mode: Denies actions for a specific User or ServicePrincipal. Specify the target
+      with --principal-object-id and --principal-type. Excluded principals are optional in this mode.
+
+    Constraints:
+    - DataActions and NotDataActions are not supported
+    - DoNotApplyToChildScopes is not supported
+    - Read actions (*/read) are not permitted
+    - Group type principals are not permitted
+    """
+    # Validate args BEFORE creating the auth client so validation errors don't require login.
+    if not scope:
+        raise CLIError('--scope is required for creating a deny assignment.')
+
+    if not deny_assignment_name:
+        raise CLIError('--name is required for creating a deny assignment.')
+
+    if not actions:
+        raise CLIError('At least one action is required via --actions.')
+
+    # Validate no read actions
+    for action in actions:
+        if action.lower().endswith('/read'):
+            raise CLIError(f"Read actions are not permitted for user-assigned deny assignments: '{action}'. "
+                           "Only write, delete, and action operations can be denied.")
+
+    # Validate principal arguments and build principals list
+    if principal_type and not principal_id:
+        raise CLIError('--principal-object-id is required when --principal-type is specified. '
+                       'Provide both --principal-object-id and --principal-type together, '
+                       'or omit both for Everyone mode.')
+    if principal_id:
+        if not principal_type:
+            raise CLIError('--principal-type is required when --principal-object-id is specified. '
+                           'Accepted values: User, ServicePrincipal.')
+        if principal_type == 'Group':
+            raise CLIError('Group type principals are not permitted for user-assigned deny assignments. '
+                           'Use User or ServicePrincipal instead.')
+    elif not exclude_principal_ids:
+        # Everyone mode requires at least one exclusion
+        raise CLIError('At least one excluded principal is required via --exclude-principal-ids '
+                       'when using Everyone mode (no --principal-object-id specified). '
+                       'User-assigned deny assignments that deny Everyone require at least one exclusion.')
+
+    if exclude_principal_ids and exclude_principal_types \
+            and len(exclude_principal_types) != len(exclude_principal_ids):
+        raise CLIError('--exclude-principal-types must have the same number of entries as --exclude-principal-ids.')
+
+    parameters = _build_deny_assignment_model(
+        cmd.cli_ctx, deny_assignment_name, description,
+        actions, not_actions, principal_id, principal_type,
+        exclude_principal_ids, exclude_principal_types)
+
+    if not assignment_name:
+        assignment_name = str(uuid.uuid4())
+
+    authorization_client = _auth_client_factory(cmd.cli_ctx, scope)
+    deny_client = authorization_client.deny_assignments
+
+    return deny_client.create_or_update(scope=scope, deny_assignment_id=assignment_name,
+                                        parameters=parameters)
+
+
+def _build_deny_assignment_model(cli_ctx, deny_assignment_name, description,
+                                 actions, not_actions, principal_id, principal_type,
+                                 exclude_principal_ids, exclude_principal_types):
+    """Construct the DenyAssignment SDK model from CLI inputs."""
+    DenyAssignment = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'DenyAssignment',
+                             mod='models', operation_group='deny_assignments')
+    DenyAssignmentProperties = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'DenyAssignmentProperties',
+                                       mod='models', operation_group='deny_assignments')
+    DenyAssignmentPermission = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'DenyAssignmentPermission',
+                                       mod='models', operation_group='deny_assignments')
+    DenyAssignmentPrincipal = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'DenyAssignmentPrincipal',
+                                      mod='models', operation_group='deny_assignments')
+
+    if principal_id:
+        principals = [DenyAssignmentPrincipal(id=principal_id, type=principal_type)]
+    else:
+        # Everyone mode is represented by a single SystemDefined principal with the all-zero GUID.
+        principals = [DenyAssignmentPrincipal(id='00000000-0000-0000-0000-000000000000', type='SystemDefined')]
+
+    exclude_principals = []
+    if exclude_principal_ids:
+        for i, pid in enumerate(exclude_principal_ids):
+            exclude_type = exclude_principal_types[i] if exclude_principal_types else 'ServicePrincipal'
+            exclude_principals.append(DenyAssignmentPrincipal(id=pid, type=exclude_type))
+
+    return DenyAssignment(properties=DenyAssignmentProperties(
+        deny_assignment_name=deny_assignment_name,
+        description=description or '',
+        permissions=[DenyAssignmentPermission(
+            actions=actions or [],
+            not_actions=not_actions or [],
+            data_actions=[],
+            not_data_actions=[],
+        )],
+        principals=principals,
+        exclude_principals=exclude_principals,
+        is_system_protected=False,
+    ))
+
+
+def delete_deny_assignment(cmd, scope=None, deny_assignment_id=None, deny_assignment_name=None):
+    """Delete a user-assigned deny assignment."""
+    # Validate args BEFORE creating the auth client so missing-args paths don't require login.
+    if not deny_assignment_id and not (deny_assignment_name and scope):
+        raise CLIError('Please provide --id, or both --name and --scope.')
+
+    if deny_assignment_id:
+        # The new SDK does not expose delete_by_id for deny assignments. Parse the canonical
+        # resource ID into (scope, name) and call delete(). Match case-insensitively because
+        # the provider segment may appear in any casing.
+        parsed_scope, parsed_name = _parse_deny_assignment_id(deny_assignment_id)
+        authorization_client = _auth_client_factory(cmd.cli_ctx, parsed_scope)
+        return authorization_client.deny_assignments.delete(
+            scope=parsed_scope, deny_assignment_id=parsed_name)
+
+    authorization_client = _auth_client_factory(cmd.cli_ctx, scope)
+    return authorization_client.deny_assignments.delete(
+        scope=scope, deny_assignment_id=deny_assignment_name)
+
+
+def _parse_deny_assignment_id(deny_assignment_id):
+    """Split a fully-qualified deny assignment resource ID into (scope, name)."""
+    match = re.match(
+        r'^(?P<scope>.+)/providers/Microsoft\.Authorization/denyAssignments/(?P<name>[^/]+)$',
+        deny_assignment_id, re.IGNORECASE)
+    if not match:
+        raise CLIError(
+            "Invalid deny assignment ID '{}'. Expected format: "
+            "<scope>/providers/Microsoft.Authorization/denyAssignments/<name>".format(deny_assignment_id))
+    return match.group('scope'), match.group('name')
 
 
 def _build_role_scope(resource_group_name, scope, subscription_id):
@@ -613,7 +913,7 @@ def _resolve_role_id(role, scope, definitions_client):
             role_id = '/subscriptions/{}/providers/Microsoft.Authorization/roleDefinitions/{}'.format(
                 definitions_client._config.subscription_id, role)
         if not role_id:  # retrieve role id
-            role_defs = list(definitions_client.list(scope, "roleName eq '{}'".format(role)))
+            role_defs = list(definitions_client.list(scope, filter="roleName eq '{}'".format(role)))
             if not role_defs:
                 raise CLIError("Role '{}' doesn't exist.".format(role))
             if len(role_defs) > 1:
@@ -625,7 +925,11 @@ def _resolve_role_id(role, scope, definitions_client):
 
 
 def create_application(cmd, client, display_name, identifier_uris=None,
-                       is_fallback_public_client=None, sign_in_audience=None,
+                       is_fallback_public_client=None,
+                       service_management_reference=None,
+                       sign_in_audience=None,
+                       # api
+                       requested_access_token_version=None,
                        # keyCredentials
                        key_value=None, key_type=None, key_usage=None, start_date=None, end_date=None,
                        key_display_name=None,
@@ -652,7 +956,11 @@ def create_application(cmd, client, display_name, identifier_uris=None,
                            existing_apps[0][ID])
             body = update_application(
                 existing_apps[0], display_name=display_name, identifier_uris=identifier_uris,
-                is_fallback_public_client=is_fallback_public_client, sign_in_audience=sign_in_audience,
+                is_fallback_public_client=is_fallback_public_client,
+                service_management_reference=service_management_reference,
+                sign_in_audience=sign_in_audience,
+                # api
+                requested_access_token_version=requested_access_token_version,
                 # keyCredentials
                 key_value=key_value, key_type=key_type, key_usage=key_usage,
                 start_date=start_date, end_date=end_date,
@@ -667,9 +975,9 @@ def create_application(cmd, client, display_name, identifier_uris=None,
                 app_roles=app_roles,
                 optional_claims=optional_claims,
                 required_resource_accesses=required_resource_accesses)
-            patch_application(cmd, existing_apps[0][ID], body)
 
-            # no need to resolve identifierUris or appId. Just use id.
+            # No need to resolve identifierUris or appId. Just use object id.
+            client.application_update(existing_apps[0][ID], body)
             return client.application_get(existing_apps[0][ID])
 
     # identifierUris is no longer required, compared to AD Graph
@@ -681,7 +989,11 @@ def create_application(cmd, client, display_name, identifier_uris=None,
 
     _set_application_properties(
         body, display_name=display_name, identifier_uris=identifier_uris,
-        is_fallback_public_client=is_fallback_public_client, sign_in_audience=sign_in_audience,
+        is_fallback_public_client=is_fallback_public_client,
+        service_management_reference=service_management_reference,
+        sign_in_audience=sign_in_audience,
+        # api
+        requested_access_token_version=requested_access_token_version,
         # keyCredentials
         key_credentials=key_credentials,
         # web
@@ -698,7 +1010,7 @@ def create_application(cmd, client, display_name, identifier_uris=None,
         result = graph_client.application_create(body)
     except GraphError as ex:
         if 'insufficient privileges' in str(ex).lower():
-            link = 'https://docs.microsoft.com/azure/azure-resource-manager/resource-group-create-service-principal-portal'  # pylint: disable=line-too-long
+            link = 'https://learn.microsoft.com/azure/azure-resource-manager/resource-group-create-service-principal-portal'  # pylint: disable=line-too-long
             raise CLIError("Directory permission is needed for the current user to register the application. "
                            "For how to configure, please refer '{}'. Original error: {}".format(link, ex))
         raise
@@ -706,7 +1018,11 @@ def create_application(cmd, client, display_name, identifier_uris=None,
 
 
 def update_application(instance, display_name=None, identifier_uris=None,  # pylint: disable=unused-argument
-                       is_fallback_public_client=None, sign_in_audience=None,
+                       is_fallback_public_client=None,
+                       service_management_reference=None,
+                       sign_in_audience=None,
+                       # api
+                       requested_access_token_version=None,
                        # keyCredentials
                        key_value=None, key_type=None, key_usage=None, start_date=None, end_date=None,
                        key_display_name=None,
@@ -727,7 +1043,11 @@ def update_application(instance, display_name=None, identifier_uris=None,  # pyl
 
     _set_application_properties(
         body, display_name=display_name, identifier_uris=identifier_uris,
-        is_fallback_public_client=is_fallback_public_client, sign_in_audience=sign_in_audience,
+        is_fallback_public_client=is_fallback_public_client,
+        service_management_reference=service_management_reference,
+        sign_in_audience=sign_in_audience,
+        # api
+        requested_access_token_version=requested_access_token_version,
         # keyCredentials
         key_credentials=key_credentials,
         # web
@@ -859,7 +1179,7 @@ def _get_grant_permissions(client, client_sp_object_id=None, query_filter=None):
     try:
         # Make the REST request immediately so that errors can be raised and handled.
         return list(grant_info)
-    except CloudError as ex:
+    except HttpResponseError as ex:
         if ex.status_code == 404:
             raise CLIError("Service principal with appId or objectId '{id}' doesn't exist. "
                            "If '{id}' is an appId, make sure an associated service principal is created "
@@ -882,7 +1202,6 @@ def add_permission(client, identifier, api, api_permissions):
         try:
             access_id, access_type = e.split('=')
         except ValueError as ex:
-            from azure.cli.core.azclierror import ArgumentUsageError
             raise ArgumentUsageError('Usage error: Please provide both permission id and type, such as '
                                      '`--api-permissions e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope`') from ex
         resource_access = {
@@ -1156,12 +1475,14 @@ def list_service_principal_owners(client, identifier):
 # pylint: disable=inconsistent-return-statements
 def create_service_principal_for_rbac(
         # pylint:disable=too-many-statements,too-many-locals, too-many-branches, unused-argument
-        cmd, display_name=None, years=None, create_cert=False, cert=None, scopes=None, role=None,
-        show_auth_for_sdk=None, skip_assignment=False, keyvault=None):
+        cmd, display_name=None,
+        service_management_reference=None,
+        create_password=True,
+        years=None, create_cert=False, cert=None, scopes=None, role=None,
+        show_auth_in_json=None, skip_assignment=False, keyvault=None):
     import time
 
     if role and not scopes or not role and scopes:
-        from azure.cli.core.azclierror import ArgumentUsageError
         raise ArgumentUsageError("Usage error: To create role assignments, specify both --role and --scopes.")
 
     graph_client = _graph_client_factory(cmd.cli_ctx)
@@ -1189,7 +1510,7 @@ def create_service_principal_for_rbac(
 
     if cert or create_cert:
         # Key credential is created *at the same time* of application creation.
-        # https://docs.microsoft.com/en-us/graph/application-rollkey-prooftoken
+        # https://learn.microsoft.com/en-us/graph/application-rollkey-prooftoken
         use_cert = True
         public_cert_string, cert_file, cert_start_date, cert_end_date = \
             _process_certificate(
@@ -1201,6 +1522,7 @@ def create_service_principal_for_rbac(
     aad_application = create_application(cmd,
                                          graph_client,
                                          app_display_name,
+                                         service_management_reference=service_management_reference,
                                          key_value=public_cert_string,
                                          start_date=app_start_date,
                                          end_date=app_end_date)
@@ -1214,8 +1536,8 @@ def create_service_principal_for_rbac(
         graph_client.application_remove_password(aad_application[ID], body)
 
     # Password credential is created *after* application creation.
-    # https://docs.microsoft.com/en-us/graph/api/resources/passwordcredential
-    if not use_cert:
+    # https://learn.microsoft.com/en-us/graph/api/resources/passwordcredential
+    if create_password and not use_cert:
         result = _application_add_password(graph_client, aad_application, 'rbac', app_start_date, app_end_date)
         password = result['secretText']
 
@@ -1270,9 +1592,11 @@ def create_service_principal_for_rbac(
                                        ex.response.headers)  # pylint: disable=no-member
                     raise
 
-    logger.warning(CREDENTIAL_WARNING)
+    # No need to show warning if no credential is created
+    if password or cert_file:
+        logger.warning(CREDENTIAL_WARNING)
 
-    if show_auth_for_sdk:
+    if show_auth_in_json:
         from azure.cli.core._profile import Profile
         profile = Profile(cli_ctx=cmd.cli_ctx)
         result = profile.get_sp_auth_info(scopes[0].split('/')[2] if scopes else None,
@@ -1289,14 +1613,10 @@ def create_service_principal_for_rbac(
     }
     if cert_file:
         logger.warning(
-            "Please copy %s to a safe place. When you run 'az login', provide the file path in the --password argument",
+            "Please copy %s to a safe place. When you run `az login`, provide the file path in the --certificate "
+            "argument",
             cert_file)
         result['fileWithCertAndPrivateKey'] = cert_file
-
-    login_hint = ('To log in with this service principal, run:\n'
-                  f'az login --service-principal --username {app_id} --password {password or cert_file} '
-                  f'--tenant {graph_client.tenant}')
-    logger.info(login_hint)
     return result
 
 
@@ -1338,18 +1658,18 @@ def _process_certificate(cli_ctx, years, app_start_date, app_end_date, cert, cre
             _create_self_signed_cert_with_keyvault(cli_ctx, years, keyvault, cert)
     elif keyvault:
         # 6 - Use existing cert from KeyVault
-        kv_client = _get_keyvault_client(cli_ctx)
         vault_base = 'https://{}{}/'.format(keyvault, cli_ctx.cloud.suffixes.keyvault_dns)
-        cert_obj = kv_client.get_certificate(vault_base, cert, '')
+        kv_client = _get_keyvault_cert_client(cli_ctx, vault_base)
+        cert_obj = kv_client.get_certificate(cert)
         public_cert_string = base64.b64encode(cert_obj.cer).decode('utf-8')  # pylint: disable=no-member
-        cert_start_date = cert_obj.attributes.not_before  # pylint: disable=no-member
-        cert_end_date = cert_obj.attributes.expires  # pylint: disable=no-member
+        cert_start_date = cert_obj.properties.not_before  # pylint: disable=no-member
+        cert_end_date = cert_obj.properties.expires_on  # pylint: disable=no-member
 
     return public_cert_string, cert_file, cert_start_date, cert_end_date
 
 
 def _error_caused_by_role_assignment_exists(ex):
-    return getattr(ex, 'status_code', None) == 409 and 'role assignment already exists' in ex.message
+    return getattr(ex, 'status_code', None) == 409 and ex.error.code == 'RoleAssignmentExists'
 
 
 def _validate_app_dates(app_start_date, app_end_date, cert_start_date, cert_end_date):
@@ -1370,9 +1690,10 @@ def _validate_app_dates(app_start_date, app_end_date, cert_start_date, cert_end_
     return app_start_date, app_end_date, cert_start_date, cert_end_date
 
 
-def _get_keyvault_client(cli_ctx):
-    from azure.cli.command_modules.keyvault._client_factory import keyvault_data_plane_factory
-    return keyvault_data_plane_factory(cli_ctx)
+def _get_keyvault_cert_client(cli_ctx, vault_base_url):
+    from azure.cli.command_modules.keyvault._client_factory import data_plane_azure_keyvault_certificate_client
+    command_args = {'vault_base_url': vault_base_url}
+    return data_plane_azure_keyvault_certificate_client(cli_ctx, command_args=command_args)
 
 
 def _create_self_signed_cert(start_date, end_date):  # pylint: disable=too-many-locals
@@ -1429,9 +1750,9 @@ def _create_self_signed_cert(start_date, end_date):  # pylint: disable=too-many-
 
 
 def _create_self_signed_cert_with_keyvault(cli_ctx, years, keyvault, keyvault_cert_name):  # pylint: disable=too-many-locals
-    import time
-
-    kv_client = _get_keyvault_client(cli_ctx)
+    from azure.cli.command_modules.keyvault._validators import build_certificate_policy
+    vault_base_url = 'https://{}{}/'.format(keyvault, cli_ctx.cloud.suffixes.keyvault_dns)
+    kv_client = _get_keyvault_cert_client(cli_ctx, vault_base_url)
     cert_policy = {
         'issuer_parameters': {
             'name': 'Self'
@@ -1466,15 +1787,13 @@ def _create_self_signed_cert_with_keyvault(cli_ctx, years, keyvault, keyvault_ce
             'validity_in_months': int(years * 12)
         }
     }
-    vault_base_url = 'https://{}{}/'.format(keyvault, cli_ctx.cloud.suffixes.keyvault_dns)
-    kv_client.create_certificate(vault_base_url, keyvault_cert_name, cert_policy)
-    while kv_client.get_certificate_operation(vault_base_url, keyvault_cert_name).status != 'completed':  # pylint: disable=no-member, line-too-long
-        time.sleep(5)
+    policyObj = build_certificate_policy(cli_ctx, cert_policy)
+    kv_client.begin_create_certificate(keyvault_cert_name, policyObj).result()
 
-    cert = kv_client.get_certificate(vault_base_url, keyvault_cert_name, '')
+    cert = kv_client.get_certificate(keyvault_cert_name)
     cert_string = base64.b64encode(cert.cer).decode('utf-8')  # pylint: disable=no-member
-    cert_start_date = cert.attributes.not_before  # pylint: disable=no-member
-    cert_end_date = cert.attributes.expires  # pylint: disable=no-member
+    cert_start_date = cert.properties.not_before  # pylint: disable=no-member
+    cert_end_date = cert.properties.expires_on  # pylint: disable=no-member
     creds_file = None
     return (cert_string, creds_file, cert_start_date, cert_end_date)
 
@@ -1571,12 +1890,12 @@ def _resolve_object_id_and_type(cli_ctx, assignee, fallback_to_object_id=False):
 def _get_object_stubs(graph_client, assignees):
     result = []
     assignees = list(assignees)  # callers could pass in a set
-    # Per https://docs.microsoft.com/en-us/graph/api/directoryobject-getbyids
+    # Per https://learn.microsoft.com/en-us/graph/api/directoryobject-getbyids
     # > You can specify up to 1000 IDs.
     for i in range(0, len(assignees), 1000):
         body = {
             "ids": assignees[i:i + 1000],
-            # According to https://docs.microsoft.com/en-us/graph/api/directoryobject-getbyids,
+            # According to https://learn.microsoft.com/en-us/graph/api/directoryobject-getbyids,
             # directoryObject should work as all of the resource types defined in the directory, but it doesn't.
             "types": ['user', 'group', 'servicePrincipal', 'directoryObjectPartnerReference']
         }
@@ -1614,7 +1933,7 @@ def _datetime_to_utc(dt):
 
 
 def _build_required_resource_accesses(required_resource_accesses):
-    # https://docs.microsoft.com/en-us/graph/api/resources/requiredresourceaccess
+    # https://learn.microsoft.com/en-us/graph/api/resources/requiredresourceaccess
     if isinstance(required_resource_accesses, dict):
         logger.info('Getting "requiredResourceAccess" from a full manifest')
         required_resource_accesses = required_resource_accesses.get('requiredResourceAccess', [])
@@ -1622,7 +1941,7 @@ def _build_required_resource_accesses(required_resource_accesses):
 
 
 def _build_app_roles(app_roles):
-    # https://docs.microsoft.com/en-us/graph/api/resources/approle
+    # https://learn.microsoft.com/en-us/graph/api/resources/approle
     if isinstance(app_roles, dict):
         logger.info('Getting "appRoles" from a full manifest')
         app_roles = app_roles.get('appRoles', [])
@@ -1634,8 +1953,8 @@ def _build_app_roles(app_roles):
 
 
 def _build_optional_claims(optional_claims):
-    # https://docs.microsoft.com/en-us/graph/api/resources/optionalclaim
-    # https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims#configuring-optional-claims
+    # https://learn.microsoft.com/en-us/graph/api/resources/optionalclaim
+    # https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims#configuring-optional-claims
     if 'optionalClaims' in optional_claims:
         logger.info('Getting "optionalClaims" from a full manifest')
         optional_claims = optional_claims.get('optionalClaims', [])
@@ -1643,7 +1962,7 @@ def _build_optional_claims(optional_claims):
 
 
 def _build_add_password_credential_body(display_name, start_datetime, end_datetime):
-    # https://docs.microsoft.com/en-us/graph/api/resources/passwordcredential
+    # https://learn.microsoft.com/en-us/graph/api/resources/passwordcredential
     body = {
         "passwordCredential": {
             "displayName": display_name,
@@ -1673,7 +1992,7 @@ def _build_key_credentials(key_value=None, key_type=None, key_usage=None,
     key_type = key_type or 'AsymmetricX509Cert'
     key_usage = key_usage or 'Verify'
 
-    # https://docs.microsoft.com/en-us/graph/api/resources/keycredential
+    # https://learn.microsoft.com/en-us/graph/api/resources/keycredential
     key_credential = {
         "@odata.type": "#microsoft.graph.keyCredential",
         "displayName": display_name,
@@ -1700,8 +2019,8 @@ def _reset_credential(cmd, graph_object, add_password_func, remove_password_func
     :param patch_func: Patch API function. Used to update keyCredentials.
     """
 
-    # https://docs.microsoft.com/en-us/graph/api/resources/passwordcredential
-    # https://docs.microsoft.com/en-us/graph/api/resources/keycredential
+    # https://learn.microsoft.com/en-us/graph/api/resources/passwordcredential
+    # https://learn.microsoft.com/en-us/graph/api/resources/keycredential
     # Only displayName should be set.
     # For passwordCredential, customKeyIdentifier is not applicable.
     # For keyCredential, customKeyIdentifier is automatically computed by Graph service as certificate thumbprint.
@@ -1924,17 +2243,14 @@ def list_groups(client, display_name=None, query_filter=None):
 
 
 def get_group(client, object_id):
-    """Get group information from the directory."""
     return client.group_get(object_id)
 
 
 def delete_group(client, object_id):
-    """Delete a group from the directory."""
     return client.group_delete(object_id)
 
 
 def get_group_member_groups(client, object_id, security_enabled_only=False):
-    """Get a collection of object IDs of groups of which the specified group is a member."""
     return _get_member_groups(client.group_get_member_groups, object_id, security_enabled_only)
 
 
@@ -1963,12 +2279,10 @@ def check_group_membership(client, group_id, member_object_id):
 
 
 def list_group_members(client, group_id):
-    """Get the members of a group."""
     return client.group_member_list(group_id)
 
 
 def add_group_member(client, group_id, member_object_id):
-    """Add a member to a group."""
     # API is not idempotent and fails with:
     #   One or more added object references already exist for the following modified properties: 'members'.
     # TODO: make it idempotent like add_group_owner
@@ -1977,7 +2291,6 @@ def add_group_member(client, group_id, member_object_id):
 
 
 def remove_group_member(client, group_id, member_object_id):
-    """Remove a member from a group."""
     return client.group_member_remove(group_id, member_object_id)
 
 
@@ -2002,9 +2315,55 @@ def _build_directory_object_json(client, object_id):
 
 def _get_member_groups(get_member_group_func, identifier, security_enabled_only):
     """Call 'directoryObject: getMemberGroups' API with specified get_member_group_func.
-    https://docs.microsoft.com/en-us/graph/api/directoryobject-getmembergroups
+    https://learn.microsoft.com/en-us/graph/api/directoryobject-getmembergroups
     """
     body = {
         "securityEnabledOnly": security_enabled_only
     }
     return get_member_group_func(identifier, body)
+
+
+class RoleApiHelper:
+    def __init__(self, cli_ctx):
+        self.cli_ctx = cli_ctx
+
+    def _init_individual_permission(self, cfg):
+        Permission = get_sdk(self.cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'Permission', mod='models',
+                             operation_group='role_definitions')
+        permission = Permission(actions=cfg.get('actions', None),
+                                not_actions=cfg.get('notActions', None),
+                                data_actions=cfg.get('dataActions', None),
+                                not_data_actions=cfg.get('notDataActions', None))
+        return permission
+
+    def _init_permissions(self, role_definition_input):
+        # we will handle with or w/o 'permissions'
+        if 'permissions' in role_definition_input:
+            return [self._init_individual_permission(p) for p in role_definition_input['permissions']]
+        return [self._init_individual_permission(role_definition_input)]
+
+    def create_role_definition(self, client, role_name, role_id, role_definition_input):
+        RoleDefinition = get_sdk(self.cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'RoleDefinition',
+                                 mod='models', operation_group='role_definitions')
+        role_definition = RoleDefinition(role_name=role_name,
+                                         description=role_definition_input.get('description', None),
+                                         type='CustomRole',
+                                         assignable_scopes=role_definition_input['assignableScopes'],
+                                         permissions=self._init_permissions(role_definition_input))
+        scope = role_definition_input['assignableScopes'][0]
+        return client.create_or_update(role_definition_id=role_id, scope=scope, role_definition=role_definition)
+
+    def create_role_assignment(self, client, assignment_name, role_id, object_id, scope, assignee_principal_type=None,
+                               description=None, condition=None, condition_version=None):
+        RoleAssignmentCreateParameters = get_sdk(
+            self.cli_ctx, ResourceType.MGMT_AUTHORIZATION, 'RoleAssignmentCreateParameters',
+            mod='models', operation_group='role_assignments')
+
+        # In 2022-04-01 API, principal_type is by default 'User', so we have to explicitly set it to None if we can't
+        # resolve principal type from Graph
+        # https://github.com/Azure/azure-rest-api-specs/issues/21664
+        parameters = RoleAssignmentCreateParameters(
+            role_definition_id=role_id, principal_id=object_id, principal_type=assignee_principal_type,
+            description=description, condition=condition, condition_version=condition_version)
+
+        return client.create(scope, assignment_name, parameters)

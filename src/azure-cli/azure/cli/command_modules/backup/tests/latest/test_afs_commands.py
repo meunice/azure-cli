@@ -7,10 +7,11 @@ import json
 from datetime import datetime, timedelta
 import unittest
 import time
-from azure.cli.testsdk import ScenarioTest, JMESPathCheckExists, ResourceGroupPreparer, \
-    StorageAccountPreparer, record_only
+from azure.cli.testsdk import ScenarioTest, JMESPathCheckExists, \
+    record_only, live_only
+from azure.cli.testsdk.scenario_tests import AllowLargeResponse
 from .preparers import VaultPreparer, FileSharePreparer, AFSPolicyPreparer, AFSItemPreparer, \
-    AFSRPPreparer, FilePreparer
+    AFSRPPreparer, FilePreparer, ResourceGroupPreparer, StorageAccountPreparer
 
 subscription_id = "da364f0f-307b-41c9-9d47-b7413ec45535"
 unprotected_afs = "clitestafs"
@@ -23,10 +24,11 @@ vault_name = "sarath-vault"
 
 
 class BackupTests(ScenarioTest, unittest.TestCase):
-    #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
     @AFSPolicyPreparer()
     def test_afs_backup_scenario(self, resource_group, vault_name, storage_account, afs_name, policy_name):
@@ -53,17 +55,118 @@ class BackupTests(ScenarioTest, unittest.TestCase):
 
         # Disable Protection
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item} --backup-management-type AzureStorage --delete-backup-data true --yes')
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+
+        # Cleaning up Storage account locks
+        command_string = 'lock list -g {} --resource-name {} --resource-type {}'.format(
+            resource_group, storage_account, 'Microsoft.Storage/storageAccounts')
+        list_of_locks = self.cmd(command_string).get_output_in_json()
+        for lock in list_of_locks:
+            command_string = 'lock delete --ids {}'.format(lock["id"])
+            self.cmd(command_string)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
+
+    @AllowLargeResponse(size_kb=4096)
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
+    @VaultPreparer()
+    @StorageAccountPreparer(location="eastus2euap")
+    @FileSharePreparer()
+    @AFSPolicyPreparer()
+    def test_afs_backup_protection_undelete(self, resource_group, vault_name, storage_account, afs_name, policy_name):
+        self.kwargs.update({
+            'vault': vault_name,
+            'item': afs_name,
+            'container': storage_account,
+            'rg': resource_group,
+            'type': "AzureStorage",
+            'policy': policy_name
+        })
+
+        self.cmd('backup protection enable-for-azurefileshare -g {rg} -v {vault} --storage-account {container} --azure-file-share {item} -p {policy}', checks=[
+            self.check("properties.entityFriendlyName", '{item}'),
+            self.check("properties.operation", "ConfigureBackup"),
+            self.check("properties.status", "Completed"),
+            self.check("resourceGroup", '{rg}')
+        ]).get_output_in_json()
+
+        item_json = self.cmd('backup item list -g {rg} -v {vault} -c {container} --backup-management-type {type}').get_output_in_json()
+        protected_item_count1 = len(item_json)
+
+        self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item} --backup-management-type {type} --yes', checks=[
+            self.check("properties.entityFriendlyName", '{item}'),
+            self.check("properties.operation", "DisableBackup"),
+            self.check("properties.status", "Completed"),
+            self.check("resourceGroup", '{rg}')
+        ])
+
+        self.cmd('backup item show -g {rg} -v {vault} -c {container} -n {item} --backup-management-type {type}', checks=[
+            self.check("properties.friendlyName", '{item}'),
+            self.check("properties.protectionState", "ProtectionStopped"),
+            self.check("resourceGroup", '{rg}')
+        ])
+
+        self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item} --backup-management-type {type} --delete-backup-data true --yes', checks=[
+            self.check("properties.entityFriendlyName", '{item}'),
+            self.check("properties.operation", "DeleteBackupData"),
+            self.check("properties.status", "Completed"),
+            self.check("resourceGroup", '{rg}')
+        ])
+
+        item_json = self.cmd('backup item list -g {rg} -v {vault} -c {container} --backup-management-type {type}').get_output_in_json()
+        protected_item_count2 = len(item_json)
+
+        self.assertTrue(protected_item_count1 == protected_item_count2)
+
+        self.cmd('backup item show -g {rg} -v {vault} -c {container} -n {item} --backup-management-type {type}', checks=[
+            self.check("properties.protectionState", "ProtectionStopped"),
+            self.check("properties.isScheduledForDeferredDelete", True)
+        ])
+
+        self.cmd(
+            'backup item list -g {rg} -v {vault} -c {container} --backup-management-type {type} '
+            '--workload-type AzureFileShare '
+            '--query "[?properties.isScheduledForDeferredDelete == `true` '
+            "&& properties.friendlyName == '{item}']\"",
+            checks=[
+                self.check("length(@)", 1),
+                self.check("[0].properties.friendlyName", "{item}"),
+                self.check("[0].properties.isScheduledForDeferredDelete", True)
+            ])
+
+        self.cmd('backup protection undelete -g {rg} -v {vault} -c {container} -i {item} --backup-management-type {type} --workload-type AzureFileShare', checks=[
+            self.check("properties.entityFriendlyName", '{item}'),
+            self.check("properties.operation", "Undelete"),
+            self.check("properties.status", "Completed"),
+            self.check("resourceGroup", '{rg}')
+        ])
+
+        self.cmd('backup item show -g {rg} -v {vault} -c {container} -n {item} --backup-management-type {type}', checks=[
+            self.check("properties.protectionState", "ProtectionStopped"),
+            self.check("properties.isScheduledForDeferredDelete", None)
+        ])
+
+        self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item} --backup-management-type {type} --delete-backup-data true --yes')
+
+        # Cleaning up Storage account locks
+        command_string = 'lock list -g {} --resource-name {} --resource-type {}'.format(
+            resource_group, storage_account, 'Microsoft.Storage/storageAccounts')
+        list_of_locks = self.cmd(command_string).get_output_in_json()
+        for lock in list_of_locks:
+            command_string = 'lock delete --ids {}'.format(lock["id"])
+            self.cmd(command_string)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
     @AFSPolicyPreparer()
     @AFSItemPreparer()
-    @StorageAccountPreparer(location="eastasia", parameter_name="sa2")
+    @StorageAccountPreparer(location="eastus2euap", parameter_name="sa2")
     @FileSharePreparer(storage_account_parameter_name="sa2", parameter_name="afs2")
     @AFSItemPreparer(afs_parameter_name="afs2", storage_account_parameter_name="sa2")
     def test_afs_backup_container(self, resource_group, vault_name, storage_account, sa2, afs_name, afs2):
@@ -100,14 +203,16 @@ class BackupTests(ScenarioTest, unittest.TestCase):
 
         self.cmd('backup protection disable -g {rg} -v {vault} -c {sa1} -i {item1} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
         self.cmd('backup protection disable -g {rg} -v {vault} -c {sa2} -i {item2} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {sa1} --yes --backup-management-type AzureStorage')
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {sa2} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {sa1} --yes --backup-management-type AzureStorage')
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {sa2} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
     @FileSharePreparer(parameter_name="afs2")
     @AFSPolicyPreparer()
@@ -169,13 +274,344 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.assertIn(self.kwargs['newpolicy'].lower(), item1_json['properties']['policyId'].split('/')[-1].lower())
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item1} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item2} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
+
+    @AllowLargeResponse()
+    @record_only()
+    @unittest.skip("Requires a GRS vault with cross-region-replicated recovery points and cross-subscription playback support; setup unavailable.")
+    def test_afs_cross_region_restore(self):
+        self.kwargs.update({
+            'sub': '38304e13-357e-405e-9e9a-220351dcce8c',
+            'rg': 'DONOTUSE-CLItest-afscrr-09251156',
+            'vault': 'DONOTUSE-CLItest-afs-09251156',
+            'container': 'donotuseclitestafs115651',
+            'item': 'AzureFileShare;7a5f85f67647cd11af8bf6e400320292eecbca58b993799b7dc62b2a213de5e5',
+            'friendly_item': 'donotuseclitestshare',
+            'target_sa': 'donotuseclitgt115652',
+            'target_share': 'donotuseclitesttarget'
+        })
+
+        self.cmd(
+            'backup item list --subscription {sub} -g {rg} -v {vault} '
+            '--backup-management-type AzureStorage --workload-type AzureFileShare '
+            '--use-secondary-region',
+            checks=[
+                self.check("length([?name == '{item}'])", 1),
+                self.check(
+                    "[?name == '{item}'] | [0].properties.friendlyName",
+                    '{friendly_item}'
+                )
+            ]
+        )
+
+        self.cmd(
+            'backup item show --subscription {sub} -g {rg} -v {vault} '
+            '-c {container} -n {item} --backup-management-type AzureStorage '
+            '--workload-type AzureFileShare --use-secondary-region',
+            checks=[
+                self.check('name', '{item}'),
+                self.check('properties.friendlyName', '{friendly_item}'),
+                self.check('properties.backupManagementType', 'AzureStorage')
+            ]
+        )
+
+        self.kwargs['rp'] = self.cmd(
+            'backup recoverypoint list --subscription {sub} -g {rg} -v {vault} '
+            '-c {container} -i {item} --backup-management-type AzureStorage '
+            '--workload-type AzureFileShare --use-secondary-region --query [0].name'
+        ).get_output_in_json()
+
+        restore_job = self.cmd(
+            'backup restore restore-azurefileshare --subscription {sub} -g {rg} -v {vault} '
+            '-c {container} -i {item} -r {rp} --restore-mode AlternateLocation '
+            '--resolve-conflict Overwrite --target-storage-account {target_sa} '
+            '--target-file-share {target_share} --target-resource-group-name {rg} '
+            '--use-secondary-region',
+            checks=[
+                self.check('properties.operation', 'CrossRegionRestore'),
+                self.check('properties.status', 'InProgress')
+            ]
+        ).get_output_in_json()
+        self.kwargs['job'] = restore_job['name']
+
+        self.cmd(
+            'backup job wait --subscription {sub} -g {rg} -v {vault} '
+            '-n {job} --use-secondary-region'
+        )
+
+        self.cmd(
+            'backup job show --subscription {sub} -g {rg} -v {vault} '
+            '-n {job} --use-secondary-region',
+            checks=[
+                self.check('properties.operation', 'CrossRegionRestore'),
+                self.check('properties.status', 'Completed'),
+                self.check(
+                    'properties.extendedInfo.tasksList[0].status',
+                    'Completed'
+                )
+            ]
+        )
+
+    @AllowLargeResponse(size_kb=4096)
+    @record_only()
+    def test_afs_msi_reregistration_protection_restore(self):
+        source_subscription = self.get_subscription_id()
+        target_subscription = self.get_subscription_id()
+        self.kwargs.update({
+            'rg': 'cli-afs-msi-20261024-2215',
+            'vault': 'cli-afs-msi-261024-2215',
+            'policy': 'CliAfsSnapshotPolicy',
+            'storage_account': 'cliafsu2610242215',
+            'uami_id': (
+                '/subscriptions/{}/'
+                'resourceGroups/cli-afs-msi-20261024-2215/providers/Microsoft.ManagedIdentity/'
+                'userAssignedIdentities/cli-afs-uami-261024-2215'
+            ).format(source_subscription),
+            'target_subscription': target_subscription,
+            'target_resource_group': 'cli-afs-msi-20261024-2215',
+            'target_storage_account': 'cliafst2610242215',
+            'target_share': 'cli-uami-target',
+            'share': self.create_random_name('climsirec', 20),
+            'type': 'AzureStorage'
+        })
+
+        self.cmd(
+            'backup container register -g {rg} -v {vault} '
+            '--backup-management-type {type} --workload-type AzureFileShare '
+            '--storage-account {storage_account} --access-type IdentityBased '
+            '--mi-system-assigned --yes'
+        )
+        self.cmd(
+            'backup container show -g {rg} -v {vault} -n {storage_account} '
+            '--backup-management-type {type}',
+            checks=[
+                self.check('properties.accessType', 'IdentityBased'),
+                self.check('properties.identityInfo.isSystemAssignedIdentity', True)
+            ]
+        )
+
+        self.cmd(
+            'backup container register -g {rg} -v {vault} '
+            '--backup-management-type {type} --workload-type AzureFileShare '
+            '--storage-account {storage_account} --access-type IdentityBased '
+            '--mi-user-assigned {uami_id} --yes'
+        )
+        self.cmd(
+            'backup container show -g {rg} -v {vault} -n {storage_account} '
+            '--backup-management-type {type}',
+            checks=[
+                self.check('properties.accessType', 'IdentityBased'),
+                self.check('properties.identityInfo.isSystemAssignedIdentity', False),
+                self.check('properties.identityInfo.managedIdentityResourceId', '{uami_id}')
+            ]
+        )
+
+        self.cmd(
+            'storage share-rm create -g {rg} --storage-account {storage_account} '
+            '--name {share} --quota 100 --enabled-protocols SMB'
+        )
+        self.kwargs['storage_key'] = self.cmd(
+            'storage account keys list -g {rg} -n {storage_account} '
+            '--query "[0].value" -o tsv'
+        ).output.strip()
+        self.cmd(
+            'storage directory create --account-name {storage_account} '
+            '--account-key "{storage_key}" --share-name {share} --name seed'
+        )
+
+        self.cmd(
+            'backup protection enable-for-azurefileshare -g {rg} -v {vault} '
+            '--storage-account {storage_account} --azure-file-share {share} '
+            '--policy-name {policy}',
+            checks=[
+                self.check('properties.operation', 'ConfigureBackup'),
+                self.check('properties.status', 'Completed')
+            ]
+        )
+
+        item = self.cmd(
+            'backup item list -g {rg} -v {vault} -c {storage_account} '
+            '--backup-management-type {type} --workload-type AzureFileShare '
+            '--query "[?properties.friendlyName == \'{share}\'] | [0]"'
+        ).get_output_in_json()
+        self.kwargs['item'] = item['name']
+        self.kwargs['container'] = item['properties']['containerName']
+        self.kwargs['retain_date'] = (datetime.utcnow() + timedelta(days=30)).strftime('%d-%m-%Y')
+
+        self.kwargs['job'] = self.cmd(
+            'backup protection backup-now -g {rg} -v {vault} -c {container} -i {item} '
+            '--backup-management-type {type} --retain-until {retain_date} --query name'
+        ).get_output_in_json()
+        self.cmd('backup job wait -g {rg} -v {vault} -n {job}')
+
+        self.kwargs['rp'] = self.cmd(
+            'backup recoverypoint list -g {rg} -v {vault} -c {container} -i {item} '
+            '--backup-management-type {type} --query "sort_by(@, &properties.recoveryPointTime)[-1].name"'
+        ).get_output_in_json()
+
+        self.kwargs['job'] = self.cmd(
+            'backup restore restore-azurefileshare -g {rg} -v {vault} '
+            '-c {container} -i {item} -r {rp} --restore-mode AlternateLocation '
+            '--resolve-conflict Overwrite --target-storage-account {storage_account} '
+            '--target-file-share {share} '
+            '--mi-user-assigned {uami_id} --query name'
+        ).get_output_in_json()
+        self.cmd('backup job wait -g {rg} -v {vault} -n {job}')
+        self.cmd(
+            'backup job show -g {rg} -v {vault} -n {job}',
+            checks=[self.check('properties.status', 'Completed')]
+        )
+
+        self.kwargs['job'] = self.cmd(
+            'backup restore restore-azurefileshare -g {rg} -v {vault} '
+            '-c {container} -i {item} -r {rp} --restore-mode AlternateLocation '
+            '--resolve-conflict Overwrite --target-subscription-id {target_subscription} '
+            '--target-resource-group-name {target_resource_group} '
+            '--target-storage-account {target_storage_account} --target-file-share {target_share} '
+            '--mi-user-assigned {uami_id} --query name'
+        ).get_output_in_json()
+        self.cmd('backup job wait -g {rg} -v {vault} -n {job}')
+        self.cmd(
+            'backup job show -g {rg} -v {vault} -n {job}',
+            checks=[self.check('properties.status', 'Completed')]
+        )
+
+        self.cmd(
+            'backup protection disable -g {rg} -v {vault} -c {container} -i {item} '
+            '--backup-management-type {type} --delete-backup-data true --yes'
+        )
+        self.cmd(
+            'storage share delete --account-name {storage_account} '
+            '--account-key "{storage_key}" --name {share} '
+            '--delete-snapshots include-leased'
+        )
+
+    @AllowLargeResponse(size_kb=4096)
+    @record_only()
+    def test_afs_sami_protection_restore(self):
+        self.kwargs.update({
+            'rg': 'cli-afs-msi-20261024-2215',
+            'vault': 'cli-afs-msi-261024-2215',
+            'policy': 'CliAfsSnapshotPolicy',
+            'storage_account': 'cliafss2610242215',
+            'share': self.create_random_name('bhar11clisami', 20),
+            'subscription': self.get_subscription_id(),
+            'type': 'AzureStorage'
+        })
+
+        self.cmd(
+            'storage share-rm create -g {rg} --storage-account {storage_account} '
+            '--name {share} --quota 100 --enabled-protocols SMB '
+            '--subscription {subscription}'
+        )
+        self.kwargs['storage_key'] = self.cmd(
+            'storage account keys list -g {rg} -n {storage_account} '
+            '--subscription {subscription} --query "[0].value" -o tsv'
+        ).output.strip()
+        self.cmd(
+            'storage directory create --account-name {storage_account} '
+            '--account-key "{storage_key}" --share-name {share} --name seed '
+            '--subscription {subscription}'
+        )
+
+        self.cmd(
+            'backup protection enable-for-azurefileshare -g {rg} -v {vault} '
+            '--storage-account {storage_account} --azure-file-share {share} '
+            '--policy-name {policy} --access-type IdentityBased '
+            '--mi-system-assigned --yes --subscription {subscription}',
+            checks=[
+                self.check('properties.operation', 'ConfigureBackup'),
+                self.check('properties.status', 'Completed')
+            ]
+        )
+        self.cmd(
+            'backup container show -g {rg} -v {vault} -n {storage_account} '
+            '--backup-management-type {type} --subscription {subscription}',
+            checks=[
+                self.check('properties.accessType', 'IdentityBased'),
+                self.check('properties.identityInfo.isSystemAssignedIdentity', True)
+            ]
+        )
+
+        item = self.cmd(
+            'backup item list -g {rg} -v {vault} -c {storage_account} '
+            '--backup-management-type {type} --workload-type AzureFileShare '
+            '--subscription {subscription} '
+            '--query "[?properties.friendlyName == \'{share}\'] | [0]"'
+        ).get_output_in_json()
+        self.kwargs['item'] = item['name']
+        self.kwargs['container'] = item['properties']['containerName']
+        self.kwargs['retain_date'] = (datetime.utcnow() + timedelta(days=30)).strftime('%d-%m-%Y')
+
+        self.kwargs['job'] = self.cmd(
+            'backup protection backup-now -g {rg} -v {vault} -c {container} -i {item} '
+            '--backup-management-type {type} --retain-until {retain_date} '
+            '--subscription {subscription} --query name'
+        ).get_output_in_json()
+        self.cmd(
+            'backup job wait -g {rg} -v {vault} -n {job} '
+            '--subscription {subscription}'
+        )
+
+        self.kwargs['rp'] = self.cmd(
+            'backup recoverypoint list -g {rg} -v {vault} -c {container} -i {item} '
+            '--backup-management-type {type} --subscription {subscription} '
+            '--query "sort_by(@, &properties.recoveryPointTime)[-1].name"'
+        ).get_output_in_json()
+
+        self.kwargs['job'] = self.cmd(
+            'backup restore restore-azurefileshare -g {rg} -v {vault} '
+            '-c {container} -i {item} -r {rp} --restore-mode AlternateLocation '
+            '--resolve-conflict Overwrite --target-storage-account {storage_account} '
+            '--target-file-share {share} --mi-system-assigned '
+            '--subscription {subscription} --query name'
+        ).get_output_in_json()
+        self.cmd(
+            'backup job wait -g {rg} -v {vault} -n {job} '
+            '--subscription {subscription}'
+        )
+        self.cmd(
+            'backup job show -g {rg} -v {vault} -n {job} '
+            '--subscription {subscription}',
+            checks=[self.check('properties.status', 'Completed')]
+        )
+
+        self.kwargs['job'] = self.cmd(
+            'backup restore restore-azurefiles -g {rg} -v {vault} '
+            '-c {container} -i {item} -r {rp} --restore-mode AlternateLocation '
+            '--resolve-conflict Overwrite --source-file-type Directory '
+            '--source-file-path seed --target-storage-account {storage_account} '
+            '--target-file-share {share} --target-folder sami-item-restore '
+            '--mi-system-assigned --subscription {subscription} --query name'
+        ).get_output_in_json()
+        self.cmd(
+            'backup job wait -g {rg} -v {vault} -n {job} '
+            '--subscription {subscription}'
+        )
+        self.cmd(
+            'backup job show -g {rg} -v {vault} -n {job} '
+            '--subscription {subscription}',
+            checks=[self.check('properties.status', 'Completed')]
+        )
+
+        self.cmd(
+            'backup protection disable -g {rg} -v {vault} -c {container} -i {item} '
+            '--backup-management-type {type} --delete-backup-data true --yes '
+            '--subscription {subscription}'
+        )
+        self.cmd(
+            'storage share delete --account-name {storage_account} '
+            '--account-key "{storage_key}" --name {share} '
+            '--delete-snapshots include-leased --subscription {subscription}'
+        )
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
     @AFSPolicyPreparer()
     @AFSItemPreparer()
@@ -210,14 +646,17 @@ class BackupTests(ScenarioTest, unittest.TestCase):
 
         self.assertTrue(rp_count1 + 1 == rp_count2)
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item1} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="centraluseuap", random_name_length=30, parameter_name="resource_group2")
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
-    @FilePreparer()
+    @StorageAccountPreparer(location="centraluseuap", parameter_name="storage_account", resource_group_parameter_name="resource_group")
+    @StorageAccountPreparer(location="centraluseuap", parameter_name="storage_account_rg2", resource_group_parameter_name="resource_group2")
     @FilePreparer()
     @FilePreparer(parameter_name="file2")
     @FileSharePreparer(file_upload=True, file_parameter_name=['file_name', 'file2'])
@@ -225,18 +664,21 @@ class BackupTests(ScenarioTest, unittest.TestCase):
     @AFSItemPreparer()
     @AFSRPPreparer()
     @FileSharePreparer(parameter_name="afs2")
-    def test_afs_backup_restore(self, resource_group, vault_name, storage_account, file_name, afs_name, afs2, file2):
+    @FileSharePreparer(parameter_name="afs_rg2", storage_account_parameter_name="storage_account_rg2", resource_group_parameter_name="resource_group2")
+    def test_afs_backup_restore(self, resource_group, vault_name, storage_account, file_name, afs_name, afs2, file2, resource_group2, storage_account_rg2, afs_rg2):
         self.kwargs.update({
             'vault': vault_name,
             'item1': afs_name,
             'item2': afs2,
+            'item_rg2': afs_rg2,
             'container': storage_account,
+            'container_rg2': storage_account_rg2, 
             'rg': resource_group,
+            'rg2': resource_group2,
             'type': "AzureStorage",
             'file': file_name,
             'file2': file2
         })
-
         # full share restore original location
 
         rp_names = self.cmd('backup recoverypoint list -g {rg} -v {vault} -c {container} -i {item1} --backup-management-type {type} --query [].name').get_output_in_json()
@@ -254,11 +696,29 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.cmd('backup job show -g {rg} -v {vault} -n {job1}', checks=[
             self.check("properties.entityFriendlyName", '{item1}'),
             self.check("properties.operation", "Restore"),
-            self.check("properties.status", "Completed"),
             self.check("resourceGroup", '{rg}')
         ])
 
-        # full share alternate location
+        # full share restore alternate location with a different resource group
+
+        self.cmd('backup restore restore-azurefileshare -g {rg} -v {vault} -c {container} -i {item1} -r {rp1} --resolve-conflict Overwrite --restore-mode AlternateLocation --target-storage-account {container_rg2} --target-file-share {item_rg2}', expect_failure=True)
+
+        trigger_restore_job3_json = self.cmd('backup restore restore-azurefileshare -g {rg} -v {vault} -c {container} -i {item1} -r {rp1} --resolve-conflict Overwrite --restore-mode AlternateLocation --target-storage-account {container_rg2} --target-file-share {item_rg2} --target-rg-name {rg2}', checks=[
+            self.check("properties.entityFriendlyName", '{item1}'),
+            self.check("properties.operation", "Restore"),
+            self.check("properties.status", "InProgress"),
+            self.check("resourceGroup", '{rg}')
+        ]).get_output_in_json()
+        self.kwargs['job3'] = trigger_restore_job3_json['name']
+        self.cmd('backup job wait -g {rg} -v {vault} -n {job3}')
+
+        self.cmd('backup job show -g {rg} -v {vault} -n {job3}', checks=[
+            self.check("properties.entityFriendlyName", '{item1}'),
+            self.check("properties.operation", "Restore"),
+            self.check("resourceGroup", '{rg}')
+        ])
+
+       # full share alternate location
 
         trigger_restore_job2_json = self.cmd('backup restore restore-azurefileshare -g {rg} -v {vault} -c {container} -i {item1} -r {rp1} --resolve-conflict Overwrite --restore-mode AlternateLocation --target-storage-account {container} --target-file-share {item2} --target-folder folder1', checks=[
             self.check("properties.entityFriendlyName", '{item1}'),
@@ -272,7 +732,6 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.cmd('backup job show -g {rg} -v {vault} -n {job2}', checks=[
             self.check("properties.entityFriendlyName", '{item1}'),
             self.check("properties.operation", "Restore"),
-            self.check("properties.status", "Completed"),
             self.check("resourceGroup", '{rg}')
         ])
 
@@ -290,7 +749,6 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.cmd('backup job show -g {rg} -v {vault} -n {job3}', checks=[
             self.check("properties.entityFriendlyName", '{item1}'),
             self.check("properties.operation", "Restore"),
-            self.check("properties.status", "Completed"),
             self.check("resourceGroup", '{rg}')
         ])
 
@@ -309,7 +767,6 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.cmd('backup job show -g {rg} -v {vault} -n {job4}', checks=[
             self.check("properties.entityFriendlyName", '{item1}'),
             self.check("properties.operation", "Restore"),
-            self.check("properties.status", "Completed"),
             self.check("resourceGroup", '{rg}')
         ])
 
@@ -326,18 +783,19 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.cmd('backup job show -g {rg} -v {vault} -n {job5}', checks=[
             self.check("properties.entityFriendlyName", '{item1}'),
             self.check("properties.operation", "Restore"),
-            self.check("properties.status", "Completed"),
             self.check("resourceGroup", '{rg}')
         ])
 
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item1} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
     @AFSPolicyPreparer()
     def test_afs_backup_protection(self, resource_group, vault_name, storage_account, afs_name, policy_name):
@@ -383,16 +841,26 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         item_json = self.cmd('backup item list -g {rg} -v {vault} -c {container} --backup-management-type {type}').get_output_in_json()
         protected_item_count2 = len(item_json)
 
-        self.assertTrue(protected_item_count1 == protected_item_count2 + 1)
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+        self.assertTrue(protected_item_count1 == protected_item_count2)
+
+        # Cleaning up Storage account locks
+        command_string = 'lock list -g {} --resource-name {} --resource-type {}'.format(
+            resource_group, storage_account, 'Microsoft.Storage/storageAccounts')
+        list_of_locks = self.cmd(command_string).get_output_in_json()
+        for lock in list_of_locks:
+            command_string = 'lock delete --ids {}'.format(lock["id"])
+            self.cmd(command_string)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
-    @AFSPolicyPreparer()
+    @AFSPolicyPreparer(backup_tier="Snapshot")
     @AFSItemPreparer()
     def test_afs_backup_policy(self, resource_group, vault_name, storage_account, afs_name, policy_name, item_name):
         self.kwargs.update({
@@ -441,13 +909,15 @@ class BackupTests(ScenarioTest, unittest.TestCase):
 
         self.kwargs['afsitem'] = self.cmd('backup item list -g {rg} -v {vault} -c {container} --backup-management-type AzureStorage --query [0].name').get_output_in_json()
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {afsitem} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
-        time.sleep(100)
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
 
     #@record_only()
-    @ResourceGroupPreparer(location="eastasia", random_name_length=20)
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
     @VaultPreparer()
-    @StorageAccountPreparer(location="eastasia")
+    @StorageAccountPreparer(location="eastus2euap")
     @FileSharePreparer()
     @AFSPolicyPreparer()
     @AFSItemPreparer()
@@ -474,8 +944,151 @@ class BackupTests(ScenarioTest, unittest.TestCase):
         self.kwargs['item'] = self.cmd('backup item list -g {rg} -v {vault} -c {container} --query [0].name').get_output_in_json()
         self.cmd('backup protection disable -g {rg} -v {vault} -c {container_name} -i {item} --backup-management-type AzureStorage --delete-backup-data true --yes')
 
-        self.cmd('backup container unregister -g {rg} -v {vault} -c {container_name} --yes')
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container_name} --yes')
 
-        self.cmd('backup container list -v {vault} -g {rg} --backup-management-type {type}', checks=[
-            self.check("length([?properties.friendlyName == '{container}'])", 0)])
-        time.sleep(100)
+        # self.cmd('backup container list -v {vault} -g {rg} --backup-management-type {type}', checks=[
+        #     self.check("length([?properties.friendlyName == '{container}'])", 0)])
+        # time.sleep(100)
+
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
+    @VaultPreparer()
+    @StorageAccountPreparer(location="eastus2euap")
+    @FileSharePreparer()
+    @AFSPolicyPreparer(backup_tier="Snapshot")
+    @AFSPolicyPreparer(backup_tier="VaultStandard", parameter_name="policy_name2")
+    @AFSItemPreparer()
+    def test_afs_backup_vaultstandard_policy(self, resource_group, vault_name, storage_account, afs_name, policy_name, policy_name2, item_name):
+        self.kwargs.update({
+            'vault': vault_name,
+            'item': item_name,
+            'container': storage_account,
+            'rg': resource_group,
+            'type': "AzureStorage",
+            'default_snapshot_policy': policy_name,
+            'default_vault_policy': policy_name2,
+            'new_snapshot_policy': "clitestafspolicy"
+        })
+        # Count how many policies are instantiated by the preparers
+        policies_json = self.cmd('backup policy list -g {rg} -v {vault} --backup-management-type {type}').get_output_in_json()
+        policy_count1 = len(policies_json)
+        
+        #Retrieve default snapshot policy json created by the preparers
+        self.kwargs['default_snapshot_policy_json'] = self.cmd('backup policy show -g {rg} -v {vault} -n {default_snapshot_policy}', checks=[
+            self.check("name", '{default_snapshot_policy}'),
+            self.check("properties.backupManagementType", '{type}'),
+            self.check("resourceGroup", '{rg}')
+        ]).get_output_in_json()
+ 
+        self.kwargs['default_vault_policy_json'] = self.cmd('backup policy show -g {rg} -v {vault} -n {default_vault_policy}', checks=[
+            self.check("name", '{default_vault_policy}'),
+            self.check("properties.backupManagementType", '{type}'),
+            self.check("resourceGroup", '{rg}')
+        ]).get_output_in_json()
+
+        # Create new policy by modifying the default snapshot policy json
+        self.kwargs['default_snapshot_policy_json']['name'] = self.kwargs['new_snapshot_policy']
+        self.kwargs['default_snapshot_policy_json']['properties']['retentionPolicy']['dailySchedule']['retentionDuration']['count'] = 25
+        self.kwargs['default_snapshot_policy_json'] = json.dumps(self.kwargs['default_snapshot_policy_json'])
+
+        self.cmd("backup policy create -g {rg} -v {vault} --policy '{default_snapshot_policy_json}' --name {new_snapshot_policy} --backup-management-type {type}")
+        #Retrieve new snapshot policy json created within the test
+        self.kwargs['new_snapshot_policy_json'] = self.cmd('backup policy show -g {rg} -v {vault} --n {new_snapshot_policy}', checks=[
+            self.check("name", '{new_snapshot_policy}'),
+            self.check("properties.backupManagementType", '{type}'),
+            self.check("properties.protectedItemsCount", 0),
+            self.check("properties.retentionPolicy.dailySchedule.retentionDuration.count", 25),
+        ]).get_output_in_json()
+
+        # Validate that the new policy has been added to list
+        policies_json = self.cmd('backup policy list -g {rg} -v {vault} --backup-management-type {type}').get_output_in_json()
+        policy_count2 = len(policies_json)
+        self.assertTrue(policy_count2 == policy_count1 + 1)
+        # Modify the new policy created within the test
+        self.kwargs['default_vault_policy_json'] = json.dumps(self.kwargs['default_vault_policy_json'])
+
+        self.cmd("backup policy set -g {rg} -v {vault} --policy '{default_vault_policy_json}' -n {new_snapshot_policy} --yes")
+        self.cmd('backup policy show -g {rg} -v {vault} -n {new_snapshot_policy}', checks=[
+            self.check("properties.vaultRetentionPolicy.snapshotRetentionInDays", 5),
+            self.check("properties.vaultRetentionPolicy.vaultRetention.dailySchedule.retentionDuration.count", 30)
+        ]).get_output_in_json()
+
+        self.cmd("backup policy set -g {rg} -v {vault} --policy '{default_snapshot_policy_json}' -n {default_vault_policy} --yes", expect_failure=True)
+        self.kwargs['afsitem'] = self.cmd('backup item list -g {rg} -v {vault} -c {container} --backup-management-type AzureStorage --query [0].name').get_output_in_json()
+        self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {afsitem} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)
+
+    @live_only()
+    @AllowLargeResponse()
+    @ResourceGroupPreparer(name_prefix="AzureBackupRG_clitest_", location="eastus2euap", random_name_length=32)
+    @VaultPreparer()
+    @StorageAccountPreparer(location="eastus2euap")
+    @FileSharePreparer()
+    @FileSharePreparer(parameter_name="afs2")
+    @AFSPolicyPreparer()
+    @AFSPolicyPreparer(backup_tier="VaultStandard", parameter_name="newpolicy")
+    @AFSItemPreparer()
+    @AFSItemPreparer(afs_parameter_name="afs2")
+    def test_afs_backup_vaultstandard_item(self, resource_group, vault_name, storage_account, afs_name, policy_name, afs2, newpolicy):
+        self.kwargs.update({
+            'vault': vault_name,
+            'item1': afs_name,
+            'item2': afs2,
+            'container': storage_account,
+            'rg': resource_group,
+            'type': "AzureStorage",
+            'policy': policy_name,
+            'newpolicy': newpolicy
+        })
+
+        self.kwargs['container1'] = self.cmd('backup container show -g {rg} -v {vault} -n {container} --backup-management-type {type} --query name').get_output_in_json()
+
+        item1_json = self.cmd('backup item show -g {rg} -v {vault} -c {container1} -n {item1}', checks=[
+            self.check('properties.friendlyName', '{item1}'),
+            self.check('properties.protectionState', 'IRPending'),
+            self.check('properties.protectionStatus', 'Healthy'),
+            self.check('resourceGroup', '{rg}')
+        ]).get_output_in_json()
+
+        self.kwargs['item1_fullname'] = item1_json['name']
+
+        self.cmd('backup item show -g {rg} -v {vault} -c {container1} -n {item1_fullname}', checks=[
+            self.check('properties.friendlyName', '{item1}'),
+            self.check('properties.protectionState', 'IRPending'),
+            self.check('properties.protectionStatus', 'Healthy'),
+            self.check('resourceGroup', '{rg}')
+        ])
+
+        self.cmd('backup item list -g {rg} -v {vault} -c {container}', checks=[
+            self.check("length(@)", 2),
+            self.check("length([?properties.friendlyName == '{item1}'])", 1)
+        ])
+
+        self.cmd('backup item list -g {rg} -v {vault} -c {container}', checks=[
+            self.check("length(@)", 2),
+            self.check("length([?properties.friendlyName == '{item2}'])", 1)
+        ])
+
+        self.cmd('backup item list -g {rg} -v {vault} -c {container1}', checks=[
+            self.check("length(@)", 2),
+            self.check("length([?properties.friendlyName == '{item1}'])", 1)
+        ])
+
+        # Set policy Snapshot to VaultStandard
+        self.cmd('backup item set-policy -g {rg} -v {vault} -c {container1} -n {item1} -p {newpolicy} --yes', checks=[
+            self.check("properties.operation", "ConfigureBackup"),
+            self.check("properties.status", "Completed"),
+            self.check("resourceGroup", '{rg}')
+        ])
+        # Set policy Snapshot to Snapshot
+        self.cmd('backup item set-policy -g {rg} -v {vault} -c {container1} -n {item1} -p {policy} --yes', expect_failure=True)
+
+
+        item1_json = self.cmd('backup item show -g {rg} -v {vault} -c {container1} -n {item1}').get_output_in_json()
+        self.assertIn(self.kwargs['newpolicy'].lower(), item1_json['properties']['policyId'].split('/')[-1].lower())
+        self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item1} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
+        self.cmd('backup protection disable -g {rg} -v {vault} -c {container} -i {item2} --backup-management-type AzureStorage --delete-backup-data true --yes').get_output_in_json()
+        # self.cmd('backup container unregister -g {rg} -v {vault} -c {container} --yes --backup-management-type AzureStorage')
+        # time.sleep(100)

@@ -10,7 +10,7 @@ import re
 
 from dateutil.relativedelta import relativedelta
 
-from knack.util import CLIError, todict
+from knack.util import CLIError
 from knack.log import get_logger
 from msrest.serialization import TZ_UTC
 from azure.core.exceptions import HttpResponseError
@@ -42,8 +42,7 @@ def reset_sp_credentials_for_mediaservice(cmd, client, account_name, resource_gr
     sp_oid = aad_sp['id']  # pylint: disable=unsubscriptable-object
 
     profile = Profile(cli_ctx=cmd.cli_ctx)
-    _, _, tenant_id = profile.get_login_credentials(
-        resource=cmd.cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
+    _, _, tenant_id = profile.get_login_credentials()
 
     subscription_id = get_subscription_id(cmd.cli_ctx)
 
@@ -84,8 +83,7 @@ def create_or_update_assign_sp_to_mediaservice(cmd, client, account_name, resour
     app_object_id = aad_application['id']
 
     profile = Profile(cli_ctx=cmd.cli_ctx)
-    _, _, tenant_id = profile.get_login_credentials(
-        resource=cmd.cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
+    _, _, tenant_id = profile.get_login_credentials()
     created_password = add_sp_password(graph_client, entity_name_string='password', app_id=app_object_id,
                                        password_display_name=password_display_name, years=years)
 
@@ -104,8 +102,7 @@ def create_or_update_assign_sp_to_mediaservice(cmd, client, account_name, resour
 def _update_sp(cmd, graph_client, aad_sp, ams, account_name, resource_group_name, display_name,
                new_sp_name, role, years, sp_password, xml):
     profile = Profile(cli_ctx=cmd.cli_ctx)
-    _, _, tenant_id = profile.get_login_credentials(
-        resource=cmd.cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
+    _, _, tenant_id = profile.get_login_credentials()
     sp_oid = aad_sp['id']
     app_id = aad_sp['appId']
     app_object_id = _get_application_object_id(graph_client, app_id)
@@ -140,6 +137,35 @@ def _get_displayable_name(graph_object):
     return graph_object.get('name') or ''
 
 
+def _role_assignment_to_dict(assignment):
+    '''Project a role assignment to the legacy flat camelCase dict.
+
+    azure-mgmt-authorization 5.x (TypeSpec-generated) wraps the role assignment's
+    domain attributes in a nested ``properties`` envelope, and ``knack.util.todict``
+    does not walk these MutableMapping models. The SDK still exposes the values as
+    snake_case attributes, so read them directly to keep the flat shape downstream
+    code expects.
+    '''
+    if assignment is None:
+        return None
+
+    def _coerce(value):
+        from enum import Enum
+        if isinstance(value, Enum):
+            return value.value
+        return value
+
+    result = {}
+    for attr in ('id', 'name', 'type'):
+        result[attr] = _coerce(getattr(assignment, attr, None))
+    for snake_attr, camel_key in (('scope', 'scope'),
+                                  ('role_definition_id', 'roleDefinitionId'),
+                                  ('principal_id', 'principalId'),
+                                  ('principal_type', 'principalType')):
+        result[camel_key] = _coerce(getattr(assignment, snake_attr, None))
+    return result
+
+
 def list_role_assignments(cmd, assignee_object_id, scope=None):
     '''
     :param include_groups: include extra assignments to the groups of which the user is a
@@ -154,7 +180,7 @@ def list_role_assignments(cmd, assignee_object_id, scope=None):
 
     subscription_id = get_subscription_id(cmd.cli_ctx)
 
-    results = todict(assignments) if assignments else []
+    results = [_role_assignment_to_dict(a) for a in assignments] if assignments else []
 
     if not results:
         return []
@@ -198,7 +224,8 @@ def _create_role_assignment(cli_ctx, role, assignee_object_id, scope):
     RoleAssignmentCreateParameters = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION,
                                              'RoleAssignmentCreateParameters', mod='models',
                                              operation_group='role_assignments')
-    parameters = RoleAssignmentCreateParameters(role_definition_id=role_id, principal_id=assignee_object_id)
+    parameters = RoleAssignmentCreateParameters(role_definition_id=role_id, principal_id=assignee_object_id,
+                                                principal_type='ServicePrincipal')
 
     return assignments_client.create(scope=scope,
                                      role_assignment_name=_gen_guid(),
@@ -216,7 +243,7 @@ def _resolve_role_id(cli_ctx, role, scope, definitions_client):
             role_id = '/subscriptions/{}/providers/Microsoft.Authorization/roleDefinitions/{}'.format(
                 subscription_id, role)
         if not role_id:  # retrieve role id
-            role_defs = list(definitions_client.list(scope, "roleName eq '{}'".format(role)))
+            role_defs = list(definitions_client.list(scope, filter="roleName eq '{}'".format(role)))
 
             if not role_defs:
                 raise CLIError("Role '{}' doesn't exist.".format(role))
@@ -242,16 +269,15 @@ def retry(func):
     def inner(*args, **kwargs):
         _RETRY_TIMES = 36
         # retry till server replication is done
-        for retry_time in range(0, _RETRY_TIMES):
+        for retry_time in range(0, _RETRY_TIMES):  # 0, 1, ..., 35
             try:
                 return func(*args, **kwargs)
-                break  # pylint: disable=unreachable
             except Exception as ex:  # pylint: disable=broad-except
-                if retry_time < _RETRY_TIMES:
+                if retry_time < _RETRY_TIMES - 1:  # Pass if retry_time < 35
                     time.sleep(5)
                     logger.warning('Retrying %s creation: %s/%s', kwargs['entity_name_string'],
                                    retry_time + 1, _RETRY_TIMES)
-                else:
+                else:  # Raise on the 35th retry
                     logger.warning("Creating %s failed for appid. Trace followed:\n%s",
                                    kwargs['entity_name_string'], ex.response.headers if hasattr(ex, 'response') else ex)
                     # pylint: disable=no-member
@@ -277,7 +303,7 @@ def create_application(client, display_name):
         return client.application_create(app_create_param)
     except GraphError as ex:
         if 'insufficient privileges' in str(ex).lower():
-            link = ('https://docs.microsoft.com/en-us/azure/azure-resource-manager/' +
+            link = ('https://learn.microsoft.com/en-us/azure/azure-resource-manager/' +
                     'resource-group-create-service-principal-portal')
             raise CLIError("Directory permission is needed for the current user to register the application. "
                            "For how to configure, please refer '{}'. Original error: {}".format(link, ex))
@@ -296,7 +322,7 @@ def update_application(client, app_object_id, display_name):
 
 def _search_role_assignments(assignments_client, assignee_object_id):
     f = "principalId eq '{}'".format(assignee_object_id)
-    assignments = list(assignments_client.list(filter=f))
+    assignments = list(assignments_client.list_for_subscription(filter=f))
     return assignments
 
 

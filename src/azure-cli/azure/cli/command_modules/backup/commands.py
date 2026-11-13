@@ -4,11 +4,14 @@
 # --------------------------------------------------------------------------------------------
 
 from azure.cli.core.commands import CliCommandType
-from azure.cli.command_modules.backup._client_factory import vaults_cf, backup_protection_containers_cf, \
-    protection_policies_cf, backup_policies_cf, protected_items_cf, backups_cf, backup_jobs_cf, \
-    job_details_cf, job_cancellations_cf, recovery_points_cf, restores_cf, backup_storage_configs_non_crr_cf, \
-    item_level_recovery_connections_cf, backup_protected_items_cf, backup_protectable_items_cf, \
-    protection_containers_cf, protection_intent_cf, backup_resource_encryption_config_cf, resource_guard_proxy_cf  # pylint: disable=unused-variable
+from azure.cli.command_modules.backup._client_factory import (
+    vaults_cf, deleted_vaults_cf, backup_protection_containers_cf, protection_policies_cf,
+    backup_policies_cf, protected_items_cf, backups_cf, backup_jobs_cf, job_details_cf,
+    job_cancellations_cf, recovery_points_cf, restores_cf, backup_storage_configs_non_crr_cf,
+    item_level_recovery_connections_cf, backup_protected_items_cf, backup_protectable_items_cf,
+    protection_containers_cf, protection_intent_cf, backup_resource_encryption_config_cf,
+    resource_guard_proxy_cf, deleted_protection_containers_cf,
+    configure_source_scan_cf)  # pylint: disable=unused-variable
 from azure.cli.command_modules.backup._exception_handler import backup_exception_handler
 from azure.cli.command_modules.backup._format import (
     transform_container_list, transform_policy_list, transform_item_list, transform_job_list,
@@ -30,6 +33,7 @@ def load_command_table(self, _):
 
     with self.command_group('backup vault', backup_vaults_sdk, client_factory=vaults_cf, exception_handler=backup_exception_handler) as g:
         g.custom_command('create', 'create_vault')
+        g.custom_command('update', 'update_vault')
         g.show_command('show', 'get')
         g.custom_command('list', 'list_vaults')
         g.custom_command('backup-properties show', 'get_backup_properties', client_factory=backup_storage_configs_non_crr_cf)
@@ -41,19 +45,30 @@ def load_command_table(self, _):
         g.custom_command('encryption update', 'update_encryption')
         g.custom_command('encryption show', 'show_encryption', client_factory=backup_resource_encryption_config_cf)
 
+    with self.command_group('backup deleted-vault', backup_custom, client_factory=deleted_vaults_cf, exception_handler=backup_exception_handler) as g:
+        g.custom_command('list', 'list_deleted_vaults')
+        g.custom_command('get', 'get_deleted_vault')
+        g.custom_command('undelete', 'undelete_vault')
+        g.custom_command('list-containers', 'list_deleted_vault_containers')
+
     with self.command_group('backup vault resource-guard-mapping', backup_custom, client_factory=resource_guard_proxy_cf, exception_handler=backup_exception_handler) as g:
         g.show_command('update', 'update_resource_guard_mapping')
         g.show_command('show', 'show_resource_guard_mapping')
         g.show_command('delete', 'delete_resource_guard_mapping', confirmation=True)
 
+    with self.command_group('backup vault', backup_custom, client_factory=deleted_protection_containers_cf, exception_handler=backup_exception_handler) as g:
+        g.show_command('list-soft-deleted-containers', 'list_deleted_protection_containers')
+
     with self.command_group('backup container', backup_custom_base, client_factory=protection_containers_cf, exception_handler=backup_exception_handler) as g:
-        g.show_command('show', 'show_container', client_factory=backup_protection_containers_cf, table_transformer=transform_container)
-        g.command('list', 'list_containers', table_transformer=transform_container_list, client_factory=backup_protection_containers_cf)
+        g.show_command('show', 'show_container_with_hybrid_properties',
+                       client_factory=backup_protection_containers_cf, table_transformer=transform_container)
+        g.command('list', 'list_containers_with_hybrid_properties',
+                  table_transformer=transform_container_list, client_factory=backup_protection_containers_cf)
 
     with self.command_group('backup container', custom_command_type=backup_custom_base, client_factory=protection_containers_cf, exception_handler=backup_exception_handler) as g:
         g.custom_command('unregister', 'unregister_container', confirmation=True)
         g.custom_command('re-register', 're_register_wl_container', confirmation=True)
-        g.custom_command('register', 'register_wl_container')
+        g.custom_command('register', 'register_container')
 
     with self.command_group('backup policy', backup_custom_base, client_factory=protection_policies_cf, exception_handler=backup_exception_handler) as g:
         g.command('get-default-for-vm', 'get_default_policy_for_vm')
@@ -80,15 +95,21 @@ def load_command_table(self, _):
         g.custom_command('auto-disable-for-azurewl', 'disable_auto_for_azure_wl', client_factory=protection_intent_cf)
         g.custom_command('resume', 'resume_protection')
         g.custom_command('undelete', 'undelete_protection')
+        g.custom_command('reconfigure', 'reconfigure_backup_protection', client_factory=backup_protected_items_cf)
 
     with self.command_group('backup item', backup_custom_base, client_factory=protected_items_cf, exception_handler=backup_exception_handler) as g:
-        g.show_command('show', 'show_item', client_factory=backup_protected_items_cf, table_transformer=transform_item)
-        g.command('list', 'list_items', table_transformer=transform_item_list, client_factory=backup_protected_items_cf)
+        g.show_command('show', 'show_item_with_hybrid_properties', client_factory=backup_protected_items_cf,
+                       table_transformer=transform_item)
+        g.command('list', 'list_items_with_hybrid_properties', table_transformer=transform_item_list,
+                  client_factory=backup_protected_items_cf)
         g.command('set-policy', 'update_policy_for_item', table_transformer=transform_job)
+        g.command('source-scan-configuration set', 'set_item_source_scan_configuration',
+                  client_factory=configure_source_scan_cf)
 
     with self.command_group('backup protectable-item', backup_custom_base, client_factory=backup_protectable_items_cf, exception_handler=backup_exception_handler) as g:
-        g.show_command('show', 'show_protectable_item')
-        g.command('list', 'list_protectable_items', table_transformer=transform_protectable_item_list)
+        g.show_command('show', 'show_protectable_item_with_hybrid_properties')
+        g.command('list', 'list_protectable_items_with_hybrid_properties',
+                  table_transformer=transform_protectable_item_list)
         g.command('initialize', 'initialize_protectable_items', client_factory=protection_containers_cf)
 
     with self.command_group('backup job', backup_custom, client_factory=job_details_cf, exception_handler=backup_exception_handler) as g:
@@ -98,8 +119,9 @@ def load_command_table(self, _):
         g.command('wait', 'wait_for_job')
 
     with self.command_group('backup recoverypoint', backup_custom_base, client_factory=recovery_points_cf, exception_handler=backup_exception_handler) as g:
-        g.show_command('show', 'show_recovery_point')
-        g.command('list', 'list_recovery_points', table_transformer=transform_recovery_point_list)
+        g.show_command('show', 'show_recovery_point_with_hybrid_properties')
+        g.command('list', 'list_recovery_points_with_hybrid_properties',
+                  table_transformer=transform_recovery_point_list)
         g.command('move', 'move_recovery_points')
         g.show_command('show-log-chain', 'show_log_chain_recovery_points', table_transformer=transform_log_chain_list)
 

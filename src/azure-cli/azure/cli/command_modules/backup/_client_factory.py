@@ -6,16 +6,11 @@
 # Base Client Factories
 
 
-def _resource_client_factory(cli_ctx, **_):
+def _resource_client_factory(cli_ctx, subscription_id=None, **_):
     from azure.cli.core.profiles import ResourceType
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES)
-
-
-def _compute_client_factory(cli_ctx, **_):
-    from azure.cli.core.profiles import ResourceType
-    from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_COMPUTE)
+    return get_mgmt_service_client(
+        cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES, subscription_id=subscription_id)
 
 
 def _common_client_factory(cli_ctx, **_):
@@ -26,7 +21,7 @@ def _common_client_factory(cli_ctx, **_):
 
 
 def _backup_client_factory(cli_ctx, **_):
-    from azure.mgmt.recoveryservicesbackup.activestamp import RecoveryServicesBackupClient
+    from azure.mgmt.recoveryservicesbackup import RecoveryServicesBackupClient
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
 
     return get_mgmt_service_client(cli_ctx, RecoveryServicesBackupClient)
@@ -39,22 +34,33 @@ def _backup_passive_client_factory(cli_ctx, **_):
     return get_mgmt_service_client(cli_ctx, RecoveryServicesBackupPassiveClient)
 
 
+def _storage_client_factory(cli_ctx, subscription_id=None, **_):
+    from azure.cli.core.profiles import ResourceType
+    from azure.cli.core.commands.client_factory import get_mgmt_service_client
+
+    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_STORAGE, subscription_id=subscription_id)
+
+
 # External Deps Client Factories
-def virtual_machines_cf(cli_ctx, *_):
-    return _compute_client_factory(cli_ctx).virtual_machines
-
-
-def resources_cf(cli_ctx, *_):
-    return _resource_client_factory(cli_ctx).resources
+def resources_cf(cli_ctx, *_, subscription_id=None):
+    return _resource_client_factory(cli_ctx, subscription_id=subscription_id).resources
 
 
 def resource_groups_cf(cli_ctx, *_):
     return _resource_client_factory(cli_ctx).resource_groups
 
 
+def file_shares_cf(cli_ctx, *_, subscription_id=None):
+    return _storage_client_factory(cli_ctx, subscription_id=subscription_id).file_shares
+
+
 # Internal Deps Client Factories
 def vaults_cf(cli_ctx, *_):
     return _common_client_factory(cli_ctx).vaults
+
+
+def deleted_vaults_cf(cli_ctx, *_):
+    return _common_client_factory(cli_ctx).deleted_vaults
 
 
 def registered_identities_cf(cli_ctx, *_):
@@ -98,6 +104,10 @@ def protection_container_refresh_operation_results_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).protection_container_refresh_operation_results
 
 
+def protection_container_refresh_operation_statuses_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).protection_container_refresh_operation_statuses
+
+
 def protected_items_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).protected_items
 
@@ -123,8 +133,16 @@ def backup_protected_items_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).backup_protected_items
 
 
+def configure_source_scan_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).configure_source_scan
+
+
 def backup_protected_items_crr_cf(cli_ctx, *_):
     return _backup_passive_client_factory(cli_ctx).backup_protected_items_crr
+
+
+def deleted_protection_containers_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).deleted_protection_containers
 
 
 def backup_operation_statuses_cf(cli_ctx, *_):

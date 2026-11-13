@@ -23,13 +23,10 @@ CLOUD_CONFIG_FILE = os.path.join(GLOBAL_CONFIG_DIR, 'clouds.config')
 # Add names of clouds that don't allow telemetry data collection here such as some air-gapped clouds.
 CLOUDS_FORBIDDING_TELEMETRY = ['USSec', 'USNat']
 
-# Add names of clouds that don't allow Aladdin requests for command recommendations here
-CLOUDS_FORBIDDING_ALADDIN_REQUEST = ['USSec', 'USNat']
-
 
 class CloudNotRegisteredException(Exception):
     def __init__(self, cloud_name):
-        super(CloudNotRegisteredException, self).__init__(cloud_name)
+        super().__init__(cloud_name)
         self.cloud_name = cloud_name
 
     def __str__(self):
@@ -38,7 +35,7 @@ class CloudNotRegisteredException(Exception):
 
 class CloudAlreadyRegisteredException(Exception):
     def __init__(self, cloud_name):
-        super(CloudAlreadyRegisteredException, self).__init__(cloud_name)
+        super().__init__(cloud_name)
         self.cloud_name = cloud_name
 
     def __str__(self):
@@ -59,49 +56,76 @@ class CloudSuffixNotSetException(CLIError):
 
 class CloudEndpoints:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
 
+    ARM_METADATA_INDEX = {
+        "active_directory": "authentication.loginEndpoint",
+        "active_directory_data_lake_resource_id": "activeDirectoryDataLake",
+        "active_directory_graph_resource_id": "graphAudience",
+        "active_directory_resource_id": "authentication.audiences[0]",
+        "app_insights_resource_id": "appInsightsResourceId",
+        "app_insights_telemetry_channel_resource_id": "appInsightsTelemetryChannelResourceId",
+        "app_service_resource_id": "appServiceResourceId",
+        "attestation_resource_id": "attestationResourceId",
+        "azmirror_storage_account_resource_id": "azmirrorStorageAccountResourceId",
+        "batch_resource_id": "batch",
+        "gallery": "gallery",
+        "log_analytics_resource_id": "logAnalyticsResourceId",
+        "management": "authentication.audiences[0]",
+        "media_resource_id": "media",
+        "microsoft_graph_resource_id": "microsoftGraphResourceId",
+        "ossrdbms_resource_id": "ossrdbmsResourceId",
+        "portal": "portal",
+        "resource_manager": "resourceManager",
+        "sql_management": "sqlManagement",
+        "synapse_analytics_resource_id": "synapseAnalyticsResourceId",
+        "vm_image_alias_doc": "vmImageAliasDoc",
+    }  # Please keep the endpoints in alphabetical order
+
     def __init__(self,  # pylint: disable=unused-argument
-                 management=None,
-                 resource_manager=None,
-                 sql_management=None,
-                 batch_resource_id=None,
-                 gallery=None,
                  active_directory=None,
-                 active_directory_resource_id=None,
-                 active_directory_graph_resource_id=None,
-                 microsoft_graph_resource_id=None,
                  active_directory_data_lake_resource_id=None,
-                 vm_image_alias_doc=None,
-                 media_resource_id=None,
-                 ossrdbms_resource_id=None,
-                 log_analytics_resource_id=None,
+                 active_directory_graph_resource_id=None,
+                 active_directory_resource_id=None,
                  app_insights_resource_id=None,
                  app_insights_telemetry_channel_resource_id=None,
-                 synapse_analytics_resource_id=None,
+                 app_service_resource_id=None,
                  attestation_resource_id=None,
-                 portal=None,
                  azmirror_storage_account_resource_id=None,
+                 batch_resource_id=None,
+                 gallery=None,
+                 log_analytics_resource_id=None,
+                 management=None,
+                 media_resource_id=None,
+                 microsoft_graph_resource_id=None,
+                 ossrdbms_resource_id=None,
+                 portal=None,
+                 resource_manager=None,
+                 sql_management=None,
+                 synapse_analytics_resource_id=None,
+                 vm_image_alias_doc=None,
                  **kwargs):  # To support init with __dict__ for deserialization
         # Attribute names are significant. They are used when storing/retrieving clouds from config
-        self.management = management
-        self.resource_manager = resource_manager
-        self.sql_management = sql_management
-        self.batch_resource_id = batch_resource_id
-        self.gallery = gallery
         self.active_directory = active_directory
-        self.active_directory_resource_id = active_directory_resource_id
-        self.active_directory_graph_resource_id = active_directory_graph_resource_id
-        self.microsoft_graph_resource_id = microsoft_graph_resource_id
         self.active_directory_data_lake_resource_id = active_directory_data_lake_resource_id
-        self.vm_image_alias_doc = vm_image_alias_doc
-        self.media_resource_id = media_resource_id
-        self.ossrdbms_resource_id = ossrdbms_resource_id
-        self.log_analytics_resource_id = log_analytics_resource_id
+        self.active_directory_graph_resource_id = active_directory_graph_resource_id
+        self.active_directory_resource_id = active_directory_resource_id
         self.app_insights_resource_id = app_insights_resource_id
         self.app_insights_telemetry_channel_resource_id = app_insights_telemetry_channel_resource_id
-        self.synapse_analytics_resource_id = synapse_analytics_resource_id
+        self.app_service_resource_id = app_service_resource_id
         self.attestation_resource_id = attestation_resource_id
-        self.portal = portal
         self.azmirror_storage_account_resource_id = azmirror_storage_account_resource_id
+        self.batch_resource_id = batch_resource_id
+        self.gallery = gallery
+        self.log_analytics_resource_id = log_analytics_resource_id
+        self.management = management
+        self.media_resource_id = media_resource_id
+        self.microsoft_graph_resource_id = microsoft_graph_resource_id
+        self.ossrdbms_resource_id = ossrdbms_resource_id
+        self.portal = portal
+        self.resource_manager = resource_manager
+        self.sql_management = sql_management
+        self.synapse_analytics_resource_id = synapse_analytics_resource_id
+        self.vm_image_alias_doc = vm_image_alias_doc
+        # Please keep the endpoints in alphabetical order
 
     def has_endpoint_set(self, endpoint_name):
         try:
@@ -125,35 +149,52 @@ class CloudEndpoints:  # pylint: disable=too-few-public-methods,too-many-instanc
 
 class CloudSuffixes:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
 
+    ARM_METADATA_INDEX = {
+        "acr_login_server_endpoint": "suffixes.acrLoginServer",
+        "attestation_endpoint": "suffixes.attestationEndpoint",
+        "azure_datalake_analytics_catalog_and_job_endpoint": "suffixes.azureDataLakeAnalyticsCatalogAndJob",
+        "azure_datalake_store_file_system_endpoint": "suffixes.azureDataLakeStoreFileSystem",
+        "keyvault_dns": "suffixes.keyVaultDns",
+        "mariadb_server_endpoint": "suffixes.mariadbServerEndpoint",
+        "mhsm_dns": "suffixes.mhsmDns",
+        "mysql_server_endpoint": "suffixes.mysqlServerEndpoint",
+        "postgresql_server_endpoint": "suffixes.postgresqlServerEndpoint",
+        "sql_server_hostname": "suffixes.sqlServerHostname",
+        "storage_endpoint": "suffixes.storage",
+        "storage_sync_endpoint": "suffixes.storageSyncEndpointSuffix",
+        "synapse_analytics_endpoint": "suffixes.synapseAnalytics"
+    }  # Please keep the suffixes in alphabetical order
+
     def __init__(self,  # pylint: disable=unused-argument
-                 storage_endpoint=None,
-                 storage_sync_endpoint=None,
-                 keyvault_dns=None,
-                 mhsm_dns=None,
-                 sql_server_hostname=None,
-                 azure_datalake_store_file_system_endpoint=None,
-                 azure_datalake_analytics_catalog_and_job_endpoint=None,
                  acr_login_server_endpoint=None,
+                 attestation_endpoint=None,
+                 azure_datalake_analytics_catalog_and_job_endpoint=None,
+                 azure_datalake_store_file_system_endpoint=None,
+                 keyvault_dns=None,
+                 mariadb_server_endpoint=None,
+                 mhsm_dns=None,
                  mysql_server_endpoint=None,
                  postgresql_server_endpoint=None,
-                 mariadb_server_endpoint=None,
+                 sql_server_hostname=None,
+                 storage_endpoint=None,
+                 storage_sync_endpoint=None,
                  synapse_analytics_endpoint=None,
-                 attestation_endpoint=None,
                  **kwargs):  # To support init with __dict__ for deserialization
         # Attribute names are significant. They are used when storing/retrieving clouds from config
-        self.storage_endpoint = storage_endpoint
-        self.storage_sync_endpoint = storage_sync_endpoint
+        self.acr_login_server_endpoint = acr_login_server_endpoint
+        self.attestation_endpoint = attestation_endpoint
+        self.azure_datalake_analytics_catalog_and_job_endpoint = azure_datalake_analytics_catalog_and_job_endpoint
+        self.azure_datalake_store_file_system_endpoint = azure_datalake_store_file_system_endpoint
         self.keyvault_dns = keyvault_dns
+        self.mariadb_server_endpoint = mariadb_server_endpoint
         self.mhsm_dns = mhsm_dns
-        self.sql_server_hostname = sql_server_hostname
         self.mysql_server_endpoint = mysql_server_endpoint
         self.postgresql_server_endpoint = postgresql_server_endpoint
-        self.mariadb_server_endpoint = mariadb_server_endpoint
-        self.azure_datalake_store_file_system_endpoint = azure_datalake_store_file_system_endpoint
-        self.azure_datalake_analytics_catalog_and_job_endpoint = azure_datalake_analytics_catalog_and_job_endpoint
-        self.acr_login_server_endpoint = acr_login_server_endpoint
+        self.sql_server_hostname = sql_server_hostname
+        self.storage_endpoint = storage_endpoint
+        self.storage_sync_endpoint = storage_sync_endpoint
         self.synapse_analytics_endpoint = synapse_analytics_endpoint
-        self.attestation_endpoint = attestation_endpoint
+        # Please keep the suffixes in alphabetical order
 
     def __getattribute__(self, name):
         val = object.__getattribute__(self, name)
@@ -223,40 +264,55 @@ def _arm_to_cli_mapper(arm_dict):
     return Cloud(
         arm_dict['name'],
         endpoints=CloudEndpoints(  # please add fallback_value if the endpoint is not added to https://management.azure.com/metadata/endpoints?api-version=2019-05-01 yet
-            management=arm_dict['authentication']['audiences'][0],
-            resource_manager=get_endpoint('resourceManager'),
-            sql_management=get_endpoint('sqlManagement'),
+            active_directory=arm_dict['authentication']['loginEndpoint'],
+            active_directory_data_lake_resource_id=get_endpoint('activeDirectoryDataLake'),
+            active_directory_graph_resource_id=get_endpoint('graphAudience'),
+            active_directory_resource_id=arm_dict['authentication']['audiences'][0],
+            app_insights_resource_id=get_endpoint('appInsightsResourceId',
+                                                  fallback_value=get_endpoint_fallback_value('app_insights_resource_id')),
+            app_insights_telemetry_channel_resource_id=get_endpoint('appInsightsTelemetryChannelResourceId',
+                                                                    fallback_value=get_endpoint_fallback_value('app_insights_telemetry_channel_resource_id')),
+            app_service_resource_id=get_endpoint('appServiceResourceId', fallback_value=get_endpoint_fallback_value('app_service_resource_id')),
+            attestation_resource_id=get_endpoint('attestationResourceId',
+                                                 fallback_value=get_endpoint_fallback_value('attestation_resource_id')),
+            azmirror_storage_account_resource_id=get_endpoint('azmirrorStorageAccountResourceId'),
             batch_resource_id=get_endpoint('batch'),
             gallery=get_endpoint('gallery'),
-            active_directory=arm_dict['authentication']['loginEndpoint'],
-            active_directory_resource_id=arm_dict['authentication']['audiences'][0],
-            active_directory_graph_resource_id=get_endpoint('graphAudience'),
-            microsoft_graph_resource_id=get_endpoint('microsoftGraphResourceId', fallback_value=get_endpoint_fallback_value('microsoft_graph_resource_id')),  # change once microsoft_graph_resource_id is fixed in ARM
-            vm_image_alias_doc=get_endpoint('vmImageAliasDoc'),
+            log_analytics_resource_id=get_endpoint('logAnalyticsResourceId',
+                                                   fallback_value=get_endpoint_fallback_value('log_analytics_resource_id')),
+            management=arm_dict['authentication']['audiences'][0],
             media_resource_id=get_endpoint('media'),
-            ossrdbms_resource_id=get_endpoint('ossrdbmsResourceId', fallback_value=get_endpoint_fallback_value('ossrdbms_resource_id')),  # change once ossrdbms_resource_id is available via ARM
-            active_directory_data_lake_resource_id=get_endpoint('activeDirectoryDataLake'),
-            app_insights_resource_id=get_endpoint('appInsightsResourceId', fallback_value=get_endpoint_fallback_value('app_insights_resource_id')),
-            log_analytics_resource_id=get_endpoint('logAnalyticsResourceId', fallback_value=get_endpoint_fallback_value('log_analytics_resource_id')),
-            synapse_analytics_resource_id=get_endpoint('synapseAnalyticsResourceId', fallback_value=get_endpoint_fallback_value('synapse_analytics_resource_id')),
-            app_insights_telemetry_channel_resource_id=get_endpoint('appInsightsTelemetryChannelResourceId', fallback_value=get_endpoint_fallback_value('app_insights_telemetry_channel_resource_id')),
-            attestation_resource_id=get_endpoint('attestationResourceId', fallback_value=get_endpoint_fallback_value('attestation_resource_id')),
+            microsoft_graph_resource_id=get_endpoint('microsoftGraphResourceId',
+                                                     fallback_value=get_endpoint_fallback_value('microsoft_graph_resource_id')),  # change once microsoft_graph_resource_id is fixed in ARM
+            ossrdbms_resource_id=get_endpoint('ossrdbmsResourceId',
+                                              fallback_value=get_endpoint_fallback_value('ossrdbms_resource_id')),  # change once ossrdbms_resource_id is available via ARM
             portal=get_endpoint('portal'),
-            azmirror_storage_account_resource_id=get_endpoint('azmirrorStorageAccountResourceId')),
+            resource_manager=get_endpoint('resourceManager'),
+            sql_management=get_endpoint('sqlManagement'),
+            synapse_analytics_resource_id=get_endpoint('synapseAnalyticsResourceId',
+                                                       fallback_value=get_endpoint_fallback_value('synapse_analytics_resource_id')),
+            vm_image_alias_doc=get_endpoint('vmImageAliasDoc'),
+        ),  # Please keep the endpoints in alphabetical order
         suffixes=CloudSuffixes(
+            acr_login_server_endpoint=get_suffix('acrLoginServer', add_dot=True),
+            attestation_endpoint=get_suffix('attestationEndpoint', add_dot=True,
+                                            fallback_value=get_suffix_fallback_value('attestation_endpoint')),
+            azure_datalake_analytics_catalog_and_job_endpoint=get_suffix('azureDataLakeAnalyticsCatalogAndJob'),
+            azure_datalake_store_file_system_endpoint=get_suffix('azureDataLakeStoreFileSystem'),
+            keyvault_dns=get_suffix('keyVaultDns', add_dot=True),
+            mariadb_server_endpoint=get_suffix('mariadbServerEndpoint', add_dot=True,
+                                               fallback_value=get_db_server_endpoint('.mariadb')),
+            mhsm_dns=get_suffix('mhsmDns', add_dot=True, fallback_value=get_suffix_fallback_value('mhsm_dns')),
+            mysql_server_endpoint=get_suffix('mysqlServerEndpoint', add_dot=True,
+                                             fallback_value=get_db_server_endpoint('.mysql')),
+            postgresql_server_endpoint=get_suffix('postgresqlServerEndpoint', add_dot=True,
+                                                  fallback_value=get_db_server_endpoint('.postgres')),
+            sql_server_hostname=sql_server_hostname,
             storage_endpoint=get_suffix('storage'),
             storage_sync_endpoint=get_suffix('storageSyncEndpointSuffix', fallback_value=get_suffix_fallback_value('storage_sync_endpoint')),
-            keyvault_dns=get_suffix('keyVaultDns', add_dot=True),
-            mhsm_dns=get_suffix('mhsmDns', add_dot=True, fallback_value=get_suffix_fallback_value('mhsm_dns')),
-            sql_server_hostname=sql_server_hostname,
-            mysql_server_endpoint=get_suffix('mysqlServerEndpoint', add_dot=True, fallback_value=get_db_server_endpoint('.mysql')),
-            postgresql_server_endpoint=get_suffix('postgresqlServerEndpoint', add_dot=True, fallback_value=get_db_server_endpoint('.postgres')),
-            mariadb_server_endpoint=get_suffix('mariadbServerEndpoint', add_dot=True, fallback_value=get_db_server_endpoint('.mariadb')),
-            azure_datalake_store_file_system_endpoint=get_suffix('azureDataLakeStoreFileSystem'),
-            azure_datalake_analytics_catalog_and_job_endpoint=get_suffix('azureDataLakeAnalyticsCatalogAndJob'),
             synapse_analytics_endpoint=get_suffix('synapseAnalytics', add_dot=True, fallback_value=get_suffix_fallback_value('synapse_analytics_endpoint')),
-            acr_login_server_endpoint=get_suffix('acrLoginServer', add_dot=True),
-            attestation_endpoint=get_suffix('attestationEndpoint', add_dot=True, fallback_value=get_suffix_fallback_value('attestation_endpoint'))))
+        )  # Please keep the suffixes in alphabetical order
+    )
 
 
 class Cloud:  # pylint: disable=too-few-public-methods
@@ -294,8 +350,17 @@ class Cloud:  # pylint: disable=too-few-public-methods
                    suffixes=CloudSuffixes(**json_str['suffixes']))
 
 
+class CloudNameEnum:  # pylint: disable=too-few-public-methods
+    AzureCloud = 'AzureCloud'
+    AzureChinaCloud = 'AzureChinaCloud'
+    AzureUSGovernment = 'AzureUSGovernment'
+    AzureGermanCloud = 'AzureGermanCloud'
+    AzureBleuCloud = 'AzureBleuCloud'
+    AzureDelosCloud = 'AzureDelosCloud'
+
+
 AZURE_PUBLIC_CLOUD = Cloud(
-    'AzureCloud',
+    CloudNameEnum.AzureCloud,
     endpoints=CloudEndpoints(
         management='https://management.core.windows.net/',
         resource_manager='https://management.azure.com/',
@@ -307,7 +372,7 @@ AZURE_PUBLIC_CLOUD = Cloud(
         active_directory_graph_resource_id='https://graph.windows.net/',
         microsoft_graph_resource_id='https://graph.microsoft.com/',
         active_directory_data_lake_resource_id='https://datalake.azure.net/',
-        vm_image_alias_doc='https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/arm-compute/quickstart-templates/aliases.json',
+        vm_image_alias_doc='https://azcliprod.blob.core.windows.net/cli/vm/aliases.json',
         media_resource_id='https://rest.media.azure.net',
         ossrdbms_resource_id='https://ossrdbms-aad.database.windows.net',
         app_insights_resource_id='https://api.applicationinsights.io',
@@ -315,6 +380,7 @@ AZURE_PUBLIC_CLOUD = Cloud(
         app_insights_telemetry_channel_resource_id='https://dc.applicationinsights.azure.com/v2/track',
         synapse_analytics_resource_id='https://dev.azuresynapse.net',
         attestation_resource_id='https://attest.azure.net',
+        app_service_resource_id='https://appservice.azure.com',
         portal='https://portal.azure.com'),
     suffixes=CloudSuffixes(
         storage_endpoint='core.windows.net',
@@ -332,7 +398,7 @@ AZURE_PUBLIC_CLOUD = Cloud(
         attestation_endpoint='.attest.azure.net'))
 
 AZURE_CHINA_CLOUD = Cloud(
-    'AzureChinaCloud',
+    CloudNameEnum.AzureChinaCloud,
     endpoints=CloudEndpoints(
         management='https://management.core.chinacloudapi.cn/',
         resource_manager='https://management.chinacloudapi.cn',
@@ -343,13 +409,16 @@ AZURE_CHINA_CLOUD = Cloud(
         active_directory_resource_id='https://management.core.chinacloudapi.cn/',
         active_directory_graph_resource_id='https://graph.chinacloudapi.cn/',
         microsoft_graph_resource_id='https://microsoftgraph.chinacloudapi.cn',
-        vm_image_alias_doc='https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/arm-compute/quickstart-templates/aliases.json',
+        vm_image_alias_doc='https://azcliprod.blob.core.windows.net/cli/vm/aliases.json',
         media_resource_id='https://rest.media.chinacloudapi.cn',
         ossrdbms_resource_id='https://ossrdbms-aad.database.chinacloudapi.cn',
         app_insights_resource_id='https://api.applicationinsights.azure.cn',
         log_analytics_resource_id='https://api.loganalytics.azure.cn',
         app_insights_telemetry_channel_resource_id='https://dc.applicationinsights.azure.cn/v2/track',
         synapse_analytics_resource_id='https://dev.azuresynapse.azure.cn',
+        # App Service Audience is currently not available in Mooncake,
+        # Using the management endpoint until the App Service audience is enabled
+        app_service_resource_id='https://management.core.chinacloudapi.cn/',
         portal='https://portal.azure.cn'),
     suffixes=CloudSuffixes(
         storage_endpoint='core.chinacloudapi.cn',
@@ -363,7 +432,7 @@ AZURE_CHINA_CLOUD = Cloud(
         synapse_analytics_endpoint='.dev.azuresynapse.azure.cn'))
 
 AZURE_US_GOV_CLOUD = Cloud(
-    'AzureUSGovernment',
+    CloudNameEnum.AzureUSGovernment,
     endpoints=CloudEndpoints(
         management='https://management.core.usgovcloudapi.net/',
         resource_manager='https://management.usgovcloudapi.net/',
@@ -372,15 +441,18 @@ AZURE_US_GOV_CLOUD = Cloud(
         gallery='https://gallery.usgovcloudapi.net/',
         active_directory='https://login.microsoftonline.us',
         active_directory_resource_id='https://management.core.usgovcloudapi.net/',
-        active_directory_graph_resource_id='https://graph.windows.net/',
+        active_directory_graph_resource_id='https://graph.microsoftazure.us/',
         microsoft_graph_resource_id='https://graph.microsoft.us/',
-        vm_image_alias_doc='https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/arm-compute/quickstart-templates/aliases.json',
+        vm_image_alias_doc='https://azcliprod.blob.core.windows.net/cli/vm/aliases.json',
         media_resource_id='https://rest.media.usgovcloudapi.net',
         ossrdbms_resource_id='https://ossrdbms-aad.database.usgovcloudapi.net',
         app_insights_resource_id='https://api.applicationinsights.us',
         log_analytics_resource_id='https://api.loganalytics.us',
         app_insights_telemetry_channel_resource_id='https://dc.applicationinsights.us/v2/track',
         synapse_analytics_resource_id='https://dev.azuresynapse.usgovcloudapi.net',
+        # App Service Audience is currently not available in US Government cloud,
+        # Using the management endpoint until the App Service audience is enabled
+        app_service_resource_id='https://management.core.usgovcloudapi.net/',
         portal='https://portal.azure.us'),
     suffixes=CloudSuffixes(
         storage_endpoint='core.usgovcloudapi.net',
@@ -395,7 +467,7 @@ AZURE_US_GOV_CLOUD = Cloud(
         synapse_analytics_endpoint='.dev.azuresynapse.usgovcloudapi.net'))
 
 AZURE_GERMAN_CLOUD = Cloud(
-    'AzureGermanCloud',
+    CloudNameEnum.AzureGermanCloud,
     endpoints=CloudEndpoints(
         management='https://management.core.cloudapi.de/',
         resource_manager='https://management.microsoftazure.de',
@@ -406,7 +478,7 @@ AZURE_GERMAN_CLOUD = Cloud(
         active_directory_resource_id='https://management.core.cloudapi.de/',
         active_directory_graph_resource_id='https://graph.cloudapi.de/',
         microsoft_graph_resource_id='https://graph.microsoft.de',
-        vm_image_alias_doc='https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/arm-compute/quickstart-templates/aliases.json',
+        vm_image_alias_doc='https://azcliprod.blob.core.windows.net/cli/vm/aliases.json',
         media_resource_id='https://rest.media.cloudapi.de',
         ossrdbms_resource_id='https://ossrdbms-aad.database.cloudapi.de',
         portal='https://portal.microsoftazure.de'),
@@ -419,7 +491,73 @@ AZURE_GERMAN_CLOUD = Cloud(
         postgresql_server_endpoint='.postgres.database.cloudapi.de',
         mariadb_server_endpoint='.mariadb.database.cloudapi.de'))
 
-HARD_CODED_CLOUD_LIST = [AZURE_PUBLIC_CLOUD, AZURE_CHINA_CLOUD, AZURE_US_GOV_CLOUD, AZURE_GERMAN_CLOUD]
+AZURE_BLEU_CLOUD = Cloud(
+    CloudNameEnum.AzureBleuCloud,
+    endpoints=CloudEndpoints(
+        management='https://management.sovcloud-api.fr/',
+        resource_manager='https://management.sovcloud-api.fr',
+        sql_management='https://management.database.sovcloud-api.fr:8443/',
+        batch_resource_id='https://batch.sovcloud-api.fr/',
+        gallery='https://gallery.sovcloud-api.fr/',
+        active_directory='https://login.sovcloud-identity.fr',
+        active_directory_resource_id='https://management.sovcloud-api.fr/',
+        active_directory_graph_resource_id='https://graph.svc.sovcloud.fr/',
+        microsoft_graph_resource_id='https://graph.svc.sovcloud.fr',
+        vm_image_alias_doc='https://azcliprod.blob.core.windows.net/cli/vm/aliases_master.json',
+        media_resource_id='https://rest.media.sovcloud-api.fr',
+        ossrdbms_resource_id='https://ossrdbms-aad.database.sovcloud-api.fr',
+        synapse_analytics_resource_id='https://dev.azuresynapse.sovcloud-api.fr',
+        portal='https://portal.sovcloud-azure.fr'),
+    suffixes=CloudSuffixes(
+        acr_login_server_endpoint='.azurecr.sovcloud-azure.fr',
+        attestation_endpoint='attest.sovcloud-api.fr',
+        storage_endpoint='core.sovcloud-api.fr',
+        storage_sync_endpoint='afs.sovcloud-api.fr',
+        keyvault_dns='.vault.sovcloud-api.fr',
+        mhsm_dns='.managedhsm.sovcloud-api.fr',
+        sql_server_hostname='.database.sovcloud-api.fr',
+        mysql_server_endpoint='.mysql.database.sovcloud-api.fr',
+        postgresql_server_endpoint='.postgres.database.sovcloud-api.fr',
+        mariadb_server_endpoint='.mariadb.database.sovcloud-api.fr',
+        synapse_analytics_endpoint='.dev.azuresynapse.sovcloud-api.fr'))
+
+AZURE_DELOS_CLOUD = Cloud(
+    CloudNameEnum.AzureDelosCloud,
+    endpoints=CloudEndpoints(
+        management='https://management.sovcloud-api.de/',
+        resource_manager='https://management.sovcloud-api.de',
+        sql_management='https://management.database.sovcloud-api.de:8443/',
+        batch_resource_id='https://batch.sovcloud-api.de/',
+        gallery='https://gallery.sovcloud-api.de/',
+        active_directory='https://login.sovcloud-identity.de',
+        active_directory_resource_id='https://management.sovcloud-api.de/',
+        active_directory_graph_resource_id='https://graph.svc.sovcloud.de/',
+        microsoft_graph_resource_id='https://graph.svc.sovcloud.de',
+        vm_image_alias_doc='https://azcliprod.blob.core.windows.net/cli/vm/aliases_master.json',
+        media_resource_id='https://rest.media.sovcloud-api.de',
+        ossrdbms_resource_id='https://ossrdbms-aad.database.sovcloud-api.de',
+        synapse_analytics_resource_id='https://dev.azuresynapse.sovcloud-api.de',
+        portal='https://portal.sovcloud.de'),
+    suffixes=CloudSuffixes(
+        acr_login_server_endpoint='.azurecr.sovcloud-azure.de',
+        attestation_endpoint='attest.sovcloud-api.de',
+        storage_endpoint='core.sovcloud-api.de',
+        storage_sync_endpoint='afs.sovcloud-api.de',
+        keyvault_dns='.vault.sovcloud-api.de',
+        mhsm_dns='.managedhsm.sovcloud-api.de',
+        sql_server_hostname='.database.sovcloud-api.de',
+        mysql_server_endpoint='.mysql.database.sovcloud-api.de',
+        postgresql_server_endpoint='.postgres.database.sovcloud-api.de',
+        mariadb_server_endpoint='.mariadb.database.sovcloud-api.de',
+        synapse_analytics_endpoint='.dev.azuresynapse.sovcloud-api.de'))
+
+HARD_CODED_CLOUD_LIST = [AZURE_PUBLIC_CLOUD, AZURE_CHINA_CLOUD, AZURE_US_GOV_CLOUD, AZURE_BLEU_CLOUD, AZURE_DELOS_CLOUD]
+
+
+def retrieve_arm_cloud_metadata():
+    """ Retrieve Cloud metadata from ARM endpoint api defined in ARM_CLOUD_METADATA_URL"""
+    if 'ARM_CLOUD_METADATA_URL' in os.environ:
+        return json.loads(urlretrieve(os.getenv('ARM_CLOUD_METADATA_URL')))
 
 
 def get_known_clouds(refresh=False):
@@ -442,7 +580,7 @@ def get_known_clouds(refresh=False):
 
         if not CLOUD_ENDPOINTS['clouds']:
             try:
-                arm_cloud_dict = json.loads(urlretrieve(os.getenv('ARM_CLOUD_METADATA_URL')))
+                arm_cloud_dict = retrieve_arm_cloud_metadata()
                 cli_cloud_dict = _convert_arm_to_cli(arm_cloud_dict)
                 if 'AzureCloud' in cli_cloud_dict:
                     cli_cloud_dict['AzureCloud'].endpoints.active_directory = 'https://login.microsoftonline.com'  # change once active_directory is fixed in ARM for the public cloud
@@ -482,8 +620,8 @@ def get_active_cloud_name(cli_ctx):
 
 def get_default_cloud_name():
     """ Pick AzureCloud as the default cloud if it is available, otherwise pick the first in the list"""
-    if AZURE_PUBLIC_CLOUD.name.lower() in [c.name.lower() for c in KNOWN_CLOUDS]:
-        return AZURE_PUBLIC_CLOUD.name
+    if CloudNameEnum.AzureCloud.lower() in [c.name.lower() for c in KNOWN_CLOUDS]:
+        return CloudNameEnum.AzureCloud
     return KNOWN_CLOUDS[0].name
 
 
@@ -515,6 +653,7 @@ def get_clouds(cli_ctx):
     except configparser.MissingSectionHeaderError:
         os.remove(CLOUD_CONFIG_FILE)
         logger.warning("'%s' is in bad format and has been removed.", CLOUD_CONFIG_FILE)
+    active_cloud_name = get_active_cloud_name(cli_ctx)
     for section in config.sections():
         c = Cloud(section)
         for option in config.options(section):
@@ -528,13 +667,26 @@ def get_clouds(cli_ctx):
             # If profile isn't set, use latest
             setattr(c, 'profile', 'latest')
         if c.profile not in API_PROFILES:
-            raise CLIError('Profile {} does not exist or is not supported.'.format(c.profile))
+            if c.profile in (
+                "2017-03-09-profile",
+                "2018-03-01-hybrid",
+                "2019-03-01-hybrid",
+                "2020-09-01-hybrid",
+            ):
+                if c.name == active_cloud_name:
+                    # only apply to the active cloud
+                    logger.error(
+                        "The azure stack profile '%s' has been deprecated and removed, using the 'latest' profile instead.\n"
+                        "To continue using Azure Stack, please install the Azure CLI `2.66.*` (LTS) version. For more details, refer to: https://learn.microsoft.com/en-us/cli/azure/whats-new-overview#important-notice-for-azure-stack-hub-customers", c.profile
+                    )
+                    c.profile = 'latest'
+            else:
+                raise CLIError('Profile {} does not exist or is not supported.'.format(c.profile))
         if not c.endpoints.has_endpoint_set('management') and \
                 c.endpoints.has_endpoint_set('resource_manager'):
             # If management endpoint not set, use resource manager endpoint
             c.endpoints.management = c.endpoints.resource_manager
         clouds.append(c)
-    active_cloud_name = get_active_cloud_name(cli_ctx)
     for c in clouds:
         if c.name == active_cloud_name:
             c.is_active = True
@@ -554,13 +706,16 @@ def get_active_cloud(cli_ctx=None):
         from azure.cli.core import get_default_cli
         cli_ctx = get_default_cli()
     try:
-        return get_cloud(cli_ctx, get_active_cloud_name(cli_ctx))
+        cloud = get_cloud(cli_ctx, get_active_cloud_name(cli_ctx))
     except CloudNotRegisteredException as err:
         logger.warning(err)
         default_cloud_name = get_default_cloud_name()
         logger.warning("Resetting active cloud to'%s'.", default_cloud_name)
         _set_active_cloud(cli_ctx, default_cloud_name)
-        return get_cloud(cli_ctx, default_cloud_name)
+        cloud = get_cloud(cli_ctx, default_cloud_name)
+    if cloud.profile != 'latest':
+        logger.warning("Cloud profile '%s' will be deprecated starting from 2.73.0. Please use the 'latest' profile or the CLI 2.66.* (LTS) version instead.", cloud.profile)
+    return cloud
 
 
 def get_cloud_subscription(cloud_name):

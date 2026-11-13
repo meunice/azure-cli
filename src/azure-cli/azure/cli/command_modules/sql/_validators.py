@@ -4,9 +4,35 @@
 # --------------------------------------------------------------------------------------------
 
 from azure.cli.core.util import CLIError
+from azure.cli.core.azclierror import InvalidArgumentValueError
+
+from ._util import build_sdk_model
 
 # Important note: if cmd validator exists, then individual param validators will not be
 # executed. See C:\git\azure-cli\env\lib\site-packages\knack\invocation.py `def _validation`
+
+
+def _is_model_field_required(model_type, name):
+    '''
+    Determine whether a model property is required. SQL SDK 5.0 removes msrest's `_validation` map;
+    its TypeSpec models declare required properties as non-Optional class annotations.
+    '''
+    import types
+    import typing
+
+    validation = getattr(model_type, '_validation', None)  # pylint: disable=protected-access
+    if validation is not None:
+        return bool(validation.get(name, {}).get('required', False))
+
+    for cls in model_type.__mro__:
+        # Accessing __annotations__ evaluates lazy annotations on Python 3.14+
+        annotations = getattr(cls, '__annotations__', {}) if name in getattr(cls, '__dict__', {}) else {}
+        if name in annotations:
+            annotation = annotations[name]
+            if typing.get_origin(annotation) in (typing.Union, types.UnionType):
+                return type(None) not in typing.get_args(annotation)
+            return True
+    return False
 
 
 def create_args_for_complex_type(arg_ctx, dest, model_type, arguments):
@@ -30,8 +56,9 @@ def create_args_for_complex_type(arg_ctx, dest, model_type, arguments):
             :return: The argument of specific type.
             '''
             ns = vars(namespace)
-            kwargs = dict((k, ns[k]) for k in ns if k in set(expanded_arguments))
-            setattr(namespace, assigned_arg, model_type(**kwargs))
+            kwargs = {k: ns[k] for k in ns if k in set(expanded_arguments)}
+            # SQL SDK 5.0 requires model field names and nested properties, not loose CLI aliases.
+            setattr(namespace, assigned_arg, build_sdk_model(model_type, kwargs))
 
         return _expansion_validator_impl
 
@@ -41,10 +68,7 @@ def create_args_for_complex_type(arg_ctx, dest, model_type, arguments):
     parameter_docs = option_descriptions(model_type)
 
     for name in arguments:
-        # Get the validation map from the model type in order to determine
-        # whether the argument should be required
-        validation = model_type._validation.get(name, None)  # pylint: disable=protected-access
-        required = validation.get('required', False) if validation else False
+        required = _is_model_field_required(model_type, name)
 
         # Generate the command line argument name from the property name
         options_list = ['--' + name.replace('_', '-')]
@@ -79,7 +103,7 @@ def create_args_for_complex_type(arg_ctx, dest, model_type, arguments):
 
 # Validates if a subnet id or name have been given by the user. If subnet id is given, vnet-name should not be provided.
 def validate_subnet(cmd, namespace):
-    from msrestazure.tools import resource_id, is_valid_resource_id
+    from azure.mgmt.core.tools import resource_id, is_valid_resource_id
     from azure.cli.core.commands.client_factory import get_subscription_id
 
     # Different custom function arg names, instance pool has subnet_id
@@ -138,3 +162,20 @@ def validate_managed_instance_storage_size(namespace):
         pass
     else:
         raise CLIError('incorrect usage: --storage must be specified in increments of 32 GB')
+
+
+###############################################
+#                sql server                   #
+###############################################
+
+
+def validate_soft_delete_retention_days(namespace):
+    '''
+    Validates that soft_delete_retention_days is within the allowed range of 0-7 days.
+    '''
+    if namespace.soft_delete_retention_days is not None:
+        value = namespace.soft_delete_retention_days
+        if not isinstance(value, int) or value < 0 or value > 7:
+            raise InvalidArgumentValueError(
+                'The value for --soft-delete-retention-days must be an integer between 0 and 7.',
+                'Specify 0 to disable soft delete, or 1-7 to set the retention period in days.')

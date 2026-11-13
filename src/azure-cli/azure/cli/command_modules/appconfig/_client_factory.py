@@ -5,15 +5,15 @@
 
 from knack.log import get_logger
 from knack.util import CLIError
-from azure.cli.core.profiles import ResourceType
 
 logger = get_logger(__name__)
 
 
-def get_appconfig_service_client(cli_ctx):
+def get_appconfig_service_client(cli_ctx, api_version=None):
     ''' Returns the client for managing configuration stores.'''
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_APPCONFIGURATION)
+    from azure.mgmt.appconfiguration import AppConfigurationManagementClient
+    client = get_mgmt_service_client(cli_ctx, AppConfigurationManagementClient, api_version=api_version)
     return client
 
 
@@ -23,6 +23,10 @@ def cf_configstore(cli_ctx, *_):
 
 def cf_replicas(cli_ctx, *_):
     return get_appconfig_service_client(cli_ctx).replicas
+
+
+def cf_nsp_configurations(cli_ctx, *_):
+    return get_appconfig_service_client(cli_ctx).network_security_perimeter_configurations
 
 
 def cf_configstore_operations(cli_ctx, *_):

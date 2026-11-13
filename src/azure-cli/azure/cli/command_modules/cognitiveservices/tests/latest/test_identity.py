@@ -10,7 +10,7 @@ from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer
 from azure.cli.testsdk.decorators import serial_test
 
 
-class CognitiveServicesByoxTests(ScenarioTest):
+class CognitiveServicesIdentityTests(ScenarioTest):
     @serial_test()
     @ResourceGroupPreparer()
     def test_cognitiveservices_identity_assign_when_create(self, resource_group):
@@ -18,9 +18,9 @@ class CognitiveServicesByoxTests(ScenarioTest):
 
         self.kwargs.update({
             'sname': sname,
-            'kind': 'Face',
-            'sku': 'E0',
-            'location': 'SOUTHCENTRALUS'
+            'kind': 'FormRecognizer',
+            'sku': 'S0',
+            'location': 'southcentralus'
         })
 
         # test to create cognitive services account
@@ -46,9 +46,9 @@ class CognitiveServicesByoxTests(ScenarioTest):
 
         self.kwargs.update({
             'sname': sname,
-            'kind': 'Face',
-            'sku': 'E0',
-            'location': 'SOUTHCENTRALUS'
+            'kind': 'FormRecognizer',
+            'sku': 'S0',
+            'location': 'southcentralus'
         })
 
         # test to create cognitive services account

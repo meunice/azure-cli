@@ -8,7 +8,7 @@ import unittest
 from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer
 
 
-class CognitiveServicesApiPropertiesTests(ScenarioTest):
+class CognitiveServicesPropertiesTests(ScenarioTest):
     @ResourceGroupPreparer()
     def test_cognitiveservices_account_capabilities(self, resource_group):
         sname = self.create_random_name(prefix='cs_cli_test_', length=16)
@@ -16,8 +16,8 @@ class CognitiveServicesApiPropertiesTests(ScenarioTest):
         self.kwargs.update({
             'sname': sname,
             'kind': 'FormRecognizer',
-            'sku': 'F0',
-            'location': 'SOUTHCENTRALUS'
+            'sku': 'S0',
+            'location': 'southcentralus'
         })
 
         # test to create cognitive services account
@@ -43,7 +43,7 @@ class CognitiveServicesApiPropertiesTests(ScenarioTest):
             'sname': sname,
             'kind': 'Face',
             'sku': 'S0',
-            'location': 'SOUTHCENTRALUS'
+            'location': 'southcentralus'
         })
 
         # test to create cognitive services account
@@ -58,6 +58,43 @@ class CognitiveServicesApiPropertiesTests(ScenarioTest):
 
         # delete the cognitive services account
         ret = self.cmd('az cognitiveservices account delete -n {sname} -g {rg}')
+        self.assertEqual(ret.exit_code, 0)
+
+    @ResourceGroupPreparer()
+    def test_cognitiveservices_aiservices(self, resource_group):
+        sname = self.create_random_name(prefix='csclitest_', length=16)
+        sname2 = self.create_random_name(prefix='csclitest2_', length=16)
+        self.kwargs.update({
+            'sname': sname,
+            'sname2': sname2,
+            'kind': 'AIServices',
+            'sku': 'S0',
+            'location': 'eastus'
+        })
+
+        # test to create cognitive services account with allow_project_management set to True by default for AIServices kind
+        self.cmd('az cognitiveservices account create -n {sname} -g {rg} --kind {kind} --sku {sku} -l {location} --yes',
+                 checks=[self.check('name', '{sname}'),
+                         self.check('location', '{location}'),
+                         self.check('sku.name', '{sku}'),
+                         self.check('properties.allowProjectManagement', True)])
+        account = self.cmd('az cognitiveservices account show -n {sname} -g {rg}').get_output_in_json()
+        self.assertTrue(account['identity']['type'] == 'SystemAssigned')
+
+        # delete the cognitive services account
+        ret = self.cmd('az cognitiveservices account delete -n {sname} -g {rg}')
+        self.assertEqual(ret.exit_code, 0)
+
+        self.cmd('az cognitiveservices account create -n {sname2} -g {rg} --kind {kind} --sku {sku} -l {location} --allow-project-management true --yes',
+                 checks=[self.check('name', '{sname2}'),
+                         self.check('location', '{location}'),
+                         self.check('sku.name', '{sku}'),
+                         self.check('properties.allowProjectManagement', True)])
+        account = self.cmd('az cognitiveservices account show -n {sname2} -g {rg}').get_output_in_json()
+        self.assertTrue(account['identity']['type'] == 'SystemAssigned')
+
+        # delete the cognitive services account
+        ret = self.cmd('az cognitiveservices account delete -n {sname2} -g {rg}')
         self.assertEqual(ret.exit_code, 0)
 
 

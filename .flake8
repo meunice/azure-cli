@@ -27,3 +27,5 @@ exclude =
     */grammar/
     vendored_sdks
     tests
+    */command_modules/*/aaz
+    */_legacy

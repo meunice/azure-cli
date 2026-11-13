@@ -15,13 +15,12 @@ interactions:
       ParameterSetName:
       - -n -g -o
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-azure-mgmt-storage/21.0.0 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/listKeys?api-version=2022-09-01&$expand=kerb
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002/listKeys?api-version=2026-09-01&$expand=kerb
   response:
     body:
-      string: '{"keys":[{"creationTime":"2022-11-23T01:55:07.0861080Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2022-11-23T01:55:07.0861080Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
+      string: '{"keys":[{"creationTime":"2026-05-14T08:53:39.8196502Z","keyName":"key1","value":"veryFakedStorageAccountKey==","permissions":"FULL"},{"creationTime":"2026-05-14T08:53:39.8196502Z","keyName":"key2","value":"veryFakedStorageAccountKey==","permissions":"FULL"}]}'
     headers:
       cache-control:
       - no-cache
@@ -30,7 +29,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Wed, 23 Nov 2022 01:55:29 GMT
+      - Thu, 14 May 2026 08:54:10 GMT
       expires:
       - '-1'
       pragma:
@@ -39,14 +38,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/f6be8c8e-32d1-4b51-bdf2-47fbf6e81086
       x-ms-ratelimit-remaining-subscription-resource-requests:
-      - '11999'
+      - '799'
+      x-ms-throttling-version:
+      - v1
     status:
       code: 200
       message: OK
@@ -64,22 +63,21 @@ interactions:
       ParameterSetName:
       - -n -g -o
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-azure-mgmt-storage/21.0.0 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002?api-version=2026-09-01
   response:
     body:
-      string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"kind":"Storage","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002","name":"clitest000002","type":"Microsoft.Storage/storageAccounts","location":"westus","tags":{},"properties":{"keyCreationTime":{"key1":"2022-11-23T01:55:07.0861080Z","key2":"2022-11-23T01:55:07.0861080Z"},"privateEndpointConnections":[],"minimumTlsVersion":"TLS1_0","allowBlobPublicAccess":false,"networkAcls":{"bypass":"AzureServices","virtualNetworkRules":[],"ipRules":[],"defaultAction":"Allow"},"supportsHttpsTrafficOnly":true,"encryption":{"services":{"file":{"keyType":"Account","enabled":true,"lastEnabledTime":"2022-11-23T01:55:07.1017477Z"},"blob":{"keyType":"Account","enabled":true,"lastEnabledTime":"2022-11-23T01:55:07.1017477Z"}},"keySource":"Microsoft.Storage"},"provisioningState":"Succeeded","creationTime":"2022-11-23T01:55:06.9923598Z","primaryEndpoints":{"blob":"https://clitest000002.blob.core.windows.net/","queue":"https://clitest000002.queue.core.windows.net/","table":"https://clitest000002.table.core.windows.net/","file":"https://clitest000002.file.core.windows.net/"},"primaryLocation":"westus","statusOfPrimary":"available"}}'
+      string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"kind":"Storage","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Storage/storageAccounts/clitest000002","name":"clitest000002","type":"Microsoft.Storage/storageAccounts","location":"westus","tags":{},"properties":{"allowCrossTenantDelegationSas":false,"keyCreationTime":{"key1":"2026-05-14T08:53:39.8196502Z","key2":"2026-05-14T08:53:39.8196502Z"},"allowCrossTenantReplication":false,"privateEndpointConnections":[],"minimumTlsVersion":"TLS1_0","allowBlobPublicAccess":false,"networkAcls":{"ipv6Rules":[],"bypass":"AzureServices","virtualNetworkRules":[],"ipRules":[],"defaultAction":"Allow"},"supportsHttpsTrafficOnly":true,"encryption":{"services":{"file":{"keyType":"Account","enabled":true,"lastEnabledTime":"2026-05-14T08:53:39.8298509Z"},"blob":{"keyType":"Account","enabled":true,"lastEnabledTime":"2026-05-14T08:53:39.8298509Z"}},"keySource":"Microsoft.Storage"},"provisioningState":"Succeeded","creationTime":"2026-05-14T08:53:39.5541229Z","primaryEndpoints":{"blob":"https://clitest000002.blob.core.windows.net/","queue":"https://clitest000002.queue.core.windows.net/","table":"https://clitest000002.table.core.windows.net/","file":"https://clitest000002.file.core.windows.net/"},"primaryLocation":"westus","statusOfPrimary":"available"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1270'
+      - '1359'
       content-type:
       - application/json
       date:
-      - Wed, 23 Nov 2022 01:55:29 GMT
+      - Thu, 14 May 2026 08:54:13 GMT
       expires:
       - '-1'
       pragma:
@@ -88,53 +86,10 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      Date:
-      - Wed, 23 Nov 2022 01:55:30 GMT
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:30 GMT
-      x-ms-version:
-      - '2019-02-02'
-    method: GET
-    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /></StorageServiceProperties>"
-    headers:
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:55:30 GMT
-      server:
-      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2019-02-02'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -152,95 +107,16 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:31 GMT
+      - Thu, 14 May 2026 08:54:13 GMT
       x-ms-version:
-      - '2021-06-08'
-    method: GET
-    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
-    headers:
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:55:32 GMT
-      server:
-      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:32 GMT
-      x-ms-version:
-      - '2021-06-08'
-    method: GET
-    uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
-    headers:
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:55:33 GMT
-      server:
-      - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:33 GMT
-      x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /></StorageServiceProperties>"
     headers:
       cache-control:
@@ -248,13 +124,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:34 GMT
+      - Thu, 14 May 2026 08:54:15 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -266,166 +142,37 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       CommandName:
-      - storage cors add
-      Connection:
-      - keep-alive
-      Date:
-      - Wed, 23 Nov 2022 01:55:34 GMT
-      ParameterSetName:
-      - --method --origins --services --max-age --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:34 GMT
-      x-ms-version:
-      - '2019-02-02'
-    method: GET
-    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /></StorageServiceProperties>"
-    headers:
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:55:35 GMT
-      server:
-      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2019-02-02'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '<?xml version=''1.0'' encoding=''utf-8''?>
-
-      <StorageServiceProperties><Cors><CorsRule><AllowedOrigins>http://example.com</AllowedOrigins><AllowedMethods>POST</AllowedMethods><AllowedHeaders
-      /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>'
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors add
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '287'
-      Content-Type:
-      - application/xml
-      Date:
-      - Wed, 23 Nov 2022 01:55:35 GMT
-      ParameterSetName:
-      - --method --origins --services --max-age --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:35 GMT
-      x-ms-version:
-      - '2019-02-02'
-    method: PUT
-    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: ''
-    headers:
-      date:
-      - Wed, 23 Nov 2022 01:55:36 GMT
-      server:
-      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2019-02-02'
-    status:
-      code: 202
-      message: Accepted
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors add
+      - storage cors list
       Connection:
       - keep-alive
       ParameterSetName:
-      - --method --origins --services --max-age --connection-string
+      - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:36 GMT
+      - Thu, 14 May 2026 08:54:16 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:37 GMT
+      - Thu, 14 May 2026 08:54:18 GMT
       server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
-- request:
-    body: '<?xml version=''1.0'' encoding=''utf-8''?>
-
-      <StorageServiceProperties><Cors><CorsRule><AllowedOrigins>http://example.com</AllowedOrigins><AllowedMethods>POST</AllowedMethods><AllowedHeaders
-      /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>'
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors add
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '287'
-      Content-Type:
-      - application/xml
-      ParameterSetName:
-      - --method --origins --services --max-age --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:37 GMT
-      x-ms-version:
-      - '2021-06-08'
-    method: PUT
-    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: ''
-    headers:
-      content-length:
-      - '0'
-      date:
-      - Wed, 23 Nov 2022 01:55:38 GMT
-      server:
-      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
-      x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 202
-      message: Accepted
 - request:
     body: null
     headers:
@@ -434,82 +181,78 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       CommandName:
-      - storage cors add
+      - storage cors list
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 14 May 2026 08:54:18 GMT
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:18 GMT
+      x-ms-version:
+      - '2019-02-02'
+    method: GET
+    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:54:20 GMT
+      server:
+      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2019-02-02'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
       Connection:
       - keep-alive
       ParameterSetName:
-      - --method --origins --services --max-age --connection-string
+      - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:38 GMT
+      - Thu, 14 May 2026 08:54:20 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:38 GMT
+      - Thu, 14 May 2026 08:54:22 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
-- request:
-    body: '<?xml version=''1.0'' encoding=''utf-8''?>
-
-      <StorageServiceProperties><Cors><CorsRule><AllowedOrigins>http://example.com</AllowedOrigins><AllowedMethods>POST</AllowedMethods><AllowedHeaders
-      /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>'
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors add
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '287'
-      Content-Type:
-      - application/xml
-      ParameterSetName:
-      - --method --origins --services --max-age --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:55:39 GMT
-      x-ms-version:
-      - '2021-06-08'
-    method: PUT
-    uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: ''
-    headers:
-      content-length:
-      - '0'
-      date:
-      - Wed, 23 Nov 2022 01:55:39 GMT
-      server:
-      - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
-      x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 202
-      message: Accepted
 - request:
     body: null
     headers:
@@ -524,16 +267,16 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:40 GMT
+      - Thu, 14 May 2026 08:54:23 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /></StorageServiceProperties>"
     headers:
       cache-control:
@@ -541,13 +284,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:40 GMT
+      - Thu, 14 May 2026 08:54:24 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -572,11 +315,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:41 GMT
+      - Thu, 14 May 2026 08:54:25 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
@@ -586,11 +329,93 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:55:41 GMT
+      - Thu, 14 May 2026 08:54:27 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors add
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --method --origins --services --max-age --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:28 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: GET
+    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:54:29 GMT
+      server:
+      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '<?xml version=''1.0'' encoding=''utf-8''?>
+
+      <StorageServiceProperties><Cors><CorsRule><AllowedOrigins>http://example.com</AllowedOrigins><AllowedMethods>POST</AllowedMethods><AllowedHeaders
+      /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>'
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors add
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '287'
+      Content-Type:
+      - application/xml
+      ParameterSetName:
+      - --method --origins --services --max-age --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:30 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: PUT
+    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: ''
+    headers:
+      content-length:
+      - '0'
+      date:
+      - Thu, 14 May 2026 08:54:32 GMT
+      server:
+      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
+      x-ms-version:
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -606,26 +431,194 @@ interactions:
       Connection:
       - keep-alive
       Date:
-      - Wed, 23 Nov 2022 01:55:42 GMT
+      - Thu, 14 May 2026 08:54:33 GMT
+      ParameterSetName:
+      - --method --origins --services --max-age --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:33 GMT
+      x-ms-version:
+      - '2019-02-02'
+    method: GET
+    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:54:35 GMT
+      server:
+      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2019-02-02'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '<?xml version=''1.0'' encoding=''utf-8''?>
+
+      <StorageServiceProperties><Cors><CorsRule><AllowedOrigins>http://example.com</AllowedOrigins><AllowedMethods>POST</AllowedMethods><AllowedHeaders
+      /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>'
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors add
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '287'
+      Content-Type:
+      - application/xml
+      Date:
+      - Thu, 14 May 2026 08:54:36 GMT
+      ParameterSetName:
+      - --method --origins --services --max-age --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:36 GMT
+      x-ms-version:
+      - '2019-02-02'
+    method: PUT
+    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: ''
+    headers:
+      date:
+      - Thu, 14 May 2026 08:54:37 GMT
+      server:
+      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2019-02-02'
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors add
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --method --origins --services --max-age --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:38 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: GET
+    uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:54:40 GMT
+      server:
+      - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '<?xml version=''1.0'' encoding=''utf-8''?>
+
+      <StorageServiceProperties><Cors><CorsRule><AllowedOrigins>http://example.com</AllowedOrigins><AllowedMethods>POST</AllowedMethods><AllowedHeaders
+      /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>'
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors add
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '287'
+      Content-Type:
+      - application/xml
+      ParameterSetName:
+      - --method --origins --services --max-age --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:54:40 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: PUT
+    uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: ''
+    headers:
+      content-length:
+      - '0'
+      date:
+      - Thu, 14 May 2026 08:54:42 GMT
+      server:
+      - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors add
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 14 May 2026 08:54:43 GMT
       ParameterSetName:
       - --method --origins --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:42 GMT
+      - Thu, 14 May 2026 08:54:43 GMT
       x-ms-version:
       - '2019-02-02'
     method: GET
     uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:42 GMT
+      - Thu, 14 May 2026 08:54:44 GMT
       server:
       - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -657,13 +650,13 @@ interactions:
       Content-Type:
       - application/xml
       Date:
-      - Wed, 23 Nov 2022 01:55:43 GMT
+      - Thu, 14 May 2026 08:54:45 GMT
       ParameterSetName:
       - --method --origins --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:43 GMT
+      - Thu, 14 May 2026 08:54:45 GMT
       x-ms-version:
       - '2019-02-02'
     method: PUT
@@ -673,7 +666,7 @@ interactions:
       string: ''
     headers:
       date:
-      - Wed, 23 Nov 2022 01:55:42 GMT
+      - Thu, 14 May 2026 08:54:47 GMT
       server:
       - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -697,22 +690,22 @@ interactions:
       ParameterSetName:
       - --method --origins --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:43 GMT
+      - Thu, 14 May 2026 08:54:47 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:44 GMT
+      - Thu, 14 May 2026 08:54:50 GMT
       server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -720,7 +713,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -746,11 +739,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:44 GMT
+      - Thu, 14 May 2026 08:54:50 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
   response:
@@ -760,11 +753,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:55:44 GMT
+      - Thu, 14 May 2026 08:54:51 GMT
       server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -782,31 +775,28 @@ interactions:
       ParameterSetName:
       - --method --origins --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:45 GMT
+      - Thu, 14 May 2026 08:54:52 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:55:46 GMT
+      - Thu, 14 May 2026 08:54:54 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
-      vary:
-      - Origin
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -832,12 +822,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:55:46 GMT
+      - Thu, 14 May 2026 08:54:54 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
@@ -847,11 +836,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:55:47 GMT
+      - Thu, 14 May 2026 08:54:57 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -866,36 +855,35 @@ interactions:
       - storage cors list
       Connection:
       - keep-alive
-      Date:
-      - Wed, 23 Nov 2022 01:56:02 GMT
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:02 GMT
+      - Thu, 14 May 2026 08:55:12 GMT
       x-ms-version:
-      - '2019-02-02'
+      - '2026-04-06'
     method: GET
-    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>GET</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>0</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
     headers:
+      cache-control:
+      - no-cache
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:02 GMT
+      - Thu, 14 May 2026 08:55:14 GMT
       server:
-      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       vary:
       - Origin
       x-ms-version:
-      - '2019-02-02'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -913,23 +901,23 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:03 GMT
+      - Thu, 14 May 2026 08:55:14 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>GET</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>0</MaxAgeInSeconds></CorsRule></Cors><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:03 GMT
+      - Thu, 14 May 2026 08:55:16 GMT
       server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -937,7 +925,51 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 14 May 2026 08:55:17 GMT
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:55:17 GMT
+      x-ms-version:
+      - '2019-02-02'
+    method: GET
+    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>GET</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>0</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:55:18 GMT
+      server:
+      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      x-ms-version:
+      - '2019-02-02'
     status:
       code: 200
       message: OK
@@ -955,24 +987,23 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:04 GMT
+      - Thu, 14 May 2026 08:55:19 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>GET</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>0</MaxAgeInSeconds></CorsRule></Cors><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:04 GMT
+      - Thu, 14 May 2026 08:55:20 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -980,50 +1011,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:56:05 GMT
-      x-ms-version:
-      - '2021-02-12'
-    method: GET
-    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
-    headers:
-      cache-control:
-      - no-cache
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:56:06 GMT
-      server:
-      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      vary:
-      - Origin
-      x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1045,13 +1033,13 @@ interactions:
       Content-Type:
       - application/xml
       Date:
-      - Wed, 23 Nov 2022 01:56:06 GMT
+      - Thu, 14 May 2026 08:55:21 GMT
       ParameterSetName:
       - --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:06 GMT
+      - Thu, 14 May 2026 08:55:21 GMT
       x-ms-version:
       - '2019-02-02'
     method: PUT
@@ -1061,7 +1049,7 @@ interactions:
       string: ''
     headers:
       date:
-      - Wed, 23 Nov 2022 01:56:06 GMT
+      - Thu, 14 May 2026 08:55:23 GMT
       server:
       - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1091,11 +1079,11 @@ interactions:
       ParameterSetName:
       - --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:07 GMT
+      - Thu, 14 May 2026 08:55:24 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
   response:
@@ -1105,11 +1093,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:07 GMT
+      - Thu, 14 May 2026 08:55:25 GMT
       server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -1133,12 +1121,11 @@ interactions:
       ParameterSetName:
       - --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:08 GMT
+      - Thu, 14 May 2026 08:55:26 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
@@ -1148,11 +1135,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:09 GMT
+      - Thu, 14 May 2026 08:55:28 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -1167,33 +1154,35 @@ interactions:
       - storage cors list
       Connection:
       - keep-alive
-      Date:
-      - Wed, 23 Nov 2022 01:56:15 GMT
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:15 GMT
+      - Thu, 14 May 2026 08:55:34 GMT
       x-ms-version:
-      - '2019-02-02'
+      - '2026-04-06'
     method: GET
-    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /></StorageServiceProperties>"
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
     headers:
+      cache-control:
+      - no-cache
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:15 GMT
+      - Thu, 14 May 2026 08:55:37 GMT
       server:
-      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
+      vary:
+      - Origin
       x-ms-version:
-      - '2019-02-02'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1211,28 +1200,69 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:16 GMT
+      - Thu, 14 May 2026 08:55:37 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:16 GMT
+      - Thu, 14 May 2026 08:55:38 GMT
       server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 14 May 2026 08:55:39 GMT
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:55:39 GMT
+      x-ms-version:
+      - '2019-02-02'
+    method: GET
+    uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:55:41 GMT
+      server:
+      - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2019-02-02'
     status:
       code: 200
       message: OK
@@ -1250,72 +1280,28 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:17 GMT
+      - Thu, 14 May 2026 08:55:41 GMT
       x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:17 GMT
+      - Thu, 14 May 2026 08:55:43 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:56:18 GMT
-      x-ms-version:
-      - '2021-02-12'
-    method: GET
-    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
-    headers:
-      cache-control:
-      - no-cache
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:56:19 GMT
-      server:
-      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      vary:
-      - Origin
-      x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1333,16 +1319,16 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:19 GMT
+      - Thu, 14 May 2026 08:55:44 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
     headers:
       cache-control:
@@ -1350,7 +1336,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:19 GMT
+      - Thu, 14 May 2026 08:55:46 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1358,7 +1344,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1384,11 +1370,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:20 GMT
+      - Thu, 14 May 2026 08:55:46 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
@@ -1398,11 +1384,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:20 GMT
+      - Thu, 14 May 2026 08:55:49 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -1420,16 +1406,16 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:21 GMT
+      - Thu, 14 May 2026 08:55:49 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
     headers:
@@ -1438,7 +1424,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:21 GMT
+      - Thu, 14 May 2026 08:55:51 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1446,7 +1432,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1473,11 +1459,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:22 GMT
+      - Thu, 14 May 2026 08:55:51 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
@@ -1487,11 +1473,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:22 GMT
+      - Thu, 14 May 2026 08:55:53 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -1509,16 +1495,16 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:23 GMT
+      - Thu, 14 May 2026 08:55:54 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
@@ -1528,7 +1514,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:23 GMT
+      - Thu, 14 May 2026 08:55:56 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1536,7 +1522,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1564,11 +1550,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:24 GMT
+      - Thu, 14 May 2026 08:55:56 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
@@ -1578,11 +1564,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:24 GMT
+      - Thu, 14 May 2026 08:55:58 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -1600,16 +1586,16 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:25 GMT
+      - Thu, 14 May 2026 08:56:00 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
@@ -1620,7 +1606,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:25 GMT
+      - Thu, 14 May 2026 08:56:01 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1628,7 +1614,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1657,11 +1643,11 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:26 GMT
+      - Thu, 14 May 2026 08:56:02 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
@@ -1671,11 +1657,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:26 GMT
+      - Thu, 14 May 2026 08:56:04 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -1693,16 +1679,16 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:26 GMT
+      - Thu, 14 May 2026 08:56:05 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
         /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
@@ -1714,7 +1700,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:27 GMT
+      - Thu, 14 May 2026 08:56:07 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1722,7 +1708,7 @@ interactions:
       vary:
       - Origin
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1752,17 +1738,17 @@ interactions:
       ParameterSetName:
       - --method --origins --services --max-age --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:27 GMT
+      - Thu, 14 May 2026 08:56:08 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
     body:
       string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><Error><Code>InvalidXmlDocument</Code><Message>XML
-        specified is not syntactically valid.\nRequestId:5b881397-f003-001d-2ade-fe8d19000000\nTime:2022-11-23T01:56:28.1234638Z</Message><LineNumber>0</LineNumber><LinePosition>0</LinePosition><Reason
+        specified is not syntactically valid.\nRequestId:f8c76188-b003-0036-607f-e34783000000\nTime:2026-05-14T08:56:10.3464043Z</Message><LineNumber>0</LineNumber><LinePosition>0</LinePosition><Reason
         /></Error>"
     headers:
       content-length:
@@ -1770,13 +1756,13 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:27 GMT
+      - Thu, 14 May 2026 08:56:10 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-error-code:
       - InvalidXmlDocument
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 400
       message: XML specified is not syntactically valid.
@@ -1791,27 +1777,113 @@ interactions:
       - storage cors list
       Connection:
       - keep-alive
-      Date:
-      - Wed, 23 Nov 2022 01:56:33 GMT
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:33 GMT
+      - Thu, 14 May 2026 08:56:15 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: GET
+    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
+        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
+    headers:
+      cache-control:
+      - no-cache
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:56:17 GMT
+      server:
+      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:56:17 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: GET
+    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:56:20 GMT
+      server:
+      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 14 May 2026 08:56:20 GMT
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:56:20 GMT
       x-ms-version:
       - '2019-02-02'
     method: GET
     uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:34 GMT
+      - Thu, 14 May 2026 08:56:21 GMT
       server:
       - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -1835,115 +1907,28 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:34 GMT
+      - Thu, 14 May 2026 08:56:22 GMT
       x-ms-version:
-      - '2021-06-08'
-    method: GET
-    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
-    headers:
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:56:34 GMT
-      server:
-      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:56:35 GMT
-      x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:35 GMT
+      - Thu, 14 May 2026 08:56:24 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:56:36 GMT
-      x-ms-version:
-      - '2021-02-12'
-    method: GET
-    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule><CorsRule><AllowedMethods>POST</AllowedMethods><AllowedOrigins>http://example.com</AllowedOrigins><AllowedHeaders
-        /><ExposedHeaders /><MaxAgeInSeconds>60</MaxAgeInSeconds></CorsRule></Cors></StorageServiceProperties>"
-    headers:
-      cache-control:
-      - no-cache
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:56:37 GMT
-      server:
-      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      vary:
-      - Origin
-      x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK
@@ -1967,11 +1952,11 @@ interactions:
       ParameterSetName:
       - --services --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:37 GMT
+      - Thu, 14 May 2026 08:56:25 GMT
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     method: PUT
     uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
   response:
@@ -1981,11 +1966,11 @@ interactions:
       content-length:
       - '0'
       date:
-      - Wed, 23 Nov 2022 01:56:38 GMT
+      - Thu, 14 May 2026 08:56:27 GMT
       server:
       - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
       x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 202
       message: Accepted
@@ -2000,27 +1985,109 @@ interactions:
       - storage cors list
       Connection:
       - keep-alive
-      Date:
-      - Wed, 23 Nov 2022 01:56:44 GMT
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-data-tables/12.4.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-queue/12.16.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:44 GMT
+      - Thu, 14 May 2026 08:56:33 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: GET
+    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /></StorageServiceProperties>"
+    headers:
+      cache-control:
+      - no-cache
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:56:34 GMT
+      server:
+      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-storage-blob/12.29.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:56:35 GMT
+      x-ms-version:
+      - '2026-04-06'
+    method: GET
+    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
+  response:
+    body:
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+        /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
+    headers:
+      content-type:
+      - application/xml
+      date:
+      - Thu, 14 May 2026 08:56:37 GMT
+      server:
+      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
+      transfer-encoding:
+      - chunked
+      x-ms-version:
+      - '2026-04-06'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - storage cors list
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 14 May 2026 08:56:37 GMT
+      ParameterSetName:
+      - --connection-string
+      User-Agent:
+      - AZURECLI/2.86.0 azsdk-python-data-tables/12.4.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
+      x-ms-date:
+      - Thu, 14 May 2026 08:56:37 GMT
       x-ms-version:
       - '2019-02-02'
     method: GET
     uri: https://clitest000002.table.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:45 GMT
+      - Thu, 14 May 2026 08:56:40 GMT
       server:
       - Windows-Azure-Table/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
@@ -2044,109 +2111,28 @@ interactions:
       ParameterSetName:
       - --connection-string
       User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-blob/12.12.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
+      - AZURECLI/2.86.0 azsdk-python-storage-file-share/12.25.0b1 Python/3.12.10 (Windows-10-10.0.19045-SP0)
       x-ms-date:
-      - Wed, 23 Nov 2022 01:56:45 GMT
+      - Thu, 14 May 2026 08:56:40 GMT
       x-ms-version:
-      - '2021-06-08'
-    method: GET
-    uri: https://clitest000002.blob.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /><DeleteRetentionPolicy><Enabled>false</Enabled><AllowPermanentDelete>false</AllowPermanentDelete></DeleteRetentionPolicy></StorageServiceProperties>"
-    headers:
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:56:46 GMT
-      server:
-      - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-file-share/12.10.0b1 Python/3.7.9
-        (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:56:46 GMT
-      x-ms-version:
-      - '2021-06-08'
+      - '2026-04-06'
     method: GET
     uri: https://clitest000002.file.core.windows.net/?restype=service&comp=properties
   response:
     body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
+      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><HourMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
         /><ProtocolSettings><SMB><Multichannel><Enabled>false</Enabled></Multichannel></SMB></ProtocolSettings></StorageServiceProperties>"
     headers:
       content-type:
       - application/xml
       date:
-      - Wed, 23 Nov 2022 01:56:46 GMT
+      - Thu, 14 May 2026 08:56:42 GMT
       server:
       - Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0
       transfer-encoding:
       - chunked
       x-ms-version:
-      - '2021-06-08'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/xml
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - storage cors list
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - --connection-string
-      User-Agent:
-      - AZURECLI/2.42.0 (PIP) azsdk-python-storage-queue/12.3.0 Python/3.7.9 (Windows-10-10.0.22621-SP0)
-      x-ms-date:
-      - Wed, 23 Nov 2022 01:56:47 GMT
-      x-ms-version:
-      - '2021-02-12'
-    method: GET
-    uri: https://clitest000002.queue.core.windows.net/?restype=service&comp=properties
-  response:
-    body:
-      string: "\uFEFF<?xml version=\"1.0\" encoding=\"utf-8\"?><StorageServiceProperties><Logging><Version>1.0</Version><Read>false</Read><Write>false</Write><Delete>false</Delete><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></Logging><HourMetrics><Version>1.0</Version><Enabled>true</Enabled><IncludeAPIs>true</IncludeAPIs><RetentionPolicy><Enabled>true</Enabled><Days>7</Days></RetentionPolicy></HourMetrics><MinuteMetrics><Version>1.0</Version><Enabled>false</Enabled><RetentionPolicy><Enabled>false</Enabled></RetentionPolicy></MinuteMetrics><Cors
-        /></StorageServiceProperties>"
-    headers:
-      cache-control:
-      - no-cache
-      content-type:
-      - application/xml
-      date:
-      - Wed, 23 Nov 2022 01:56:47 GMT
-      server:
-      - Windows-Azure-Queue/1.0 Microsoft-HTTPAPI/2.0
-      transfer-encoding:
-      - chunked
-      x-ms-version:
-      - '2021-02-12'
+      - '2026-04-06'
     status:
       code: 200
       message: OK

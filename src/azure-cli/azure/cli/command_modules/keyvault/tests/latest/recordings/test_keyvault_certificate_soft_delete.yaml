@@ -5,7 +5,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       CommandName:
       - keyvault show
       Connection:
@@ -13,32 +13,35 @@ interactions:
       ParameterSetName:
       - -n
       User-Agent:
-      - AZURECLI/2.46.0 azsdk-python-azure-mgmt-keyvault/10.2.0 Python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?$filter=resourceType%20eq%20%27Microsoft.KeyVault%2Fvaults%27&api-version=2015-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?$filter=resourceType%20eq%20%27Microsoft.KeyVault%2Fvaults%27%20and%20name%20eq%20%27cli-test-kv-ct-sd-000002%27&api-version=2015-11-01
   response:
     body:
-      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/AzurePowerShellLiveTest/providers/Microsoft.KeyVault/vaults/LiveTestKeyVault","name":"LiveTestKeyVault","type":"Microsoft.KeyVault/vaults","location":"westus","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/bez-rg/providers/Microsoft.KeyVault/vaults/bez-kv","name":"bez-kv","type":"Microsoft.KeyVault/vaults","location":"eastus","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/bez-rg/providers/Microsoft.KeyVault/vaults/bez-kv-test","name":"bez-kv-test","type":"Microsoft.KeyVault/vaults","location":"eastus","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_kv_cert_soft_delete_000001/providers/Microsoft.KeyVault/vaults/cli-test-kv-ct-sd-000002","name":"cli-test-kv-ct-sd-000002","type":"Microsoft.KeyVault/vaults","location":"westus","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hang-rg/providers/Microsoft.KeyVault/vaults/hangkey","name":"hangkey","type":"Microsoft.KeyVault/vaults","location":"koreasouth","tags":{"kk":"kk","zz":"kk","--kk":"zz"}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hang-rg/providers/Microsoft.KeyVault/vaults/similar0327002194","name":"similar0327002194","type":"Microsoft.KeyVault/vaults","location":"eastus2","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ljin-test-group/providers/Microsoft.KeyVault/vaults/ljin-test-vault","name":"ljin-test-vault","type":"Microsoft.KeyVault/vaults","location":"westus","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/shiying-rg/providers/Microsoft.KeyVault/vaults/shiyingkv","name":"shiyingkv","type":"Microsoft.KeyVault/vaults","location":"eastus","tags":{}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/yishitest/providers/Microsoft.KeyVault/vaults/ystestkv","name":"ystestkv","type":"Microsoft.KeyVault/vaults","location":"eastus","tags":{}}]}'
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_kv_cert_soft_delete_000001/providers/Microsoft.KeyVault/vaults/cli-test-kv-ct-sd-000002","name":"cli-test-kv-ct-sd-000002","type":"Microsoft.KeyVault/vaults","location":"westus","tags":{}}]}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '2092'
+      - '283'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:40 GMT
+      - Mon, 12 Oct 2026 19:28:13 GMT
       expires:
       - '-1'
       pragma:
       - no-cache
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      vary:
-      - Accept-Encoding
+      x-cache:
+      - CONFIG_NOCACHE
       x-content-type-options:
       - nosniff
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: F935F3E330454BFEA1C40EAEF0FDBBEA Ref B: DUB241062308036 Ref C: 2026-10-12T19:28:13Z'
     status:
       code: 200
       message: OK
@@ -48,7 +51,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       CommandName:
       - keyvault show
       Connection:
@@ -56,73 +59,76 @@ interactions:
       ParameterSetName:
       - -n
       User-Agent:
-      - AZURECLI/2.46.0 azsdk-python-azure-mgmt-keyvault/10.2.0 Python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_kv_cert_soft_delete_000001/providers/Microsoft.KeyVault/vaults/cli-test-kv-ct-sd-000002?api-version=2023-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_kv_cert_soft_delete_000001/providers/Microsoft.KeyVault/vaults/cli-test-kv-ct-sd-000002?api-version=2026-05-15
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_kv_cert_soft_delete_000001/providers/Microsoft.KeyVault/vaults/cli-test-kv-ct-sd-000002","name":"cli-test-kv-ct-sd-000002","type":"Microsoft.KeyVault/vaults","location":"westus","tags":{},"systemData":{"createdBy":"azureclilivetest@azuresdkteam.onmicrosoft.com","createdByType":"User","createdAt":"2023-03-21T07:45:09.325Z","lastModifiedBy":"azureclilivetest@azuresdkteam.onmicrosoft.com","lastModifiedByType":"User","lastModifiedAt":"2023-03-21T07:45:09.325Z"},"properties":{"sku":{"family":"A","name":"standard"},"tenantId":"54826b22-38d6-4fb2-bad9-b7b93a3e9c5a","accessPolicies":[{"tenantId":"54826b22-38d6-4fb2-bad9-b7b93a3e9c5a","objectId":"6b30bdc6-696a-46fb-82d7-739c2fb147b7","permissions":{"keys":["all"],"secrets":["all"],"certificates":["all"],"storage":["all"]}}],"enabledForDeployment":false,"enableSoftDelete":true,"softDeleteRetentionInDays":7,"vaultUri":"https://cli-test-kv-ct-sd-000002.vault.azure.net/","provisioningState":"Succeeded","publicNetworkAccess":"Enabled"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_kv_cert_soft_delete_000001/providers/Microsoft.KeyVault/vaults/cli-test-kv-ct-sd-000002","name":"cli-test-kv-ct-sd-000002","type":"Microsoft.KeyVault/vaults","location":"westus","tags":{},"systemData":{"createdBy":"test@example.com","createdByType":"User","createdAt":"2026-10-12T19:27:38.742Z","lastModifiedBy":"test@example.com","lastModifiedByType":"User","lastModifiedAt":"2026-10-12T19:27:38.742Z"},"properties":{"sku":{"family":"A","name":"standard"},"tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","accessPolicies":[{"tenantId":"72f988bf-86f1-41af-91ab-2d7cd011db47","objectId":"00000000-0000-0000-0000-000000000001","permissions":{"keys":["all"],"secrets":["all"],"certificates":["all"],"storage":["all"]}}],"enabledForDeployment":false,"enabledForDiskEncryption":false,"enabledForTemplateDeployment":false,"enableSoftDelete":true,"softDeleteRetentionInDays":7,"enableRbacAuthorization":false,"vaultUri":"https://cli-test-kv-ct-sd-000002.vault.azure.net/","provisioningState":"Succeeded","publicNetworkAccess":"Enabled"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1070'
+      - '1114'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:41 GMT
+      - Mon, 12 Oct 2026 19:28:14 GMT
       expires:
       - '-1'
       pragma:
       - no-cache
-      server:
-      - Microsoft-IIS/10.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       x-aspnet-version:
       - 4.0.30319
+      x-cache:
+      - CONFIG_NOCACHE
       x-content-type-options:
       - nosniff
       x-ms-keyvault-service-version:
-      - 1.5.692.0
+      - 2.2.1192.0
+      x-ms-ratelimit-remaining-subscription-global-reads:
+      - '16499'
+      x-msedge-ref:
+      - 'Ref A: CC625A07B66F412E9E29234E42A7CC49 Ref B: DUB241062305023 Ref C: 2026-10-12T19:28:14Z'
     status:
       code: 200
       message: OK
 - request:
-    body: ''
+    body: null
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate create
       Connection:
       - keep-alive
       Content-Length:
-      - 0
+      - '0'
       Content-Type:
-      - application/json; charset=utf-8
+      - application/json
+      ParameterSetName:
+      - --vault-name -n -p
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: POST
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/create?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/create?api-version=7.4
   response:
     body:
       string: '{"error":{"code":"Unauthorized","message":"AKV10000: Request is missing
-        a Bearer or PoP token."}}'
+        a Bearer, PoP, or MTLS_POP token."}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '97'
+      - '108'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:42 GMT
+      - Mon, 12 Oct 2026 19:28:15 GMT
       expires:
       - '-1'
       pragma:
@@ -130,16 +136,16 @@ interactions:
       strict-transport-security:
       - max-age=31536000;includeSubDomains
       www-authenticate:
-      - Bearer authorization="https://login.windows.net/54826b22-38d6-4fb2-bad9-b7b93a3e9c5a",
+      - Bearer authorization="https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47",
         resource="https://vault.azure.net"
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.33;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 401
       message: Unauthorized
@@ -147,48 +153,48 @@ interactions:
     body: '{"policy": {"key_props": {"exportable": true, "kty": "RSA", "key_size":
       2048, "reuse_key": false}, "secret_props": {"contentType": "application/x-pkcs12"},
       "x509_props": {"subject": "C=US, ST=WA, L=Redmon, O=Test Noodle, OU=TestNugget,
-      CN=www.mytestdomain.com", "key_usage": ["digitalSignature", "nonRepudiation",
-      "keyEncipherment", "keyAgreement", "keyCertSign"], "validity_months": 60}, "lifetime_actions":
-      [{"trigger": {"lifetime_percentage": 90}, "action": {"action_type": "AutoRenew"}}],
-      "issuer": {"name": "Self"}, "attributes": {"enabled": true}}, "attributes":
-      {"enabled": true}}'
+      CN=www.mytestdomain.com", "sans": {"dns_names": ["1", "2"]}, "key_usage": ["digitalSignature",
+      "nonRepudiation", "keyEncipherment", "keyAgreement", "keyCertSign"], "validity_months":
+      60}, "lifetime_actions": [{"trigger": {"lifetime_percentage": 90}, "action":
+      {"action_type": "AutoRenew"}}], "issuer": {"name": "Self"}, "attributes": {"enabled":
+      true}}, "attributes": {"enabled": true}}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate create
       Connection:
       - keep-alive
       Content-Length:
-      - '587'
+      - '622'
       Content-Type:
-      - application/json; charset=utf-8
+      - application/json
+      ParameterSetName:
+      - --vault-name -n -p
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: POST
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/create?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/create?api-version=7.4
   response:
     body:
-      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDBTCCAe0CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMmAvz233YZsQMyMEbTlBfWeb+HX7/jCU1ooj5SotnHXAe4Q1nOaNSurcR3XtVX4MMzvoaqRtybb74vJVnmeOv/DSUljATkmU/4EX+DAhdWh3lKgL2h/LIeugVTUv+rP1NQ3G32VAJYNtLB8V4wdp7mXl+L/JeuuN0F+ZgcMbguuYFK4PMgkM20MRKCtrsYzNZKp4VQmRer2rHg0pHzrTQaHBgjdsuppcFjKYHlnNzEElADoMVJWF4hEMfV8BRsuq5arUKK+hMdH2ZfKANGrV0H7egEzdKpK+uk5o9SGD+YD7/Z0YcCQgf69O23lbCkzjuQiwuwZ9VCTBOzQPdlzplUCAwEAAaBLMEkGCSqGSIb3DQEJDjE8MDowDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAJBgNVHRMEAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQCKwYP1CT25ViM7rH5M1t00szSJnQTsc7sgTEq1HFTs1J9OHc7AepcSp5yb5wK4aCjP4sf0JGFMMdWU1MGXPWiGH5hPD1vKmLXd7A+OWFrXqgja/n2V49DKSFtkq30uYBRhqz6qirARGjgiQvjnolg3x+bZ7hqawzC+uP9HWh7ikpyg3THsS2EEAtQco2YiER2KYgCnh/tu9EbjN6wQOidBXtBWcEvB+4Qq+2sA/wiZCS0GtulndEvUbqmMuSoWj+Y3G7Z1b4VaO+LJQp3aCngPTW5E7nomH6Bzvl0D13LiAvxXAkq1pCHN7/sZXiLIf/HjAYH1jQItJA+zyd1mr5XI","cancellation_requested":false,"status":"inProgress","status_details":"Pending
+      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDFjCCAf4CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKsOJhdqusP++A3y+5vOg5dFwKNfSRBSAr62e4pa4uuQFthoLnzzUoAHN8/xwF8iqp6Wcg0QwD8sB2hCxdMjsngWaOHo8g6C6ny8JOYV2daByhZccM7uZKdm+3c1IwSW3/pX3gELXAxQD+lyCmqm5LdZb9X1MCUvCLSB9jovDrslSkWFceoMJuFxrkj6bhNnTClZ3ABdYM9cYlq0ADEuNlIZutWQmLTIX57ogau121NVNx+frBnNiJWHREdIKV6ty6shPWC6A8xKw5KQAegg8MiYPOlUB3qEf09WyE34QvRvuG8AEza2rBOMSIW9wEVfloCZLiKTLuOJVTjwO7p+eECAwEAAaBcMFoGCSqGSIb3DQEJDjFNMEswDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAPBgNVHREECDAGggExggEyMAkGA1UdEwQCMAAwDQYJKoZIhvcNAQELBQADggEBABI/kRqxlesD9RPnXKa1CFna2jutaO0kSq4hyeqLhcJpylHHD6w/cvNCMfgmIuxqJA3JOBTF9wdRM7LqPimS8h3Z30ejYB6CjCWZvId5x/R4UzN8iQ3Dv70mB1Qa+RU7XXwBlkcQyHvPDiBoLKUMVkIWXaW5hBmyVS00qgUq35DdGVZX5hON0RWiUILMe9gN2fi0acObpR+AroJ3y7techB/NxyF1Cd1w5VIF4tffmAJ4OgVM7aeKDQW3zcMe51Nx9WpMCB7lwg8AAzg1uSN5hXcyhV9/5dbMOq/ZhHBMd/DHE7WwPM7YBDd9x5IhtS1XcXDX8E3vLh7RNLtf4Xf7w8=","cancellation_requested":false,"status":"inProgress","status_details":"Pending
         certificate created. Certificate request is in progress. This may take some
-        time based on the issuer provider. Please check again later.","request_id":"a1a74410ee824edda001b7636a31384f"}'
+        time based on the issuer provider. Please check again later.","request_id":"3cda7d4f2579495b8a143fc3358588a0"}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1419'
+      - '1443'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:42 GMT
+      - Mon, 12 Oct 2026 19:28:17 GMT
       expires:
       - '-1'
       location:
-      - https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.0&request_id=a1a74410ee824edda001b7636a31384f
+      - https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.4&request_id=3cda7d4f2579495b8a143fc3358588a0
       pragma:
       - no-cache
       strict-transport-security:
@@ -196,11 +202,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.34;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 202
       message: Accepted
@@ -210,33 +216,31 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate create
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name -n -p
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.4
   response:
     body:
-      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDBTCCAe0CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMmAvz233YZsQMyMEbTlBfWeb+HX7/jCU1ooj5SotnHXAe4Q1nOaNSurcR3XtVX4MMzvoaqRtybb74vJVnmeOv/DSUljATkmU/4EX+DAhdWh3lKgL2h/LIeugVTUv+rP1NQ3G32VAJYNtLB8V4wdp7mXl+L/JeuuN0F+ZgcMbguuYFK4PMgkM20MRKCtrsYzNZKp4VQmRer2rHg0pHzrTQaHBgjdsuppcFjKYHlnNzEElADoMVJWF4hEMfV8BRsuq5arUKK+hMdH2ZfKANGrV0H7egEzdKpK+uk5o9SGD+YD7/Z0YcCQgf69O23lbCkzjuQiwuwZ9VCTBOzQPdlzplUCAwEAAaBLMEkGCSqGSIb3DQEJDjE8MDowDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAJBgNVHRMEAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQCKwYP1CT25ViM7rH5M1t00szSJnQTsc7sgTEq1HFTs1J9OHc7AepcSp5yb5wK4aCjP4sf0JGFMMdWU1MGXPWiGH5hPD1vKmLXd7A+OWFrXqgja/n2V49DKSFtkq30uYBRhqz6qirARGjgiQvjnolg3x+bZ7hqawzC+uP9HWh7ikpyg3THsS2EEAtQco2YiER2KYgCnh/tu9EbjN6wQOidBXtBWcEvB+4Qq+2sA/wiZCS0GtulndEvUbqmMuSoWj+Y3G7Z1b4VaO+LJQp3aCngPTW5E7nomH6Bzvl0D13LiAvxXAkq1pCHN7/sZXiLIf/HjAYH1jQItJA+zyd1mr5XI","cancellation_requested":false,"status":"inProgress","status_details":"Pending
+      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDFjCCAf4CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKsOJhdqusP++A3y+5vOg5dFwKNfSRBSAr62e4pa4uuQFthoLnzzUoAHN8/xwF8iqp6Wcg0QwD8sB2hCxdMjsngWaOHo8g6C6ny8JOYV2daByhZccM7uZKdm+3c1IwSW3/pX3gELXAxQD+lyCmqm5LdZb9X1MCUvCLSB9jovDrslSkWFceoMJuFxrkj6bhNnTClZ3ABdYM9cYlq0ADEuNlIZutWQmLTIX57ogau121NVNx+frBnNiJWHREdIKV6ty6shPWC6A8xKw5KQAegg8MiYPOlUB3qEf09WyE34QvRvuG8AEza2rBOMSIW9wEVfloCZLiKTLuOJVTjwO7p+eECAwEAAaBcMFoGCSqGSIb3DQEJDjFNMEswDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAPBgNVHREECDAGggExggEyMAkGA1UdEwQCMAAwDQYJKoZIhvcNAQELBQADggEBABI/kRqxlesD9RPnXKa1CFna2jutaO0kSq4hyeqLhcJpylHHD6w/cvNCMfgmIuxqJA3JOBTF9wdRM7LqPimS8h3Z30ejYB6CjCWZvId5x/R4UzN8iQ3Dv70mB1Qa+RU7XXwBlkcQyHvPDiBoLKUMVkIWXaW5hBmyVS00qgUq35DdGVZX5hON0RWiUILMe9gN2fi0acObpR+AroJ3y7techB/NxyF1Cd1w5VIF4tffmAJ4OgVM7aeKDQW3zcMe51Nx9WpMCB7lwg8AAzg1uSN5hXcyhV9/5dbMOq/ZhHBMd/DHE7WwPM7YBDd9x5IhtS1XcXDX8E3vLh7RNLtf4Xf7w8=","cancellation_requested":false,"status":"inProgress","status_details":"Pending
         certificate created. Certificate request is in progress. This may take some
-        time based on the issuer provider. Please check again later.","request_id":"a1a74410ee824edda001b7636a31384f"}'
+        time based on the issuer provider. Please check again later.","request_id":"3cda7d4f2579495b8a143fc3358588a0"}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1419'
+      - '1443'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:42 GMT
+      - Mon, 12 Oct 2026 19:28:18 GMT
       expires:
       - '-1'
       pragma:
@@ -246,11 +250,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.32;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -260,31 +264,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate create
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name -n -p
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.4
   response:
     body:
-      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDBTCCAe0CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMmAvz233YZsQMyMEbTlBfWeb+HX7/jCU1ooj5SotnHXAe4Q1nOaNSurcR3XtVX4MMzvoaqRtybb74vJVnmeOv/DSUljATkmU/4EX+DAhdWh3lKgL2h/LIeugVTUv+rP1NQ3G32VAJYNtLB8V4wdp7mXl+L/JeuuN0F+ZgcMbguuYFK4PMgkM20MRKCtrsYzNZKp4VQmRer2rHg0pHzrTQaHBgjdsuppcFjKYHlnNzEElADoMVJWF4hEMfV8BRsuq5arUKK+hMdH2ZfKANGrV0H7egEzdKpK+uk5o9SGD+YD7/Z0YcCQgf69O23lbCkzjuQiwuwZ9VCTBOzQPdlzplUCAwEAAaBLMEkGCSqGSIb3DQEJDjE8MDowDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAJBgNVHRMEAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQCKwYP1CT25ViM7rH5M1t00szSJnQTsc7sgTEq1HFTs1J9OHc7AepcSp5yb5wK4aCjP4sf0JGFMMdWU1MGXPWiGH5hPD1vKmLXd7A+OWFrXqgja/n2V49DKSFtkq30uYBRhqz6qirARGjgiQvjnolg3x+bZ7hqawzC+uP9HWh7ikpyg3THsS2EEAtQco2YiER2KYgCnh/tu9EbjN6wQOidBXtBWcEvB+4Qq+2sA/wiZCS0GtulndEvUbqmMuSoWj+Y3G7Z1b4VaO+LJQp3aCngPTW5E7nomH6Bzvl0D13LiAvxXAkq1pCHN7/sZXiLIf/HjAYH1jQItJA+zyd1mr5XI","cancellation_requested":false,"status":"completed","target":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","request_id":"a1a74410ee824edda001b7636a31384f"}'
+      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDFjCCAf4CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKsOJhdqusP++A3y+5vOg5dFwKNfSRBSAr62e4pa4uuQFthoLnzzUoAHN8/xwF8iqp6Wcg0QwD8sB2hCxdMjsngWaOHo8g6C6ny8JOYV2daByhZccM7uZKdm+3c1IwSW3/pX3gELXAxQD+lyCmqm5LdZb9X1MCUvCLSB9jovDrslSkWFceoMJuFxrkj6bhNnTClZ3ABdYM9cYlq0ADEuNlIZutWQmLTIX57ogau121NVNx+frBnNiJWHREdIKV6ty6shPWC6A8xKw5KQAegg8MiYPOlUB3qEf09WyE34QvRvuG8AEza2rBOMSIW9wEVfloCZLiKTLuOJVTjwO7p+eECAwEAAaBcMFoGCSqGSIb3DQEJDjFNMEswDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAPBgNVHREECDAGggExggEyMAkGA1UdEwQCMAAwDQYJKoZIhvcNAQELBQADggEBABI/kRqxlesD9RPnXKa1CFna2jutaO0kSq4hyeqLhcJpylHHD6w/cvNCMfgmIuxqJA3JOBTF9wdRM7LqPimS8h3Z30ejYB6CjCWZvId5x/R4UzN8iQ3Dv70mB1Qa+RU7XXwBlkcQyHvPDiBoLKUMVkIWXaW5hBmyVS00qgUq35DdGVZX5hON0RWiUILMe9gN2fi0acObpR+AroJ3y7techB/NxyF1Cd1w5VIF4tffmAJ4OgVM7aeKDQW3zcMe51Nx9WpMCB7lwg8AAzg1uSN5hXcyhV9/5dbMOq/ZhHBMd/DHE7WwPM7YBDd9x5IhtS1XcXDX8E3vLh7RNLtf4Xf7w8=","cancellation_requested":false,"status":"completed","target":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","request_id":"3cda7d4f2579495b8a143fc3358588a0"}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1333'
+      - '1357'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:53 GMT
+      - Mon, 12 Oct 2026 19:28:24 GMT
       expires:
       - '-1'
       pragma:
@@ -294,11 +296,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.33;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -308,34 +310,125 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --vault-name -n -p
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
+    method: GET
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/?api-version=7.4
+  response:
+    body:
+      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/ee0e6d16d04d4362a6553e96e36e9f7b","kid":"https://cli-test-kv-ct-sd-000002.vault.azure.net/keys/cert1/ee0e6d16d04d4362a6553e96e36e9f7b","sid":"https://cli-test-kv-ct-sd-000002.vault.azure.net/secrets/cert1/ee0e6d16d04d4362a6553e96e36e9f7b","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","cer":"MIIEAzCCAuugAwIBAgIQEnWaUcdVR0ycb8IXYu3SoTANBgkqhkiG9w0BAQsFADB1MR0wGwYDVQQDExR3d3cubXl0ZXN0ZG9tYWluLmNvbTETMBEGA1UECxMKVGVzdE51Z2dldDEUMBIGA1UEChMLVGVzdCBOb29kbGUxDzANBgNVBAcTBlJlZG1vbjELMAkGA1UECBMCV0ExCzAJBgNVBAYTAlVTMB4XDTI2MTAxMjE5MTgxOFoXDTMxMTAxMjE5MjgxOFowdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKsOJhdqusP++A3y+5vOg5dFwKNfSRBSAr62e4pa4uuQFthoLnzzUoAHN8/xwF8iqp6Wcg0QwD8sB2hCxdMjsngWaOHo8g6C6ny8JOYV2daByhZccM7uZKdm+3c1IwSW3/pX3gELXAxQD+lyCmqm5LdZb9X1MCUvCLSB9jovDrslSkWFceoMJuFxrkj6bhNnTClZ3ABdYM9cYlq0ADEuNlIZutWQmLTIX57ogau121NVNx+frBnNiJWHREdIKV6ty6shPWC6A8xKw5KQAegg8MiYPOlUB3qEf09WyE34QvRvuG8AEza2rBOMSIW9wEVfloCZLiKTLuOJVTjwO7p+eECAwEAAaOBjjCBizAOBgNVHQ8BAf8EBAMCAuwwCQYDVR0TBAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDwYDVR0RBAgwBoIBMYIBMjAfBgNVHSMEGDAWgBTXaHlK5qbS+dXklPJji/BDiNEyrDAdBgNVHQ4EFgQU12h5Suam0vnV5JTyY4vwQ4jRMqwwDQYJKoZIhvcNAQELBQADggEBAGoOsPIIxqutcTUHwcwrfQajBquo/qb5XNkfRTGd77egO1904463zq0opW3bDzzfn9Xau/+hcW6yAwKsoUil5Y6tjbCRA+UVPgPwBenWYACDaUpjUnr26iYUs4rZ1lu3l3KCbr6iiKOxPwv966W3lkA/nykERoqkkEWlJ1VVxIcSFr8ogFQqWcJgXTWzQyN/dfM4ycY43Gt418ur26wAXKN16bjPZXzG24x1YhjJkXiwNxfdtefbqJy4X48mcPr8QL9+UWCke0341RJhfEo2DznBB9Jbm/nWMJkb4I50cmJ0+08qlinmwfjjhQHDRG1nWghcoSxrMYMwxvxOwu2N+gY=","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7},"policy":{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/policy","key_props":{"exportable":true,"kty":"RSA","key_size":2048,"reuse_key":false},"secret_props":{"contentType":"application/x-pkcs12"},"x509_props":{"subject":"C=US,
+        ST=WA, L=Redmon, O=Test Noodle, OU=TestNugget, CN=www.mytestdomain.com","sans":{"dns_names":["1","2"]},"ekus":["1.3.6.1.5.5.7.3.1","1.3.6.1.5.5.7.3.2"],"key_usage":["digitalSignature","keyAgreement","keyCertSign","keyEncipherment","nonRepudiation"],"validity_months":60,"basic_constraints":{"ca":false}},"lifetime_actions":[{"trigger":{"lifetime_percentage":90},"action":{"action_type":"AutoRenew"}}],"issuer":{"name":"Self"},"attributes":{"enabled":true,"created":1791833297,"updated":1791833297}},"pending":{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '2760'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 12 Oct 2026 19:28:25 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000;includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-keyvault-network-info:
+      - conn_type=Ipv4;addr=98.71.6.39;act_addr_fam=InterNetwork;
+      x-ms-keyvault-region:
+      - westus
+      x-ms-keyvault-service-version:
+      - 1.9.3718.3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - --vault-name -n -p
+      User-Agent:
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
+    method: GET
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending?api-version=7.4
+  response:
+    body:
+      string: '{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending","issuer":{"name":"Self"},"csr":"MIIDFjCCAf4CAQAwdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKsOJhdqusP++A3y+5vOg5dFwKNfSRBSAr62e4pa4uuQFthoLnzzUoAHN8/xwF8iqp6Wcg0QwD8sB2hCxdMjsngWaOHo8g6C6ny8JOYV2daByhZccM7uZKdm+3c1IwSW3/pX3gELXAxQD+lyCmqm5LdZb9X1MCUvCLSB9jovDrslSkWFceoMJuFxrkj6bhNnTClZ3ABdYM9cYlq0ADEuNlIZutWQmLTIX57ogau121NVNx+frBnNiJWHREdIKV6ty6shPWC6A8xKw5KQAegg8MiYPOlUB3qEf09WyE34QvRvuG8AEza2rBOMSIW9wEVfloCZLiKTLuOJVTjwO7p+eECAwEAAaBcMFoGCSqGSIb3DQEJDjFNMEswDgYDVR0PAQH/BAQDAgLsMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAPBgNVHREECDAGggExggEyMAkGA1UdEwQCMAAwDQYJKoZIhvcNAQELBQADggEBABI/kRqxlesD9RPnXKa1CFna2jutaO0kSq4hyeqLhcJpylHHD6w/cvNCMfgmIuxqJA3JOBTF9wdRM7LqPimS8h3Z30ejYB6CjCWZvId5x/R4UzN8iQ3Dv70mB1Qa+RU7XXwBlkcQyHvPDiBoLKUMVkIWXaW5hBmyVS00qgUq35DdGVZX5hON0RWiUILMe9gN2fi0acObpR+AroJ3y7techB/NxyF1Cd1w5VIF4tffmAJ4OgVM7aeKDQW3zcMe51Nx9WpMCB7lwg8AAzg1uSN5hXcyhV9/5dbMOq/ZhHBMd/DHE7WwPM7YBDd9x5IhtS1XcXDX8E3vLh7RNLtf4Xf7w8=","cancellation_requested":false,"status":"completed","target":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","request_id":"3cda7d4f2579495b8a143fc3358588a0"}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1357'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Mon, 12 Oct 2026 19:28:27 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000;includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-keyvault-network-info:
+      - conn_type=Ipv4;addr=98.71.6.37;act_addr_fam=InterNetwork;
+      x-ms-keyvault-region:
+      - westus
+      x-ms-keyvault-service-version:
+      - 1.9.3718.3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate delete
       Connection:
       - keep-alive
       Content-Length:
       - '0'
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name -n
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: DELETE
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1?api-version=7.4
   response:
     body:
-      string: '{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/3d7253b8fa244c8b8da1a322cec096a9","kid":"https://cli-test-kv-ct-sd-000002.vault.azure.net/keys/cert1/3d7253b8fa244c8b8da1a322cec096a9","sid":"https://cli-test-kv-ct-sd-000002.vault.azure.net/secrets/cert1/3d7253b8fa244c8b8da1a322cec096a9","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","cer":"MIID8DCCAtigAwIBAgIQBdysepOSQ3WaWTpe7e2ZkzANBgkqhkiG9w0BAQsFADB1MR0wGwYDVQQDExR3d3cubXl0ZXN0ZG9tYWluLmNvbTETMBEGA1UECxMKVGVzdE51Z2dldDEUMBIGA1UEChMLVGVzdCBOb29kbGUxDzANBgNVBAcTBlJlZG1vbjELMAkGA1UECBMCV0ExCzAJBgNVBAYTAlVTMB4XDTIzMDMyMTA3MzU0M1oXDTI4MDMyMTA3NDU0M1owdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMmAvz233YZsQMyMEbTlBfWeb+HX7/jCU1ooj5SotnHXAe4Q1nOaNSurcR3XtVX4MMzvoaqRtybb74vJVnmeOv/DSUljATkmU/4EX+DAhdWh3lKgL2h/LIeugVTUv+rP1NQ3G32VAJYNtLB8V4wdp7mXl+L/JeuuN0F+ZgcMbguuYFK4PMgkM20MRKCtrsYzNZKp4VQmRer2rHg0pHzrTQaHBgjdsuppcFjKYHlnNzEElADoMVJWF4hEMfV8BRsuq5arUKK+hMdH2ZfKANGrV0H7egEzdKpK+uk5o9SGD+YD7/Z0YcCQgf69O23lbCkzjuQiwuwZ9VCTBOzQPdlzplUCAwEAAaN8MHowDgYDVR0PAQH/BAQDAgLsMAkGA1UdEwQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMB8GA1UdIwQYMBaAFMYJfeM0K9bjJM6u/ZY2x6svjiGQMB0GA1UdDgQWBBTGCX3jNCvW4yTOrv2WNserL44hkDANBgkqhkiG9w0BAQsFAAOCAQEAQa64K4zF9udQ8PSppo4kKhEESweiZgyPsnO2q34nuwN3lqPUBwI9bqdHOWPO9yG167bsOhDbp6hKeeC24yXzqWjiWJQMdbyJBlCjYoXf6lNrLA72D8ExYWFTnypuy12itpOeiVNtC/Gz0J1W8YZj9KiWSkE+BIA2RTER+yel3o+c/T1OVourrAdNNyDx60Xj4Qm1KoAO6x8bfnJ+IKliVHBcCoHfUtt3dvPfem7MmRzQMOF+YT41SFtkt7JOyyEcSPfF2Xeh9jo/aD+v+7yqEd5bTNF4MarBayDnhJcVrcmVW1QX90FdlxzGATL0/R/N136eZeCRG2Dw+UssFS3F8g==","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"},"policy":{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/policy","key_props":{"exportable":true,"kty":"RSA","key_size":2048,"reuse_key":false},"secret_props":{"contentType":"application/x-pkcs12"},"x509_props":{"subject":"C=US,
-        ST=WA, L=Redmon, O=Test Noodle, OU=TestNugget, CN=www.mytestdomain.com","ekus":["1.3.6.1.5.5.7.3.1","1.3.6.1.5.5.7.3.2"],"key_usage":["digitalSignature","keyAgreement","keyCertSign","keyEncipherment","nonRepudiation"],"validity_months":60,"basic_constraints":{"ca":false}},"lifetime_actions":[{"trigger":{"lifetime_percentage":90},"action":{"action_type":"AutoRenew"}}],"issuer":{"name":"Self"},"attributes":{"enabled":true,"created":1679384743,"updated":1679384743}},"pending":{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending"}}'
+      string: '{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/ee0e6d16d04d4362a6553e96e36e9f7b","kid":"https://cli-test-kv-ct-sd-000002.vault.azure.net/keys/cert1/ee0e6d16d04d4362a6553e96e36e9f7b","sid":"https://cli-test-kv-ct-sd-000002.vault.azure.net/secrets/cert1/ee0e6d16d04d4362a6553e96e36e9f7b","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","cer":"MIIEAzCCAuugAwIBAgIQEnWaUcdVR0ycb8IXYu3SoTANBgkqhkiG9w0BAQsFADB1MR0wGwYDVQQDExR3d3cubXl0ZXN0ZG9tYWluLmNvbTETMBEGA1UECxMKVGVzdE51Z2dldDEUMBIGA1UEChMLVGVzdCBOb29kbGUxDzANBgNVBAcTBlJlZG1vbjELMAkGA1UECBMCV0ExCzAJBgNVBAYTAlVTMB4XDTI2MTAxMjE5MTgxOFoXDTMxMTAxMjE5MjgxOFowdTEdMBsGA1UEAxMUd3d3Lm15dGVzdGRvbWFpbi5jb20xEzARBgNVBAsTClRlc3ROdWdnZXQxFDASBgNVBAoTC1Rlc3QgTm9vZGxlMQ8wDQYDVQQHEwZSZWRtb24xCzAJBgNVBAgTAldBMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKsOJhdqusP++A3y+5vOg5dFwKNfSRBSAr62e4pa4uuQFthoLnzzUoAHN8/xwF8iqp6Wcg0QwD8sB2hCxdMjsngWaOHo8g6C6ny8JOYV2daByhZccM7uZKdm+3c1IwSW3/pX3gELXAxQD+lyCmqm5LdZb9X1MCUvCLSB9jovDrslSkWFceoMJuFxrkj6bhNnTClZ3ABdYM9cYlq0ADEuNlIZutWQmLTIX57ogau121NVNx+frBnNiJWHREdIKV6ty6shPWC6A8xKw5KQAegg8MiYPOlUB3qEf09WyE34QvRvuG8AEza2rBOMSIW9wEVfloCZLiKTLuOJVTjwO7p+eECAwEAAaOBjjCBizAOBgNVHQ8BAf8EBAMCAuwwCQYDVR0TBAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDwYDVR0RBAgwBoIBMYIBMjAfBgNVHSMEGDAWgBTXaHlK5qbS+dXklPJji/BDiNEyrDAdBgNVHQ4EFgQU12h5Suam0vnV5JTyY4vwQ4jRMqwwDQYJKoZIhvcNAQELBQADggEBAGoOsPIIxqutcTUHwcwrfQajBquo/qb5XNkfRTGd77egO1904463zq0opW3bDzzfn9Xau/+hcW6yAwKsoUil5Y6tjbCRA+UVPgPwBenWYACDaUpjUnr26iYUs4rZ1lu3l3KCbr6iiKOxPwv966W3lkA/nykERoqkkEWlJ1VVxIcSFr8ogFQqWcJgXTWzQyN/dfM4ycY43Gt418ur26wAXKN16bjPZXzG24x1YhjJkXiwNxfdtefbqJy4X48mcPr8QL9+UWCke0341RJhfEo2DznBB9Jbm/nWMJkb4I50cmJ0+08qlinmwfjjhQHDRG1nWghcoSxrMYMwxvxOwu2N+gY=","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7},"policy":{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/policy","key_props":{"exportable":true,"kty":"RSA","key_size":2048,"reuse_key":false},"secret_props":{"contentType":"application/x-pkcs12"},"x509_props":{"subject":"C=US,
+        ST=WA, L=Redmon, O=Test Noodle, OU=TestNugget, CN=www.mytestdomain.com","sans":{"dns_names":["1","2"]},"ekus":["1.3.6.1.5.5.7.3.1","1.3.6.1.5.5.7.3.2"],"key_usage":["digitalSignature","keyAgreement","keyCertSign","keyEncipherment","nonRepudiation"],"validity_months":60,"basic_constraints":{"ca":false}},"lifetime_actions":[{"trigger":{"lifetime_percentage":90},"action":{"action_type":"AutoRenew"}}],"issuer":{"name":"Self"},"attributes":{"enabled":true,"created":1791833297,"updated":1791833297}},"pending":{"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1/pending"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '2832'
+      - '2907'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:53 GMT
+      - Mon, 12 Oct 2026 19:28:28 GMT
       expires:
       - '-1'
       pragma:
@@ -345,11 +438,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.38;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -359,31 +452,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '28'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:55 GMT
+      - Mon, 12 Oct 2026 19:28:29 GMT
       expires:
       - '-1'
       pragma:
@@ -393,11 +484,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.35;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -407,31 +498,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:45:54 GMT
+      - Mon, 12 Oct 2026 19:28:40 GMT
       expires:
       - '-1'
       pragma:
@@ -441,11 +530,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.36;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -455,31 +544,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:05 GMT
+      - Mon, 12 Oct 2026 19:28:41 GMT
       expires:
       - '-1'
       pragma:
@@ -489,11 +576,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.34;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -503,31 +590,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:05 GMT
+      - Mon, 12 Oct 2026 19:28:52 GMT
       expires:
       - '-1'
       pragma:
@@ -537,11 +622,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.35;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -551,31 +636,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:15 GMT
+      - Mon, 12 Oct 2026 19:28:53 GMT
       expires:
       - '-1'
       pragma:
@@ -585,11 +668,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.34;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -599,31 +682,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:16 GMT
+      - Mon, 12 Oct 2026 19:29:05 GMT
       expires:
       - '-1'
       pragma:
@@ -633,11 +714,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.37;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -647,31 +728,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:26 GMT
+      - Mon, 12 Oct 2026 19:29:05 GMT
       expires:
       - '-1'
       pragma:
@@ -681,11 +760,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.35;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -695,31 +774,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:27 GMT
+      - Mon, 12 Oct 2026 19:29:17 GMT
       expires:
       - '-1'
       pragma:
@@ -729,11 +806,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.39;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -743,31 +820,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:37 GMT
+      - Mon, 12 Oct 2026 19:29:18 GMT
       expires:
       - '-1'
       pragma:
@@ -777,11 +852,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.34;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -791,31 +866,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:37 GMT
+      - Mon, 12 Oct 2026 19:29:29 GMT
       expires:
       - '-1'
       pragma:
@@ -825,11 +898,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.36;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -839,31 +912,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:48 GMT
+      - Mon, 12 Oct 2026 19:29:30 GMT
       expires:
       - '-1'
       pragma:
@@ -873,11 +944,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.35;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -887,31 +958,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:48 GMT
+      - Mon, 12 Oct 2026 19:29:41 GMT
       expires:
       - '-1'
       pragma:
@@ -921,11 +990,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.32;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -935,31 +1004,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:58 GMT
+      - Mon, 12 Oct 2026 19:29:43 GMT
       expires:
       - '-1'
       pragma:
@@ -969,11 +1036,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.38;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -983,31 +1050,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:46:58 GMT
+      - Mon, 12 Oct 2026 19:29:54 GMT
       expires:
       - '-1'
       pragma:
@@ -1017,11 +1082,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.37;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1031,31 +1096,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:09 GMT
+      - Mon, 12 Oct 2026 19:29:55 GMT
       expires:
       - '-1'
       pragma:
@@ -1065,11 +1128,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.39;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1079,31 +1142,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:09 GMT
+      - Mon, 12 Oct 2026 19:30:07 GMT
       expires:
       - '-1'
       pragma:
@@ -1113,11 +1174,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.39;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1127,31 +1188,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:19 GMT
+      - Mon, 12 Oct 2026 19:30:08 GMT
       expires:
       - '-1'
       pragma:
@@ -1161,11 +1220,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.32;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1175,31 +1234,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:20 GMT
+      - Mon, 12 Oct 2026 19:30:18 GMT
       expires:
       - '-1'
       pragma:
@@ -1209,11 +1266,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.32;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1223,31 +1280,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:30 GMT
+      - Mon, 12 Oct 2026 19:30:20 GMT
       expires:
       - '-1'
       pragma:
@@ -1257,11 +1312,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.39;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1271,31 +1326,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:30 GMT
+      - Mon, 12 Oct 2026 19:30:31 GMT
       expires:
       - '-1'
       pragma:
@@ -1305,11 +1358,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.39;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK
@@ -1319,31 +1372,29 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
+      CommandName:
+      - keyvault certificate list-deleted
       Connection:
       - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
+      ParameterSetName:
+      - --vault-name --maxresults
       User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
+      - AZURECLI/2.91.0 azsdk-python-core/1.39.0 Python/3.14.5 (Windows-11-10.0.26200-SP0)
     method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?api-version=7.0
+    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.4
   response:
     body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
+      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1791833308,"scheduledPurgeDate":1792438108,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"hfdqdGUZifQf03kBe-qlc5K4utw","attributes":{"enabled":true,"nbf":1791832698,"exp":1949599698,"created":1791833298,"updated":1791833298,"recoveryLevel":"CustomizedRecoverable+Purgeable","recoverableDays":7}}],"nextLink":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '443'
+      - '463'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 21 Mar 2023 07:47:40 GMT
+      - Mon, 12 Oct 2026 19:30:32 GMT
       expires:
       - '-1'
       pragma:
@@ -1353,59 +1404,11 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
+      - conn_type=Ipv4;addr=98.71.6.36;act_addr_fam=InterNetwork;
       x-ms-keyvault-region:
       - westus
       x-ms-keyvault-service-version:
-      - 1.9.736.1
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json; charset=utf-8
-      User-Agent:
-      - python/3.10.10 (Linux-5.15.0-1034-azure-x86_64-with-glibc2.31) msrest/0.7.1
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0 msrest_azure/0.6.4 azure-keyvault/7.0
-        Azure-SDK-For-Python
-      accept-language:
-      - en-US
-    method: GET
-    uri: https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates?maxresults=10&api-version=7.0
-  response:
-    body:
-      string: '{"value":[{"recoveryId":"https://cli-test-kv-ct-sd-000002.vault.azure.net/deletedcertificates/cert1","deletedDate":1679384754,"scheduledPurgeDate":1679989554,"id":"https://cli-test-kv-ct-sd-000002.vault.azure.net/certificates/cert1","x5t":"xlRtLV9AuunzBcEpwBhBHYW7K2A","attributes":{"enabled":true,"nbf":1679384143,"exp":1837237543,"created":1679384743,"updated":1679384743,"recoveryLevel":"CustomizedRecoverable+Purgeable"}}],"nextLink":null}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '443'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Tue, 21 Mar 2023 07:47:41 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000;includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-keyvault-network-info:
-      - conn_type=Ipv4;addr=20.232.168.106;act_addr_fam=InterNetwork;
-      x-ms-keyvault-region:
-      - westus
-      x-ms-keyvault-service-version:
-      - 1.9.736.1
+      - 1.9.3718.3
     status:
       code: 200
       message: OK

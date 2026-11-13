@@ -59,7 +59,7 @@ def __prepare_configuration_file(cmd, resource_group_name, kudu_client, folder_p
                                if setting['name'] not in ignorable_settings}
         existing = None
         if not os.path.exists(app_settings_path):
-            logger.info('App settings not found at %s, defaulting app settings to {}.', app_settings_path)
+            logger.info('App settings not found at %s, defaulting app settings to empty.', app_settings_path)
             existing = {}
         else:
             with open(app_settings_path, 'r') as f:
@@ -116,7 +116,7 @@ def create(cmd, client, resource_group_name, resource_name, msa_app_id, msa_app_
     except Exception as e:
         logger.debug(e)
         raise CLIError("--appid must be a valid GUID from a Microsoft Azure AD Application Registration. See "
-                       "https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app for "
+                       "https://learn.microsoft.com/azure/active-directory/develop/quickstart-register-app for "
                        "more information on App Registrations. See 'az bot create --help' for more CLI information.")
 
     # If display name was not provided, just use the resource name
@@ -271,7 +271,10 @@ def download_app(cmd, client, resource_group_name, resource_name, file_save_path
     if (os.path.exists(os.path.join(folder_path, 'PostDeployScripts', 'deploy.cmd.template')) and
             os.path.exists(os.path.join(folder_path, 'deploy.cmd'))):
 
-        logger.info('Post deployment scripts and deploy.cmd found in source under folder %s. Copying deploy.cmd.')
+        logger.info(
+            'Post deployment scripts and deploy.cmd found in source under folder %s. Copying deploy.cmd.',
+            folder_path
+        )
 
         shutil.copyfile(os.path.join(folder_path, 'deploy.cmd'),
                         os.path.join(folder_path, 'PostDeployScripts', 'deploy.cmd.template'))
@@ -318,8 +321,8 @@ def download_app(cmd, client, resource_group_name, resource_name, file_save_path
             existing = None
             if not os.path.exists(app_settings_path):
 
-                logger.info('App settings not found at %s, defaulting app settings to {}.', app_settings_path)
-                existing = '{}'
+                logger.info('App settings not found at %s, defaulting app settings to empty.', app_settings_path)
+                existing = {}
             else:
                 with open(app_settings_path, 'r') as f:
                     existing = json.load(f)
@@ -360,8 +363,8 @@ def get_service_providers(client, name=None):
     name = name and name.lower()
     if name:
         try:
-            return next((item for item in service_provider_response.value if
-                         item.properties.service_provider_name.lower() == name.lower()))
+            return next(item for item in service_provider_response.value if
+                        item.properties.service_provider_name.lower() == name.lower())
         except StopIteration:
             raise CLIError('A service provider with the name {0} was not found'.format(name))
     return service_provider_response

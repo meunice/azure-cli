@@ -160,6 +160,19 @@ class TestStaticAppCommands(unittest.TestCase):
         arg_list = self.staticapp_client.begin_create_or_update_static_site.call_args[1]
         self.assertEqual('Standard', arg_list["static_site_envelope"].sku.name)
 
+    def test_create_staticapp_with_dedicated_sku(self):
+        from azure.mgmt.web.models import StaticSiteARMResource, StaticSiteBuildProperties, SkuDescription
+        self.mock_cmd.get_models.return_value = StaticSiteARMResource, StaticSiteBuildProperties, SkuDescription
+
+        with mock.patch("azure.cli.command_modules.appservice.static_sites.show_staticsite", side_effect=[ResourceNotFoundError("msg"), None]):
+            create_staticsites(
+                self.mock_cmd, self.rg1, self.name1, self.location1,
+                self.source1, self.branch1, self.token1, sku='dedicated')
+
+        self.staticapp_client.begin_create_or_update_static_site.assert_called_once()
+        arg_list = self.staticapp_client.begin_create_or_update_static_site.call_args[1]
+        self.assertEqual('Dedicated', arg_list["static_site_envelope"].sku.name)
+
     def test_create_staticapp_missing_token(self):
         app_location = './src'
         api_location = './api/'
@@ -404,6 +417,39 @@ class TestStaticAppCommands(unittest.TestCase):
         # validate
         self.staticapp_client.create_or_update_static_site_app_settings.assert_called_once()
 
+    def test_list_staticsite_app_settings_with_resourcegroup_with_environment(self):
+        list_staticsite_app_settings(self.mock_cmd, self.name1, self.rg1, self.environment1)
+
+        self.staticapp_client.list_static_site_build_app_settings.assert_called_once_with(
+            self.rg1, self.name1, self.environment1)
+
+    def test_set_staticsite_app_settings_with_resourcegroup_with_environment(self):
+        from azure.mgmt.web.models import StringDictionary
+
+        app_settings1_input = ['key1=val1', 'key2=val2==', 'key3=val3=']
+
+        self.staticapp_client.list_static_site_build_app_settings.return_value = StringDictionary(properties={})
+
+        set_staticsite_app_settings(self.mock_cmd, self.name1, app_settings1_input, self.rg1, self.environment1)
+
+        self.staticapp_client.create_or_update_static_site_build_app_settings.assert_called_once()
+
+    def test_delete_staticsite_app_settings_with_resourcegroup_with_environment(self):
+        # setup
+        current_app_settings = {'key1': 'val1', 'key2': 'val2'}
+        app_settings_keys_to_delete = ['key1']
+
+        class AppSettings:
+            properties = current_app_settings
+
+        self.staticapp_client.list_static_site_build_app_settings.return_value = AppSettings
+
+        # action
+        delete_staticsite_app_settings(self.mock_cmd, self.name1, app_settings_keys_to_delete, self.rg1, self.environment1)
+
+        # validate
+        self.staticapp_client.create_or_update_static_site_build_app_settings.assert_called_once()
+
     def test_list_staticsite_users_with_resourcegroup(self):
         authentication_provider = 'GitHub'
 
@@ -572,7 +618,7 @@ class TestStaticAppCommands(unittest.TestCase):
 
         self.staticapp_client.list_static_site_secrets.assert_called_once_with(resource_group_name=self.rg1, name=self.name1)
         from ast import literal_eval
-        self.assertEqual(literal_eval(secret.__str__())["properties"]["apiKey"], "key")
+        self.assertEqual(literal_eval(str(secret))["properties"]["apiKey"], "key")
 
 
     def test_staticsite_identity_assign(self):
@@ -583,8 +629,8 @@ class TestStaticAppCommands(unittest.TestCase):
         self.staticapp_client.begin_create_or_update_static_site.assert_called_once()
 
     def test_staticsite_identity_remove(self):
-        from azure.mgmt.web.models import ManagedServiceIdentityType, Components1Jq1T4ISchemasManagedserviceidentityPropertiesUserassignedidentitiesAdditionalproperties
-        get_models = lambda s: ManagedServiceIdentityType if s == "ManagedServiceIdentityType" else Components1Jq1T4ISchemasManagedserviceidentityPropertiesUserassignedidentitiesAdditionalproperties
+        from azure.mgmt.web.models import ManagedServiceIdentityType, UserAssignedIdentity
+        get_models = lambda s: ManagedServiceIdentityType if s == "ManagedServiceIdentityType" else UserAssignedIdentity
         self.mock_cmd.get_models.side_effect = get_models
 
         remove_identity(self.mock_cmd, self.rg1, self.name1)
@@ -610,8 +656,8 @@ class TestStaticAppCommands(unittest.TestCase):
         self.staticapp_client.reset_static_site_api_key.assert_called_once()
 
         from ast import literal_eval
-        reset_envelope = literal_eval(self.staticapp_client.reset_static_site_api_key.call_args[1]["reset_properties_envelope"].__str__())
-        self.assertEqual(reset_envelope["repository_token"], self.token1)
+        reset_envelope = literal_eval(str(self.staticapp_client.reset_static_site_api_key.call_args[1]["reset_properties_envelope"]))
+        self.assertEqual(reset_envelope["properties"]["repositoryToken"], self.token1)
 
     @mock.patch("azure.cli.command_modules.appservice.static_sites.show_app")
     def test_functions_link(self, *args, **kwargs):

@@ -10,8 +10,8 @@ from azure.cli.core.util import sdk_no_wait, send_raw_request
 from azure.cli.core.commands import LongRunningOperation
 from azure.cli.core.azclierror import (ResourceNotFoundError, ValidationError, RequiredArgumentMissingError,
                                        InvalidArgumentValueError, UnauthorizedError)
+from azure.mgmt.core.tools import parse_resource_id
 from knack.log import get_logger
-from msrestazure.tools import parse_resource_id
 from urllib.parse import urlparse
 import uuid
 from datetime import datetime, timedelta
@@ -216,7 +216,7 @@ def assign_identity(cmd, resource_group_name, name, assign_identities=None, role
 
 def remove_identity(cmd, resource_group_name, name, remove_identities=None):
     IdentityType = cmd.get_models('ManagedServiceIdentityType')
-    UserAssignedIdentitiesValue = cmd.get_models('Components1Jq1T4ISchemasManagedserviceidentityPropertiesUserassignedidentitiesAdditionalproperties')  # pylint: disable=line-too-long
+    UserAssignedIdentitiesValue = cmd.get_models('UserAssignedIdentity')  # pylint: disable=line-too-long
     _, _, external_identities, remove_local_identity = _build_identities_info(remove_identities)
 
     def getter():
@@ -272,15 +272,18 @@ def list_staticsite_functions(cmd, name, resource_group_name=None, environment_n
     return client.list_static_site_build_functions(resource_group_name, name, environment_name)
 
 
-def list_staticsite_app_settings(cmd, name, resource_group_name=None):
+def list_staticsite_app_settings(cmd, name, resource_group_name=None, environment_name=None):
     client = _get_staticsites_client_factory(cmd.cli_ctx)
     if not resource_group_name:
         resource_group_name = _get_resource_group_name_of_staticsite(client, name)
 
-    return client.list_static_site_app_settings(resource_group_name, name)
+    if not environment_name:
+        return client.list_static_site_app_settings(resource_group_name, name)
+
+    return client.list_static_site_build_app_settings(resource_group_name, name, environment_name)
 
 
-def set_staticsite_app_settings(cmd, name, setting_pairs, resource_group_name=None):
+def set_staticsite_app_settings(cmd, name, setting_pairs, resource_group_name=None, environment_name=None):
     client = _get_staticsites_client_factory(cmd.cli_ctx)
     if not resource_group_name:
         resource_group_name = _get_resource_group_name_of_staticsite(client, name)
@@ -291,20 +294,26 @@ def set_staticsite_app_settings(cmd, name, setting_pairs, resource_group_name=No
         setting_dict[key] = value
 
     # fetch current settings to prevent deleting existing app settings
-    settings = list_staticsite_app_settings(cmd, name, resource_group_name)
+    app_settings = list_staticsite_app_settings(cmd, name, resource_group_name, environment_name)
     for k, v in setting_dict.items():
-        settings.properties[k] = v
+        app_settings.properties[k] = v
 
-    return client.create_or_update_static_site_app_settings(
-        resource_group_name, name, app_settings=settings)
+    if not environment_name:
+        result = client.create_or_update_static_site_app_settings(
+            resource_group_name, name, app_settings=app_settings)
+    else:
+        result = client.create_or_update_static_site_build_app_settings(
+            resource_group_name, name, environment_name, app_settings=app_settings)
+
+    return _redact_appsettings(result)
 
 
-def delete_staticsite_app_settings(cmd, name, setting_names, resource_group_name=None):
+def delete_staticsite_app_settings(cmd, name, setting_names, resource_group_name=None, environment_name=None):
     client = _get_staticsites_client_factory(cmd.cli_ctx)
     if not resource_group_name:
         resource_group_name = _get_resource_group_name_of_staticsite(client, name)
 
-    app_settings = client.list_static_site_app_settings(resource_group_name, name)
+    app_settings = list_staticsite_app_settings(cmd, name, resource_group_name, environment_name)
 
     for key in setting_names:
         if key in app_settings.properties:
@@ -312,8 +321,21 @@ def delete_staticsite_app_settings(cmd, name, setting_names, resource_group_name
         else:
             logger.warning("key '%s' not found in app settings", key)
 
-    return client.create_or_update_static_site_app_settings(
-        resource_group_name, name, app_settings=app_settings)
+    if not environment_name:
+        result = client.create_or_update_static_site_app_settings(
+            resource_group_name, name, app_settings=app_settings)
+    else:
+        result = client.create_or_update_static_site_build_app_settings(
+            resource_group_name, name, environment_name, app_settings=app_settings)
+
+    return _redact_appsettings(result)
+
+
+def _redact_appsettings(payload):
+    logger.warning('App settings have been redacted. Use `az staticwebapp appsettings list` to view.')
+    for x in payload.properties:
+        payload.properties[x] = None
+    return payload
 
 
 def list_staticsite_users(cmd, name, resource_group_name=None, authentication_provider='all'):
@@ -509,7 +531,7 @@ def delete_staticsite(cmd, name, resource_group_name=None, no_wait=False):
 
 def _parse_pair(pair, delimiter):
     if delimiter not in pair:
-        InvalidArgumentValueError("invalid format of pair {0}".format(pair))
+        raise InvalidArgumentValueError("invalid format of pair {0}".format(pair))
 
     index = pair.index(delimiter)
     return pair[:index], pair[1 + index:]

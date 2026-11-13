@@ -3,6 +3,4527 @@
 Release History
 ===============
 
+2.93.0
+++++++
+
+**ACR**
+
+* `az acr pack`: Deprecate command group (#34175)
+* `az acr`: Validate the token endpoint before sending credentials (#34301)
+* `az acr check-health`: Correctly handle Helm version checks with newer versions (#34351)
+
+**AKS**
+
+* `az aks create`: Fix an issue where monitoring DCR associations are not created for Automatic SKU clusters (#34343)
+* `az aks check-acr`: Validate `--acr` is a valid host name and mount host paths read-only in the check pod (#34361)
+* `az aks nodepool update`: Add `--node-vm-size` to resize VirtualMachineScaleSets node pools (#34319)
+* `az aks install-desktop`: Report missing Linux tarball libraries before launch and prefer an ARM64 DEB when available (#34376)
+* `az aks nodepool add/update`: Support [true|false] values for `--enable-managed-dranet` (#34374)
+
+**App Config**
+
+* `az appconfig enhanced-feature-flag`: Add command group for enhanced feature flags (#34290)
+
+**App Service**
+
+* [BREAKING CHANGE] `az webapp up`: Deprecate the command (#34344)
+* [BREAKING CHANGE] `az webapp list-runtimes`: Change the config field separator from pipe to colon for Linux and Windows across JSON, table, and TSV output (#34335)
+* `az functionapp deployment source config-zip`: Use the default hostname and disable redirects for Flex Consumption post-deployment health checks (#34286)
+* `az functionapp create`: Add `--deployment-image` and related arguments to create Flex Consumption apps that run a container image (#34147)
+* `az functionapp deployment config set`: Add `--deployment-image` and related arguments to configure container image deployment for Flex Consumption apps (#34147)
+* `az functionapp show`, `az functionapp deployment config show`: Return the container image deployment configuration of Flex Consumption apps (#34147)
+* `az functionapp scale config set`, `az functionapp scale config always-ready set`, `az functionapp scale config always-ready delete`, `az functionapp update-strategy config set`: Preserve Registry authentication in Flex configuration updates (#34147)
+* `az functionapp identity assign`, `az functionapp identity remove`: Preserve Registry authentication through identity changes (#34147)
+* `az functionapp runtime config set`: Explain that Registry-based Flex apps have no runtime to update (#34147)
+* `az webapp create/list-runtimes`: Support legacy dotnet runtime identifier input (#34057)
+* `az webapp troubleshoot status/config`: Fix troubleshoot report rendering on Windows (#34206)
+* `az webapp config egress`: Add enabled-state updates and configuration queries for web apps and deployment slots (#34249)
+* `az webapp config egress connection`: Add named connection add/show/remove with setting references and managed identity options (#34249)
+* `az webapp silo`, `az appservice plan silo`: Add preview command groups to manage site and serverfarm silos and their VNet integration (#34356)
+* `az webapp managed-traffic`, `az webapp last-known-good`: Add preview command groups (#34356)
+* `az webapp create`, `az webapp config set`: Add improved unsupported Linux runtime error guidance (#34335)
+* `az appservice plan create`: Fix Windows defaults for App Service managed instance plans (#34110)
+
+**ARM**
+
+* `az stack-whatif`: Fix pretty-printer crash when array-item paths use a leading underscore (`_0`) (#34373)
+
+**ARO**
+
+* `az aro hcp`: Add new command group for managing Azure Red Hat OpenShift clusters with hosted control planes (#34271)
+
+**Backup**
+
+* `az backup`: Add SQL instance snapshot backup and restore support with the `SQLInstance` workload type (#34235)
+* `az backup container register`: Add `--container-subscription-id` (`--container-sub-id`) to select the source VM subscription independently of the vault subscription (#34235)
+* `az backup protection enable-for-azurewl`: Add `--child-database-names` to select databases for SQL instance snapshot protection (#34235)
+* `az backup policy create/set`: Add SQL instance `SnapshotV2` policy support (#34235)
+* `az backup protection backup-now`: Add `SnapshotFull` support for `--backup-type` with SQL instance workloads (#34235)
+* `az backup recoverypoint list`: Add `--restore-point-query-type` (`--rp-query-type`) to filter recovery points by backup type and `--get-latest-recovery-point-only` (`--latest-rp-only`) to return only the latest matching recovery point (#34235)
+* `az backup recoverypoint show-log-chain`: Add `--recovery-mode SnapshotAttachAndRecover`, `--base-snapshot-recovery-point-id` (`--base-snapshot-rp-id`) and `--base-recovery-point-datasource-id` (`--base-datasource-id`) to query database log ranges based on an instance snapshot (#34235)
+* `az backup recoveryconfig show`: Add `--recovery-mode` with `SnapshotAttachAndRecover` and `SnapshotAttach`, and `--no-recovery-mode` for SQL snapshot restores; extend existing `--identity-arm-id` and `--snapshot-rg` parameters to SQL snapshot restores (#34235)
+* `az backup restore restore-azurewl`: Add SQL snapshot restore support, including alternate-location restore, point-in-time recovery and cross-region restore (#34235)
+
+**Batch**
+
+* [BREAKING CHANGE] `az batch pool create`: Remove deprecated argument `--resource-tags`, which 2.80.0 listed as removed but still accepted (#34327)
+
+**Cognitive Services**
+
+* `az cognitiveservices account create`: Add BYO AKS agent hosting support (#34303)
+* `az cognitiveservices account deployment create`: Add `--organization-name`, `--industry` and `--country` arguments for Anthropic deployments (#34280)
+* `az cognitiveservices account costcontrol`: Add new command group (#34337)
+* `az cognitiveservices account project costcontrol`: Add new command group (#34337)
+
+**Container app**
+
+* [BREAKING CHANGE] `az containerapp compose create`: Require secret files and environment files to use relative paths within the Compose file's directory (#34334)
+* `az containerapp update`: Fix `--yaml` dropping `identity.userAssignedIdentities`, which caused `IdentityDoesNotExist` errors (#34253)
+* `az containerapp up`: Validate registry server before getting ACR credentials (#34262)
+* `az containerapp up`: Validate image registry before inferring credentials (#34302)
+
+**Cosmos DB**
+
+* `az cosmosdb sql container update`: Fix loss of existing computed properties during container updates (#34270)
+* `az cosmosdb fleetspace create`: Support non-pooled creation with omitted, null, or empty throughput pool configuration (#34270)
+* `az cosmosdb fleetspace`: Fix throughput-bound and database account attachment input validation (#34270)
+
+**Key Vault**
+
+* `az keyvault create`: Support new Managed HSM SKUs `Standard_B1v2`, `Standard_B5v2`, `Standard_B10v2`, `Standard_B15v2`, `Standard_B20v2` (#34234)
+
+**Lab**
+
+* Fix #34353: `az lab vm create`: Handle omitted formula password when using `--formula` (#34354)
+
+**Monitor**
+
+* `az monitor trace-association`: Add preview command group to route distributed traces from an Application Insights component, resource group or subscription to an Azure Monitor workspace (#34263)
+* `az monitor account trace-container`: Add preview command group to manage the trace container of an Azure Monitor workspace (#34263)
+
+**MySQL**
+
+* `az mysql flexible-server deploy setup`: Fix GitHub Actions setup input and error handling (#34390)
+
+**NetAppFiles**
+
+* [BREAKING CHANGE] `az netappfiles subvolume`: Remove subvolume commands (#34264)
+* [BREAKING CHANGE] `az netappfiles volume create`: Remove `--enable-subvolumes` parameter (#34264)
+* [BREAKING CHANGE] `az netappfiles volume update`: Remove `--enable-subvolumes` parameter (#34264)
+* `az netappfiles account refresh-ldap-bind-password`: Add command to refresh LDAP Bind DN password by fetching the latest password from Azure Key Vault (#34264)
+* `az netappfiles account ldap-configuration create/update/show/delete`: Add support for LDAP configuration (#34264)
+
+**Network**
+
+* `az network private-endpoint`: Add `--approval-reference-id` to inherit approval from an approved private endpoint (#34340)
+* `az network express-route`: Add MultiCloud circuit support (#34306)
+* Fix #34345: `az network application-gateway waf-policy create`: Fix an issue where `--managed-rules` is silently ignored (#34363)
+* `az network virtual-network-appliance`: Add support for `--capacity-provider` (#34318)
+
+**PostgreSQL**
+
+* `az postgres flexible-server upgrade`: Add support for Elastic Clusters (#34258)
+* `az postgres flexible-server create`: Add immutable backup support (#34320)
+* `az postgres flexible-server migration update`: Fix online cutover request construction (#34323)
+* `az postgres flexible-server create/update`: Add `--fips-mode` to enable or disable FIPS mode (#34288)
+* `az postgres flexible-server deploy`: Fix external tool invocation on Windows (#34329)
+* `az postgres flexible-server deploy`: Resolve deployment tool paths consistently (#34308)
+* `az postgres flexible-server create/update`: Add support for storage autogrow with Premium SSD v2 (#34384)
+* `az postgres flexible-server deploy setup`: Fix GitHub Actions setup input and error handling (#34390)
+
+**Relay**
+
+* `az relay`: Bump API version to 2026-07-01-preview (#34180)
+
+**Service Fabric**
+
+* `az sf cluster create`, `az sf application certificate add`: Fix Key Vault creation failures caused by a missing SKU family (#34234)
+
+**SQL**
+
+* `az sql`: Upgrade azure-mgmt-sql from 4.0.0b22 to 5.0.0b2 (#34266)
+
+**Storage**
+
+* `az storage account create/update`: Add per-service Shared Key, Blob Access Point enablement, delegation SAS, Turbo Tier, and extended-group controls (#34305)
+* `az storage account blob-access-point-configuration`: Add management and connection-testing commands (#34305)
+* `az storage context-cache`: Add cache, container, managed identity, and name-availability commands (#34305)
+* `az storage container-rm create`: Support Blob Access Point configuration attachment (#34305)
+* `az storage account file-service-usage`: Include file-service usage guardrails (#34305)
+* `az storage account network-security-perimeter-configuration show/list`: Include service tags (#34305)
+
+**Synapse**
+
+* `az synapse workspace create/update`: Fix repository argument validation and warning message formatting (#34313)
+
+2.92.0
+++++++
+
+**AKS**
+
+* `az aks nodepool update`: Allow upgrading Windows2022 node pools to Windows2025 with `--os-sku` (#34141)
+* `az aks nodepool add`: Automatically enable FIPS images for Windows2025 node pools (#34141)
+* `az aks create`: Add `--ssh-access` with `localuser`, `disabled` and `entraid` options to configure SSH access for the node pools (#34161)
+* `az aks nodepool add/update`: Add `--ssh-access` with `localuser`, `disabled` and `entraid` options to configure SSH access for the node pool (#34161)
+* `az aks create/update`: Add `--kms-infrastructure-encryption` to support KMS platform-managed keys (PMK) (#34204)
+* `az aks`: Allow longer node pool names; the service enforces the actual limit (#34216)
+* `az aks nodepool add`: Make `--enable-managed-gpu` generally available (#34268)
+
+**App Service**
+
+* `az webapp show/list`: Restore `appServicePlanId` and remove `serverFarmId` from output (#34149)
+* `az functionapp show/list`: Add `appServicePlanId` to output while retaining `serverFarmId` (#34149)
+* `az logicapp show/list`: Add `appServicePlanId` to output while retaining `serverFarmId` (#34149)
+* `az functionapp list`: Handle apps without an App Service Plan ID when using `--output table` (#34149)
+
+**ARM**
+
+* `az stack-whatif`: Fix resource properties not rendering for resource creates and deletes (#34156)
+
+**Backup**
+
+* `az backup container register`: Add managed identity support for Azure Files backup (#34146)
+
+**Cloud**
+
+* `az cloud show`: Add missing `synapseAnalyticsResourceId` for `AzureBleuCloud` (#34188)
+* `az cloud set`: Add `AzureDelosCloud` (Germany sovereign cloud) to the known clouds list (#34200)
+
+**Cognitive Services**
+
+* `az cognitiveservices agent`: Announce hosted agent command deprecation (#34177)
+* `az cognitiveservices account adapter-deployment`: Add new command group (preview) (#34112)
+
+**Compute**
+
+* `az vm create`: Support Aligned Zonal Fault Domains with `--data-disk-storage-fault-domain-alignment` and `--os-disk-storage-fault-domain-alignment` (#33390)
+* `az vmss create`: Support Aligned Zonal Fault Domains with `--data-disk-storage-fault-domain-alignment`, `--os-disk-storage-fault-domain-alignment` and `--zonal-platform-fault-domain-align-mode` (#33390)
+* `az vm create/update`: Support FlexProfile with `--preferred-size` (#34231)
+
+**Compute Fleet**
+
+* `az compute-fleet`: Support API version 2026-08-01 (#34170)
+* `az compute-fleet identity`: Add `assign`, `remove`, `show`, and `wait` commands for managed identities (#34170)
+
+**Container app**
+
+* `az containerapp job execution list`: Follow ARM pagination to return all executions (#34209)
+* `az containerapp env create`: Pre-announce the future change of the `--logs-destination` default from `log-analytics` to `azure-monitor`; the current default remains unchanged (#34243)
+
+**Key Vault**
+
+* `az keyvault`: Add API version 2026-02-01 retirement notice to group help (#34208)
+* `az keyvault purge/recover/show-deleted`: Fix error message to reference `--name/-n` instead of the non-existent `--vault-name` (#34220)
+
+**MySQL**
+
+* `az mysql`: Fix Windows executable-search hijacking (#34190)
+
+**Network**
+
+* `az network application-gateway advanced-routing-set/advanced-routing-map`: Add new command groups to support advanced routing (#34198)
+* `az network application-gateway rule create/update`: Add `--advanced-routing-map` and `--auth-configs` parameters (#34198)
+* `az network application-gateway update`: Add `--reserved-capacity` parameter (#34198)
+
+**Packaging**
+
+* `az version`: Detect Homebrew casks with symlinked prefixes (#34196)
+
+**SQL**
+
+* `az sql db str-policy`: Add short-term backup immutability locking with confirmation and expose immutability status (#34207)
+* `az sql midb short-term-retention-policy`: Add immutability locking for live databases and expose status for live and dropped databases (#34207)
+
+**Storage**
+
+* Fix #34155: `az storage blob list`: Honor the configured storage service endpoint (#34176)
+* `az storage copy`, `az storage fs directory upload/download`: Validate configured account endpoints before attaching SAS credentials (#34230)
+* Fix #32284: `az storage blob sync`: Fix using azcopy with `--sas-token` without login into azcli (#34174)
+* Fix #32147: `az storage file upload-batch`: Fix infinite loop/crash when `--destination-path` is an absolute path (#34173)
+
+2.91.0
+++++++
+
+**ACR**
+
+* `az acr import`: Warn when a regional source endpoint falls back to the source registry's home region (#34032)
+* `az acr create/encryption rotate-key`: Add managed HSM key guidance (#34118)
+* `az acr connected-registry create`: Add user-assigned managed identity authentication options (#34106)
+* `az acr connected-registry update`: Add one-way migration from SyncToken to managed identity authentication (#34106)
+* `az acr connected-registry get-settings`: Return managed identity connection settings (#34106)
+* `az acr connected-registry delete`: Skip sync-token cleanup for managed identity authentication (#34106)
+
+**AKS**
+
+* `az aks create/update`: Preserve the default managed outbound IPv4 count when only the IPv6 count is provided (#33886)
+* `az aks nodepool add/update`: Add `--enable-managed-dranet` to enable Managed DRANET on a node pool. (#34003)
+* `az aks update`: Fix bug where autoscale profile boolean values could be incorrectly serialized as strings (#34058)
+* Fix #33541: `az aks install-cli`: Fall back to the kubelogin version file when the GitHub API rate limit is hit (#34075)
+* Fix #34085: `az aks update`: Correct capitalization and punctuation in reconcile prompt (#34086)
+* `az aks install-desktop`: Add AKS Desktop installation (#34100)
+* `az aks create/update`: Add `--enable-azure-monitor-logs` to onboard Container Insights through the Azure Monitor profile using managed identity authentication (#34077)
+* `az aks update`: Add `--disable-azure-monitor-logs` to offboard Container Insights (#34077)
+* `az aks create/update`: Add `--syslog-port`, `--enable-prometheus-metrics-scraping` and `--disable-prometheus-metrics-scraping` to tune the Azure Monitor Container Insights configuration (#34077)
+* `az aks create/update`: Add `--enable-opentelemetry-metrics`, `--disable-opentelemetry-metrics`, `--opentelemetry-metrics-port-http` and `--opentelemetry-metrics-port-grpc` for the OpenTelemetry metrics receiver (#34077)
+* `az aks create/update`: Add `--enable-opentelemetry-logs-traces`, `--disable-opentelemetry-logs-traces`, `--opentelemetry-logs-traces-port-http` and `--opentelemetry-logs-traces-port-grpc` for the OpenTelemetry logs and traces receiver (#34077)
+* `az aks create/update/enable-addons`: Deprecate `--enable-msi-auth-for-monitoring` in favor of `--enable-azure-monitor-logs` (#34077)
+
+**App Config**
+
+* `az appconfig kv/snapshot`: Add support for `--description` parameter (#33840)
+
+**App Service**
+
+* `az functionapp flex-migration start/revert`: Add in-place CV1 to Flex Consumption upgrade and revert support (#33863)
+* `az webapp troubleshoot config`: Provide application config evaluation summary (#33709)
+* `az webapp config access-restriction
+`: Prevent access restriction updates from dropping site config (#34050)
+* `az webapp deploy`: Add `--deploymentTag` parameter to give friendly name to deployment (#34134)
+* `az webapp deploy`: Add `--show-secure-build` to deploy and display the secure build summary afterward (#34130)
+* `az webapp secure-build show`: Add `--rescan` to force fresh dependency analysis (#34130)
+* `az webapp troubleshoot deployment`: Add command to diagnose the latest deployment (#34130)
+
+**ARM**
+
+* `az stack-whatif`: Render `NoEffect` changes in gray with a cross symbol (#33858)
+
+**Backup**
+
+* `az backup restore restore-azurefileshare`: Add Azure File Share cross-region restore support (#33809)
+* `az backup protection undelete`: Add Azure File Share soft-delete undelete support (#33809)
+* `az backup vault update`: Add `--source-scan-state` to configure Microsoft Defender for Cloud Source Scan (#34076)
+* `az backup item source-scan-configuration set`: Add support for enabling or disabling Source Scan for Azure VM backup items (#34076)
+* `az backup restore files mount-rp`: Fetch ILR mount scripts via dedicated list action (#34073)
+
+**Compute**
+
+* `az vm/vmss create/update`: Add new parameter `--wire-server-use-local-file-rules` to support use local file rules (#33894)
+* `az vm/vmss create`: Add `SpotPlus` option in `--priority` parameter (#34030)
+* `az vm/vmss`: Add new parameter `--processor-mode` to support processor mode (#33985)
+* `az capacity reservation create`: Add new parameters `--schedule-profile-start` and `--minimum-commitment-days` to support future capacity reservation (#34031)
+* `az vm/vmss list-versions`: Add new parameter `--expand` to support extension image release metadata (#34018)
+* `az sig create/update`: Add new parameters `--soft-delete`, `--soft-delete-retention-period` and `--soft-delete-grace-period` to support soft-delete policy (#34107)
+* `az sig image-version delete`: Add new parameter `--bypass-soft-delete` to support bypass-delete (#34107)
+* `az sig image-version list-soft-deleted`: Add new command to support soft-delete recycle-bin listing (#34107)
+
+**Key Vault**
+
+* `az keyvault ekm-connection`: Remove preview status (#34095)
+
+**MySQL**
+
+* `az mysql flexible-server upgrade`: Fix deserialization problem (#34027)
+* Fix #32827: `az mysql`: Restore memory optimized tier terminology (#34019)
+
+**Network**
+
+* `az network route-table route`: Support ECMP routing in route tables (#33493)
+* `az network first-party-service-tag`: Add support for First Party Service Tags (#34081)
+* `az network application-gateway ssl-profile add/update`: Expose `--auth-configuration` to support mTLS `verify-client-auth-mode=Passthrough|Strict` (#34090)
+* `az network private-endpoint create/update`: Add `--billing-sku` to configure the private endpoint billing SKU (#33799)
+* `az network asg address-prefix-set`: Add address prefix set commands (#34024)
+* `az network vnet move-ip-configurations`: Add move IP configurations command (#34025)
+
+**PostgreSQL**
+
+* `az postgres flexible-server restore`: Add `--sku-name` and `--tier` arguments to allow changing compute during point-in-time restore (#33992)
+
+**Resource**
+
+* `az bicep`: Improve help text for Bicep output parameters to clarify output behavior (#32989)
+
+**Storage**
+
+* `az storage blob download-batch`: Ensure downloaded blobs stay within the destination directory (#34126)
+
+2.90.0
+++++++
+
+**ACR**
+
+* `az acr network-rule list/add/remove`: Fix `virtualNetworkRules` entries returning `virtualNetworkResourceId` as null and surface the `virtualNetworkSubnetResourceId` field (#33685)
+
+**AKS**
+
+* `az aks create`, `az aks nodepool add`: Support `--enable-cluster-autoscaler` for VirtualMachines agent pools to create pools in autoscale mode (#33801)
+* `az aks nodepool update`: Support `--enable-cluster-autoscaler` for VirtualMachines agent pools by converting manual scale profiles to autoscale profiles (#33801)
+* `az aks nodepool update`: Support `--disable-cluster-autoscaler` for VirtualMachines agent pools by converting autoscale profiles back to manual profiles (#33801)
+* `az aks nodepool update`: Block `--update-cluster-autoscaler` for VirtualMachines agent pools and direct to `az aks nodepool auto-scale update` (#33801)
+* `az aks nodepool auto-scale add`: Add command to add an autoscale profile to a VirtualMachines agent pool (#33801)
+* `az aks nodepool auto-scale update`: Add command to update an autoscale profile of a VirtualMachines agent pool (#33801)
+* `az aks nodepool auto-scale delete`: Add command to delete an autoscale profile from a VirtualMachines agent pool (#33801)
+* Fix missing wait on LRO pollers when provisioning Azure Monitor metrics artifacts (DCE/DCR/DCRA/Grafana link) for `az aks create --sku automatic` (#33734)
+* `az aks create`: Skip SSH key configuration for Automatic SKU clusters (#33820)
+* `az aks nodepool rollback`: Show an accurate warning when only the node OS upgrade channel is enabled (#33854)
+* Implement enable/disable flags for user-defined scheduler configuration (#33934)
+* `az aks update`: Fix Azure Container Storage configuration detection for lowercase and boolean extension settings (#33938)
+
+**App Config**
+
+* Sanitize resource group name in data-plane test recordings (#33906)
+
+**App Service**
+
+* `az webapp exec`: Add command to run an interactive shell or execute commands in Linux web app containers (preview) (#33640)
+* `az webapp create/list-runtimes`: Change Node.js 26 runtime identifier (#33864)
+* `az appservice plan create`: Fix Windows plan help examples to include `--is-linux false`, consistent with the default Linux behavior when the flag is omitted (#33828)
+* `az webapp config set`: Fix `--generic-configurations` silently dropping camelCase site config properties (e.g. `webJobsEnabled`) (#33826)
+* `az webapp deploy`: Add `--tag` parameter to give friendly name to deployment (#33940)
+* `az webapp exec`: Add `--target kudu` for connecting Kudu container (#33954)
+* `az webapp troubleshoot collect network-capture`: Add command to collect a bounded packet capture from a selected Linux App Service worker (#33949)
+* `az webapp troubleshoot collect network-capture`: Add `--collect-only` to return only the targeted packet capture link (#33949)
+* `az webapp create`: Add `--enriched-errors` parameter to see detailed failure log (#33936)
+
+**ARO**
+
+* `az aro create`: Provide the ability to generate managed identities for users when passing `--enable-mi` (#33912)
+* `az aro identity get-required`: Display the commands required for the user to run to manually created managed identities for an ARO cluster (#33912)
+* `az aro identity create-required`: Create the necessary managed identities for a to-be-created ARO cluster (#33912)
+
+**Bicep**
+
+* `az bicep snapshot`: Show detected changes when validation fails (#33925)
+
+**Compute**
+
+* `az vm deallocate`: Expose new parameter `--force-deallocate` (#33855)
+* `az vmss lifecycle-hook/lifecycle-hook-event`: Add new command groups to support vmss lifecycle hooks (#33758)
+* `az capacity reservation group create/update`: Add new parameter `--reservation-type` to support Open Capacity Reservation (#33901)
+* `az vm create/update`: Add new parameter `--disable-capacity-reservation-assignment` to support Open Capacity Reservation (#33901)
+* `az vmss create/ update`: Add new parameter `--disable-capacity-reservation-assignment` to support Open Capacity Reservation (#33929)
+* `az sig image-version create`: Normalize storage type case in target region validation (#33882)
+* `az vm boot-diagnostics get-boot-log`: Fix `TypeError: 'method' object is not subscriptable` when VM uses a custom storage account for boot diagnostics (regression with azure-mgmt-storage 25.0.0) (#33872)
+
+**Consumption**
+
+* `az consumption usage list/pricesheet show`: Preserve `meterDetails.totalIncludedQuantity` when including meter details (#33908)
+
+**Container app**
+
+* `az containerapp job update`: Fix crash for `--no-wait` parameter (#33807)
+
+**Key Vault**
+
+* `az keyvault`: Support control plane API version `2026-02-01` by upgrading `azure-mgmt-keyvault` to 14.0.1 (#33895)
+
+**MySQL**
+
+* Fix grammar in MySQL import help text (#33819)
+* `az mysql flexible-server ad-admin create`: Fix AD admin creation (#33838)
+* `az mysql flexible-server firewall-rule create`: Fix firewall rule create request payload serialization. (#33865)
+* `az mysql flexible-server geo-restore`: Stop forcing source storage redundancy in target create payload to avoid non-ZRS region restore failures (#33814)
+* `az mysql flexible-server list-skus`: Fix command returning empty list for all regions (#33747)
+
+**Network**
+
+* `az network public-ip create/update`: Add `--ddos-custom-policy` to attach a DDoS custom policy (#33812)
+* `az network application-gateway waf-policy managed-rule rule-set update`: Allow updating rule group without rule IDs (#33871)
+* `az network private-endpoint-connection`: Add provider `Microsoft.HardwareSecurityModules/paymentHsmClusters` (#33889)
+
+**Packaging**
+
+* Azure CLI container images and RPMs based on Azure Linux 4.0 (#33850)
+* Add Ubuntu 26.04 Resolute Raccoon (#33791)
+
+**PostgreSQL**
+
+* `az postgres flexible-server maintenance-event list`: Fix `TypeError` caused by an unsupported `--ids` argument (#33847)
+* Change selection criteria for default SKU when `--sku-name` not provided (#33897)
+* `az postgresql db create`: Correct property bag being sent for creating new database (#33951)
+
+**RDBMS**
+
+* `az postgres flexible-server replica promote`: Populate `sourceServerResourceId` in the PATCH body so that planned switchover promotion no longer fails with `MissingRequiredParameter` (#33777)
+
+**Redis**
+
+* `az redis import`: Add confirmation prompt (`--yes`) matching `az redis flush` and `az redis delete` (#33905)
+
+**Resource**
+
+* Fix #32786: `az bicep publish`: Correct placement of `--force` in help example (#33517)
+* `az deployment what-if`: Point users to Deployment Stacks What-If in the noise notice (#33943)
+
+**SQL**
+
+* Make deleted server location optional (#33918)
+* `az sql mi link create`: Add multi-database link mode support (#33874)
+* `az sql mi link update`: Add database membership updates for multi-database links (#33874)
+* Clean up server update handling for soft-delete (#33933)
+
+
+**Storage**
+
+* `az storage blob`: Allow empty blob with data (#33803)
+* Fix #33671: `az storage container list`: Doesn't return anything with ModuleNotFoundError (#33793)
+* `az storage fs file download`: Stream ADLS Gen2 downloads to avoid content-encoding decode failures (#33730)
+
+2.89.1
+++++++
+
+**Core**
+
+* Allow SSH certificate flow in Cloud Shell (#33860)
+
+2.89.0
+++++++
+
+**ACR**
+
+* `az acr import`: Fix regional endpoint source resolution for multi-label sovereign suffixes (#33754)
+* `az acr create/update`: Add new parameter `--writable-cache-repo` to enable writable behavior for cache repositories within a registry (#33772)
+
+**AKS**
+
+* `az aks upgrade`: Skip Machines mode agent pools during node image and Kubernetes version upgrade (#33693)
+* `az aks identity-binding`: Add command group to manage identity bindings (trust domain) for a managed cluster (#33558)
+* `az aks update`: Fix `--outbound-type` validation for `userDefinedRouting` and `userAssignedNATGateway` so BYO VNet clusters no longer require `--vnet-subnet-id` and managed VNet clusters get a clear error message (#33694)
+* `az aks nodepool rollback`: Fix false auto-upgrade warning when upgrade channels are disabled (#33748)
+* Vendor new SDK and bump API version to 2026-05-01 (#33785)
+
+**App Config**
+
+* Update CLI to use Audience and update to 1.8.0 (#33393)
+
+* `az appconfig`: Increase retry resilience for data-plane operations to better handle transient server throttling (HTTP 429) and network errors (#33219)
+
+**App Service**
+
+* `az appservice plan`: Remove preview flag for managed instance app service plans (#33690)
+* `az appservice plan`: Add Premium V3 SKU support (`P0V3`, `P1-3V3`, `P1-5MV3`) for managed instances (#33690)
+* `az webapp troubleshoot status`: Provide latest application startup attempt data (#33673)
+
+**ARM**
+
+* `az stack-whatif group/sub/mg`: Add deployment stacks what-if commands (#32854)
+
+**Backup**
+
+* Add support for cost management settings (#33757)
+
+**Cognitive Services**
+
+* `az cognitiveservices account compute`: Support compute cluster resources management (#33759)
+
+**Compute**
+
+* `az vmss application set`: Fix command silently failing to set gallery applications and remove leftover debug output (#33715)
+
+**CosmosDB**
+
+* `az cosmosdb`: Revert API version from `2026-03-15` back to `2025-10-15` (#33802)
+
+**MySQL**
+
+* `az mysql flexible-server mirroring`: Add `enable` and `disable` commands to support Fabric Mirroring (#33774)
+
+**MySQL Flexible Server**
+
+* `az mysql flexible-server update`: Add `--maintenance-batch` to set the batch (Default, Batch1, Batch2) of the custom-managed maintenance window; existing batch is preserved when omitted (#33768)
+
+**NetAppFiles**
+
+* `az netappfiles volume create`: Add `--breakthrough-mode` to specify whether the volume operates in Breakthrough Mode (#33763)
+
+**Network**
+
+* `az network nat gateway`: Add `--nat64` to enable/disable NAT64 on StandardV2 NAT gateway (#33679)
+* `az network private-endpoint-connection`: Update provider `Microsoft.HardwareSecurityModules/cloudHsmClusters` (#33739)
+* `az network virtual-appliance migration`: Support migrating NVA to ILB architecture (#33766)
+
+**PostgreSQL**
+
+* `az postgres flexible-server backup create`: Fix duplicate auto-generated backup names after deletions (#33684)
+* `az postgres flexible-server create`: Add example to create elastic cluster with custom database name (#33712)
+* `az postgres flexible-server upgrade`: Introduced `--validate-only` param for PVC (#33683)
+* `az postgres flexible-server maintenance-event list`: Fix `TypeError` caused by an unsupported `--ids` argument (#33846)
+
+2.88.0
+++++++
+
+**ACR**
+
+* `az acr create`: Add `--data-endpoint-enabled` parameter to support enabling dedicated data endpoint for client firewall configuration (#33472)
+* `az acr create`: Add `--endpoint-protocol` parameter to support specifying the endpoint protocol for the registry (#33472)
+* `az acr task logs`: Align log streaming with the default TLS behavior used by the rest of Azure CLI commands (#33486)
+* `az acr run/build`: Align log streaming with the default TLS behavior used by the rest of Azure CLI commands (#33486)
+* `az acr login`: Harden binary resolution and credential passing (#33373)
+
+**AKS**
+
+* `az aks nodepool upgrade`: Fix `--max-unavailable` being silently ignored (#33215)
+* `az aks maintenanceconfiguration add/update`: Add support for maintenanceWindow format in default maintenance configuration (#33431)
+* `az aks check-acr`: Support national/sovereign clouds where nodes report `cloud=AzureStackCloud` by pointing canipull at the on-node `akscustom.json` environment file (#33551)
+* `az aks create`: Add `--enable-control-plane-metrics`/`--enable-cp-metrics` to opt new clusters into Azure Monitor managed Prometheus control-plane metrics (#33537)
+* `az aks update`: Add `--enable-control-plane-metrics`/`--enable-cp-metrics` and `--disable-control-plane-metrics`/`--disable-cp-metrics` to toggle Azure Monitor managed Prometheus control-plane metrics on existing clusters (#33537)
+* `az aks nodepool get-rollback-versions/rollback`: Add commands to get rollback versions and roll back an agent pool to the most recently used configuration (#33509)
+* `az aks create/update`: Set `principalType` when creating role assignments to avoid `PrincipalNotFound` failures caused by Microsoft Entra ID replication delay (#33586)
+
+**App Service**
+
+* `az appservice plan create`: Make default OS as Linux when `--hyper-v` is not specified explicitly (#33395)
+* `az appservice plan create`: Use `--is-linux false` to create a Windows app service plan (#33395)
+* `az functionapp config ssl`: Support site-scoped certificates for Flex consumption (#33443)
+* `az functionapp flex-migration`: Allow migrating Linux consumption apps with certificates (#33443)
+* `az functionapp`: Add warning for Linux consumption EOL and recommend migration to Flex consumption (#33445)
+* `az functionapp create`: Add warning for Linux consumption EOL and recommend using Flex consumption (#33445)
+* `az appservice plan create`: Add `--enriched-errors` parameter to see detailed failure log (#33642)
+* `az webapp up/deploy`: Add `--enriched-errors false` parameter to disable enriched deployment failure log (#33669)
+
+**ARM**
+
+* `az policy`: Rewrite Azure Policy CRUD commands using auto-generation (#33416)
+
+**Backup**
+
+* `az backup`: Add CRR config entries for Delos cloud regions (#33448)
+
+**CDN**
+
+* Migrate the entire module to `azure-cli-extensions` (#33336)
+
+**Compute**
+
+* `az vm create/update/show`: Support scheduled events profile via new parameters `--scheduled-events-api-version` and `--enable-all-instance-down` (#33451)
+* `az vmss create/update/show`: Support scheduled events profile via new parameters `--scheduled-events-api-version` and `--enable-all-instance-down` (#33451)
+* `az availability-set create/show`: Support scheduled events profile via new parameters `--scheduled-events-api-version` and `--enable-all-instance-down` (#33451)
+* `az vm/vmss create/update`: Update help message for `--security-type` (#33394)
+* `az vmss update`: Add new parameters `--zone-placement-policy`, `--include-zones` and `--exclude-zones` (#33639)
+
+**Compute Fleet**
+
+* `az compute-fleet`: Add support for Launch mode public preview (#33566)
+
+**Identity**
+
+* `az identity create`: Add new `--resource-restriction` parameter to support identity assignment restrictions (#32214)
+* `az identity update`: Add new command to support updating an identity (#32214)
+
+**Key Vault**
+
+* `az keyvault key show/list`: Add AES key size to output (#33522)
+* `az keyvault ekm-connection`: Add command group to manage External Key Manager (EKM) connections for Managed HSM (Preview) (#33651)
+* `az keyvault key create`: Add `--external-key-id` to create EKM-backed external keys on Managed HSM (Preview) (#33651)
+
+**NetAppFiles**
+
+* `az netappfiles subvolumes`: Add deprecation notice `az netappfiles subvolume` command group is being deprecated and will be removed in a future release (#33484)
+* `az netappfiles volume create/update`: Add deprecation notice `--enable-subvolumes` is being deprecated and will be removed in a future release (#33484)
+
+**Network**
+
+* Fix #33502: `az network vnet list`: List all VNets without specifying `--resource-group` (#33510)
+* `az network vpn-connection create`: Fix `--shared-key` incorrectly required when `--auth-type Certificate` is used (#33523)
+* `az network ddos-custom-policy`: Support specifying frontend IP configuration associations (#33413)
+* `az network traffic-manager profile create/update`: Add `--record-type` parameter to support record type filtering (#33503)
+* `az network private-endpoint-connection`: Add provider `Microsoft.HorizonDB/clusters` (#33644)
+
+**Packaging**
+
+* Support Python 3.14
+* Bump embedded Python to 3.14.5 (#33313)
+
+**Policy**
+
+* `az policy`: Remove obsolete breaking change messages (#33450)
+
+**PostgreSQL**
+
+* `az postgres flexible-server create/restore/geo-restore/replica create`: Add new arguments `--federated-client-id` and `--backup-federated-client-id` to support multi-tenant application registration (#33645)
+* `az postgresql flexible-server maintenance-event list/show/apply-now/reschedule`: Add commands for maintenance events (#33662)
+* Fix #33776: `az postgres flexible-server replica promote`: Populate `sourceServerResourceId` in the PATCH body so that planned switchover promote no longer fails with `MissingRequiredParameter` (#33777)
+
+**Resource**
+
+* `az bicep`: Add snapshot and run subcommands (#33398)
+
+**Role**
+
+* `az role deny-assignment create/delete`: Add new commands (#33109)
+
+**SSH**
+
+* `az ssh`: Restore explicit failure for unsupported managed identity and Cloud Shell SSH cert flows (#33534)
+
+2.87.0
+++++++
+
+**ACR**
+
+* [BREAKING CHANGE] `az acr replication create/update`: Remove deprecated `--region-endpoint-enabled` flag and use `--global-endpoint-routing` instead (#33173)
+* [BREAKING CHANGE] `az acr config content-trust update`: No longer accept the `enabled` status (#33174)
+* [BREAKING CHANGE] `az acr check-health`: Remove Notary client check due to Docker Content Trust deprecation (#33174)
+* `az acr login`: Make ACR audience customizable in AAD token acquisition (#33294)
+* `az acr connected-registry resync`: Add command to manually trigger a sync from the parent registry (#33236)
+* `az acr update`: Add `--endpoint-protocol` parameter to support specifying the endpoint protocol for the registry (#33089)
+* `az acr login`: Fix regional endpoint matching for registries with DNL suffix (#33381)
+* `az acr config content-trust/show/update`: Add deprecation labels and notices (#33174)
+
+**AKS**
+
+* `az aks add/update`: Add `--enable-artifact-streaming` and `--disable-artifact-streaming` parameters (#33257)
+
+**App Config**
+
+* `az appconfig kv set-snapshot-reference`: Add support to create a snapshot reference key-value (#33278)
+* `az appconfig kv list`: Add support to list key-values from a snapshot reference (#33278)
+* `az appconfig create/update/network-security-perimeter-configuration`: Add Network Security Perimeter (NSP) support (#33407)
+
+**App Service**
+
+* [BREAKING CHANGE] `az webapp list-runtimes`: Change output from flat string list to structured list of dicts with keys: os, runtime, version, config, support, end_of_life (#32903)
+* `az webapp list-runtimes`: Add `--runtime` and `--support` filter parameters (#32903)
+* [BREAKING CHANGE] `az webapp list-runtimes`: Remove deprecated `--linux` and `--show-runtime-details` parameters (#32903)
+* `az webapp log startup`: Add commands to list and view Linux container startup logs (#33256)
+* `az webapp create`: Add `--site-scoped-certs` parameter to support enabling or disabling site-scoped certificates (#33306)
+* `az webapp up`: Add warning message for future deprecation (#33410)
+* `az functionapp deployment source config-zip`: Fix `KeyError` `'FUNCTIONS_WORKER_RUNTIME'` for Go function apps on Flex Consumption (#33404)
+* `az functionapp update-strategy config set`: Add new command to set or update a function app's update strategy configuration (#33341)
+* `az functionapp update-strategy config show`: Add new command to get the details of a function app's update strategy configuration (#33341)
+* Fix #31394: `az functionapp deployment source config-zip`: Never ending loop on flex function app health check (#33388)
+
+**Compute**
+
+* [BREAKING CHANGE] `az vm create`: Change default `--size` from `Standard_DS1_v2` to `Standard_D2s_v5` (#33323)
+* [BREAKING CHANGE] `az vmss create`: Change default `--vm-sku` from `Standard_DS1_v2` to `Standard_D2s_v5` (#33323)
+* `az sig image-definition update`: Add ability to update image-definition start version (#33273)
+* `az vm create/update`: Support zone-resilient VM with `--zone-movement` (#33242)
+* `az vm update`: Support cross-zone movement (#33242)
+* `az vm deallocate`: Support vm force deallocate with `--force-deallocate` (#33242)
+* `az vm/vmss create`: Support Ephemeral OS disk with full caching with `--ephemeral-os-disk-enable-full-caching` (#33292)
+
+**Container app**
+
+* `az containerapp`: Fix typo in help message (#33082)
+* Fix #33369: `az containerapp up`: Resolve OS/Architecture models from correct SDK package (#33371)
+
+**Cosmos DB**
+
+* `az cosmosdb restore`: Fix cross-region restore by preserving source region in top-level location (#33274)
+
+**Key Vault**
+
+* `az keyvault create`: Fix keyvault create RequestDisallowedByPolicy error by explicitly setting `enableSoftDelete` in the request body (#33265)
+
+**MySQL**
+
+* [BREAKING CHANGE] `az mysql flexible-server backup create/restore/geo-restore/replica`: Remove `--storage-redundancy` (#33428)
+* Fix #31568: `az mysql flexible-server list-skus`: Fix command returning empty list for all regions
+
+**NetAppFiles**
+
+* [BREAKING CHANGE] `az netappfiles volume update`: `--remote-volume-resource-id` has been deprecated (#33217)
+* [BREAKING CHANGE] `az netappfiles volume create`: `--network-features` default value has changed to `Standard` (#33217)
+* `az netappfiles cache`: Add new command group to manage Cache resources (#33217)
+* `az netappfiles volume bucket`: Add new command group to manage Bucket resources (#33217)
+
+**Network**
+
+* `az network vnet create/update`: Add `--summarized-gateway-prefixes` to support summarized gateway prefixes (#33241)
+* `az network application-gateway ssl-cert create/update`: Add `--hsm` to support Managed HSM (#33353)
+* `az network virtual-network-appliance create/update`: Add `--private-ip-address-version` to support private ip address version (#33315)
+
+**PostgreSQL**
+
+* [BREAKING CHANGE] `az postgres flexible-server create/update`: Remove `--high-availability` for preferred argument `--zonal-resiliency` (#33300)
+* [BREAKING CHANGE] `az postgres flexible-server upgrade`: Remove the enum for `--version` (#33116)
+* [BREAKING CHANGE] `az postgres flexible-server create/update`: Remove deprecated `--cluster-option` and update validation logic (#33244)
+* [BREAKING CHANGE] `az postgres flexible-server index-tuning`: Remove support for command group (#33344)
+* [BREAKING CHANGE] `az postgres flexible-server backup create`: Remove backup name requirement and implement automatic name generation for backups (#33340)
+* [BREAKING CHANGE] `az postgres flexible-server create/geo-restore/restore/revive-dropped`: Don't create or alter networking components like virtual network, subnet, or private DNS zone. Stop supporting `--address-prefixes` and `--subnet-prefixes` anymore (#33192)
+* [BREAKING CHANGE] `az postgres flexible-server replica create`: Don't create or alter networking components like virtual network, subnet, or private DNS zone. Stop supporting `--address-prefixes` and `--subnet-prefixes` anymore (#33192)
+* [BREAKING CHANGE] `az postgres flexible-server backup/db/firewall-rule/long-term-retention/migration/replica create`: Make consistent use of `--name` and `--server-name` across all commands (#33343)
+* [BREAKING CHANGE] `az postgres flexible-server long-term-retention`: Remove support for command group (#33345)
+
+**Storage**
+
+* `az storage account create/update`: Support new value `Smart` for `--access-tier` (#33423)
+* `az storage account create/update`: Support `--allowed-copy-scope` (#33423)
+* `az storage account blob-service-properties update`: Add `--enable-static-website`, `--index-document`, `--default-index-document-path`, `--error-document-404-path` (#33423)
+* `az storage account or-policy create/update`: Add `--tags-replication` (#33423)
+
+2.86.0
+++++++
+
+**ACR**
+
+* `az acr login`: Support Podman for `--name` parameter (#33115)
+* `az acr create`: Add `--regional-endpoints` parameter to enable or disable regional endpoints for a container registry (#33133)
+* `az acr update`: Add `--regional-endpoints` parameter to enable or disable regional endpoints for an existing container registry (#33133)
+* `az acr show-endpoints`: Display regional endpoint host names when regional endpoints are enabled (#33133)
+* `az acr login`: Add `--endpoint` parameter to log in to a specific regional endpoint of a container registry (#33133)
+* `az acr import`: Support importing images using regional endpoint URIs as the source (#33133)
+* `az acr network-rule`: Update `--ip-address` help message to include ipv6 address (#32537)
+
+**AKS**
+
+* `az aks create`, `az aks nodepool add/update`: Add option `AzureContainerLinux` to `--os-sku` parameter (#33129)
+* `az aks check-acr`: Fix command injection via unquoted tempfile path in subprocess call (#33155)
+* `az aks update`: Add `--enable-azure-monitor-app-monitoring` to support Azure Monitor Application Monitoring auto-instrumentation (#32712)
+* `az aks create`: Add parameters `--system-node-subnet-id`, `--node-subnet-id` and `--enable-hosted-system` to support BYO VNet for Automatic Managed System Pool clusters (#33259)
+* `az aks mesh enable/proxy-redirection-mechanism`: Add mesh Istio CNI commands (#32992)
+* `az aks nodepool add`: Add `Windows2025` as a supported value for `--os-sku` (#33246)
+* `az aks update`: Fix `--enable-azure-monitor-metrics` failing with RoleAssignmentExists when Grafana role assignment already exists (#33229)
+* `az aks create/update`: Add `--enable-gateway-api` and `--disable-gateway-api` parameters to manage Managed Gateway API installation (#33286)
+* `az aks create/update`: Add `--enable-app-routing-istio` and `--disable-app-routing-istio` to manage App Routing Istio gateway implementation (#33287)
+
+**App Service**
+
+* `az webapp create`: Add post-creation deployment guidance and startup command examples (#33088)
+* `az webapp deploy`: Add build automation guidance for Linux zip deployments (#33088)
+* `az webapp up`: Add logging for OS type, runtime auto-detection, and plan auto-generation (#33088)
+* Add warning for container image path when `--container-image-name` includes registry host (#33088)
+* `az webapp delete`: Add warning about App Service Plan deletion (#33088)
+* Fix #33180: `az functionapp plan create`: Simplify reserved parameter assignment in AppServicePlan (#33202)
+* `az webapp sitecontainers convert`: Add support for converting Docker Compose multi-container apps to Sitecontainers mode (#33131)
+* `az webapp up/deploy`: Add `--enriched-errors` parameter to see detailed deployment failure log (#32940)
+* `az webapp create`: Add error message that clearly lists all valid options and specifies how to discover available runtimes (#33252)
+* `az appservice plan create`: Make `P0V3` as default SKU when `--sku` is omitted for linux webapp (#33237)
+* `az appservice plan create`: Add `PREMIUM0V3` tier for elastic scale (#33237)
+
+**Cloud**
+
+* Fix #33183: `az cloud set`: Typo correction on AZURE_BLEU_CLOUD active directory endpoint
+
+**Compute**
+
+* `az sig create`: Add new argument group "Managed Service Identity" to configure the service identity of a Shared Image Gallery (SIG) (#33137)
+* `az sig show`: Update command to display the managed service identity of a Shared Image Gallery (SIG) (#33137)
+* `az sig identity`: Add new command group to manage the service identity of a Shared Image Gallery (SIG) (#33137)
+
+**Container app**
+
+* `az containerapp create`: Support other cloud for acr (#33160)
+
+**Network**
+
+* `az network express-route gateway`: Support VWAN gateway resiliency APIs (#32941)
+* `az network route-table create/update`: Add `--disable-peering-route` to support disable peering route (#33231)
+
+**PostgreSQL**
+
+* `az postgres flexible-server create`, `replica create`, `restore`, `geo-restore`, and `revive-dropped`: Add breaking change announcement for command behavioral change related to network resources (#33077)
+* `az postgres flexible-server create`: Announce breaking change deprecation of `--cluster-option` argument (#33225)
+* Fix #33090: `az postgres flexible-server server-logs list`: Command crashes with an AttributeError when listing log files (#33096)
+* `az postgres flexible-server`: Improve validation logic and style of error messages (#33114)
+* `az postgresql flexible-server replica create`: New argument `--storage-type` to select storage type as PremiumV2_LRS for read replica (#33134)
+* Fix #33205: `az postgres flexible-server create`: Update help text for `--storage-auto-grow` argument to reflect actual default value (#33206)
+* `az postgres flexible-server update`: Restart is no longer required for scaling storage size of Premium SSDv2 server (#33178)
+* `az postgres flexible-server create/upgrade`: Block SSDv2 creation for PG version earlier than 14 (#33119)
+
+**Profile**
+
+* `az login`: Add `--subscription` and `--skip-subscription-discovery` to filter subscriptions during login (#33181)
+
+**Storage**
+
+* `az storage account create/update`: Update description for tls 1.3 being not yet available, remove breaking change warning to deprecate tls1.0, tls1.1 (#33243)
+* `az storage blob/container/share/file/queue/fs generate-sas`: Add `--user-delegation-tid` to support cross tenant user delegated sas (#33187)
+* `az storage advanced-platform-metric create/update/show/list/delete`: Support Advanced Platform Metrics (#33224)
+
+2.85.0
+++++++
+
+**ACR**
+
+* `az acr network-rule add`: Add example of adding a rule to allow access for a specific virtual network (#32829)
+* `az acr replication create/update`: Add `--global-endpoint-routing` parameter and redirect `--region-endpoint-enabled` to it to avoid confusion with registry-level `--regional-endpoints` (#32954)
+* `az acr cache create/update`: Add `--identity` parameter to support using user-assigned managed identity for cache rules (#33040)
+
+**AKS**
+
+* Fix #32957: `az aks get-credentials`: Surface user-friendly error instead of unexpected traceback (#32959)
+* `az aks create/update`: Add `--acns-transit-encryption-type` parameter to support configuring pod-to-pod transit encryption (`WireGuard` or `None`) (#32988)
+* `az aks create/update` Add support for ACNS performance (#33018)
+* `az aks namespace update`: Fix the location logic for managed namespace update operation (#33054)
+* `az aks update`: Add `--enable-high-log-scale-mode` parameter to enable/disable High Log Scale Mode for Container Logs (#33039)
+* `az aks enable-addons`: Fix monitoring addon key lookup to handle both `omsagent` and `omsAgent` API response variants (#33039)
+* `az aks disable-addons`: Add retry with exponential backoff for Log Analytics workspace creation conflicts (#33039)
+* `az aks update`: Add `--disable-http-proxy` and `--enable-http-proxy` parameters (#32996)
+
+**API Management**
+
+* `az apim backend`: Add new command group to support backend services (#32569)
+
+**App Config**
+
+* `az appconfig create/update`: Enable linking app insights resource to an app configuration store (#32831)
+* `az appconfig feature set`: Enable telemetry for a feature flag (#32831)
+
+**App Service**
+
+* `az webapp list-runtimes`: Pre-announce breaking changes (#32905)
+* `az logicapp create`: Add parameter `--domain-name-scope` to support specifying the scope of uniqueness for the default hostname during resource creation (#32812)
+* `az webapp update`: Add parameter `--platform-release-channel` to support setting the platform release channel for the web app (#32811)
+* `az appservice plan update`: Remove preview flag for `--elastic-scale` and `--max-elastic-worker-count` parameters (#32807)
+* `az webapp update`: Remove preview flag for `--minimum-elastic-instance-count` and `--prewarmed-instance-count` parameters (#32807)
+* `az webapp up`: Add parameter `--domain-name-scope` to support specifying the scope of uniqueness for the default hostname during resource creation (#32930)
+
+**Cloud**
+
+* Add Bleu to the Known Clouds list (#32856)
+
+**Compute**
+
+* `az vmss create`: Add `--zone-placement-policy` parameter to enable automatic zone selection (#32771)
+* `az vmss create`: Add `--include-zones` parameter to support specifying availability zones that must be considered for placement when `--zone-placement-policy` is set to `Auto` (#32771)
+* `az vmss create`: Add `--exclude-zones` parameter to support specifying availability zones that must be excluded from placement when `--zone-placement-policy` is set to `Auto` (#32771)
+* `az vmss create`: Add `--max-zone-count` parameter to support specifying the maximum number of availability zones to use when `--zone-placement-policy` is set to `Auto` (#32771)
+* `az vmss update`: Add `--max-zone-count` parameter to support specifying the maximum number of availability zones to use for this scale set (#32771)
+* `az vmss create/update`: Add `--value-max-instance-percent-per-zone` parameter to support specifying the maximum percentage of virtual machine instances that can be allocated to a single availability zone in the virtual machine scale set (#32771)
+* `az vmss create/update`: Add `--instance-percent-policy` parameter to support specifying whether maximum percentage of virtual machine instances per zone policy should be enabled on the virtual machine scale set (#32771)
+* `az vm run-command invoke`: Fix `--no-wait` not working (#32979)
+* `az restore-point collection create/update`: Add parameter `--instant-access` (#32953)
+* `az restore-point create`: Add parameter `--instant-access-duration` (#32953)
+
+**Container app**
+
+* `az containerapp env workload-profile add`: Simplify workload-profile creation with default profile name (#32713)
+
+**Event Hubs**
+
+* Fix #31108, #32073: `az eventhubs`: Regex updated for commands with `--namespace-name` arguments (#32472)
+
+**NetAppFiles**
+
+* `az netapfiles volume create/update`: Add paramter `--desired-ransomware-protection-state` to support advanced ransomware reports (#32828)
+* `az netapfiles volume ransomware-report`: Add command group to support advanced ransomware reports (#32828)
+* `az netapfiles volume list-quota-report`: Add command to list quota reports for volumes (#32828)
+
+**Network**
+
+* `az network private-endpoint-connection`: Add provider `Microsoft.DurableTask/schedulers` (#32866)
+* `az network private-endpoint create/update`: Add parameter `--ip-version-type` to support IPv6 (#32937)
+
+**Packaging**
+
+* Add new ways (preview) to install azure-cli on macOS (#32880)
+
+**PostgreSQL**
+
+* `az postgres flexible-server long-term-retention`: Add breaking change announcement for command group removal (#32916)
+
+**Storage**
+
+* Fix #32852: `az storage copy`: Fix Azcopy download link to be using github release links (#32868)
+
+**Synapse**
+
+* Upgrade azure-synapse-artifacts to 0.22.0 (#33012)
+
+2.84.0
+++++++
+
+**AKS**
+
+* `az aks create`: Add `--enable-container-network-logs` parameter to enable container network logs (#32700)
+* `az aks update`: Add `--enable-container-network-logs` and `--disable-container-network-logs` parameters to enable and disable container network logs (#32700)
+* `az aks enable-addons`: Add support for default workspace creation in Bleu and Delos clouds (#32753)
+
+**App Service**
+
+* `az webapp create/config set`: Fix vnet routing to use site-level outbound vnet routing property for API version `2024-11-01` (#32634)
+* `az webapp vnet-integration add`: Fix vnet routing to use site-level outbound vnet routing property for API version `2024-11-01` (#32634)
+* `az functionapp create/vnet-integration add`: Fix vnet routing to use site-level outbound vnet routing property for API version `2024-11-01` (#32634)
+* `az webapp config access-restriction show`: Update to always return values in camel case (#32492)
+* `az webapp list runtimes`: Update logic to include missing Java versions and remove hardcoded lists (#32461)
+* `az webapp create/update`: Add `--end-to-end-encryption-enabled` parameter to support enabling or disabling end-to-end encryption between the front end and the workers (#32629)
+* `az webapp create`: Add `--min-tls-version` parameter to specify the minimum version of TLS (#32629)
+* `az webapp create`: Add `--min-tls-cipher-suite` parameter to specify the minimum TLS Cipher Suite (#32629)
+
+**ARM**
+
+* `az bicep decompile-params`: Add new parameter `--force` to overwrite existing files (#32739)
+* `az deployment`: Fix the issue where the Bicep installation message is printed in the command output (#32552)
+* `az stack group/sub/mg create/validate`: Add `--resources-without-delete-support` parameter to support defining what happens to resources that do not support deletion when they are no longer managed by the stack (#32777)
+* `az stack group/sub/mg create/validate`: Add `--validation-level` parameter to support specifying validation level for the deployment stack (#32777)
+* `az stack group/sub/mg delete`: Add `--resources-without-delete-support` parameter to support defining what happens to resources that do not support deletion when they are no longer managed by the stack (#32777)
+
+**Compute**
+
+* `az vm create`: Add parameters `--data-disk-mbps` and `--data-disk-iops` to support IOPS and MBPS (#32717)
+
+**Container app**
+
+* `az containerapp job create`: Set default values to `--parallelism` and `--replica-completion-count` parameters (#32745)
+
+**Cosmos DB**
+
+* `az cosmosdb update`: Add support for Microsoft Fabric workspace resource IDs in `--network-acl-bypass-resource-ids` (#32797)
+* Fix #32608: `az cosmosdb restore`: Fix "Database Account does not exist" error during polling (#32752)
+
+**Maps**
+
+* `az maps account create`: Add default value for `--sku` (#32711)
+
+**MySQL**
+
+* Fix #32217: `az mysql flexible-server restore`: Fix `--no-wait` flag (#32744)
+
+**Network**
+
+* `az network application-gateway ssl-cert`: Support dedicated backend connection (#32784)
+
+**PostgreSQL**
+
+* `az postgres flexible-server migrate-network`: Add new command to support migrating the network mode of a flexible server (#32819)
+
+**SQL**
+
+* `az sql server/db`: Add support for versionless TDE keys (#32764)
+* `az sql server create/update`: Add `--soft-delete-retention-days` (#32245)
+* `az sql server deleted-server show/list`: Add new command (#32245)
+* `az sql server restore`: Add new command (#32245)
+
+**Storage**
+
+* `az storage share close-handle`: Fix failing to close file handle when in delete pending state (#32697)
+
+2.83.0
+++++++
+
+**ACR**
+
+* `az acr config content-trust update`: Add breaking changes announcement that `enabled` status will no longer be accepted (#32462)
+* `az acr check-health`: Add breaking change announcement that Notary client check will be removed (#32462)
+
+**AKS**
+
+* `az aks create`: Enable ACStor v2 without any storage options on a new cluster by `--enable-azure-container-storage` parameter (#32558)
+* `az aks update`: Enable the ephemeral disk storage option of ACStor v2 by `--enable-azure-container-storage ephemeralDisk` parameter (#32558)
+* `az aks update`: Disable the elastic SAN storage option of ACStor v2 by `--disable-azure-container-storage elasticSan` parameter (#32558)
+* `az aks update`: Disable ACStor v2 by `--disable-azure-container-storage` parameter (#32558)
+
+**App Config**
+
+* `az appconfig`: Add option `anonymous` for `--auth-mode` parameter (#32639)
+
+**App Service**
+
+* Fix #32290: `az functionapp config appsettings set`: Fix command failure when using `--slot-settings` parameter to update existing slot settings (#32291)
+
+**Cognitive Services**
+
+* `az cognitiveservices agent logs show`: Add console log streaming for hosted agents (#32701)
+* `az cognitiveservices agent create`: Add `--show-logs` flag for deployment troubleshooting (#32701)
+* `az cognitiveservices agent start`: Add `--show-logs` and `--timeout` flags (#32701)
+
+**Container app**
+
+* `az containerapp env create`: Update the error display for ConsumptionOnly environment creation (#32648)
+
+**MySQL**
+
+* `az mysql flexible-server restore`: Support restore server to different subscription (#32620)
+* `az mysql flexible-server geo-restore`: Support geo restore server to different subscription (#32620)
+* `az mysql flexible-server replica create`: Support create server replica to different subscription (#32620)
+
+**Network**
+
+* `az network vnet-gateway`: Add identity-related parameters and subgroup (#32524)
+* `az network vpn-connection`: Add `--auth-type` and `--cert-auth` parameters (#32524)
+* `az network virtual-network-appliance`: Support Virtual Network Appliance feature (#32645)
+* `az network ddos-custom-policy`: Support DDoS Policy Customization (#32673)
+
+**Packaging**
+
+* Optimize MSI upgrade performance by simplifying file replacement logic (#32678)
+
+**PostgreSQL**
+
+* `az postgres flexible-server create/georestore/replica`: Allow SSDV2 servers to perform create replica and geo restore (#32649)
+
+**Profile**
+
+* `az login`: For managed identity authentication, no longer retrieve the FQDN of the machine, bypassing hanging or error caused by misconfigured network setup (#32611)
+
+**Storage**
+
+* Fix #32503: `az storage file list`: Fix listing files when using Oauth without Reader access (#32602)
+* `az storage account file-service-properties update`: Add `--require-smb-encryption-in-transit` and `--require-nfs-encryption-in-transit` (#32619)
+* `az storage account create/update`: Add `--publish-ipv6-endpoint` (#26826)
+* `az storage account network-rule add/remove`: Add `--ipv6-address` (#26826)
+* `az storage account create/update`: Set `--min-tls-version` to `tls1_2` if the value provided is `tls1_0` and `tls1_1` (#32652)
+
+2.82.0
+++++++
+
+**ACR**
+
+* `az acr login`: Enforce using acr audience in aad token acquisition (#31798)
+
+**AKS**
+
+* Fix #15932: `az aks install-cli`: Add `--gh-token` parameter to allow authentication when downloading kubelogin (#32536)
+* `az aks nodepool update`: Add GPU driver install options `install` and `none` for `--gpu-driver` parameter (#32531)
+* `az aks nodepool add/update`: Add option `Ubuntu2404` to `--os-sku` parameter (#32509)
+
+**App Service**
+
+* `az appservice list-locations`: Add `--managed-instance-enabled` parameter for managed instances (#32444)
+
+**Cognitive Services**
+
+* `az cognitiveservices agent create`: Add ability to create and deploy hosted agent in AI Foundry (#32430)
+
+**Compute**
+
+* `az vmss list-instances`: Add new argument `--resiliency-view` to show resiliency status of each instance (#32496)
+* `az vmss get-resiliency-view`: Add new command to show resiliency status of each instance (#32496)
+* `az sig image-version create/update`: Add warning message for Azure Compute Gallery resources from api-version `2026-03-03` (#32494)
+
+**Container app**
+
+* `az containerapp env create`: Add parameter `--infrastructure-resource-group` to support specifying name for resource group that will contain infrastructure resources (#32457)
+* Fix #32594: `az containerapp compose create`: Fix `TypeError` when docker-compose file include `env_file` without `environment` (#32601)
+
+**Cosmos DB**
+
+* `az cosmosdb fleet`: Add new fleet feature (#32390)
+* `az cosmosdb create/update`: Add support for `--disable-local-auth` (#32530)
+* `az cosmosdb restore`: Fix for cross region restore for cosmosdb (#32589)
+
+**Identity**
+
+* `az identity create`: Add new `--isolation-scope` parameter to support identity isolation scope (#31938)
+* `az identity update`: Add new command to support updating an identity (#31938)
+
+**Key Vault**
+
+* `az keyvault key create/import`: Add `--default-data-disk-policy` to support new default SKR policy (#32538)
+
+**Monitor**
+
+* `az monitor dashboard`: Support dashboard with Grafana (#32414)
+
+**MySQL**
+
+* `az mysql flexible-server backup delete`: Support deletion of on-demand backup (#32547)
+
+**Network**
+
+* `az network application-gateway settings`: Support `enableL4ClientIpPreservation` property via `--enable-l4-client-ip` (#32442)
+* `az network application-gateway probe`: Support `enableProbeProxyProtocolHeader` property via `--enable-proxy-header` (#32442)
+* `az network application-gateway waf-policy managed-rule rule-set`: Support disabled rules by default (#32488)
+* `az network virtual-appliance`: Add `--nva-interface-configurations` parameter (#32470)
+* `az network watcher flow-log`: Add `--record-types` parameter (#32490)
+* `az network private-endpoint-connection`: Add provider `Microsoft.Maps/accounts` (#32421)
+
+**Packaging**
+
+* Pin pywin32 to version 310 to resolve the MSI upgrade issue (#32557)
+
+**RDBMS**
+
+* `az postgres flexible-server update/fabric-mirroring`: Allow high availability enabled servers to start fabric mirroring if PG version 17+ (#32468)
+* `az postgres flexible-server create/update`: Show high availability feature with zonal resiliency argument (#32482)
+* `az postgres flexible-server create/update`: Enable support for High Availability on servers with PremiumV2_LRS storage type (#32542)
+* `az postgres flexible-server index-tuning`: Deprecate and redirect to `az postgres flexible-server autonomous-tuning` command group (#32546)
+* `az postgres flexible-server autonomous-tuning list-index-recommendations/list-table-recommendations`: Support listing index recommendations and table recommendations (#32546)
+* `az postgres flexible-server update`: Fix bug for using argument `--standby-zone` when enabling high availability (#32559)
+* `az postgres flexible-server upgrade`: Allow major version upgrade to PostgreSQL Version 18 (#32565)
+* `az postgres flexible-server create`: Add database name field for create with cluster (#32570)
+* `az postgres flexible-server backup/db/firewall-rule/identity/long-term-retention/microsoft-entra-admin/migration/parameter/replica list`: Allow `--ids` use for list commands (#32561)
+* `az postgres flexible-server create`: Change database name field to default to None (#32587)
+* `az postgres flexible-server replica create`: Add `--name` argument to specify read replica name (#32560)
+
+**SQL**
+
+* `az sql mi create/update`: Add memory size in gb parameter (#32466)
+
+**Storage**
+
+* `az storage blob/container/fs generate-sas`: Add `--user-delegation-oid` (#32508)
+* `az storage fs file generate-sas`: Add command and support `--user-delegation-oid` (#32508)
+* `az storage fs directory generate-sas`: Add `--user-delegation-oid` (#32508)
+* `az storage share/file/queue generate-sas`: Add `--as-user` and `--user-delegation-oid` (#32508)
+
+2.81.0
+++++++
+
+**AKS**
+
+* `az aks safeguards`: Add `--pss-level` parameter to support Pod Security Standards (#32432)
+* `az aks safeguards create`: Add validation to prevent duplicate resource creation (#32432)
+
+**ARM**
+
+* Fix #32098: `az bicep install`: Fix a bug where the installation was skipped when `--version` was specified unless `bicep.use_binary_from_path` was explicitly set to `false` (#32337)
+
+**Compute**
+
+* `az vm/vmss application set`: Add new parameter `--enable-automatic-upgrade` to support enabling application automatic upgrade (#32394)
+
+**NetAppFiles**
+
+* `az netappfiles volume-group create`: Add `--network-features` parameter for volume groups (#32423)
+* `az netappfiles volume replication list`: Add `--exclude` parameter to exclude deleted replications (#32423)
+
+2.80.0
+++++++
+
+**AKS**
+
+* [BREAKING CHANGE] `az aks create`: Make `--no-ssh-key` default behaviour (#32254)
+* `az aks namespace add/update/show/list/delete/get-credentials`: Add namespace command to support managed namespace feature (#32387)
+* `az aks create`: Add `KataVmIsolation` option for `--workload-runtime` parameter (#32020)
+* `az aks nodepool add`: Add `KataVmIsolation` option for `--workload-runtime` parameter (#32020)
+* `az aks mesh enable-egress-gateway/disable-egress-gateway`: Add commands to manage Azure Service Mesh egress gateway (#32386)
+* `az aks nodepool add/update`: Add parameter `--localdns-config` to config local dns profile for the nodepool (#32392)
+* `az aks upgrade`: Update user confirmation prompt of `--control-plane-only` parameter (#32404)
+
+**App Service**
+
+* `az appservice plan`: Add features for managed instance app service plans (#32344)
+* `az functionapp plan create`: Add elastic premium as supported SKU for zone redundency (#32319)
+
+**Batch**
+
+* [BREAKING CHANGE] `az batch pool create`: Remove deprecated argument `--target-communication` and `--resource-tags` (#32397)
+* [BREAKING CHANGE] `az batch pool reset/set`: Remove deprecated argument `--target-communication` (#32397)
+
+**Cognitive Services**
+
+* `az cognitiveservices account connection`: Add AI Foundry account connection management (#32336)
+* `az cognitiveservices account project`: Add AI Foundry account project management (#32336)
+* `az cognitiveservices account project connection`: Add AI Foundry account project connection management (#32336)
+* `az cognitiveservice agent`: Add command group (#32372)
+
+**Compute**
+
+* `az vm/vmss create/update`: Support `--add-proxy-agent-extension` parameter to specify whether to implicitly install the ProxyAgent Extension (#32298)
+
+**Container app**
+
+* `az containerapp env`: Remove `--min-replicas/max-replicas` from premium ingress (#32360)
+
+**DMS**
+
+* `az dms project create`: Change location parameter to be optional (#31465)
+
+**NetAppFiles**
+
+* [BREAKING CHANGE] `az netappfiles volume create/update`: Remove deprecated argument `--endpoint-type`, this property is readOnly (#32395)
+
+**Network**
+
+* `az network application-gateway http-settings`: Support dedicated backend connection and certificate validation (#32332)
+* `az network application-gateway waf-policy managed-rule`: Support `Microsoft_HTTPDDoSRuleSet` rule set (#32374)
+* `az network application-gateway waf-policy`: Remove option `None` for WAF rule sensitivity (#32374)
+* `az network private-endpoint-connection`: Add provider `Microsoft.Security/privateLinks` (#32396)
+
+**Packaging**
+
+* Drop Python 3.9 support (#32381)
+
+**RDBMS**
+
+* [BREAKING CHANGE] `az postgres server/db/server-logs`: Remove single server commands (#32388)
+* [BREAKING CHANGE] `az postgres flexible-server create`: Remove default value to `--version` and remove arguments `--create-default-database` and `--database-name` (#32398)
+
+**Service Fabric**
+
+* [BREAKING CHANGE] `az sf managed-application update`: Remove argument options `--service-type-policy`, `--upgrade-replica-set-check-timeout`, `--max-porcent-unhealthy-partitions`, `--max-porcent-unhealthy-replicas`, `--max-porcent-unhealthy-services`, `--max-porcent-unhealthy-apps` to fix `--help` formatting (#31814)
+* [BREAKING CHANGE] `az sf application update`: Remove argument options `--service-type-policy`, `--upgrade-replica-set-check-timeout`, `--instance-close-duration`, `--consider-warning-as-error`, `--max-percent-unhealthy-partitions`. `--max-percent-unhealthy-replicas`, `--max-percent-unhealthy-replicas`, `--max-percent-unhealthy-deployed-applications` to fix `--help` formatting (#31814)
+
+**Storage**
+
+* `az storage account failover`: Add `Unplanned` to `--failover-type` for Planned failover GA (#32384)
+* Fix #32399: `az storage file list`: Fix not showing additional info when listing files without set protocol (#32405)
+
+2.79.0
+++++++
+
+**ACR**
+
+* `az acr create/update`: Remove preview flag for `--role-assignment-mode` (#32212)
+* `az acr check-health`: Remove preview flag for `--repository` (#32212)
+* `az acr task create/update`: Remove preview flag for `--source-acr-auth-id` (#32212)
+* `az acr build/run`: Remove preview flag for `--source-acr-auth-id` (#32212)
+* `az acr config content-trust`: Add deprecation notice (#32196)
+* `az acr config content-trust show/update`: Add deprecation notice (#32196)
+
+**AKS**
+
+* `az aks update`: Add support to remove existing certificates by setting the value of `--custom-ca-trust-certificates` to an empty file (#32201)
+* `az aks create/update`: Add `--acns-advanced-networkpolicies` parameter to support enabling advanced networking policies (`None`, `L7` or `FQDN`) (#32265)
+
+**ARM**
+
+* `az resource list`: Include `provisioningState` property in table output (#32156)
+
+**Backup**
+
+* `az backup vault deleted-vault`: Implementing List and Undelete for Deleted Backup Vaults (#32306)
+
+**Compute**
+
+* `az vm availability-set update`: Add new parameter `--enable-all-instance-down` to support setting scheduled events profile (#32285)
+* `az vm availability-set update`: Add new parameter `--scheduled-events-api-version` to support setting scheduled events profile (#32285)
+
+**Container app**
+
+* `az containerapp`: Update Api-version to 2025-07-01 (#32179)
+* `az containerapp env http-route-config`: Add command group to manage environment level http routing (#32240)
+* `az containerapp env premium-ingress`: Add command group to configure premium ingress settings for the environment (#32240)
+* Fix #32107: `az containerapp registry show`: Fix NoneType error when container app doesn't have any registry server (#32270)
+
+**HDInsight**
+
+* `az hdinsight create`: Support creating Entra-enabled clusters and creating clusters with WASB + MSI (#32273)
+* `az hdinsight credentials update`: Update cluster credentials (#32273)
+* `az hdinsight credentials show`: Show current cluster credentials (#32273)
+
+**Network**
+
+* `az network application-gateway create/update`: Add parameter `--enable-fips` (#32339)
+
+**SQL**
+
+* `az sql db update`: Prevent overwrite of SLO when updating from serverless to provisioned (#32292)
+* `az db ltr-backup/ltr-policy`: Remove preview tag for time-based immutability (#32297)
+
+**Storage**
+
+* `az storage account network-security-perimeter-configuration list/show/reconcile`: Add support for network-security-perimeter (#32294)
+* `az storage file list`: Fix file list for nfs shares, as `--include` is not supported (#32268)
+* `az storage account create/update`: Add `--enable-blob-geo-priority-replication` to support Geo SLA (#32331)
+* `az storage account or-policy create/update`: Add `--priority-replication` to support OR SLA (#32331)
+
+2.78.0
+++++++
+
+**ACS**
+
+* `az aks create`: Pre-announce `--no-ssh-key` default behaviour breaking change (#32205)
+
+**AKS**
+
+* `az aks nodepool add/update`: Add option `AzureLinux3` to `--os-sku` parameter (#31979)
+* `az aks create/update`: Fix handling for `--container-storage-version` parameter (#32015)
+* `az aks create`: Fix the issue where enabling v1 container storage does not fail if the VM SKU field is left empty (#32109)
+* `az aks get-credentials`: Convert device code mode kubeconfig to Azure CLI token format to bypass conditional access login blocks (#32167)
+
+**App Config**
+
+* `az appconfig kv export`: Escape keys only when exporting to properties file (#32010)
+* `az appconfig kv set/import`: Add support for JSON comments (#32130)
+
+**App Service**
+
+* Fix #32044: `az functionapp deployment source config-zip`: Fix uploaded blob not containing content (#32119)
+* `az functionapp create`: Remove preview from Flex Consumption parameters (#32122)
+* `az functionapp create`: Add the `--domain-name-scope` support (#32110)
+* `az webapp config appsettings set`: Fix SyntaxWarning invalid decimal literal (#32136)
+* `az appservice plan create/update`: Add async scaling parameter `--async-scaling-enabled` (#32123)
+* `az webapp deploy`: Encode target path parameter (#32049)
+* `az webapp deploy`: Change the token retrieval function to use the App Service Audience (#31988)
+* `az webapp create`: Include regional site name availability check for DNL site creations (#32184)
+
+**ARM**
+
+* `az deployment`: Fix bicep template size inflation with differential template handling (#31990)
+* Fix #31581: `az deployment group create`: Fix error message being hidden when template validation fails (#31965)
+
+**Backup**
+
+* `az backup protection reconfigure`: Add new command to support reconfiguring backup to an alternate vault (#32193)
+
+**Batch**
+
+* Fix #32086, #32090: `az batch application package create`: Fix blob not being uploaded (#32106)
+
+**Cognitive Services**
+
+* `az cognitiveservices account create`: Add `--allow-project-management` argument (#32089)
+* `az cognitiveservices account update`: Add `--kind` argument for OpenAI<->AIServices account (#32089)
+
+**Compute**
+
+* Fix #31198: `az sig image-version`: Fix `--no-wait` not working (#32078)
+* Fix #31929: `az vm/vmss update`: Fix `--wire-server-profile-id` and `--imds-profile-id` update (#32129)
+* `az vm disk attach`: Add new parameter `--new-names-of-source-snapshots-or-disks` to support setting the name of create new disk from a snapshot or another disk (#32172)
+* `az vm disk attach`: Add new parameter `--new-names-of-source-disk-restore-point` to support setting the name of create new disk from a disk restore point (#32172)
+* `az vm availability-set`: Add new command to support validating migration from availability sets to VMSS (#32180)
+* `az vm availability-set`: Add new command to support starting migration from availability sets to VMSS (#32180)
+* `az vm availability-set`: Add new command to support canceling migration from availability sets to VMSS (#32180)
+* `az vm availability-set`: Add new command to support converting availability sets to VMSS (#32180)
+* `az vm`: Add new command `migrate-to-vmss` to support migratiing VM to VMSS (#32180)
+* `az disk create/update`: Add new parameter `--supported-security-option` to support setting supported security option (#32186)
+* `az disk create/update`: Add new parameter `--action-on-disk-delay` to support setting disk availability policy (#32186)
+
+**Key Vault**
+
+* `az keyvault create`: Support `--network-acls-ips` while creating Managed HSM (#32142)
+* `az keyvault network-rule add/remove/list/wait`: Support ip rule configuration for Managed HSM (#32142)
+
+**MySQL**
+
+* `az mysql flexible-server create/update`: Support Accelerated Logs for GeneralPurpose (#32175)
+
+**NetAppFiles**
+
+* `az netappfiles volume splitclonefromparent`: Add new command to split clone volume from parent volume (#31933)
+* `az netappfiles volume create`: Add parameter `--grow-pool-clone-split` (#31933)
+* `az netappfiles pool create`: Add new Enum value `Flexible` for `ServiceLevel` (#31933)
+* `az netappfiles volume create`: Add new Enum value `Flexible` for `ServiceLevel` (#31933)
+* `az netappfiles pool create`: Add parameter `--custom-throughput-mibps` (#31933)
+
+**Network**
+
+* `az network nat gateway create`: Support `--sku` to accept `standardv2` (#32050)
+* `az network public-ip create`: Support `--sku` to accept `standardv2` (#32050)
+* `az network vnet-gateway create`: Remove public IP requirement in gateway creation (#32161)
+
+**SQL**
+
+* `az sql server create`: Add `--tags` parameter to supply tags (#31983)
+* `az sql db ltr-backup`: Add new commands for LTR immutability support (#32018)
+
+**Storage**
+
+* `az storage account or-policy create/update`: Add `--enable-metrics` to support object replication metrics (#32082)
+* Fix #32048: `az storage blob sync`: Fix using azcopy with account-key without login into azcli (#32127)
+* `az storage account create/update`: Support `--enable-smb-oauth` to allow managed identities to access SMB shares using OAuth (#32177)
+* `az storage sku list`: Support listing storage skus (#32182)
+* `az storage file symoblic-link create/show`: Support NFS fileshare symbolic link (#32187)
+* `az storage account create/update`: Add `--zones` and `--zone-placement-policy` to support setting zones and availability zone pinning policy (#32192)
+
+2.77.0
+++++++
+
+**ACR**
+
+* `az acr task create`: Fix error message when `--context` is not provided (#31897)
+
+**AKS**
+
+* `az aks create`: Change description for `--os-sku` parameter (#31922)
+* `az aks create/update`: Support installing latest version of acstor on the cx cluster by `--enable-azure-container-storage` parameter (#31966)
+* `az aks create/update`: Support specifying installation version of acstor by `--container-storage-version` when setting `--enable-azure-container-storage` (#31966)
+* `az aks update`: Support uninstalling acstor from the cx cluster by `--disable-azure-container-storage` regardless of the installed version (#31966)
+* `az aks create/update`: Add `--sku` parameter to support automatic feature (#31981)
+* `az aks update`: Fix typo on validation error for disabling Azure Container Storage (#31987)
+
+**App Config**
+
+* `az appconfig kv import`: Support importing key-values from AKS ConfigMap (#31861)
+
+**App Service**
+
+* `az webapp deploy`: Add `--enable-kudu-warmup` parameter to support warm-up Kudu before making deployment (#31880)
+* `az functionapp flex-migration`: Add commands to support migrating CV1 apps to Flex (#31865)
+
+**ARM**
+
+* `az ts`: Capture subscription id from template resource id (#31896)
+
+**Backup**
+
+* `az backup restore restore-azurefileshare`: Fix a bug where the source storage account is deleted and the required sourceResourceId property is missing from the restore request payload (#31889)
+
+**Compute**
+
+* Fix #31885: `az vm encryption`: Fix request body serialization (#31894)
+* `az disk create/grant-access`: Support Confidential VM OS Disks (#31934)
+* `az snapshot create`: Add new parameter `--instant-access-duration-minutes` to support creating instant access snapshot for premium SSD v2 and ultra disk (#31891)
+
+**Container app**
+
+* Fix #31762: `az containerapp job list`: Fix bug only 20 items are returned (#31888)
+* `az containerapp job update`: Fix `--min-executions` and `--max-executions` not accepting 0 values (#31906)
+
+**IoT**
+
+* `az iot hub devicestream`: Mirgate this command group to `azure-iot` extension (#31913)
+
+**MySQL**
+
+* `az mysql flexible-server upgrade`: Add new option `8.4` for `--version` (#31998)
+
+**Network**
+
+* `az network nat gateway`: Support Standard V2 SKU and Public IP (Prefixes) V6 (#31908)
+* `az network public-ip`: Support Standard V2 SKU (#31908)
+* `az network public-ip prefix`: Support Standard V2 SKU (#31908)
+* `az network vnet show/list`: Support `defaultPublicNatGateway` output for StandardV2 NAT Gateway (#31908)
+* Fix #31954: `az network application-gateway waf-policy custom-rule`: Deserialization errors within `computedDisabledRules` (#31908)
+* `az network vnet-gateway`: Support VNET Gateway insights (#31984)
+* `az network vnet-gateway`: Support VNET Gateway failover (#31986)
+
+**Packaging**
+
+* Support Python 3.13 (#31895)
+* Bump embedded Python to 3.13.7 (#31928)
+
+**Profile**
+
+* `az account get-access-token`: Specifying `--tenant` with the current tenant is now allowed for Cloud Shell and managed identity account (#31869)
+* `az login`: Support `--claims-challenge` in device code flow (#31856)
+
+**RDBMS**
+
+* `az postgres flexible-server create/update/restore`: Premium SSD V2 is no longer supported with Burstable compute tier (#31948)
+* `az postgres flexible-server update`: Bypass fabric mirroring validation to allow updating high availability status for PG11 and PG12 servers (#31944)
+
+**Service Fabric**
+
+* `az sf managed-application update`: Add breaking change pre-announcement warnings for argument option removal (#31912)
+* `az sf managed-application-type version update`: Add breaking change pre-announcement warnings for required argument `--package-url` (#31912)
+* Fix #5338: `az sf cluster create`: Fix the bug where key-vault not placed in location specifed by `--location` (#31883)
+* Fix #5180: `az sf cluster create`: Change behavior to read cluster_name from parameters file if provided (#31816)
+
+2.76.0
+++++++
+
+**ACR**
+
+* Fix #31572: `az acr check-health`: Fix crashes when the registry is not found (#31753)
+* `az acr create`: Fix domain name label suffix validation (#31783)
+
+**AKS**
+
+* `az aks machine show/list`: Add zones to table output (#31668)
+* `az aks`: Support Virtual Machines node pools in AKS commands (#31780)
+* `az aks update`: Support VMAS to VMS agent pool migration in AKS commands (#31831)
+* `az aks create/update`: Add new parameter `--enable-ai-toolchain-operator` to enable Kaito addon (#31485)
+* `az aks create/update`: Add `--node-provisioning-mode` and `--node-provisioning-default-pools` parameters (#31836)
+* `az aks safeguards`: Add command group to manage deployment safeguards (#31793)
+* `az aks create`: Support the Azure Monitor metrics and logs addon functionality (#31828)
+* `az aks create`: Add new parameter `--disable-run-command` to disable run command feature for the cluster (#31854)
+* `az aks update`: Add new parameters `--disable-run-command` and `--enable-run-command` to toggle the run command feature on or off (#31854)
+* `az aks update`: Support updating load balancer sku from basic to standard (#31874)
+
+**App Config**
+
+* `az appconfig create/update`: Add support for setting key value revision retention period (#31725)
+* `az appconfig feature list/delete/set`: Support filtering by tags (#31711)
+
+**App Service**
+
+* `az webapp create`: Add `--domain-name-scope` parameter to support DNL scopes during site creation (#31863)
+* `az webapp sitecontainers convert`: Add a command to switch between sitecontainers and classic (#31790)
+
+**ARM**
+
+* `az group export`: Add `--export-format` to specify the format of the exported template (#31667)
+* Fix #31709: `az deployment`: Fix `the content for this response was already consumed` error when create resource (#31722)
+* `az deployment create/validate/what-if`: Expose `--validation-level` parameter at all scopes (#31747)
+
+**Backup**
+
+* `az backup restore restore-disks`: Add new parameter `--cvm-os-des-id` to specify the Disk Encryption Set ID to use for OS disk encryption (#31853)
+
+**Cloud**
+
+* Change `active_directory_graph_resource_id` endpoint of `AZURE_US_GOV_CLOUD` to `https://graph.microsoftazure.us/` (#31849)
+
+**Compute**
+
+* `az sig in-vm-access-control-profile`: Add command group to manage in VM access control profile (#31720)
+* `az sig in-vm-access-control-profile-version`: Add command group to manage in VM access control profile version (#31720)
+* `az vm disk attach`: Add new parameters `--source-snapshots-or-disks` `--source-disk-restore-point` to support implicit disk creation from snapshot and disk restore points (#31830)
+* `az vmss create`: Add new parameter `--enable-automatic-repairs` to support setting automatic repairs policy (#31722)
+* Fix #31685: `az vm/vmss update`: Fix error with `NoneType` object has no attribute `mode` when update wireserver profile (#31855)
+* `az vm disk attach`: Add support for setting disk size and sku of implicit disk creation from snapshot and disk restore points (#31862)
+* `az compute-recommender spot-placement-score`: Add new command to replace original command `az compute-recommender spot-placement-recommender` (#31858)
+
+**Container**
+
+* `az container create`: Remove default values for container group to support standby pool reuse scenario (#31824)
+
+**Cosmos DB**
+
+* `az cosmosdb restore`: Remove restore validations which would cause timeouts for large restore and incorrect error messages (#31792)
+
+**DMS**
+
+* `az dms project create`: Add breaking change warning (#31759)
+
+**Eventhub**
+
+* `az eventhubs namespace`: Add `nsp-configuration show` and `nsp-configuration list` (#31846)
+
+**MySQL**
+
+* `az mysql flexible-server create/update`: Update `--storage-redundancy` parameter and add `--backup-interval` (#31813)
+
+**Network**
+
+* `az network application-gateway waf-policy`: Support `computedDisabledRules` read-only property (#31755)
+* `az network application-gateway waf-policy custom-rule create`: Support `GeoLocationXffHeader`, `ClientAddrXffHeader` for `groupByVariables` (#31767)
+* Fix #31727: `az network private-link-service create`: Support multiple IP configurations (#31735)
+
+**Packaging**
+
+* Support RHEL 10 and CentOS Stream 10 (#31602)
+
+**Profile**
+
+* `az login`: Add `--claims-challenge` argument to support interactive authentication with claims challenge (#31778)
+
+**RDBMS**
+
+* `az postgres flexible-server replica create/promote`: Enable replica operations for elastic cluster operations (#31705)
+* `az postgresql flexible-server create`: Handle failed IP address check (#31834)
+
+**Service Fabric**
+
+* `az sf managed-cluster network-security-rule`: Add new parameter `--source-addr-prefix` to specify the CIDR or source IP range (#31714)
+* `az sf managed-cluster network-security-rule`: Add new parameter `--dest-addr-prefix` to specify the destination port or range (#31714)
+* `az sf managed-cluster network-security-rule`: Add new parameter `--source-port-range` to specify the CIDR or source IP range (#31714)
+* `az sf managed-cluster network-security-rule`: Add new parameter `--dest-port-range` to specify the destination address prefix (#31714)
+* `az sf cluster create`: Add more options for parameter `--vm-os` (#31808)
+* `az sf managed-node-type update`: Add parameters `--vm-size` and `--tags` (#31844)
+
+**SQL**
+
+* `az sql ltr-policy set`: Remove ltr backup policy unused parameter `--access-tier` (#31466)
+* `az sql failover-group create`: Add support for multiple partner failover groups (#31782)
+
+2.75.0
+++++++
+
+**ACR**
+
+* `az acr connected-registry create`: Fix for enabling dedicated endpoint on container registry resource when user confirms during creation (#31661)
+* `az acr login`: Fix login status code when command fails (#31692)
+
+**AKS**
+
+* `az aks create`: Simplify logic and enable correct recording rule groups for managed prom (#31460)
+* `az aks`: Allow `LongRunningOperation` to show poller status (#30903)
+* `az aks update`: Add option `--assignee-principal-type` to specify the principal type when using `--attach-acr` (#31464)
+* `az aks create`: Add `--enable-static-egress-gateway` parameter to support static egress gateway feature (#31285)
+* `az aks update`: Add `--enable-static-egress-gateway` parameter to support static egress gateway feature (#31285)
+* `az aks nodepool add`: Add option `Gateway` to `--mode` parameter and `--gateway-prefix-size` parameter to support static egress gateway feature (#31285)
+* `az aks create`: Add `--pod-ip-allocation-mode` parameter to support Azure CNI Static Block Allocation (#31544)
+* `az aks nodepool add`: Add `--pod-ip-allocation-mode` parameter to support Azure CNI Static Block Allocation (#31544)
+
+**App Config**
+
+* `az appconfig kv export/import/list/delete`: Support filtering by tags (#30694)
+* `az appconfig restore`: Support filtering by tags (#30694)
+* `az appconfig revision list`: Support filtering by tags (#30694)
+* `az appconfig kv import/export/restore`: Add new parameter `--dry-run` to support dry-run feature (#30842)
+
+**ARM**
+
+* `az deployment what-if`: Show potential changes in pretty-printed what-if result (#30930)
+* `az deployment what-if`: Display warnings and diagnostic messages in pretty-printed what-if result (#30930)
+
+**ARO**
+
+* `az aro update`: Fix credential refresh to handle clusters with invalid machinesets (#31593)
+
+**Cloud**
+
+* `az cloud register/update`: Add `--endpoint-microsoft-graph-resource-id` to support configuring Microsoft Graph endpoint (#31651)
+* `az cloud register/update`: Add `--skip-endpoint-discovery` to allow skipping cloud endpoints' auto discovery (#31651)
+
+**Compute**
+
+* [BREAKING CHANGE] `az vmss create/update`: Remove too long argument option `--scheduled-event-additional-publishing-target-event-grid-and-resource-graph` to fix help message issue (#31687)
+
+**Consumption**
+
+* `az consumption usage list`: Fix usage list returns data with replace `None` string to null value (#31601)
+
+**Container app**
+
+* `az containerapp update`: Modify `--yaml` template handling to fix `runningStatus` error (#31508)
+* Fix #31480: `az containerapp revision copy`: Only return `containerapp does not exist` when got 404 (#31689)
+
+**Identity**
+
+* Fix #31598: Fix regression in `az identity federated-credential create` by defaulting audience (#31609)
+
+**Key Vault**
+
+* `az keyvault secret download`: Add `--overwrite` flag (#31659)
+
+**Network**
+
+* `az network nat gateway`: Support Standard V2 SKU (#31532)
+* `az network public-ip`: Support Standard V2 SKU (#31532)
+* `az network public-ip prefix`: Support Standard V2 SKU (#31532)
+* `az network application-gateway waf-policy managed-rule exception`: Support exception feature in application gateway (#31610)
+* `az network vnet subnet create/update`: Support IPAM pool allocation (#31643)
+
+**Packaging**
+
+* Drop Azure Linux (Mariner) 2.0 support (#31533)
+
+**RDBMS**
+
+* `az postgres flexible-server create`: Extend EOL to PG 11 and 12 (#31693)
+
+**Service Fabric**
+
+* Fix #18358: `az sf client-certificate add`: Fix the bug that command fails with `remove` not defined (#31632)
+
+**SQL**
+
+* `az sql db replica create`: Add partner subscription id for cross-subscription GeoDr (#31594)
+
+**Storage**
+
+* `az storage account create/update`: Add `--sas-expiration-action` to sas policy (#31674)
+* `az storage file upload-batch/download-batch`: Add OAuth login support (#31567)
+
+2.74.0
+++++++
+
+**ACR**
+
+* `az acr login`: Add `refreshToken` and `username` fields to the output after using `--expose-token` parameter (#31091)
+* `az acr create`: Fix logs for domain name label (#31423)
+* `az acr connected-registry`: Remove private preview message (#31475)
+
+**AKS**
+
+* `az aks nodepool add/update/upgrade`: Add new parameter `--undrainable-node-behavior` to specify whether nodes can be cordoned during upgrade (#31495)
+* `az aks create/enable-addons`: Remove preview flag for `--enable-high-log-scale-mode` parameter (#31531)
+* `az aks nodepool add/update/upgrade`: Add `--max-unavailable` to specify he maximum number or percentage of nodes that can be simultaneously unavailable during upgrade (#31510)
+
+**App Config**
+
+* Fix #30619: `az appconfig feature set`: Fix invalid value for `--requirement-type` (#31471)
+* Fix #30619: `az appconfig kv import`: Fix invalid value for `--requirement-type` (#31471)
+
+**App Service**
+
+* `az appservice plan create`: Update the description of `--zone-redundant` parameter (#31437)
+* `az webapp config set`: Remove number of workers validation (#31443)
+
+**ARM**
+
+* `az policy`: Add breaking change pre-announcement (#31458)
+
+**Backup**
+
+* `az backup container/item/policy/protection`: Add support for ASE backup operations (#31413)
+* `az backup`: Add support for HANA Snapshot (#27932)
+
+**Compute**
+
+* `az vm/vmss create`: Add warning log for changing the default value of VM size (#31409)
+
+**Cosmos DB**
+
+* `az cosmosdb sql container`: Add Full Text Policy support (#31425)
+
+**Identity**
+
+* `az identity federated-credential create/update`: Add support for claims matching expressions (#31436)
+
+**Monitor**
+
+* `az monitor action-group`: Support `--incident-receivers`,  `--mi-user-assigned` and `--mi-system-assigned`(#31205)
+
+**MySQL**
+
+* `az mysql flexible-server create`: Change default storage redundancy for BC SKU to local redundancy (#31537)
+
+**NetAppFiles**
+
+* `az netappfiles volume-group create`: Add support for Oracle in ANF Volume Groups (#31528)
+
+**Network**
+
+* `az network vnet-gateway create`: Add `--enable-high-bandwith-vpn-gateway` parameter (#31100)
+* `az network vpn-connection show`: Support new properties output with virtual network gateway (#31100)
+* `az network vnet-gateway migration`: Support vpn gateway migration feature (#31429)
+* `az network private-endpoint-connection`: Add provider `Microsoft.FluidRelay/fluidRelayServers` (#31472)
+* `az network network-watcher packet-capture`: Support for packet capture includes a ring buffer (#30784)
+* `az network private-endpoint-connection`: Add provider `Microsoft.VideoIndexer/accounts` (#31549)
+
+**RDBMS**
+
+* `az postgres flexible-server create/db`: Fix for `--database-name` validation (#31542)
+
+2.73.0
+++++++
+
+**ACR**
+
+* `az acr connected-registry create/update`: Add new parameter `--gc-enabled` which enables or disables garbage collection on a connected registry (#30956)
+* `az acr connected-registry create/update`: Add new parameter `--gc-schedule` which uses cron expression to set a collection interval (#30956)
+* `az acr create/update`: Add a new optional parameter `--role-assignment-mode` to specify the role assignment mode for new or existing registries. This parameter allows customers to enable or disable Attribute-Based Access Control (ABAC) (#31065)
+* `az acr check-health`: Add a new optional parameter `--repository` to check read, write, and delete permissions for a specific repository (#31065)
+* `az acr task create/update`: Add a new optional parameter `--source-acr-auth-id` to specify the managed identity used for authentication with the source registry (#31069)
+* `az acr build`: Add a new optional parameter `--source-acr-auth-id` to specify the identity used for authentication with the source registry (#31069)
+* `az acr run`: Add a new optional parameter `--source-acr-auth-id` to specify the identity used for authentication with the source registry (#31069)
+* `az acr create`: Remove preview flag from `--allow-trusted-services` (#31372)
+
+**AKS**
+
+* [BREAKING CHANGE] `az aks create`: Change default value of option `--node-vm-size` to "" (#31424)
+* [BREAKING CHANGE] `az aks nodepool add`: Change default value of option `--node-vm-size` to "" (#31424)
+* `az aks create/update`: Add support for apiserver vnet integration feature (#31318)
+* `az aks create/approuting`: Add default NIC config for app routing (#31286)
+* Fix #31265: `az aks enable-addons`: Fix UnboundLocalError when setting specific dataCollectionSettings (#31400)
+
+**App Service**
+
+* [BREAKING CHANGE] `az appservcie ase create/update/delete`: Remove support for ASEv2 (#31373)
+* `az webapp list-runtimes`: Update API response filter logic (#31312)
+* `az functionapp plan update`: Add zone redundant update support for Flex (#31415)
+
+**Backup**
+
+* [BREAKING CHANGE] `az backup protection enable-for-vm`: Support for protecting TVM with standard policy (#31410)
+
+**Cloud**
+
+* [BREAKING CHANGE] `az cloud register/update`: No `gallery` endpoint returned if use endpoint discovery with `--endpoint-resource-manager` (#30682)
+* `az cloud register/update`: Support data plane endpoints auto discovery with `--endpoint-resource-manager` (#30682)
+
+**Compute**
+
+* [BREAKING CHANGE] `az sig image-definition list-community/list-shared`: Replace pagination parameters with new parameters `--max-items` and `--next-token` (#31317)
+* [BREAKING CHANGE] `az sig image-version list-community/list-shared`: Replace pagination parameters with new parameters `--max-items` and `--next-token` (#31317)
+* `az vm/vmss create`: Fix missing auxiliary tokens (#31287)
+* `az vmss create/update`: Add new parameter `--enable-automatic-zone-balancing` to support setting automatic zone rebalancing policy (#31377)
+* `az vmss create/update`: Add new parameter `--automatic-zone-balancing-strategy` to support setting automatic zone rebalancing policy (#31377)
+* `az vmss create/update`: Add new parameter `--automatic-zone-balancing-behavior` to support setting automatic zone rebalancing policy (#31377)
+* `az vmss create/update`: Add new parameter `--skuprofile-rank` to specify a list of ranks to use with VMSS instance mix SKU profile VM sizes (#31255)
+
+**DMS**
+
+* `az dms project task create`: Add ability to use a lockless option for ensuring data consistency (#31448)
+
+**Key Vault**
+
+* `az keyvault key get-attestation`: Support getting a MHSM key's attestation (#31427)
+
+**Monitor**
+
+* `az monitor log-analytics workspace failover/failback`: Add new commands for supporting activating and deactivating workspace failover (#31385)
+
+**NetAppFiles**
+
+* `az volume-group create`: Parameter `--proximity-placement-group` is no longer required (#31254)
+* `az netappfiles account create`: Add new parameter `--federated-client-id` for Cross Tennant CMK (#31254)
+* `az netappfiles account create`: Add new parameter `--nfs-v4-id-domain`. Domain for NFSv4 user ID mapping (#31254)
+* `az netappfiles account update`: Add new parameter `--federated-client-id` for Cross Tennant CMK (#31254)
+* `az netappfiles account update`: Add new parameter `--nfs-v4-id-domain`. Domain for NFSv4 user ID mapping (#31254)
+* `az netappfiles usage list`: Add new command to list current subscription usages (#31254)
+* `az netappfiles usage show`: Add new command to show current subscription usages (#31254)
+
+**Network**
+
+* Fix #31294: `az network vnet update`: Refine processing logic of `--address-prefixes` (#31365)
+
+**Packaging**
+
+* Bump Python to 3.12 on RHEL and CentOS Stream (#31264)
+* [BREAKING CHANGE] Drop Ubuntu 20.04 support (#31208)
+
+**Profile**
+
+* [BREAKING CHANGE] `az login`: `--username` no longer accepts user-assigned managed identity ID. Explicitly specify `--client-id`, `--object-id` or `--resource-id` instead (#31015)
+
+**RDBMS**
+
+* [BREAKING CHANGE] `az postgres flexible-server create`: Set the default value of parameter `--create-default-database` to Disabled (#31132)
+* [BREAKING CHANGE] `az postgres flexible-server create`: Set default PG version to 17 on create (#31143)
+* [BREAKING CHANGE] `az postgres flexible-server stop-replication`: Remove deprecated command, use `az postgres flexible-server replica promote` instead (#31355)
+* [BREAKING CHANGE] `az postgres flexible-server create/upgrade`: Remove support of PG12 which has officially ended (#31363)
+* [BREAKING CHANGE] `az postgres flexible-server create/update/ad-admin`: Rename deprecated references to Microsoft Entra (#31379)
+* [BREAKING CHANGE] `az postgres flexible-server create`: Set the default value of parameter `--create-default-database` to Disabled (#31399)
+* [BREAKING CHANGE] `az postgres flexible-server create`: Set default PG version to 17 on creation (#31399)
+* [BREAKING CHANGE] `az postgres flexible-server update`: Add user confirmation on certain update operations (#30731)
+* `az postgres flexible-server create`: BUG FIX, Set public access network to disabled if None argument is passed in (#31349)
+* `az postgres flexible-server create/db create`: Add validation for database name (#31392)
+* `az postgres flexible-server create`: Set default sku to be coming from location capability API (#31141)
+
+**Role**
+
+* `az role assignment list`: Drop `--include-classic-administrators` argument (#29470)
+
+**Service Connector**
+
+* `az webapp connection create mongodb-atlas`: Add `mongodb-atlas` target service support (#31308)
+
+**Storage**
+
+* [BREAKING CHANGE] `az storage account migration start`: Add confirmation for storage account migration between redundancy options (#31431)
+
+2.72.0
+++++++
+
+**ACR**
+
+* Fix #31130: `az acr task show`: Fix extra version line in encodedTask created by file (#31153)
+* `az acr create/check-name`: Add parameter `--dnl-scope` for domain name label hash (#30638)
+
+**AKS**
+
+* `az aks update`: Make specified version to match current version when turning off autoupgrade (#31018)
+* `az aks nodepool add/update`: Add option `Ubuntu2204` to `--os-sku` parameter (#31119)
+* `az aks create`: Add `--custom-ca-trust-certificates` parameter to support custom CA trust feature (#31107)
+* `az aks nodepool add`: Add `--custom-ca-trust-certificates` parameter to support custom CA trust feature (#31107)
+* `az aks nodepool add`: Add GPU driver install options `--gpu-driver install` and `--gpu-driver none` (#31106)
+
+**App Config**
+
+* `az appconfig create/update`: Add developer sku support (#31199)
+* `az appconfig feature set`: Update feature name documentation (#31185)
+
+**App Service**
+
+* Fix #20983: `az webapp config ssl import`: Make web app a non-required parameter (#30958)
+* `az appservice plan create`: Add Pv4/Pmv4 ASP support (#31021)
+* Fix #20209: `az webapp create-remote-connection`: Add ssh command to output (#31155)
+
+**ARM**
+
+* `az deployment`: Fix issue where Bicep is not found in CI environments (#31202)
+* Fix #31188: `az lock delete`: Fix the case sensitivity of `--namespace` parameter validation (#31274)
+
+**ARO**
+
+* `az aro update`: Ensure that refreshing cluster service principal credentials is successful when the cluster has an invalid or missing subnet in its resource definition (#31039)
+
+**Compute**
+
+* [BREAKING CHANGE] `az sig image-version`: Change the `--os-vhd-storage-account` parameter mapping to the `properties.storageProfile.osDiskImage.source.storageAccountId` property (#31186)
+* [BREAKING CHANGE] `az sig image-version`: Change the `--data-vhds-storage-accounts` parameter mapping to the `properties.storageProfile.dataDiskImages.source.storageAccountId` property (#31186)
+* `az vm create`: Add new parameter `--zone-placement-policy` to support setting vm placement to create a zonal VM (#31233)
+* `az vm create`: Add new parameter `--include-zones` to support setting vm placement to create a zonal VM (#31233)
+* `az vm create`: Add new parameter `--exclude-zones` to support setting vm placement to create a zonal VM (#31233)
+* `az vm create/update`: Add new parameter `--align-regional-disks-to-vm-zone` to support setting regional disks attached to the VM to be converted to zonal (#31233)
+* `az sig image-version create/update`: Rename shorter alias for `--block-deletion-before-end-of-life` parameter (#31283)
+* `az vm create/update`: Add new parameters `--wire-server-mode` and `--wire-server-access-control-profile-reference-id` to support setting wireserver endpoint settings (#31279)
+* `az vmss create/update`: Add new parameters `--wire-server-mode` and `--wire-server-access-control-profile-reference-id` to support setting wireserver endpoint settings (#31279)
+* `az vm create/update`: Add new parameters `--imds-mode` and `--imds-access-control-profile-reference-id` to support setting IMDS endpoint settings (#31279)
+* `az vmss create/update`: Add new parameters `--imds-mode` and `--imds-access-control-profile-reference-id` to support setting IMDS endpoint settings (#31279)
+* `az vm create/update`: Add new parameter `--key-incarnation-id` to support setting key incarnation id (#31279)
+* `az vmss create/update`: Add new parameter `--key-incarnation-id` to support setting key incarnation id (#31279)
+* `az vm/vmss create/update`: Set `--security-type` to `Standard` only if explicitly set by end user (#31282)
+
+**Consumption**
+
+* `az consumption usage list`: Enhance handling of `usageStart` and `usageEnd` when missing (#31128)
+
+**Microsoft Entra ID**
+
+* `az ad sp create-for-rbac`: Add `--service-management-reference` argument (#31212)
+* `az ad sp create-for-rbac`: Add `--create-password` argument. Use `--create-password false` to disable creating password credential (#31215)
+
+**MySQL**
+
+* `az mysql flexible-server create`: Add `--backup-interval` parameter to enable setting backup interval (#31298)
+* `az mysql flexible-server restore`: Add `--faster-restore` parameter to open auto-iops-scaling when restore (#31298)
+* `az mysql flexible-server replica create`: Add `--faster-provisioning` parameter to open auto-iops-scaling when create replica (#31298)
+
+**Network**
+
+* Fix #31129: `az network vnet-gateway create/update`: Refine the logic of `--root-cert-data` (#31166)
+* `az network application-gateway waf-policy managed-rule rule-set`: Support rule set type Microsoft_DefaultRuleSet (#31289)
+
+**Profile**
+
+* Fix #29030: `az login`: During interactive login, fall back to `tenantId` if `tenantDisplayName` is missing (#29245)
+
+**RDBMS**
+
+* `az postgres flexible-server upgrade`: Add server capability API check to the `--version` parameter and allow user to upgrade to PG17 when it is available (#31146)
+
+**Role**
+
+* `az role assignment list`: Add `--fill-principal-name` argument. Use `--fill-principal-name false` to omit `principalName` property and bypass Microsoft Graph query (#30693)
+* `az role assignment list`: Add `--fill-role-definition-name` argument. Use `--fill-role-definition-name false` to omit `roleDefinitionName` property and bypass the role definitions query (#31152)
+* `az role assignment list/delete`: Add `--assignee-object-id` argument. Use this argument instead of `--assignee` to bypass Microsoft Graph query (#30469)
+
+**Service Connector**
+
+* `az webapp connection create`: Clarify that system identity is a flag (#31263)
+
+2.71.0
+++++++
+
+**ACR**
+
+* `az acr create`: Fix a bug where creating cache rule without credential set would fail (#30984)
+
+**AKS**
+
+* `az aks`: Fix error message when outbound type validation failed (#30886)
+* `az aks create/update`: Update recording rule group create logic for managed prometheus addon (#30857)
+* `az aks create/update`: Add `--bootstrap-artifact-source` parameter to configure artifact source when bootstraping the cluster (#31095)
+* `az aks create/update`: Add `--bootstrap-container-registry-resource-id` parameter to configure container registry resource ID (#31095)
+* `az aks create/update`: Add new option `none` for `--outbound-type` parameter (#31095)
+
+**App Config**
+
+* `az appconfig`: Fix managed identity auth for `--auth-mode login` parameter (#30983)
+
+**App Service**
+
+* `az webapp deploy`: Add `--enable-kudu-warmup` parameter to support warm-up Kudu before making deployment (#31083)
+* Fix #27724: `az webapp config appsettings set`: Remove redaction warning message from output (#31006)
+* Fix #26920: `az webapp deployment slot create`: Make the created new slot has same VNet integration settings of source slot as Portal behavior (#30836)
+* Fix #30908: `az webapp snapshot restore`: Fix the error "no resource group found" when trying to restore a snapshot backup to a paired region (#30364)
+* Fix #29512: `az webapp config backup update`: Fix `str` object has no attribute `name` (#30986)
+* Fix #21721: `az webapp config storage-account add`: Add validation for non-existent FileShare (#30990)
+* `az functionapp list-flexconsumption-locations`: Add `--details` and `--runtime` parameters to provide more details (#31019)
+
+**ARM**
+
+* Fix #29809: `az deployment/stack/bicep`: Fix an issue where the commands mistakenly check for the latest Bicep version, even when `use_binary_from_path` is `true` and `check_version` is `false` (#31041)
+* Fix #29435: `az bicep install/upgrade`: Fix an issue where the command downloads the x64 binary instead of the ARM binary on aarch64 machines (#31041)
+
+**ARO**
+
+* `az aro create`: Update VM SKU to align with best practices (#31074)
+
+**Backup**
+
+* `az backup protection enable-for-vm`: Update in warning message while protecting Trusted Launch virtual machines (#31062)
+
+**Cloud**
+
+* `az cloud register/update`: Add upcoming breaking change announcement (#31097)
+
+**Compute**
+
+* `az sig image-definition list-shared`: Mark `--marker` and `--show-next-marker` as deprecated and will be removed in the upcoming breaking change window (#31081)
+* `az sig image-version list-shared`: Mark `--marker` and `--show-next-marker` as deprecated and will be removed in the upcoming breaking change window (#31081)
+* `az sig image-definition list-community`: Mark `--marker` and `--show-next-marker` as deprecated and will be removed in the upcoming breaking change window (#31081)
+* `az sig image-version list-community`: Mark `--marker` and `--show-next-marker` as deprecated and will be removed in the upcoming breaking change window (#31081)
+* `az disk config update`: Add new command to support updating disk size gb by PATCH method (#30961)
+* `az vm/vmss create/update`: Add support for setting security type to `Standard` (#31002)
+* Fix #30976: `az sig image-version create`: Fix missing auxiliary tokens (#30977)
+* `az sig image-version create/update`: Add new parameter `--block-deletion-before-end-of-life` to support blocking deletion if the end of life has not expired (#31013)
+* `az vm list-sizes`: Mark the command as deprecated (#31080)
+
+**Container app**
+
+* Fix #30828: `az containerapp job stop`: Fix `TypeError` when `--job-execution-name` is not specified (#30941)
+
+**Key Vault**
+
+* `az keyvault create`: Support C SKU family for MHSM creation (#31025)
+
+**MySQL**
+
+* [BREAKING CHANGE] `az mysql flexible-server create`: Change default values for `--auto-scale-iops`, `--version` for MySQL (#30852)
+
+**Network**
+
+* `az network virtual-appliance`: Add command `get-boot-diagnostic-log` to support getting boot diagnostic logs (#30924)
+* Fix #31003: `az network vpn-connection create`: Pass auxiliary authorization header for referenced resource IDs (#31045)
+* `az network vnet-gateway create`: Add `--enable-high-bandwith-vpn-gateway` parameter (#31088)
+* `az network vpn-connection show`: Support new properties with virtual network gateway (#31088)
+
+**Profile**
+
+* `az login`: Add upcoming breaking change announcement for `--username` (#31061)
+
+**RDBMS**
+
+* `az postgres flexible-server update`: Fix bug for not updating geo backup data encryption properties (#30948)
+* `az postgres flexible-server fabric-mirroring`: Fix for space separated list of databases during `start` and `update-databases` (#31000)
+* `az postgres flexible-server create`: Support adding admin during creation if `--active-directory-auth` is Enabled and no longer generate password when `--password-auth` is Disabled (#30999)
+
+**Role**
+
+* `az role assignment list`: Add upcoming breaking change announcement for `--include-classic-administrators` (#31048)
+* `az role assignment list`: Include role assignments inherited from management groups (#30841)
+
+**Service Connector**
+
+* `az * connection create neon-postgres`: Add command for Neon Postgres Serverless (#30938)
+
+**Storage**
+
+* `az storage share/directory/file`: Support NFS FileShares (#31050)
+* `az storage file hard-link create`: Support creating hard-links for NFS files (#31050)
+* `az storage share create`: Support `--enable-snapshot-virtual-directory-access` (#31114)
+
+2.70.0
+++++++
+
+**AKS**
+
+* `az aks create/az aks nodepool add`: Emit error message when using `--asg-ids` alone without `--allowed-host-ports` (#30768)
+* `az aks nodepool upgrade`: Fix `--node-soak-duration` cannot be set to 0 (#30778)
+* `az aks machine list`: Add command to fetch list of machines in an agentpool (#29939)
+* `az aks machine show`: Add command to fetch information about a specific machine in an agentpool (#29939)
+* `az aks nodepool delete`: Add `--ignore-pod-disruption-budget` option for ignoring PodDisruptionBudget (#30196)
+* `az aks create`: Add `--message-of-the-day` parameter to support message of the day (#30862)
+* `az aks nodepool add`: Add `--message-of-the-day` parameter to support message of the day (#30862)
+
+**App Config**
+
+* `az appconfig kv import/export`: Fix bug when importing feature flag with percentile allocation property (#30732)
+* `az appconfig`: Add support for custom token audience to `--auth-mode login` parameter (#30739)
+
+**App Service**
+
+* `az functionapp create`: Check if storage account is network restricted (#30605)
+* `az functionapp create`: Refactor EOL message (#30791)
+* Fix #28104: `az webapp config storage-account`: Remove windows limitation notes (#30775)
+* Fix #28374: `az webapp create`: Improve error message for globally unique name for new app create (#30750)
+* `az webapp sitecontainers`: Add new commands for linux web app sitecontainers (#30776)
+* `az webapp up`: Add `--enable-kudu-warmup` parameter to support warm-up Kudu before making deployment (#30872)
+* `az webapp deploy`: Add `--enable-kudu-warmup` parameter to support warm-up Kudu before making deployment (#30872)
+* `az webapp deployment source config-zip`: Add `--enable-kudu-warmup` parameter to support warm-up Kudu before making deployment (#30872)
+* Fix #29493: `az webapp create`: Update basic-auth parameter description (#30734)
+
+**ARM**
+
+* `az bicep`: Fix installation check for concurrent usages (#30722)
+
+**Backup**
+
+* `az backup restore restore-disks`: Support NoZone as a valid target zone for `--target-zone` parameter (#30720)
+
+**Compute**
+
+* `az vm available-set create/update`: Add `--additional-scheduled-events` parameter to support setting scheduled event policy (#30835)
+* `az vm available-set create/update`: Add `--enable-user-reboot-scheduled-events` parameter to support setting scheduled event policy (#30835)
+* `az vm available-set create/update`: Add `--enable-user-redeploy-scheduled-events` parameter to support setting scheduled event policy (#30835)
+
+**Container app**
+
+* `az containerapp create`: Fix to make `--registry-username` value to be `DNS1123` compliant (#30563)
+
+**Cosmos DB**
+
+* `az cosmosdb offline-region`: Add new command to support offline region for cosmosdb account (#30781)
+
+**IoT**
+
+* `az iot hub update`: Add `--min-tls-version` parameter to allow updating min tls version in a cleaner way (#30710)
+
+**NetAppFiles**
+
+* `az netappfiles account`: Add new command `change-key-vault` to change KeyVault/Managed HSM that is used for encryption of volumes under NetApp account (#30773)
+* `az netappfiles account`: Add new command `get-key-vault-status` to get KeyVault information. Response from this command can be used for transitiontocmk (#30773)
+* `az netappfiles account`: Add new command `transitiontocmk` to transition all volumes in a VNet to a different encryption key source (Microsoft-managed key or Azure Key Vault). Operation fails if targeted volumes share encryption sibling set with volumes from another account (#30773)
+* `az netappfiles volume create/update`: Add parameter `--cool-access-tiering-policy` (#30773)
+
+**Network**
+
+* `az network nic ip-config create/update`: Add `--private-ip-address-prefix-length` to support setting private ip address prefix length (#30837)
+
+**RDBMS**
+
+* `az postgres flexible-server index-tuning`: Support tuning options operations (#30851)
+
+**Service Connector**
+
+* `az containerapp connection create redis`: Add `--system-identity` paramter (#30808)
+* `az webapp connection create fabric-sql`: Fix interactive mode & allow new parameters `--fabric-workspace-uuid` and `fabric-sql-db-uuid` (#30881)
+
+**Storage**
+
+* `az storage account create`: Add new `--sku StandardV2_LRS/StandardV2_ZRS/StandardV2_ZRS/StandardV2_ZRS/PremiumV2_LRS/PremiumV2_ZRS` for provisioned v2 support (#30873)
+* `az storage account file-service-usage`: Support getting file-service usage for storage account (#30873)
+* `az storage share-rm create/update`: Add `--paid-bursting-enabled`, `--paid-bursting-max-bandwidth-mibps`, `--paid-bursting-max-iops` for provisioned v1, add `--provisioned-bandwidth-mibps`, `--provisioned-iops` for provisioned v2 accounts (#30873)
+
+2.69.0
+++++++
+
+**ACR**
+
+* `az acr manifest list-metadata`: Update help messages for untagged manifests (#30382)
+
+**AKS**
+
+* `az aks create/update/delete`: Add parameters `--if-match` and `--if-none-match` to support etag functionality for concurrency (#30309)
+
+**App Config**
+
+* `az appconfig kv import/export`: Support microsoft feature management schema (#30376)
+* `az appconfig kv export`: Introduce a new environment variable called `AZURE_APPCONFIG_FM_COMPATIBILE` when exporting to a file for backward compatibility for users (#30376)
+* `az appconfig feature show/list`: Support microsoft feature management schema (#30376)
+* `az appconfig kv restore/show/list`: Update datetime validation to accept timezone offset (#30369)
+* `az appconfig revision list`: Update datetime validation to accept timezone offset (#30369)
+* `az appconfig export`: Update export help message for environment variable (#30747)
+
+**App Service**
+
+* `az functionapp create`: Refactor EOL implementation and sort based on runtime EOL date (#30636)
+* `az functionapp list-flexconsumption-locations`: Check if flex region is enabled for subscription (#30607)
+* `az functionapp deployment slot create`: Add `--https-only` parameter for slot creation command (#30628)
+* `az webapp list-runtimes`: Remove the JBoss `_byol` entries from the output for webapps with Linux OS (#30673)
+
+**Backup**
+
+* `az backup`: Add support for new AFS Vault Standard Policies (#30531)
+
+**Batch**
+
+* [BREAKING CHANGE] `az batch certificate create/list/show/delete`: Remove deprecated commands (#30501)
+* [BREAKING CHANGE] `az batch node reimage/remote-desktop`: Remove deprecated commands (#30501)
+* [BREAKING CHANGE] `az batch pool create`: Remove `--application-licenses`, `--certificate-references` , `--os-family` and `--os-version` deprecated parameters (#30501)
+* [BREAKING CHANGE] `az batch pool set/reset `: Remove `--certificate-references` deprecated parameter (#30501)
+* `az batch job create`: Add parameters `--job-manager-task-application-package-references` and `--on-all-tasks-complete` (#30501)
+* `az batch job disable`: Add parameter `--json-file` (#30501)
+* `az batch job-schedule create`: Add parameters `--job-manager-task-application-package-references`, `--job-metadata`, and `--job-manager-task-environment-settings` (#30501)
+* `az batch job-schedule set/reset`: Add parameters `--job-max-task-retry-count` and `--job-max-wall-clock-time` (#30501)
+* `az batch node reboot`: Add parameter `--json-file` (#30501)
+* `az batch node scheduling disable`: Add parameter `--json-file` (#30501)
+* `az batch pool autoscale evaluate`: Add parameter `--json-file` (#30501)
+* `az batch pool create`: Add parameters `--start-task-environment-settings` and `--start-task-max-task-retry-count` (#30501)
+* `az batch pool reset`: Add parameters `--start-task-resource-files` and `--target-node-communication-mode` (#30501)
+
+**Compute**
+
+* [BREAKING CHANGE] `az sig gallery-application create/update`: Output field `supportedOsType` changed to `supportedOSType` (#30678)
+* `az vm list-sizes`: Remove unused parameter `--ids` (#30652)
+* `az vmss create/update`: Add new paramter `--zone-balance` to support setting zone balance (#30692)
+* `az vm/vmss create`: Install guest attestation extension when security type set to `ConfidentialVM` (#30690)
+* `az vmss scale`: Add new logic to support scaling VMSS in edge zone (#30704)
+* `az vmss create`: Add `--encryption-identity` parameter to use managed identity for Azure disk encryption (#30657)
+* `az vmss encryption enable`: Add `--encryption-identity` parameter to update or set encryption identity for Azure disk encryption (#30657)
+
+**Container app**
+
+* Fix #28047: `az containerapp compose create`: Upgrade pycomposefile version to split environment variables on the first equal sign instead of every equal sign (#30670)
+
+**DevTest Labs**
+
+* `az lab vm`: Add `hibernate` command group (#30633)
+
+**Key Vault**
+
+* `az keyvault update/update-hsm`: Fix `--bypass` overriding by default when specifying `--default-action Deny` (#30676)
+
+**Network**
+
+* `az network lb create`: Refine `--frontend-ip-zone` to support multiple zones (#30639)
+* `az network private-endpoint-connnection`: Add `Microsoft.HealthDataAiservices/deidservices` for private endpoint connections (#30627)
+* `az network routeserver create/update`: Add `--auto-scale-config` (#30702)
+* `az network virtual-appliance reimage`: Allow reimage of virtual machines associated with a network virtual appliance (#30680)
+
+**Profile**
+
+* `az login`: Passing the managed identity ID with `--username` is deprecated and will be removed in a future release. Please use `--client-id`, `--object-id` or `--resource-id` instead (#30525)
+
+**RDBMS**
+
+* `az postgres flexible-server geo-restore`: Add `--restore-time` parameter (#30689)
+* `az postgres flexible-server fabric-mirroring start/stop/update-databases`: Disable fabric mirroring on HA server (#30688)
+* `az postgres flexible-server update`: Fix for scaling up node count on an elastic cluster (#30669)
+
+**Redis**
+
+* `az redis create/update`: Add `--zonal-allocation-policy` to support the way of selecting zones for cache instance (#30705)
+
+**Role**
+
+* `az role definition show`: New command to support showing specific role definition (#30593)
+
+**Service Connector**
+
+* `az webapp connection create redis`: Add parameter `--system-identity` (#30630)
+
+2.68.0
+++++++
+
+**ACR**
+
+* `az acr agentpool`: Fix delete polling (#30485)
+* `az acr create`: Add validation for registry name to support domain name label (#30404)
+
+**AKS**
+
+* `az aks command invoke`: Add progress spinner (#30274)
+* `az aks create/update`: Add `--enable-acns` parameter to support enabling advanced networking functionalities on a cluster (#30208)
+* `az aks create/update`: Add `--disable-acns-observability` parameter to disable advanced networking observability features when enabling advanced networking features with `--enable-acns` (#30208)
+* `az aks create/update`: Add `--disable-acns-security` parameter to disable advanced networking security features when enabling advanced networking features with `--enable-acns` (#30208)
+* `az aks update`: Add `--disable-acns` parameter to support disabling advanced networking functionalities on a cluster (#30208)
+* `az aks update`: Add `--ip-families` to support updating cluster network (#30360)
+* `az aks create/update`: Add `--nrg-lockdown-restriction-level` parameter to support specifying restriction level on the managed node resource group (#30391)
+
+**App Config**
+
+* `az appconfig kv import`: Fix import mode `all` bug (#30489)
+
+**Compute**
+
+* [BREAKING CHANGE] `az disk`: Refine output fields to align with backend service (#30430)
+* [BREAKING CHANGE] `az snapshot`: Refine output fields to align with backend service (#30486)
+* Fix #30009: `az vm install-patches`: Fix errors due to typos in `install_vm_patches` function (#30011)
+* `az vm/vmss create`: Fix help message for `--public-ip-address` parameter (#30412)
+* Fix #30565: `az vm create`: Fix creating VM with `--patch-mode` parameter (#30568)
+* Fix #30564: `az vm create`: Fix creating VM with `--enable-auto-update` parameter (#30568)
+* `az vm create`: Add `--encryption-identity` parameter to use that managed identity for Azure disk encryption (#30457)
+* `az vm encryption enable`: Add `--encryption-identity` parameter to update or set encryption identity for Azure disk encryption (#30457)
+* `az vmss create/update`: Add new parameter `--security-posture-reference-is-overridable` to support setting security posture reference overridable (#29958)
+* `az vmss create/update`: Change existing parameter `--security-posture-reference-exclude-extensions` to receive string list (#29958)
+* `az vm create/update`: Add new parameter `--additional-scheduled-events` to support setting scheduled event policy (#30596)
+* `az vm create/update`: Add new parameter `--enable-user-reboot-scheduled-events` to support setting scheduled event policy (#30596)
+* `az vm create/update`: Add new parameter `--enable-user-redeploy-scheduled-events` to support setting scheduled event policy (#30596)
+
+**Container**
+
+* `az container exec`: Fix exception when stdin is not a tty (#30397)
+
+**Container app**
+
+* `az containerapp exec`: Fix `ResourceNotFound` error (#30351)
+* `az containerapp ingress enable`: Fix issue about labels being deleted (#30385)
+* Fix #29238: `az containerapp secret set`: Add description about `identityref` for parameter `--secrets` (#30418)
+
+**Cosmos DB**
+
+* `az cosmosdb create/update`: Add `--enable-prpp-autoscale` to enable/disable burst capacity feature (#30415)
+
+**Key Vault**
+
+* `az keyvault key sign/verify`: Fix `--digest` to accept base64 encoded string (#30521)
+
+**Microsoft Entra ID**
+
+* `az ad app create/update`: Add `--requested-access-token-version` argument (#30230)
+
+**MySQL**
+
+* `az mysql flexible-server create/restore/replica create/geo restore`: Add `--storage-redundancy` parameter to support HA storage with zone redundancy (#30423)
+
+**Network**
+
+* `az network vnet-gateway create/update`: Add parameter `--resiliency-model` (#30410)
+* `az network vnet create/update`: Add parameter `--ipam-pool-prefix-allocations` (#30455)
+* Fix #30535: `az network lb address-pool address add`: Address level may not have virtual network property (#30592)
+
+**Profile**
+
+* Drop support for old-style managed identity account created by Azure CLI <= 2.0.50. If you upgrade from one of these versions, please run `az login --identity` again. (#30321)
+
+**RDBMS**
+
+* `az postgres flexible-server create`: Create elastic cluster by setting `--cluster-option` to ElasticCluster (#30435)
+* `az postgres flexible-server list`: Add `--show-cluster` argument to list elastic clusters (#30398)
+* `az postgres flexible-server fabric-mirroring/identity`: Support system assigned managed identity and fabric mirroring of databases (#30421)
+* `az postgres flexible-server update`: Add `--node-count` argument to scale up elastic clusters (#30572)
+
+**Role**
+
+* [BREAKING CHANGE] `az role assignment delete`: Stop deleting all role assignments by default (#30470)
+
+**SQL**
+
+* `az sql db ltr-policy`: Remove preview tag (#30500)
+
+**Storage**
+
+* `az storage account migration`: Add warning for long wait, will require confirmation in the future (#30387)
+* Fix #28554: `az storage blob service-properties update`: Support cases where `--static-website false` and index and 404 documents were already set (#30510)
+* Fix #29929: `az storage copy`: Fix when wildcard `*` is in `--source-file-path` (#30569)
+
+2.67.0
+++++++
+
+**AKS**
+
+* [BREAKING CHANGE] `az aks create/update`: Remove `--uptime-sla` and `--no-uptime-sla` parameters (#30221)
+* [BREAKING CHANGE] `az aks create`: Remove `--aad-client-app-id`, `--aad-server-app-id` and `--aad-server-app-secret` parameters (#30251)
+* [BREAKING CHANGE] `az aks trustedaccess rolebinding create`: Remove deprecated '-r' options (#30253)
+* `az aks create/update`: Fix storage pool name validation for Azure Container Storage (#30258)
+* `az aks enable-addon`: Update AGIC addon to use Network Contributor instead of Contributor (#29989)
+
+**App Config**
+
+* `az appconfig create/update`: Add new parameters `--arm-auth-mode` and `--enable-arm-private-network-access` to support data plane proxy settings (#30228)
+
+**Compute**
+
+* `az vm disk attach/detach`: Add new parameter `--disk-ids` to support setting multiple disks by disk ids (#30236)
+
+**Compute Fleet**
+
+* `az compute-fleet`: Add `create/update/show/delete/list/list-vmss` commands for manage Azure Compute Fleet (#30223)
+
+**Container**
+
+* `az container container-group-profile`: Add new command group to manage Azure Container Instance Container Group Profile(#30260)
+
+**DataLake**
+
+* [BREAKING CHANGE] `az dla`: Remove dla module since it has been deprecated (#30249)
+
+**DLS**
+
+* [BREAKING CHANGE] `az dls account network-rule`: Remove this command group as no server support anymore (#30094)
+
+**Eventhub**
+
+* `az eventhubs eventhub`: Add new parameters `--timestamp-type` and `--min-compaction-lag-in-mins` (#29957)
+* `az eventhubs namespace replica`: Add new commands to support adding/removing replicas (#29957)
+
+**Extension**
+
+* [BREAKING CHANGE] `az extension add/update`: Set default `--allow-preview` value from `True` to be `False` for extensions installation and remain `True` for extensions without stable releases (#30163)
+
+**Kusto**
+
+* [BREAKING CHANGE] `az kusto`: Remove kusto from CLI as it has been moved to CLI extensions (#30250)
+
+**Network**
+
+* [BREAKING CHANGE] `az network public-ip ddos-protection-statu`: Remove misspelled command group (#30265)
+
+**Packaging**
+
+* Drop Python 3.8 support (#30225)
+
+**Profile**
+
+* [BREAKING CHANGE] `az login`: `--password` no longer accepts a service principal certificate. Use `--certificate` to pass a service principal certificate (#30092)
+
+**RDBMS**
+
+* `az postgres flexible-server long-term-retention start/pre-check/list/show`: New commands to support long-term-retention backups on PostgreSql Flex Server (#30272)
+* `az postgres flexible-server create`: Support provisioning postgres flexible servers with version 17 (#30298)
+
+**Service Connector**
+
+* `az connection create mysql-flexible`: Add `--private-endpoint` parameter (#30287)
+
+**SQL**
+
+* [BREAKING CHANGE] `az sql mi link create`: Rename input from `--source-endpoint` to `--partner-endpoint`, `--primary-availability-group-name` to `--partner-availability-group-name`, `--secondary-availability-group-name` to `--instance-availability-group-name`, `--target-database` to `--databases` (#30234)
+* [BREAKING CHANGE] `az sql mi link create/show/list/update`: Rename output from `targetDatabase`, `primaryAvailabilityGroupName`, `secondaryAvailabilityGroupNamesourceEndpoint`, `sourceReplicaId`, `targetReplicaId`, `linkState`, `lastHardenedLsn` to `databases`, `partnerAvailabilityGroupName`, `instanceAvailabilityGroupName`, `partnerEndpoint`, `distributedAvailabilityGroupName`, `instanceLinkRole`, `partnerLinkRole`, `failoverMode`, `seedingMode` (#30234)
+* [BREAKING CHANGE] `az sql failover-group create`: Change default failover policy to manual (#30177)
+* `az sql mi link failover`: Support performing requested failover type in this Managed Instance link (#30234)
+
+**Upgrade**
+
+* [BREAKING CHANGE] `az upgrade`: Set default `--allow-preview` value from `True` to be `False` for extensions installation and remain `True` for extensions without stable releases (#30163)
+
+2.66.0
+++++++
+
+**AKS**
+
+* `az aks create`: Add Trusted Launch options `--enable-vtpm` and `--enable-secure-boot` (#29272)
+* `az aks nodepool add/update`: Add Trusted Launch options `--enable-vtpm` and `--enable-secure-boot` (#29272)
+* `az aks create/update`: Update the VM SKU details from backend for validations during Azure Container Storage operations (#29919)
+
+**App Service**
+
+* `az functionapp create`: Add `--zone-redundant` parameter to support zone redundant for Functions Flex SKU (#29984)
+* `az functionapp plan update`: Do not show warning message with `--set` in command (#30144)
+
+**ARM**
+
+* `az bicep publish`: Remove preview flag from `--with-source` parameter (#29915)
+* `az data-boundary show`: Add command to support getting the data boundary at a specified scope (#29961)
+* `az data-boundary show-tenant`: Add command to support getting the data boundary at a tenant level (#29961)
+* `az data-boundary create`: Add command to support creating tenant to data boundary (#29961)
+* `az bicep generate-params`: Fix the help message for `--include-params` parameter (#30034)
+* `az bicep/deployment/stack`: Conditionally enable invariant globalization for Bicep running inside the Azure CLI docker image (#29897)
+
+**Backup**
+
+* `az backup restore restore-disks`: Add support for enabling Disk access settings for managed VM restores (#29508)
+
+**Compute**
+
+* `az vmss create/update`: Add new parameter `--skuprofile-vmsizes` to specify a list of VM sizes to use with VMSS Instance Mix (#29906)
+* `az vmss create/update`: Add new parameter `--skuprofile-allocation-strategy` to update the allocation strategy for VMSS Instance Mix (#29906)
+
+**Container app**
+
+* Fix #30053: `az containerapp update`: Fix polling (#30078)
+* `az containerapp env create`: Hide `--dapr-instrumentation-key` parameter (#30117)
+* `az containerapp env update`: Support to update `--dapr-connection-string` (#30117)
+
+**Extension**
+
+* `az extension add/update`: Pre-announcement default value change from `true` to `false` for `--allow-preview` (#30162)
+
+**MySQL**
+
+* `az mysql flexible-server create/update`: Add `--maintenance-policy-patch-strategy` (#30123)
+* `az mysql flexible-server create/restore`: Add `--database-port` (#30123)
+* `az mysql flexible-server replica create`: Add `--database-port` (#30123)
+
+**NetAppFiles**
+
+* [BREAKING CHANGE] `az netappfiles volume create`: Parameters `backup-id` and `snapshot-id` now accept only full Azure ResourceIds and no longer support GUIDs (#30093)
+* [BREAKING CHANGE] `az netappfiles account create`: Parameter `--kdc-ip` now only accepts a single ip address not a list (#30093)
+* [BREAKING CHANGE] `az netappfiles account update`: Parameter `--kdc-ip` now only accepts a single ip address not a list (#30093)
+* [BREAKING CHANGE] `az netappfiles account ad add`: Parameter `--kdc-ip` now only accepts a single ip address not a list (#30093)
+* [BREAKING CHANGE] `az netappfiles account ad update`: Parameter `--kdc-ip` now only accepts a single ip address not a list (#30093)
+* `az netappfiles volume create`: Fix a bug where parameter `--allowed-clients` was not passed along in the request (#30023)
+* `az netappfiles check-file-path-availability`: Add new parameter `--availability-zone` (#30093)
+* `az netappfiles volume replication`: Add new commands `peer-external-cluster`, `authorize-external-replication`, `perform-replication-transfer`, `finalize-external-replication` (#30093)
+* `az netappfiles volume create`: Add new parameters `--external-host-name` ,`--external-server-name`, `--external-volume-name` (#30093)
+* `az netappfiles volume update`: Add new parameters `--external-host-name` ,`--external-server-name`, `--external-volume-name` (#30093)
+* `az netappfiles volume update`: Parameters `--backup-id` and `--snapshot-id` now accept only full Azure ResourceIds and no longer support GUIDs (#30093)
+
+**Network**
+
+* `az network vnet`: Add `--private-endpoint-vnet-policies` parameter (#29910)
+* `az network private-link-service`: Add `--destination-ip-address` parameter (#29910)
+* `az network application-gateway waf-policy managed-rule rule-set add/update`: Support sensitivity for `--rule` parameter (#30079)
+* `az network private-dns link vnet`: Support resolution policy for virtual network link (#30115)
+* `az network application-gateway waf-policy managed-rule rule-set add/update`: Add allowed value `1.1` for `--version` (#30156)
+* Fix #29911: `az network public-ip update`: IP tags crash with AttributeError (#30174)
+
+**Profile**
+
+* `az login`: Passing the service principal certificate with `--password` is deprecated and will be removed in version 2.67.0. Please use `--certificate` instead. (#30091)
+
+**RDBMS**
+
+* `az postgres flexible-server replica create`: Add support for `--tags` parameter (#29920)
+* `az postgres flexible-server replica create`: Allow read replica create from storage auto-grow enabled primary server flexible server (#30186)
+* `az postgres flexible-server backup create/delete`: New commands to support creating and deleting backups on PostgreSql Flex Server (#30197)
+
+**Service Bus**
+
+* `az servicebus namespace replica`: Add new command group to manage servicebus namespace replicas (#29987)
+
+**Service Connector**
+
+* `az aks connection create appconfig`: Add `--use-appconfig-extension` (#30097)
+* `az webapp connection create fabric-sql`: Add fabric sql target support (#29822)
+
+**SignalR**
+
+* `az signalr start/stop`: Add signalr command start or stop an existing SignalR service (#30000)
+* `az signalr replica start/stop/restart`: Add signalr command start, stop or start an existing SignalR service (#30058)
+* `az signalr network-rule ip-rule add/remove`: Add signalr command add or remove ip-rule of an SignalR service (#30058)
+* `az signalr update client-cert-enabled/disable-local-auth/region-endpoint-enabled`: Toggle clientCertificate, disableLocalAuth, enableRegionEndpoint (#30116)
+* `az signalr replica update region-endpoint-enabled/unit-count`: Toggle enableRegionEndpoint and change unitCount (#30116)
+
+**SQL**
+
+* `az sql geo-backup`: Remove preview tag (#30122)
+* `az sql failover-group create/update`: Add parameter `--secondary-type` to support geo/standby replica on partner server (#30060)
+
+**Storage**
+
+* `az storage blob copy start/start-batch`: Fix `--auth-mode login` (#29964)
+
+**Upgrade**
+
+* `az upgrade`: Pre-announcement default value change from `true` to `false` for `--allow-preview` (#30162)
+
+2.65.0
+++++++
+
+**ACR**
+
+* Fix #21900: `az acr task identity remove`: Fix incorrect operation_group setting (#29885)
+* `az acr credential-set`: Improve help message (#29810)
+
+**AD**
+
+* `az ad app create/update`: Add `--service-management-reference` argument (#29860)
+
+**AKS**
+
+* `az aks nodepool delete-machines`: Add support to delete specific machines in an agent pool (#29921)
+
+**App Config**
+
+* `az appconfig`: Add premium SKU support (#29824)
+
+**App Service**
+
+* `az functionapp config set`: Map parameters explicitly for the internal update_site_configs function call (#29756)
+
+**Compute**
+
+* `az vm/vmss create`: Add `--ssh-key-type` parameter to support generating Ed25519 SSH keys (#29926)
+* `az vm image list`: Expose ImageDeprecationStatus property in output (#29932)
+
+**Container app**
+
+* Fix #29849: `az containerapp job stop`: Fix stop execution response (#29907)
+* Fix #29166: `az containerapp compose create`: Support image with tag and support get ACR from image (#29933)
+
+**Cosmos DB**
+
+* `az cosmosdb restore`: Add `--disable-ttl` to support for Restore with Time-To-Live Disabled (#29875)
+
+**DataLake**
+
+* `az dla`: Deprecate datalake analytics (#29879)
+
+**HDInsight**
+
+* `az hdinsight update`: Add parameter `--assign-identity-type` to allow to update to `SystemAssigned` identity. (#29816)
+
+**Monitor**
+
+* `az monitor action-group create`: Adjust formatting of `--actions` help message (#29747)
+* `az monitor action-group update`: Adjust formatting of `--add-actions` help message (#29747)
+* `az monitor action-group notification create`: Adjust formatting of `--add-actions` help message (#29747)
+
+**MySQL**
+
+* `az mysql flexible-server create/update`: Add `--accelerated-logs` to support configuring accelerated logs for Business Critical tier (#29936)
+
+**NetAppFiles**
+
+* `az netappfiles volume create`: Fix subnet id as resource id (#29813)
+
+**Network**
+
+* `az network vnet peering`: Refine command interface of subnet peering (#29817)
+
+**Packaging**
+
+* Release Docker image based on Azure Linux 3.0 (#29769)
+* Include `jq` in Azure Linux docker image (#29867)
+* Drop Debian 10 support (#29378)
+
+**Profile**
+
+* `az login`: Fall back to device code flow in GitHub Codespaces (#27443)
+
+**RDBMS**
+
+* `az postgres flexible-server update`: Support case-insensitive input for `--tier`, `--performance-tier`, `--sku`, and `--maintenance-window` (#29840)
+* `az postgres flexible-server migration create`: Add AWS_AURORA as a migration source type for PostgreSql (#29863)
+
+**SQL**
+
+* `az sql elastic-pool create`: Set `min_capacity` to `None` for non-serverless SKUs (#29886)
+* `az sql mi create/update`: Add gpv2 parameter and iops parameter (#29873)
+
+2.64.0
+++++++
+
+**ACR**
+
+* `az acr helm`: Improve deprecation message (#29700)
+
+**AKS**
+
+* `az aks nodepool update`: Add `--enable/disable-fips-image` flags for GA mutable fips (#29695)
+* `az aks create/update`: Support UserAssigned Managed Identity for grafana linking in managed prometheus (#29713)
+* `az aks create/update`: Update the VM SKU regex validation to include larger set of VMs for Azure Container Storage (#29726)
+
+**App Service**
+
+* `az staticwebapp create/update`: Add `Dedicated` as supported SKU (#29514)
+* `az webapp config set`: Add MinTlsCipherSuite support (#29694)
+* `az webapp config access-restriction add/remove`: Allow skipping service tag validation (#29710)
+
+**ARM**
+
+* `az ts create`: Fix incorrect handling of whitespace in string values (#29623)
+
+**ARO**
+
+* `az aro create`: Add feature for adding Multiple Public IPs on cluster load balancer (#29693)
+* `az aro update`: Add feature for adding/removing Multiple Public IPs on cluster load balancer (#29693)
+
+**Compute**
+
+* `az vm update`: Add support of Gen1 VM to trusted launch upgrade (#29655)
+* `az capacity reservation`: GA command group (#29775)
+
+**Container app**
+
+* Fix #28998: `az containerapp env workload-profile add/update`: Fix `NoneType` object is not iterable error when environment doesn't enable workload profile (#29682)
+* `az containerapp create/up`: Make `--target-port` optional (#29702)
+* `az containerapp env create`: Deprecate unused argument `--docker-bridge-cidr` (#29746)
+* `az containerapp job stop`: Deprecate option to stop list of given job executions (#29728)
+* Fix #29711: `az containerapp logs show`: Fix JSON escaping by default or with `--format json` (#29767)
+
+**HDInsight**
+
+* `az hdinsight create`: Support setting IP tags when creating HDInsight cluster (#29752)
+* `az hdinsight update`: Support updating the managed identity of the cluster (#29752)
+* `az hdinsight azure-monitor-agent show`: Get the Azure Monitor Agent logs integration on an HDInsight cluster (#29752)
+* `az hdinsight azure-monitor-agent enable`: Enable the Azure Monitor Agent logs integration on an HDInsight cluster (#29752)
+* `az hdinsight azure-monitor-agent disable`: Disable the Azure Monitor Agent logs integration on an HDInsight cluster (#29752)
+
+**MySQL**
+
+* `az mysql flexible-server maintenance`: New command group for managing maintenance of MySQL flexible server (#29505)
+* `az mysql flexible-server update`: Remove storage passing for server update (#29739)
+
+**NetAppFiles**
+
+* `az netappfiles volume create/update`: Update max for `--usage-threshold` (#29624)
+
+**Network**
+
+* Fix #29565: `az network nat gateway create`: Add `--tags` parameter (#29718)
+
+**Packaging**
+
+* Support Python 3.12 (#29465)
+* Release Azure Linux 3 RPM package (#29348)
+
+**Redis**
+
+* `az redis create/update`: Add `--disable-access-keys` to support disabling auth through access keys (#29483)
+
+**SQL**
+
+* `az sql mi create/update`: Add `--authentication-metadata` to support auth metadata configuration (#29519)
+
+**Storage**
+
+* `az storage account create/update`: Support account cold-tier (#29740)
+* `az storage copy/remove`: Add `--auth-mode login` support (#29779)
+* `az storage share delete`: Add `include-leased` for `--delete-snapshots` (#29785)
+
+2.63.0
+++++++
+
+**ACR**
+
+* `az acr login`: Support optional resource group argument to skip subscription resource scan (#29344)
+
+**AKS**
+
+* `az aks create`: Not set the `--network-plugin` based on the default from the Python SDK (#29388)
+* `az aks create/update`: Support in place param updates for managed Prometheus (#29273)
+* `az aks create/update`: Add validations for PremiumV2 disk (#29445)
+* `az aks upgrade`: Support tier switch with AKS upgrade (#29448)
+* `az aks create/update`: Add `--network-policy none` option to command (#29420)
+* `az aks create`: Remove unsupported scenario command in help message (#29387)
+
+**App Config**
+
+* `az appconfig import/export/restore`: Add correlation request id to bulk operations (#29252)
+
+**App Service**
+
+* `az webapp list-runtimes`: Add parameter `--show-runtime-details` to show detailed runtime stacks and update the format of java related stacks listed (#29367)
+* `az webapp create`: Add parameter `--acr-identity` to allow users to choose user assigned identity for ACR image pull (#29321)
+* `az webapp config set`: Add parameter `--acr-use-identity` and `--acr-identity` to allow users update ACR image pull related configs (#29321)
+
+**ARM**
+
+* `az stack group/sub/mg create`: Minor improvements to the confirmation message when updating an existing stack (#29319)
+
+**CDN**
+
+* Fix #28717: `az afd secret`: Change the way to access parameter (#29338)
+* `az cdn portal-migration`: Add command group for classic CDN profile migration (#29362)
+
+**Compute**
+
+* `az sig create/update`: Hide `--soft-delete` parameter in help messages (#29377)
+* Fix #29006: `az ssh`: Fix the `Permissions 0644 for '...' are too open` error (#29314)
+* `az vmss update`: Add new parameter `--enable-auto-os-upgrade` to support updating automatic OS upgrade policy argument (#29415)
+* `az vmss update`: Add new parameter `--upgrade-policy-mode` to support updating upgrade policy mode (#29415)
+
+**Container app**
+
+* Fix #26688: `az containerapp up`: Fix logic about updating an existing containerapp (#29336)
+* `az containerapp job stop`: Return custom message for stop job execution (#29399)
+* Fix #29330: `az containerapp auth update`: Fix split logic for `--set` (#29453)
+
+**Cosmos DB**
+
+* `az cosmosdb delete`: Support `--no-wait` (#29190)
+
+**MySQL**
+
+* `az mysql flexible-server import stop-replication`: Stop replication between source single server and target flexible server (#29425)
+
+**NetAppFiles**
+
+* `az netappfiles account create`: Change `--key-vault-resource-id` to be optional (#29389)
+
+**Network**
+
+* `az network custom-ip prefix create`: Add parameter `--is-parent` (#29350)
+* `az network network-watcher connection-monitor`: Support to create connection monitor v2 (#29288)
+* `az network vnet peering`: Support virtual network subnet peering (#29416)
+
+**RDBMS**
+
+* [BREAKING CHANGE] `az postgres flexible-server create`: Update default value of PG version to be 16 (#29443)
+* Fix #27422: `az postgres flexible-server create`: Bug fix for using existing subnet while creating pg flex server (#29457)
+* `az postgres flexible-server restore`: Bug fix when using resource id as value for source-server argument (#29460)
+
+**Role**
+
+* `az role assignment list`: Add warning for classic administrators retirement (#29404)
+
+**Service Connector**
+
+* `az containerapp connection create containerapp`: Support ACA2ACA connection (#29434)
+
+**SQL**
+
+* `az sql midb move/copy`: Add destination subscription Id for managed database move/copy (#29352)
+* `az sql mi create`: Add `--dns-zone-partner` optional parameter (#29381)
+
+**Storage**
+
+* `az storage fs directory upload/download`: Add back `--auth-mode login` as AzCopy supports Oauth now (#29487)
+* `az storage blob sync`: Add back `--auth-mode login` as AzCopy supports Oauth now (#29487)
+
+**Synapse**
+
+* `az synapse spark job submit`: Add optional `--python-files` argument to support job submission (#29271)
+
+2.62.0
+++++++
+
+**ACR**
+
+* `az acr build/task`: Highlight the difference between arguments in the description (#28941)
+
+**AKS**
+
+* `az aks create/update`: Update AMW resource.location to only accept alphanumeric characters (#29025)
+* `az aks create/update`: Add Azure Managed Grafana support for managed prometheus addon in usnat (#29098)
+* `az aks create/update`: Ephemeral disk additional support for Azure Container Storage (#29230)
+* `az aks create/update`: Add and fix existing validations for ephemeral disk support for Azure Container Storage (#29274)
+
+**App Config**
+
+* `az appconfig`: Update help message for App Configuration store (#29151)
+* `az appconfig kv import`: Update the help message for ignore-match (#29200)
+
+**App Service**
+
+* `az webapp deploy`: Disable deploymentstatus API for deployments to app slots (#29209)
+* `az webapp deployment source config-zip`: Disable deploymentstatus API for deployments to app slots (#29209)
+* Fix #29041: `az webapp config access-restriction add`: Fix edge case validating service tags (#29048)
+* `az functionapp create`: Avoid throwing exception when endOfLifeDate not passed from stacks API (#28974)
+
+**ARM**
+
+* `az stack mg create`: Validate MG stacks automatically before creation (#29092)
+* `az bicep restore`: Fix typos in help messages (#29046)
+
+**Backup**
+
+* `az backup restore restore-disks/restore-azurewl/restore-azurefiles/restore-azurefileshare`: Add `--tenant-id` for cross-tenant MUA protection, otherwise allows restore when protected by a resource guard (#28950)
+* `az backup vault encryption update`: Add support for MUA for CMK operations (#29213)
+
+**CDN**
+
+* Fix #28721: `az afd origin-group create`: Add parameter to support session affinity state (#28995)
+* Fix #28824: `az cdn profile`: Add default location (#28996)
+* Fix #28733: `az cdn endpoint update`: Add support to update an existing endpoint (#29110)
+
+**Compute**
+
+* `az vmss update`: Add new parameter `--zones` to support setting vmss zonal expansion (#29035)
+* `az vm install-patches`: Add new parameter `--max-patch-publish-date` to support setting max patch publish date (#29045)
+* `az vmss reimage`: Add new parameter `--force-update-os-disk-for-ephemeral` to support updating the base OS disk (#29085)
+* `az vmss create/update`: Add new parameter `--scheduled-event-additional-publishing-target-event-grid-and-resource-graph` to support setting scheduled event policy (#29122)
+* `az vmss create/update`: Add new parameter `--enable-user-reboot-scheduled-events` to support setting policy for rebooting scheduled event (#29122)
+* `az vmss create/update`: Add new parameter `--enable-user-redeploy-scheduled-events` to support setting policy for redeploying scheduled event (#29122)
+* `az vmss update`: Add an option `Standard` to `--security-type` parameter (#29066)
+* `az vmss create`: Support set upgrade policy mode to automatic during flexible VMSS creation (#29234)
+* `az sig image-definition create`: Fix default value of security type (#29246)
+
+**Container app**
+
+* `az containerapp env create/update`: Support peer-to-peer traffic encryption with `--enable-peer-to-peer-encryption` (#28790)
+* `az containerapp job update`: Fix poll logic and `--no-wait` (#29017)
+* `az containerapp show-custom-domain-verification-id`: Show verification id used for binding custom domain (#29037)
+* `az containerapp env update`: Fix logs configuration about removing destination with `--logs-destination none` (#29056)
+* `az containerapp list-usages`: Support list-usages in subscription (#29058)
+* Fix #28983: `az containerapp job registry`: Support commands for modifying the job's registries (#29023)
+* `az containerapp auth`: Support Token Store with `--token-store`, `--sas-url-secret`, `--sas-url-secret-name`, `--yes` (#29068)
+* Fix #29128: `az containerapp env certificate`: Support managed certificate (#29156)
+* Fix #29172: `az containerapp secret set`: Remove the limit of length for secret name (#29214)
+
+**Cosmos DB**
+
+* `az service create`: Add `--gateway-type` to support multiple dedicated gateway types (#29053)
+
+**MySQL**
+
+* `az mysql flexible-server update`: Support replica resource group different with primary server (#29160)
+* `az mysql flexible-server detach-vnet`: New command to support converting a vnet azure mysql server to a non-vnet server (#29231)
+* `az mysql flexible-server deploy/update`: Add warning message for HA enabled and input validator (#29229)
+
+**Network**
+
+* `az network application-gateway waf-policy custom-rule update`: Add parameter `--js-cookie-exp-time` (#28999)
+* `az network cross-region-lb address-pool`: Add parameter `-- admin-state` (#29049)
+* `az network application-gateway rewrite-rule`: Add `--request-header-configurations` and `--response-header-configurations` (#29126)
+* `az network virtual-appliance restart`: Allow restart of virtual machines associated with a network virtual appliance (#29220)
+* `az network virtual-appliance inbound-security-rule`: Support of GET operation for NVA Inbound Security Rule (#29223)
+* `az network vnet subnet`: Add parameter `--endpoints` (#29285)
+
+**RDBMS**
+
+* `az postgres flexible-server restore`: Add capability to restore to new server using Premium SSD v2 Disks by setting Storage Type to "PremiumV2_LRS" (#28975)
+* `az postgres flexible-server migration create`: Fix bugs while passing in MigrationRuntimeResourceId to Migration Parameters, now need to be provided within properties json file (#29106)
+* `az postgres flexible-server firewall-rule create`: Correct firewall rule name and ip range validators (#29224)
+* `az postgres flexible-server update`: Add argument to enable or disable public-access (#29228)
+* `az postgres flexible-server create`: Add argument `--create-default-database` to support disabling default database creation (#29227)
+* `az postgres flexible-server upgrade`: Unblock MVU for Burstable from CLI (#29145)
+* `az postgres flexible-server update`: Correct setting `--maintenance-window` to be disabled (#29249)
+
+**SignalR**
+
+* `az signalr upstream update`: Remove the empty location string when updating resource (#29242)
+
+**SQL**
+
+* `az sql db update`: Add `--manual-cutover` and `--perform-cutover` arguments (#28938)
+
+**Storage**
+
+* `az storage container policy`: Fix cases where permission and expiry are both null (#29165)
+* `az storage account create/update`: Support TLS 1.3, update recommended `--min-tls-version` to be 1.2 (#29286)
+
+2.61.0
+++++++
+
+**AKS**
+
+* [BREAKING CHANGE] `az aks create`: Specifying `--enable-managed-identity` and `--service-principal`/`--client-secret` at the same time will cause a `MutuallyExclusiveArgumentError` (#28906)
+* [BREAKING CHANGE] `az aks create`: Change the default value of option `--enable-managed-identity` from `True` to `False` (#28906)
+* `az aks mesh upgrade rollback/complete`: Add `--yes` parameter to support not prompting the users to confirm the operation (#28820)
+* `az aks create/update`: Add `SecurityPatch` option to `--node-os-upgrade-channel` parameter (#28869)
+* `az aks create/update`: Add new parameter `--enable-cost-analysis` to enable exporting Kubernetes namespace and deployment details to the Cost Analysis views (#28813)
+* `az aks create`: Backfill the value of `--enable-managed-identity` to `True`  when options `--service-principal` and `--client-secret` are not specified at the same time (#28906)
+* `az aks nodepool update`: Add option `--os-sku` to support updating os sku in place (#28907)
+* `az aks create`: Add `--ampls-resource-id` and `--enable-high-log-scale-mode` optional parameters for Monitoring Addon (#28426)
+* `az aks enable-addons`: Add `--ampls-resource-id` and `--enable-high-log-scale-mode` optional parameters (#28426)
+
+**App Service**
+
+* [BREAKING CHANGE] `az webapp deploy`: Use deployment status API for deployment output for Linux Web Apps (#28921)
+* [BREAKING CHANGE] `az webapp up`: Use deployment status API for deployment output for Linux Web Apps (#28921)
+* [BREAKING CHANGE] `az webapp deployment source config-zip`: Use deployment status API for deployment output for Linux Web Apps (#28921)
+* `az functionapp scale config always-ready`: Set alwaysReady property to empty array if it is null (#28892)
+* `az functionapp`: Update messaging for flex function apps (#28812)
+* `az functionapp deployment source config-zip`: Allow users with no Microsoft.Web/serverFarm read privileges to deploy function apps (#28899)
+* `az webapp list`: Fix the bug `--show-details` fails while resource group name is not specified (#28901)
+* `az webapp list-runtimes/create/up`: Add Java 21 support (#28801)
+* `az functionapp create`: Use stacks API netFrameworkVersion value instead of the default value from the Python SDK (#28825)
+* `az functionapp create`: The linuxFxVersion for dotnet-isolated linux consumption apps will no longer be left empty (#28846)
+* `az functionapp`: Not block execution of command when runtime cannot be detected, and omit showing warning for runtime when not applicable (e.g. centauri apps, apps running a docker image) (#28867)
+* `az appservice plan create/update`: Add IsolatedV2 memory intensive SKU support (#28881)
+* `az functionapp create`: If customers do not provide an image when creating a Centauri function app, we use the updated default Centauri image (#28811)
+
+**ARM**
+
+* [BREAKING CHANGE] `az stack group/sub/mg create/delete`: Remove the deprecated `--delete-all`, `--delete-resources`, and `--delete-resource-groups` flags. Use the `--action-on-unmanage`/`--aou` parameter instead (#28605)
+* `az group delete`: Add new option `Microsoft.Databricks/workspaces` for `--force-deletion-types` parameter (#28940)
+* `az deployment`: Support inline parameters with `.bicepparam` in single `--parameters` argument (#28826)
+* `az stack group/sub/mg validate`: Add new `validate` command to preform preflight validation on a stack deployment (#28605)
+* `az stack group/sub create`: Validation of a stack will now occur before a stack is created or updated (#28605)
+* `az stack group/sub/mg create/delete`: Action on unmanage behavior for stack managed management groups can now be configured (#28605)
+* `az stack group/sub/mg create`: The correlation ID of the create operation is now returned as a property of the stack (#28605)
+* `az stack group/sub/mg create/delete`: Add new flag `--bypass-stack-out-of-sync-error`/`--bse` that will bypass errors related to the resource list of a stack being out of sync (#28605)
+
+**Compute**
+
+* [BREAKING CHANGE] `az sig image-definition create`: Set the default values for Hyper-V generation and Security Type (#28953)
+* `az vmss create/update`: Add new parameters `--enable-resilient-creation` and `--enable-resilient-deletion` to support Resiliency Policy on VMSS (#28957)
+* `az vm create/update`: Add new option `NvmeDisk` for `--ephemeral-os-disk-placement` parameter (#28947)
+* `az vmss create/update`: Add new option `NvmeDisk` for `--ephemeral-os-disk-placement` parameter (#28947)
+* `az vm create`: Add new parameters `--source-snapshots-or-disks` and `--source-snapshots-or-disks-size-gb` to support implicit disk creation from snapshot and disk (#28949)
+* `az vm create`: Add new parameters `--source-disk-restore-point` and `--source-disk-restore-point-size-gb` to support implicit disk creation from disk restore point (#28949)
+* `az vmss update`: Add new parameter `--ephemeral-os-disk` to support in-place mutual migration of VMSS from ephemeral to non-ephemeral OS disk (#28928)
+* `az vmss update`: Add new parameter `--ephemeral-option` to support setting ephemeral disk setting (#28928)
+
+**Compute Diagnostic**
+
+* `az compute-recommender spot-placement-recommender`: Add new command to support generating placement scores for Spot VM SKU (#28750)
+
+**Container app**
+
+* `az containerapp create/update`: Fix `--scale-rule-tcp-concurrency` for TCP scale rule (#28889)
+* `az containerapp compose create`: Fix issue where the environment's location is not resolved from `--location` (#28920)
+* Fix #28864: `az containerapp ingress update`: Fix updating transport from http to tcp with `--transport tcp` (#28930)
+* `az containerapp compose create`: Fix variable mixing issue when `--compose-file-path` contains multiple services (#28922)
+* Fix #28380: `az containerapp ingress access-restriction set`: Fix `KeyError` when `name` not exists (#28755)
+
+**Key Vault**
+
+* [BREAKING CHANGE] `az keyvault create`: Default `--enable-rbac-authorization` to true (#28886)
+* `az keyvault key create`: Update the release policy used for `--default-cvm-policy` (#28927)
+
+**NetAppFiles**
+
+* [BREAKING CHANGE] `az account backup`: Replace backup commands with backup-vault commands (#28890)
+* [BREAKING CHANGE] `az volume backup status`: Remove `volume backup status` command, replace with `az netappfiles volume latest-backup-status show` (#28890)
+* `az netappfiles account backup-vault`: Add backup vault command group (#28890)
+* `az netappfiles volume latest-backup-status show`: Add command to get latest backup status (#28890)
+* `az netappfiles volume latest-restore-status show`: Add command to get latest backup status (#28890)
+* `az netappfiles resource region-info list`: Add command to list region specific information (#28890)
+* `az netappfiles resource region-info default show`: Add command to get storage to network proximity and logical zone mapping information (#28890)
+
+**Network**
+
+* [BREAKING CHANGE] `az network dns zone`: Deprecate `--zone-type`, `registration-vnets` and `resolution-vnets` (#28640)
+* `az network vnet subnet`: Add parameter `--sharing-scope` (#28752)
+* `az network private-endpoint-connnection`: Add `Microsoft.App/managedEnvironment` for private endpoint connections (#28794)
+* Fix #28615: `az network application-gateway address-pool update`: Race condition in concurrent scenario (#28777)
+* Fix #28705: `az network lb rule`: Authentication token not being generated (#28840)
+
+**Packaging**
+
+* Add Ubuntu 24.04 Noble Numbat support (#28888)
+* [BREAKING CHANGE] Drop Ubuntu 18.04 support (#28942)
+
+**Profile**
+
+* `az login`: Introduce login experience v2. For more details, see https://go.microsoft.com/fwlink/?linkid=2271236 (#28910)
+
+**RDBMS**
+
+* `az postgres flexible-server migration create`: Add private endpoint support for migrations by providing migration runtime resource ID as command line argument (#28798)
+
+**Security**
+
+* [BREAKING CHANGE] `az security contact create`: Deprecate `--alerts-admins` and `--email` (#28535)
+* [BREAKING CHANGE] `az security setting update`: Deprecate `--enabled` (#28535)
+
+**Service Connector**
+
+* `az aks connection list/show`: Add kubernetes resource name (#28887)
+* `az source connection create cognitiveservices`: Support OpenAI/AIServices/CognitiveServices as target (#28852)
+* `az webapp connection list`: Fix interactive input (#28918)
+
+**Storage**
+
+* [BREAKING CHANGE] `az storage account update`: Prompt user for possible charge increases when changing `--access-tier`, add `--upgrade-to-storagev2` (#28951)
+* [BREAKING CHANGE] `az storage container set-permission/get-permission` and `az storage container policy`: Remove `--auth-mode login` and `--sas-token` for container access policy commands as only shared key authorization is supported on server side (#28601)
+
+2.60.0
+++++++
+
+**ACR**
+
+* [BREAKING CHANGE] `az acr connected-registry create`: Mode default value change from ReadWrite to ReadOnly (#28807)
+* `az acr connected-registry create`: If data-endpoint disabled ask for confirmation to enable it instead of throwing an error (#28807)
+
+**AKS**
+
+* `az aks create/update`: Prompt warning during disablement about CR deletion (#28655)
+* `az aks create/update`: Udpate RP registration code to work on azure monitor subscription (#28607)
+* `az aks create/update`: Update to add default region for workspace creation in air gapped cloud (#28607)
+* `az aks nodepool add`: Add parameter `--disable-windows-outbound-nat` to add a Windows agent pool which the Windows OutboundNAT is disabled (#28806)
+
+**App Service**
+
+* `az webapp config container set`: Remove docker prefix and rename container related parameters (#28621)
+* `az webapp create` and `az webapp deployment slot create`: Rename `--docker-registry-server-user` and `--docker-registry-server-password` to `--container-registry-user` and `--container-registry-password` (#28621)
+* `az webapp create` and `az webapp deployment slot create`: Add parameters `--container-image-name` and `container-registry-url` to deprecate `--deployment-container-image-name` (#28621)
+* `az webapp create` and `az logicapp create`: Update help message (#28621)
+* `az webapp config set`: Add new parameter `--runtime` to allow users to update their stack by using single parameter (#28736)
+* `az functionapp create`: Remove unnecessary app settings for flex function apps (#28726)
+* Fix #28588: `az webapp config access-restriction add`: Check for null before getting values (#28613)
+* `az webapp config access-restriction set`: Add new parameter `--default-action` to configure default action for main site (#28617)
+* `az webapp config access-restriction set`: Add new parameter `--scm-default-action` to configure default action for scm site (#28617)
+* `az webapp list`: Add parameter `--show-details` to include detailed site configuration of listed webapps in output (#28715)
+* `az functionapp create`: Will validate that the provided runtime is supported by flex when creating a flex function app (#28795)
+* `az functionapp list-flexconsumption-runtimes`: Add support for this new command so that it provides the list of supported flex runtimes when provided the `--location` and `--runtime` (#28795)
+
+**ARM**
+
+* `az bicep install`: Support additional process architectures with Bicep CLI (#28580)
+* `az deployment`: Return better message on incorrect bicepparam file path (#28654)
+* `az bicep format`: Replace `--newline` with `--newline-kind` (#28728)
+* `az bicep publish`: Replace `--documentationUri` with `--documentation-uri` (#28728)
+
+**Backup**
+
+* `az backup vault update`: Take `--tenant-id` as input for resolving cross-tenant resource guard scenarios. Vault Immutability feature also has resource guard protection now, and support for the same has been added. (#28768)
+* `az backup protection disable`: Take `--tenant-id` as input for resolving cross-tenant resource guard scenarios. Stop protection feature also has resource guard protection now, and support for the same has been added. (#28768)
+
+**Batch**
+
+* `az batch pool create`: Add `--upgrade-policy-mode` argument to support automatic OS upgrade (#28784)
+* `az batch pool create`: Add `--enable-auto-os-upgrade` argument to enable automatic OS upgrade (#28784)
+* `az batch pool create`: Add `--disable-auto-rollback` argument to disable OS image rollback feature (#28784)
+* `az batch pool create`: Add `--defer-os-rolling-upgrade` argument to defer OS upgrades on the TVMs if they are running tasks (#28784)
+* `az batch pool create`: Add `--use-rolling-upgrade-policy` argument to support OS rolling upgrade policy (#28784)
+* `az batch pool create`: Add `--enable-cross-zone-upgrade` argument to support cross zone OS upgrade (#28784)
+* `az batch pool create`: Add `--max-batch-instance-percent` argument to set the maximum percent of total VMs that will be upgraded in one batch (#28784)
+* `az batch pool create`: Add `--max-unhealthy-instance-percent` argument to set the maximum percentage of the total VMs can be simultaneously unhealthy (#28784)
+* `az batch pool create`: Add `--max-unhealthy-upgraded-instance-percent` argument to set the maximum percentage of upgraded VMs that can be found to be in an unhealthy state (#28784)
+* `az batch pool create`: Add `--pause-time-between-batches` argument to set the wait time between batches in rolling OS upgrade (#28784)
+* `az batch pool create`: Add `--prioritize-unhealthy-instances` argument to support upgrade all unhealthy VMs first (#28784)
+* `az batch pool create`: Add `--rollback-failed-instances-on-policy-breach` argument to enable rollback failed instances to previous model if the Rolling Upgrade policy is violated (#28784)
+
+**Compute**
+
+* `az vmss create`: Add support of configure the rolling mode upgrade policy during VMSS creation (#28761)
+* `az vmss update`: Add new parameter `--max-surge` to support updating rolling upgrade policy max surge (#28761)
+* `az capacity reservation group list`: Add new parameter `--resource-ids-only` to support retrieving the capacity reservation group resource ids (#28773)
+* `az capacity reservation group create`: Change `--sharing profile` to support unsharing subscriptions by passing nothing (#28773)
+
+**Containerapp**
+
+* `az containerapp env create`: Support `--dapr-connection-string` to set application insights connection string used by Dapr to export service to service communication telemetry (#28625)
+* Fix #28553: `az containerapp exec`: Fix the error of `inappropriate ioctl for device` (#28759)
+
+**Monitor**
+
+* `az monitor log-analytics workspace update`: Add parameter `--sku-name` (#28411)
+
+**NetAppFiles**
+
+* `az netappfiles volume-group create`: Add `--zones` argument to set Availability Zone for volume group volumes (#28709)
+* `az netappfiles volume create/update`: Update maximum value for `--usage-threshold` to support large volumes (#28709)
+
+**Network**
+
+* `az network virtual-appliance inbound-security-rule`: Support for Permanent Inbound Security Rule (#28697)
+
+**RDBMS**
+
+* `az postgres flexible-server upgrade`: Add capability to perform major version upgrade to PG16 (#28687)
+
+**Service Connector**
+
+* `az aks connection`: AKS support for Service Connector (#28546)
+* `az webapp/containerapp/spring connection create/update`: Store configurations in App Config (#28089)
+* `az source connection create`: Support auth opt out (#28754)
+
+**Service Fabric**
+
+* `az sf managed-cluster network-security-rule`: Add new network security rule commands (#28663)
+
+**SQL**
+
+* `az sql server create/update`: Add 1.3 to minTLSEnum and make TLS 1.2 as default (#28665)
+
+2.59.0
+++++++
+
+**ACR**
+
+* Fix #14768: `az acr login`: Add environment variable for docker command (#28443)
+
+**ACS**
+
+* `az aks create`: Add flag `--enable-app-routing` to enable app routing (#28463)
+* `az aks approuting`: Add command group to handle enable/disable/update of the app routing addon (#28463)
+* `az aks approuting zone`: Add command group to handle add/delete/update/list actions of DNS zone resources associated to the approuting addon (#28463)
+* `az aks create/update`: Introduce changes for Azure container storage in ACS CLI (#28251)
+
+**AD**
+
+* `az ad`: Rename Azure Active Directory to Microsoft Entra ID (#27756)
+
+**AKS**
+
+* `az aks create`: Add optional parameter `--revision` to set revision for the Azure Service Mesh addon while creating AKS cluster (#28482)
+* `az aks mesh get-upgrades`: Fix command failure with a traceback if ASM addon is disabled (#28507)
+* `az aks create/update`: Enable mooncake support for managed prometheus addon (#28504)
+* `az aks create/update`: Block Azure Managed Grafana for managed prometheus addon in air gapped cloud (#28570)
+* `az aks create`: Correct use of "comma-separated" in help (#28245)
+
+**App Config**
+
+* `az appconfig feature filter update`: GA command (#28459)
+* `az appconfig kv export`: GA parameter `--export-as-reference` (#28459)
+
+**App Service**
+
+* `az functionapp create`: Add support for Node 20 for Flex function apps (#28618)
+* `az functionapp create`: Make Node 20 the default for node flex function apps and Python 3.11 the default for python flex function apps (#28618)
+* `az functionapp create`: Add support for SystemAssignedIdentity and UserAssignedIdentity as the deployment storage authentication type (#28618)
+* `az webapp update`: Add new parameter `--elastic-web-app-scale-limit` and scaling parameter options (#28297)
+* `az appservice plan update`: Add new parameter `--elastic-web-app-scale-limit` and scaling parameter options (#28297)
+* `az webapp deployment source config-zip`: Mark this command as deprecated, recommend using the `az webapp deploy` command instead of it (#28466)
+
+**ARM**
+
+* `az stack group create`: Deprecate the `--delete-resources`, `--delete-resource-groups` and `--delete-all` options and redirect to the new `--action-on-unmanage` argument (#28596)
+* `az stack group delete`: Deprecate the `--delete-resources`, `--delete-resource-groups` and `--delete-all` options and redirect to the new `--action-on-unmanage` argument (#28596)
+* `az stack sub create`: Deprecate the `--delete-resources`, `--delete-resource-groups` and `--delete-all` options and redirect to the new `--action-on-unmanage` argument (#28596)
+* `az stack sub delete`: Deprecate the `--delete-resources`, `--delete-resource-groups` and `--delete-all` options and redirect to the new `--action-on-unmanage` argument (#28596)
+* `az stack mg create`: Deprecate the `--delete-resources`, `--delete-resource-groups` and `--delete-all` options and redirect to the new `--action-on-unmanage` argument (#28596)
+* `az stack mg delete`: Deprecate the `--delete-resources`, `--delete-resource-groups` and `--delete-all` options and redirect to the new `--action-on-unmanage` argument (#28596)
+* `az deployment`: Treat nullable parameters as non-required for Bicep deployment (#28399)
+
+**ARO**
+
+* `az aro create/validate`: Fix bug in permissions validation that was preventing cluster creation in cases where the invoking user had the necessary permissions (#28398)
+
+**CDN**
+
+* `az afd profile`: Add parameter `--identity` (#28453)
+
+**Compute**
+
+* `az snapshot grant-access`: Add parameter `--file-format` to support specifying file format when making request for SAS on a VHDX file format snapshot (#28583)
+* `az vmss create`: Add `--enable-auto-os-upgrade` parameter to support automatic OS Upgrade while creating VMSS (#28529)
+* `az sig image-definition create`: Add warning message for Hyper-V generation and Security Type (#28610)
+* `az vmss create/update`: Add parameters to specify the security posture to be used for all virtual machines in the scale set (#28547)
+* `az capacity reservation group create/update`: Add new parameter `--sharing-profile` to support sharing capacity reservation group across subscriptions (#28611)
+* `az snapshot create`: Add parameter `--bandwidth-copy-speed` to allow a snapshot to be copied at a quicker speed (#28629)
+
+**DataBoxEdge**
+
+* `az databoxedge device`: Add command group `share` to support managing device share (#28445)
+* `az databoxedge device`: Add command group `user` to support managing device user (#28445)
+* `az databoxedge device`: Add command group `storage-account` to support managing device storage account (#28445)
+* `az databoxedge device`: Add command group `storage-account-credential` to support managing device storage account credential (#28445)
+* `az databoxedge device`: Add command `get-extended-information` to support getting extended information (#28445)
+
+**MySQL**
+
+* `az mysql flexible-server advanced-threat-protection-setting show`: Show server's advanced threat protection setting (#28389)
+* `az mysql flexible-server advanced-threat-protection-setting update`: Update server's advanced threat protection setting using `--state` as Enabled/Disabled (#28389)
+* `az mysql flexible-server import create`: Add support for online migration for single to flex (#28599)
+
+**NetAppFiles**
+
+* `az netappfiles check-file-path-availability`: Add new command to check if a file path is available (#27951)
+* `az netappfiles check-name-availability`: Add new command to check if a resource name is available (#27951)
+* `az netappfiles check-quota-availability`: Add new command to check if a quota is available (#27951)
+* `az netappfiles query-network-sibling-set`: Add new command to describe a network sibling set (#27951)
+* `az netappfiles update-network-sibling-set`: Add new command to update the network features of a network sibling set (#27951)
+* `az netappfiles quota-limit`: Add new command group to manage quota limits (#27951)
+* `az netappfiles volume populate-availability-zone`: Add new command to populate availability zone information for a volume (#27951)
+* `az netappfiles volume replication re-initialize`: Add new command to re-establish a previously deleted replication between 2 volumes that have a common ad-hoc or policy-based snapshots (#27951)
+
+**Network**
+
+* `az network virtual-appliance connection`: Add update command for NVA connection (#28461)
+* `az network dns record-set`: Add `--traffic-management-profile` for TMLink recordset feature (#28516)
+* `az network application-gateway waf-policy`: Change default rule set from CRS3.0 to DRS2.1 (#28539)
+* `az network virtual-appliance`: Add `--internet-ingress-ips` and `--network-profile` (#28619)
+
+2.58.0
+++++++
+
+**ACR**
+
+* `az acr`: Update registry and webhook example names to be lowercase (#28364)
+* `az acr create/update`: Add new argument `--allow-metadata-search` to enable the metadata-search feature for the registry (#28082)
+
+**AKS**
+
+* Add monitoring addon to support default workspace in AGC (#28326)
+* `az aks get-versions`: Show extra column on supportPlan (#28325)
+* `az aks create/update`: Update region map for default region creation with new Azure Monitor Workspace regions (#28236)
+* `az aks update`: Zero can be set to outbound-ports,outbound-ip-count in loadbalancer profile and outbound-ip-count in natgateway profile in AKS (#28273)
+
+**API Management**
+
+* `az apim api export`: Add command to export an API Management API (#28279)
+
+**App Service**
+
+* `az webapp up/create/update`: Add new parameter `--basic-auth` to allow users to enable and disable basic auth (#28237)
+
+**ARM**
+
+* Fix #27855: `az bicep generate-params`: Bicep install messages sent to stdout (#28188)
+
+**Backup**
+
+* [BREAKING CHANGE] `az backup item set-policy`: Add warning prompt for migration from Standard to Enhanced Policy (#28317)
+
+**Batch**
+
+* `az batch pool create`: Add new parameter `--resource-tags` to support specifying resource tags for the pool. Any resource created for the pool will then also be tagged by the same resource tags (#28315)
+* `az batch pool create`: Add new parameters `--security-type`, `--encryption-at-host`, `--secure-boot-enabled`, and `--v-tpm-enabled` to support Trusted Launch Security Type for VMs/VMSS deployments (#28315)
+* `az batch pool create`: Add new parameters `--caching`, `--disk-size-gb`, `--write-accelerator-enabled`, and `--storage-account-type` to support Batch Node Agent temp disk-less SKUs (#28315)
+
+**CDN**
+
+* Fix #28240: `az afd rule create`: Cannot create without condition (#28422)
+* Fix #28223: `az afd route create`: Cannot create without `--content-types-to-compress` (#28421)
+* Fix #27744: `az afd origin-group`: Add parameter `--enable-health-probe` (#28432)
+
+**Compute**
+
+* `az vmss nic`: Update help messages to guild users to specific commands for Flexible VMSS (#28390)
+* `az vm host redeploy`: Add command to redeploy the dedicated host (#28418)
+* Fix #28397: `az vm create`: Fix creating VM with `--security-type Standard` (#28409)
+* `az vmss application set`: Fix updates to the purchase plan are not supported when updating VMSS (#28230)
+* `az vmss update-domain-walk`: Add new command to support updating vm in a service fabric vmss (#28300)
+
+**Containerapp**
+
+* `az containerapp revision copy`: Fix `--from-revision` bug for inheriting a specific revision contains scale rules (#28272)
+* `az containerapp update`: Fix TypeError: Argument of type 'NoneType' is not iterable (#28401)
+* Fix #28226: `az containerapp job update`: Update existing scale rules if `--scale-rule-name` is passed (#28408)
+
+**Cosmos DB**
+
+* `az cosmosdb sql database/container restore`: Fix support for restore of deleted database resource in the same SQL account (#28365)
+* `az cosmosdb mongodb database/collection restore`: Fix support for restore of deleted database resource in the same MongoDB account (#28365)
+* `az cosmosdb gremlin database/graph restore`: Fix support for restore of deleted database resource in the same gremlin account (#28365)
+* `az cosmosdb table restore`: Fix support for restore of deleted table resource in the same account (#28365)
+
+**MySQL**
+
+* `az mysql flexible-server import create`: Change the default progress message from starting to running (#28435)
+
+**Network**
+
+* `az network virtual-appliance connection`: Add show and list commands for NVA connection (#28431)
+* `az network vnet-gateway`: Add parameters `--allow-remote-vnet-traffic` and `--allow-vwan-traffic` (#28446)
+* `az network express-route gateway`: Add parameter `--allow-non-vwan-traffic` (#28446)
+
+**RDBMS**
+
+* Fix #27713: `az postgres flexible-server list-skus -o table`: Fix table output from list-skus command (#28108)
+
+**Security**
+
+* `az security api-collection`: Manage Azure API Management API connections to Microsoft Defender for APIs (#28285)
+* `az security security-connector`: Manage cloud security posture management (CSPM) and cloud workload protection (CWP) across multicloud resources (#28285)
+
+**SQL VM**
+
+* Fix #27300: `az sql vm group create`: `--cluster-subnet-type` should only be passed into `WsfcDomainProfile` (#27301)
+
+**Storage**
+
+* Fix #28356: `az storage account or-policy update`: Fix `-p @policy.json` to allow passing in json files (#28391)
+* `az storage blob upload-batch`: Support `--tags`, make `--overwrite` non-preview (#28410)
+
+2.57.0
+++++++
+
+**AKS**
+
+* `az aks upgrade`: Add forceupgrade settings to aks stable cli (#28200)
+* `az aks mesh`: Add `az aks mesh` commands to manage Azure Service Mesh in given cluster (#28206)
+* `az aks nodepool add/update/upgrade`: Add new parameter `--node-soak-duration` to wait after draining a node and before reimaging it and moving on to next node (#27604)
+
+**App Service**
+
+* `az functionapp create`: Use app insights connection string instead of instrumentation key (#27803)
+* `az webapp create`: Add new parameter `--acr-use-identity` to configure pull image from ACR using MSI when creating a container web app (#28209)
+* `az webapp up`: Add `--track-status` arg to use deploymentstatus API (#28235)
+* `az webapp deployment source config-zip`: Add `--track-status` arg to use deploymentstatus API (#28235)
+* `az functionapp create`: Only allow apps with functions version 4 (#28128)
+
+**Backup**
+
+* `az backup restore restore-disks`: Add support for disk restore in edge-zone backups (#28150)
+* `az backup restore restore-disks`: Support for Taiwan North and Taiwan North-West Cross region restore (#28150)
+
+**Billing**
+
+* `az billing account`: Add new command `list-invoice-section` to support listing invoice section (#28214)
+* `az billing account`: Add new command group `invoice-section` to support managing account invoice section (#28214)
+* `az billing`: Add new command `enrollment-account` to support managing enrollment account (#28214)
+* `az billing invoice section`: Add new command `initiate-transfer` to support intiating transfer (#28214)
+* `az billing profile`: Add new command `reservation list ` to support managing reservation (#28214)
+* `az billing`: Add new command group `transfer` to support managing transfer (#28214)
+
+**Compute**
+
+* `az image builder error-handler`: Add group to manage error handling options upon a build failure (#28106)
+* `az sshkey create`: Add parameter `--encryption-type` to specify the encryption type of SSH keys to be generated (#28143)
+* `az vm monitor log show`: Deprecate `azure-loganalytics` and apply `azure-monitor-query` (#28199)
+* `az vm/vmss create`: Support Trusted Launch as default deployment option (#28222)
+
+**Consumption**
+
+* Fix #20995 #23825: Update `az consumption` API version (#27833)
+
+**Containerapp**
+
+* `az containerapp update`: Fix issue for minReplicas in `--yaml` or `--min-replicas` is not set when the value is 0 (#28163)
+* `az containerapp up`: Fix issue when registry creds are provided for ACRs using `containerapp up` command (#28217)
+
+**Key Vault**
+
+* `az keyvault create`: Add warning for upcoming breaking change that `--enable-rbac-authorization` will default to `true` (#28178)
+* `az keyvault secret set-attributes`: Fix 'Datetime with no tzinfo will be considered UTC' warning (#28138)
+
+**Monitor**
+
+* `az monitor metrics`: Add `list-sub` and `list-sub-definition` (#28201)
+* `az monitor metrics list`: Fix `--top` help message (#28114)
+
+**MySQL**
+
+* `az mysql flexible-server import create`: Add support for operation progress estimated completion time for import from physical backup from azure blob to flexible server (#28243)
+
+**Network**
+
+* `az network vnet-gateway create/update`: Add parameter `--enable-private-ip` (#28158)
+* Fix #28131: `az network vnet-gateway list`: Conflict key when apply client flatten (#28170)
+* `az network express-route port authorization`: Support to manage authorization with express route port (#28149)
+* `az network private-link-service list-auto-approved`: Support to list all auto-approved private link services (#28149)
+* `az network public-ip ddos-protection-statu show`: Support to get the DDoS protection status of public IP address (#28149)
+* `az network vnet-gateway`: Support ExpressRoute SKU (#28219)
+* `az network lb create`: Support cross-subscription resource ID (#28247)
+
+**Packaging**
+
+* Support Windows ZIP package (#27911)
+
+**RDBMS**
+
+* `az postgres flexible-server private-endpoint-connection`: Add support for private endpoint connection commands like list, show, approve, reject, delete for PostgreSQL flexible server (#28142)
+* `az postgres flexible-server private-link-resource`: Add support for private link resource commands like list, show for PostgreSQL flexible server (#28142)
+* `az postgres flexible-server replica stop-replication`: Stop replication to a read replica and make it a read/write server. This command is deprecated. Use `az postgres flexible-server replica promote` instead. (#28189)
+
+**Redis**
+
+* `az redis flush`: Add support for flush operation (#27599)
+* `az redis create`: Add support for Microsoft Entra Authentication (#27599)
+* `az redis access-policy/access-policy-assignment`: New command groups to manage access policy (#27599)
+
+**Service Connector**
+
+* `az webapp/containerapp/spring connection create/update app-insights`: Support App Insights as target service (#28095)
+* `az webapp connection create sql`: Support auto install for serviceconnector-passwordless extension (#28168)
+* `az webapp/functionapp/containerapp/springapp connection`: Support Microsoft Entra ID auth types for table storage (#28162)
+* `az webapp/containerapp/spring connection create/update`: Support opt out action for configurationInfo and publicNetwork (#28079)
+
+**SQL**
+
+* `az sql db ltr-policy/ltr-backup`: Add support for backup storage access tier (#27928)
+* `az sql db ltr-policy set`: Add the make-backups-immutable parameter to ltr policy (#27983)
+* `az mi create/update`: Add optional parameter `--database-format` and `--pricing-model` for SQL Managed Server resource (#28173)
+* `az sql mi refresh-external-governance-status`: Add a new command for Azure SQL Managed Instance refresh external governance status (#28195)
+
+**Storage**
+
+* `az storage file copy start`: Fix when copying between two storage accounts and source file has no parent directory (#28123)
+* Fix #28202: `az storage container policy create`: Fix creating an access policy would delete public access permission (#28211)
+* `az storage container set-permission`: Fix failing when updating public access permission with an existing access policy (#28211)
+* Fix #21876: `az storage blob upload-batch/download-batch/delete-batch`: Add double quotes to `--pattern` value for unix shell (#28221)
+
+2.56.0
+++++++
+
+**AKS**
+
+* `az aks create/update`: Add new parameter `--load-balancer-backend-pool-type` to define the Load Balancer backend pool type of managed inbound backend pool (#27910)
+* `az aks create`: Add parameter `--node-public-ip-tags` to specify the ipTags of the node public IPs (#27910)
+* `az aks nodepool`: Add parameter `--node-public-ip-tags` to specify the ipTags of the node public IPs (#27910)
+* `az aks create` and `az aks nodepool add`: Add crg-id option to create nodepool with Capacity Reservation Group (#27730)
+* `az aks stop`: Add warning when private link cluster is stopped (#27986)
+* `az aks trustedaccess role`: Add new command group to manage trusted access roles (#27931)
+* `az aks trustedaccess rolebinding`: Add new command group to manage trusted access role bindings (#27931)
+* `az aks trustedaccess rolebinding list`: Add new command to list all the trusted access role bindings (#27931)
+* `az aks trustedaccess rolebinding show`: Add new command to get the specific trusted access role binding according to binding name (#27931)
+* `az aks trustedaccess rolebinding create`: Add new command to create a new trusted access role binding (#27931)
+* `az aks trustedaccess rolebinding update`: Add new command to update an existing trusted access role binding (#27931)
+* `az aks trustedaccess rolebinding delete`: Add new command to delete a trusted access role binding according to name (#27931)
+* `az aks update`: Add parameter `--network-plugin` to update the network plugin of the AKS cluster (#28042)
+
+**App Config**
+
+* `az appconfig feature set`: Add requirement type to feature command (#28065)
+
+**App Service**
+
+* `az functionapp create`: Add DAPR support for Centauri apps (#27589)
+* `az functionapp create`: Remove workarounds for Centauri (#27687)
+* `az webapp deploy`: Add `--track-status` arg to use deploymentstatus API (#27548)
+* `az functionapp create`: Add workload profile support for Centauri apps (#27736)
+
+**ARM**
+
+* `az bicep publish`: Add optional parameter `--with-source` to publish source code with the module (experimental) (#27847)
+* `az lock delete`: Fix the case sensitive comparison issue for resource group name (#28087)
+
+**Compute**
+
+* `az vmss create`: Change `--orchestration-mode` to support only `uniform` for old profile (#27980)
+* `az vm/vmss create/update`: Add new parameters `--enable-proxy-agent` and `--proxy-agent-mode` to support azure metadata security protocol (#28088)
+* `az vm/vmss create`: Add new option `NonPersistedTPM` for parameter `--os-disk-security-encryption-type` to support creating Intel TDX based Confidential VM (#28094)
+
+**Containerapp**
+
+* `az containerapp job update`: Fix bug for minExecutions in `--yaml` is not set when the value is `0` (#27948)
+* `az containerapp hostname bind`: Fix an issue about parsing the environment's resource group when the `--environment` is a resource id (#28063)
+
+**Cosmos DB**
+
+* `az cosmosdb sql database restore`: Add support for restore of deleted database resource in the same SQL account (#28034)
+* `az cosmosdb sql container restore`: Add support for restore of deleted container resource in the same SQL account (#28034)
+* `az cosmosdb mongodb database restore`: Add support for restore of deleted database resource in the same MongoDB account (#28034)
+* `az cosmosdb mongodb collection restore`: Add support for restore of deleted collection resource in the same MongoDB account (#28034)
+* `az cosmosdb gremlin database restore`: Add support for restore of deleted database resource in the same gremlin account (#28034)
+* `az cosmosdb gremlin graph restore`: Add support for restore of deleted graph resource in the same gremlin account (#28034)
+* `az cosmosdb table restore`: Add support for restore of deleted table resource in the same account (#28034)
+
+**Eventhub**
+
+* `az eventhubs georecovery-alias create`: Name parameter is required (#28033)
+
+**Extension**
+
+* `az extension`: Enable extension semantic versioning and join `experimental` into `preview` (#27877)
+* `az extension add/update`: Add `--allow-preview` to distinguish stable-only installation with preview-included installation (#27895)
+
+**Key Vault**
+
+* `az keyvault create/update-hsm`: GA `--mi-user-assigned` (#28015)
+* `az keyvault backup/restore start`: GA `--use-managed-identity` (#28015)
+
+**Monitor**
+
+* `az monitor log-analytics workspace`: Add `list-link-target` and `list-available-service-tier` (#28019)
+
+**Network**
+
+* `az network application-gateway waf-config list-dynamic-rule-sets`: Support to get the WAF dynamic manifest (#28006)
+* `az network nsg rule list`: Fix ranges and prefixes disappeared with `-o table` option (#27972)
+* `az network vnet subnet`: Add `--private-endpoint-network-policies` and `--private-link-service-network-policies` (#28023)
+
+**RDBMS**
+
+* `az postgres flexible-server virtual-endpoint`: Add support for virtual endpoints for PostgreSQL flexible server (#27885)
+* `az postgres flexible-server replica promote`: Add capability to stop replication and promote to primary or standalone server with the selection of planned/force data syncs. (#28013)
+* `az postgres flexible-server server-logs list`: List server log files for PostgreSQL flexible server (#28020)
+* `az postgres flexible-server server-logs download`: Download server log files for PostgreSQL flexible server (#28020)
+* `az postgres flexible-server create`: Add capability to set storage type to PremiumV2_LRS and provide values for IOPS and Throughput during creation (#28039)
+* `az postgres flexible-server update`: Add capability to update the values of IOPS and Throughput during update (#28039)
+* `az postgres flexible-server migration create`: Add migration option like Migrate, Validate and ValidateAndMigrate using parameter `--migration-option` and json file for Migration configuration to support additional properties like sourceType and sslMode (#28066)
+
+**Redis**
+
+* `az redis import/export`: Add `--storage-subscription-id` support while importing/exporting data (#27472)
+
+**Service Bus**
+
+* `az servicebus georecovery-alias create`: Name parameter is required (#28033)
+
+**Storage**
+
+* [BREAKING CHANGE] `az storage account create`: Server change default value for `--allow-blob-public-access` and `--allow-cross-tenant-replication` to `False` for security concerns (#28091)
+
+**Upgrade**
+
+* `az upgrade`: Add `--allow-preview` to distinguish stable-only extension installation with preview-included extension installation (#27895)
+
+2.55.0
+++++++
+
+**ACR**
+
+* `az acr login`: Allow registry names with hyphen (#27835)
+* Fix #27487: `az acr check-health`: Fix DOCKER_PULL_ERROR when acr check-health for Mac OS (#27891)
+
+**AKS**
+
+* `az aks update`: Update outbound ip description and remove limitation (#27890)
+* `az aks create`: Add arguments `--asg-ids` and `--allowed-host-ports` (#27900)
+* `az aks nodepool add/update`: Add arguments `--asg-ids` and `--allowed-host-ports` (#27900)
+
+**App Service**
+
+* Fix #27189: `az webapp log tail`: Catch exception when scm connection is lost (#27810)
+
+**Billing**
+
+* `az billing period list`: Fix `--top` does not work as expected (#27804)
+* `az billing invoice download`: Fix command does not work (#27804)
+* `az billing invoice list`: Fix `--period-end-date` and `--period-start-date` help message error (#27804)
+
+**Compute**
+
+* `az disk create`: Add new parameter `--optimized-for-frequent-attach` to improve reliability and performance of data disks that are frequently attached (#27815)
+* `az disk/snapshot create`: Add new parameter `--elastic-san-resource-id` to support creating through the ARM id of elastic san volume snapshot (#27815)
+
+**Containerapp**
+
+* `az containerapp ingress cors enable`: Only update arguments `--allow-headers`, `--allow-credentials`, `--allow-methods`, `--expose-methods`, `--max-age` when the value is not `None` (#27837)
+* `az containerapp`: Change the container-app name and container-app job name in the example to legal names (#27933)
+
+**Key Vault**
+
+* `az keyvault backup start`: Add `status` in output (#27902)
+
+**Monitor**
+
+* `az monitor activity-log alert`: Upgrade api-version to `2020-10-01` to include `any-of` query condition (#27623)
+* `az monitor activity-log alert`: Expose parameter `all-of` to enable user modifying query condition specifically (#27623)
+
+**Network**
+
+* `az network private-endpoint-connection`: Add provider `Microsoft.DBforPostgreSQL/flexibleServers` (#27840)
+* `az network public-ip prefix`: Add parameter `--tier` (#27825)
+
+**RDBMS**
+
+* `az postgres flexible-server replica create`: Add support for parameters like `--tier`, `--sku-name`, `--storage-size` during replica creation (#27894)
+* `az postgres flexible-server update`: Add support for custom IOPS update for flexible server using `--performance-tier` (#27894)
+* `az postgres flexible-server advanced-threat-protection-setting show`: Show advanced threat protection setting (#27918)
+* `az postgres flexible-server advanced-threat-protection-setting update`: Update advanced threat protection setting using `--state` as Enabled/Disabled (#27918)
+
+**Service Connector**
+
+* `az containerapp connection create`: Enable Key Vault Reference in Container Apps (#27270)
+
+**SQL**
+
+* `az instance-pool create/update`: Add optional parameter `--maintenance-configuration-id` for SQL Instance Pool resource (#27859)
+* `az mi create/update`: Add optional parameter `--instance-pool-name` for SQL Managed Server resource (#27906)
+
+**Storage**
+
+* `az storage blob upload`: Increase `max_block_size` for append/block blobs of size >= 8mb to 8mb instead of 4mb (#27880)
+* `az storage blob upload`: Change default `max_connections` for append blob to 1 (#27880)
+* `az storage file upload/upload-batch`: Fix `--allow-trailing-dot` breaking `--connection-string` usage (#27901)
+* Fix #27899: `az storage account create`: Run `check_name_availability()` first and throw a warning when an existing account with the name is found (#27914)
+
+2.54.0
+++++++
+
+**ACR**
+
+* `az acr artifact-streaming`: Add new group to include a subgroup operation and the commands create/show/update (#27594)
+* `az acr artifact-streaming operation`: Add new group to help the user manage the artifact streaming creation with the commands cancel/show (#27594)
+* `az acr login`: Add additional parameter validation to check registry name is valid (#27762)
+* `az acr cache`: Add optional `--resource-group` parameter (#27605)
+* `az acr credential-set`: Add optional `--resource-group` parameter (#27605)
+
+**AKS**
+
+* [BREAKING CHANGE] `az aks create`: Make container log V2 as default and remove region dependency (#27615)
+* `az aks create/update`: Support custom ips/ipprefixes and managed ips being assigned to aks cluster outbound resources together (#27414)
+* `az aks nodepool add/update/upgrade`: Add new parameter `--drain-timout` to slow down the upgrade (#27475)
+* `az aks update`: Fix bug where supportPlan can be reset to None (#27554)
+* `az aks nodepool add`: Fix incorrectly specified property name for option `--drain-timeout` (#27621)
+* `az aks create/update`: Enable Grafana support in US Government clouds (#27488)
+* `az aks create/update`: Update region map for default region creation with new Azure Monitor Workspace regions (#27488)
+* `az aks create/update`: Add cluster scope to recording rule groups created during Managed Prometheus onboarding (#27488)
+* `az aks update`: Add `--network-policy` to support updating the mode of a network policy (#27466)
+
+**APIM**
+
+* `az apim api create`: Make `--authorization-scope` parameter optional for setting auth server (#27555)
+
+**App Config**
+
+* [BREAKING CHANGE] `az appconfig kv export`: Add validations to snapshot kv export to App Service (#27737)
+* [BREAKING CHANGE] `az appconfig kv import/export`: Add skip-features and skip-keyvault restriction for snapshots (#27714)
+* `az appconfig snapshot`: GA snapshot related features (#27738)
+
+**App Service**
+
+* [BREAKING CHANGE] `az functionapp`: Redact key value output on keys set (#27611)
+* [BREAKING CHANGE] Redact output on deployment source config (#27628)
+* [BREAKING CHANGE] `az webapp config`: Redact webapp config connection-string and storage-account values (#27629)
+* [BREAKING CHANGE] `az functionapp/webapp deployment source update-token`: Redact tokens output on deployment source update-token (#27614)
+* [BREAKING CHANGE] `az appservice ase create`: Update the default App Service Environment to V3 (#27761)
+* `az appservice list-locations`: Add `--hyperv-workers-enabled` parameter to get regions which support hosting web apps on windows container workers (#27535)
+* `az functionapp deployment source config-zip`: Add the deployer information to improve telemetry (#27427)
+* `az webapp up`: Fix `--logs` arg fails with an exception (#27471)
+* `az functionapp create`: Add new parameter `--workspace` to support creating workspace-based app insights components (#27407)
+
+**ARM**
+
+* [BREAKING CHANGE] `az stack mg create`: Not supplying `--deployment-scope` will no longer default the underlying deployment to the current subscription scope, but to the mg scope of the deployment stack. (#27709)
+* `az stack sub create`: Add no wait support (#27375)
+* `az stack mg create`: Add no wait support (#27375)
+* `az stack group create`: Add no wait support (#27375)
+* `az bicep lint`: Add new command to lint a bicep file (#27378)
+* `az deployment group create`: Support supplemental parameters when used with `.bicepparam` parameter file (#27527)
+* `az deployment`: Add support for determining type of parameters whose definition uses a $ref (#27360)
+
+**ARO**
+
+* `az aro create`: Add new `--enable-preconfigured-nsg` parameter, allowing users to enable or disable preconfigured NSGs (#27511)
+* `az aro create`: Add network contributor to the NSG resource for the cluster SP and FP SP (#27511)
+* `az aro update`: Add network contributor to the NSG resource for the cluster SP and FP SP, if not already when preconfigured NSG is enabled (#27511)
+
+**Backup**
+
+* `az backup vault create`: Allow updates to immutability for vaults with Managed Identity set (#27743)
+* `az backup vault update`: Add new command to support updating vault properties without the `--location` parameter (#27743)
+
+**Batch**
+
+* `az batch keys renew`: Update help with security warning (#27763)
+* `az batch keys list`: Update help with security warning (#27763)
+* `az batch account identity show`: Update help with security warning (#27763)
+
+**Compute**
+
+* [BREAKING CHANGE] Remove unversioned image aliases (#27566)
+* [BREAKING CHANGE] `az vm/vmss identity assign`: Remove the default value `Contributor` of parameter `--role` (#27657)
+* [BREAKING CHANGE] `az disk create`: Support creating disk with Gen2 and TLVM as default (#27620)
+* [BREAKING CHANGE] `az vm/vmss create`: Disable integrity monitoring by default (#27426)
+* [BREAKING CHANGE] `az disk/snapshot create`: Change the default value of `--hyper-v-generation` from `V1` to `None` (#27772)
+* [BREAKING CHANGE] `az vm create`: Change default value to `Standard` for LB options (#27691)
+* [BREAKING CHANGE] `az vmss create`: Change default value to `Standard` for LB options (#27691)
+* [BREAKING CHANGE] `az vmss create`: Change the default value of `--orchestration-mode` from `uniform` to `flexible` (#27596)
+* [BREAKING CHANGE] `az vm/vmss create`: Support Trusted Launch as default deployment option when creating vm/vmss with marketplace image (#27749)
+* [BREAKING CHANGE] `az vm/vmss create`: Support Trusted Launch as default deployment option when creating vm/vmss from existing disk or image (#27749)
+* [BREAKING CHANGE] `az vm/vmss create`: Support Trusted Launch as default deployment option when creating vm/vmss with minimal inputs (#27749)
+* Fix #27446: `az vm encryption enable`: Fix using incorrect client when `--key-encryption-key` is specified (#27493)
+* Fix #27451: `az vmss list-instances`: Fix API profile to resolve no registered resource provider found error (#27572)
+* `az vm create`: Format the notification message of recommendation region (#27583)
+* `az restore-point create`: Add new parameters `--source-os-resource`, `--os-restore-point-encryption-set` and `--os-restore-point-encryption-type` to support encryption OS disk (#27740)
+* `az restore-point create`: Add new parameters `--source-data-disk-resource`, `--data-disk-restore-point-encryption-set` and `--data-disk-restore-point-encryption-type` to support encryption data disk (#27740)
+* `az disk create`: Add new parameter `--optimized-for-frequent-attach` to improve reliability and performance of data disks that are frequently attached (#27742)
+* `az disk/snapshot create`: Add new parameter `--elastic-san-resource-id` to support creating through the ARM id of elastic san volume snapshot (#27742)
+* `az disk create`: Revert new parameter `--optimized-for-frequent-attach` (#27782)
+* `az disk/snapshot create`: Revert new parameter `--elastic-san-resource-id` (#27782)
+
+**Containerapp**
+
+* [BREAKING CHANGE] `az containerapp env workload-profile update`: Remove `--workload-profile-type` as it does not work in server side (#27684)
+* [BREAKING CHANGE] `az containerapp env create`: Update the default value of `--enable-workload-profiles` to `True` (#27680)
+* `az containerapp job create`: Fix AttributeError when `--trigger-type` is None (#27534)
+* `az containerapp compose create`: Fix bug where environment's resource group is not resolved from `--environment` when the input value is a resource id (#27585)
+* `az containerapp env workload-profile delete`: Fix issue when deleting wp for env with custom domain (#27684)
+* `az containerapp update`: Fix appending to NoneType object bug for `--secret-volume-mount` (#27707)
+* `az containerapp create/update`: Hide environment variables, scale rules metadata (#27571)
+* `az containerapp job create/update`: Hide environment variables, scale rules metadata (#27571)
+* `az containerapp compose create`: Fix containerapp invalid memory resource (#27680)
+* `az containerapp job create`: Fix problem of parsing parameters `minExecutions` and `maxExecutions` from `--yaml` (#27781)
+
+**Cosmos DB**
+
+* `az cosmosdb create/update`: Add support for minimum allowed TLS version and burst capacity configuration (#27322)
+
+**Eventhub**
+
+* [BREAKING CHANGE] `az eventhubs georecovery-alias update`: This command is removed. (#27416)
+
+**Key Vault**
+
+* [BREAKING CHANGE] `az keyvault storage`: Remove this command group since service doesn't maintain anymore (#27619)
+* `az keyvault create/update-hsm`: Add `--mi-user-assigned` to support MHSM managed identity (#27420)
+* `az keyvault backup/restore start`: Add `--use-managed-identity` to exempt SAS token (#27420)
+* `az keyvault key`: Add hsm platform info in response (#27780)
+
+**Monitor**
+
+* [BREAKING CHANGE] `az monitor activity-log alert create`: Change default value from resourceGroupId to subscriptionId for parameter `--scope` (#27126)
+* [BREAKING CHANGE] `az monitor metrics alert`: Change datetime output to be consistent with native response (#27328)
+* [BREAKING CHANGE] `az monitor log-analytics workspace table search-job create`: Remove `schema` wrapper for `searchResults` in api response (#26949)
+* `az monitor log-analytics workspace create`: Add `--identity-type` and `--user-assigned` arguments (#26949)
+* `az monitor log-analytics workspace update`: Add `--identity-type` and `--user-assigned` arguments (#26949)
+* `az monitor log-analytics workspace table`: Enable `--retention-time` to be workspace retention when setting as `-1` (#26949)
+* `az monitor log-analytics workspace table`: Enable `--total-retention-time` to be workspace retention when setting as `-1` (#26949)
+* `az monitor log-analytics workspace table search-job`: Add new command `cancel` (#26949)
+* `az monitor autoscale update`: Fix update failure with empty notification (#27597)
+
+**MySQL**
+
+* `az mysql flexible-server gtid reset`: Remove geo-backup check (#27723)
+
+**Network**
+
+* [BREAKING CHANGE] `az network public-ip create`: Change default value of `--sku` to standard (#27691)
+* [BREAKING CHANGE] `az network lb create`: Change default value of `--sku` to standard (#27691)
+* `az network private-dns record-set a add-record`: Fix record cannot be added when record set is empty (#27458)
+* `az network lb address-pool`: Add parameter `--sync-mode` (#27364)
+* `az network application-gateway listener`: Add parameter `--host-names` (#27574)
+* `az network private-endpoint-connection`: Add provider `Microsoft.DocumentDB/mongoClusters` (#27627)
+* Fix #27508: `az network private-dns zone import`: Import fails when zone already exists (#27559)
+* `az network virtual-appliance`: Add parameter `--identity` (#27748)
+* Fix #27735: `az network vnet-gateway show`: Conflict key when apply client flatten (#27753)
+
+**Packaging**
+
+* [BREAKING CHANGE] Remove unnecessary packages in docker image (#27567)
+* Support Python 3.11 (#26923)
+* Bump embedded Python version to 3.11.5 (#26749)
+* Add Azure Linux docker image (#27204)
+* Fix #22741: `az upgrade`: This command becomes non-blocking on Windows (#26464)
+
+**Profile**
+
+* `az account get-access-token`: Return `expires_on` as POSIX timestamp (#27476)
+
+**RDBMS**
+
+* `az postgres flexible-server geo-restore`: Add cross subscription geo-restore support for PostgreSQL flexible server (#27575)
+* `az postgres flexible-server restore`: Add cross subscription restore support for PostgreSQL flexible server (#27575)
+* `az postgres flexible-server upgrade`: Add MVU support for PG version 15 (#27773)
+
+**Role**
+
+* [BREAKING CHANGE] `az role assignment create`: `--scope` is now a required argument. (#27651)
+* [BREAKING CHANGE] `az role assignment create`: Remove `--resource-group` argument. (#27651)
+
+**Search**
+
+* `az search service create`: Add `--semantic-search` argument. (#27632)
+
+**Security**
+
+* `az security pricing create`: Support subplan and extensions parameters (#27340)
+* `az security pricing get`: Support extensions in the return result (#27340)
+
+**Service Bus**
+
+* [BREAKING CHANGE] `az servicebus georecovery-alias update` : This command is removed. (#27416)
+* [BREAKING CHANGE] `az servicebus migration update`: This command is removed. (#27416)
+
+**Service Connector**
+
+* [BREAKING CHANGE] `az spring connection`: Remove default value of `--deployment` to support spring app connection (#27442)
+
+**SignalR**
+
+* `az signalr replica create/list/show/delete`: Add replica command group for `az signalr` (#27542)
+
+**SQL**
+
+* `az sql db create/update`: Add `--use-free-limit` and `--free-limit-exhaustion-behavior` to support free limit database (#27553)
+
+**Storage**
+
+* `az storage file/directory`: Add `--disallow-trailing-dot` (#27622)
+* `az storage share list-handle/close-handle`: Add `--disallow-trailing-dot` (#27622)
+* `az storage file copy start/start-batch`: Add `--disallow-source-trailing-dot` (#27622)
+* Fix #27590: `az storage fs directory download`: Check user sytem PATH for azcopy and use CLI config directory for new install (#27593)
+* `az storage account blob-inventory-policy create`: Add support for new filter `creationTime.lastNDays` in json (#27666)
+* `az storage account migration start/show`: Support customer inititated migration between replication options (#27692)
+* [BREAKING CHANGE] `az storage container-rm update`: Remove `--default-encryption-scope` and `--deny-encryption-scope-override` as they should only be specified during create (#27791)
+
+2.53.1
+++++++
+
+**AKS**
+
+* Hotfix: `az aks update`: Fix bug where supportPlan can be reset to None (#27664)
+
+**App Service**
+
+* [BREAKING CHANGE] Redact appsettings output on set/delete commands (#27565)
+
+2.53.0
+++++++
+
+**ACR**
+
+* `az acr token create`: Fix random order of repo valid actions and gateway valid actions in the help message (#27263)
+
+**AKS**
+
+* `az aks update`: Add new parameter `--private-dns-zone` to support private DNS zone for AKS private cluster (#27313)
+* `az aks update`: Add new parameter `--disable-windows-gmsa` to support disabling Windows gMSA in an AKS cluster (#27337)
+* `az aks update`: Add forceupgrade settings to aks stable cli (#27258)
+
+**App Config**
+
+* `az appconfig kv import/export`: Remove `skip-features` and `skip-keyvault` restriction for snapshots (#27308)
+
+**App Service**
+
+* `az functionapp create`: Enable distributed tracing for non consumption apps (#27350)
+
+**ARM**
+
+* `az deployment group create`: Make `--template-file` parameter optional when used with `.bicepparam` parameter file (#27311)
+* `az account list-locations`: Add new parameter `--include-extended-locations` to support listing extended locations (#27400)
+
+**Backup**
+
+* `az backup backup-properties`: Add option for setting `--soft-delete-feature-state` to "AlwaysOn", and `--soft-delete-duration` with values between 14 to 180 (inclusive) (#27329)
+* `az backup vault list-soft-deleted-containers`: List all soft-deleted containers in a backup vault (#27329)
+
+**Compute**
+
+* `az vm/vmss extension set`: Enable auto upgrade by default for CodeIntegrityAgent extension (#27335)
+* `az vm create`: Add warning message for Basic option removal (#27408)
+* `az vmss create`: Add warning message for Basic option removal (#27408)
+
+**Containerapp**
+
+* `az containerapp`: Move `containerapp` from CLI extension to core CLI (#27078)
+* `az containerapp env create`: Add `--enable-workload-profiles` to specify if the environment is enabled to have workload profiles (#27381)
+* `az containerapp env dapr-component create`: Fix the sample link for `--yaml` parameter (#27393)
+
+**Cosmos DB**
+
+* `az cosmosdb postgres`: GA Cosmos DB for PostgreSQL (#27399)
+
+**MySQL**
+
+* `az mysql flexible-server replica create`: Add new parameters to support replica creation (#27386)
+
+**NetAppFiles**
+
+* `az netappfiles volume`: Add new command `get-groupid-list-for-ldapuser` to Get Group Id List for LDAP User (#27316)
+* `az netappfiles account update`: Add parameter `--identity-type` (#27316)
+* `az netappfiles volume update`: Add parameter `--snapshot-dir-visible`. If enabled (true) the volume will contain a read-only snapshot directory which provides access to each of the volume's snapshots (defaults to true) (#27316)
+
+**Network**
+
+* `az network virtual-appliance`: Add parameter `--additional-nics` (#27373)
+* `az network vnet subnet`: Add parameter `--default-outbound-access` (#27334)
+* `az network public-ip create`: Add warning message for Basic option removal (#27408)
+* `az network lb create`: Add warning message for Basic option removal (#27408)
+
+**RDBMS**
+
+* `az postgres flexible-server create/update`: Add capability to enable/disable storage auto-grow during creation and update (#27417)
+
+**Service Connector**
+
+* `az spring connection`: Add deprecated message for `--deployment` breaking change (#27384)
+* `az webapp connection`: Add new parameter `--slot` to support webapp slot connection (#27037)
+
+**SQL**
+
+* `az sql failover-group set-primary`: Add parameter `--try-planned-before-forced-failover` to support hybrid geo-failover (#27298)
+
+**Storage**
+
+* Fix #26732: `az storage blob copy start-batch`: Add `--rehydrate-priority` to batch copy (#27325)
+* Fix #27052: `az storage blob delete-batch`: Use utc as default timezone to remove "Datetime with no tzinfo will be considered UTC." warning (#27366)
+
+2.52.0
+++++++
+
+**AKS**
+
+* `az aks create/update`: Add new parameter `--enable-vpa` to support enabling vertical pod autoscaler for cluster (#27019)
+* `az aks update`: Add new parameter `--network-dataplane` to specify the network dataplane used in the Kubernetes cluster (#27060)
+* `az aks create/update`: Add new parameter `--node-os-upgrade-channel` to specify which OS on your nodes is updated (#27167)
+* `az aks update`: Retain value in network profile in mc object only when decorator is in update mode (#27050)
+* `az aks update`: Outbound ip/outbound ipprefix and managed outbound ip should be mutually exclusive (#27271)
+
+**App Config**
+
+* `az apponfig kv import`: Add new parameter `--import-mode` to specify whether to overwrite already existing key-values or ignore matching keys (#26098)
+* `az appconfig kv export`: Add new parameter `--snapshot` to support exporting all key values from a snapshot of the source configuration (#27043)
+* `az appconfig kv import`: Add new parameter `--src-snapshot` to support importing all key values from a snapshot of the source configuration (#27043)
+
+**App Service**
+
+* Fix #26736: `az logicapp create`: Add `--runtime-version` and `--functions-version` optional parameters (#26957)
+* `az webapp config connection-string set`: Allow users to use json file to set the connection string (#27216)
+
+**ARM**
+
+* Fix #26112: `az deployment group create`: Fix the warning log `mode is not a known attribute of class TemplateLink` (#26984)
+* `az bicep build-params`: Support generating `parameters.json` file from the given `bicepparam` file with the `--file` argument (#26781)
+* `az bicep decompile-params`: Support generating `parameters.bicepparam` file from the given `parameters.json` file with the `--file` argument (#26781)
+* `az bicep generate-params`: Support generating `main.parameters.json` with the parameters that doesn't have default values in the given `.bicep` file (#26781)
+* `az bicep generate-params`: Add new parameter `--output-format` to support generating parameter file in `bicepparam` and `json` formats (#26781)
+* `az bicep generate-params`: Add new parameter `--include-params` to support generating parameter file with all the parameters in the given `bicep` file, or with only parameters that doesn't have default values in the given `bicep` file (#26781)
+
+**ARO**
+
+* `az aro create`: Add new `--outbound-type` parameter, allowing users to select "Loadbalancer" (default) or "UserDefinedRouting" (#27212)
+* `az aro create`: Perform pre-flight validation of prerequisite permissions before creation (#27212)
+* `az aro validate`: New command to perform explicit validation of prerequisite permissions (#27212)
+
+**Backup**
+
+* `az backup restore restore-azurefileshare`: Add `--target-rg-name` parameter to specify the resource group of the destination storage account (#27130)
+
+**Batch**
+
+* `az batch`: Fix batch cloud console authentication issue (#26960)
+
+**Cognitive Services**
+
+* `az cognitiveservices account deployment create`: Add `--model-source` parameter (#27235)
+
+**Compute**
+
+* `az vmss create/update`: Add `--enable-hibernation` parameter to enable hibernation capability on VMSS (#27075)
+* `az vmss update`: Add `--security-type` parameter to enable Trusted Launch on existing VMSS (#27082)
+* `az vmss deallocate`: Add `--hibernate` parameter to support hibernating a VM while deallocating (#27106)
+* `az ppg update`: Add new parameter `--type` to support setting proximity placement group type (#27241)
+
+**Cosmos DB**
+
+* `az cosmosdb restore`: Support enabling/disabling public network access (#27175)
+
+**Key Vault**
+
+* Fix #27220: `az keyvault certificate import`: Fix invalid policy issue when no `content_type` provided (#27225)
+* `az keyvault storage`: Announce deprecation since keyvault service doesn't maintain this since long ago (#27249)
+
+**MySQL**
+
+* `az mysql flexible-server parameter set-batch`: Add new command to support updating multiple parameters (#27232)
+* `az mysql flexible-server export create`: Add Export Backup CLI implementation (#27261)
+
+**Network**
+
+* `az network private-endpoint-connection`: Add provider `Microsoft.EventGrid/namespaces` and `Microsoft.EventGrid/partnerNamespaces` (#27063)
+* Fix #27066: `az network vnet list`: Fix -o table cannot be used (#27076)
+* `az network express-route port delete`: Add confirmation while deleting (#27150)
+* `az network application-gateway waf-policy custom-rule`: Add an example of using `--group-by-user-session` (#27172)
+* `az network express-route update`: Fix `properties.SeriveProviderProperties` unexpected null (#27127)
+* Fix #26730: `az network public-ip update`: `--ip-tags` cannot be correctly parsed (#27187)
+* `az network application-gateway waf-policy managed-rule rule-set`: Support Microsoft_BotManagerRuleSet version 1.0 (#27184)
+* `az network vnet peering create`: Mark `--remote-vnet` as required (#27198)
+
+**Redis**
+
+* `az redis update`: Fix public network access default value issue (#27227)
+
+**Storage**
+
+* `az storage file upload-batch`: Allow uploading files in parallel to improve performance (#26940)
+* Fix #27202: `az storage entity insert`: Fix case when using sas token with only `add` permission (#27280)
+
+**Upgrade**
+
+* `az upgrade`: Support upgrading with 64-bit MSI (#27104)
+
+2.51.0
+++++++
+
+**AKS**
+
+* `az aks nodepool snapshot update`: Add aks nodepool snapshot update command (#26790)
+* `az aks create`: Add new parameter `--k8s-support-plan` to support LTS onboarding, also add new tier enum `premium` (#26795)
+* `az aks update`: Support enabling/disabling LTS via new parameter `--k8s-support-plan` (#26795)
+* `az aks create`: Add node taint support when create cluster use `az aks` command (#26837)
+* `az aks update`: Add update node taint support on cluster level use `az aks` command (#26837)
+* `az aks enable-addons`: Fix the default value of option `--enable-msi-auth-for-monitoring` being overwritten to `False` when specified (#26844)
+* `az aks update`: Add new parameter `--outbound-type` to support cluster outbound type. (#26975)
+* `az aks maintenanceconfiguration list`: Add new command to list all maintenance windows in a cluster (#26758)
+* `az aks maintenanceconfiguration show`: Add new command to display a specific maintenance window of a cluster (#26758)
+* `az aks maintenanceconfiguration add`: Add new command to add a new maintenance window configuration for a cluster (#26758)
+* `az aks maintenanceconfiguration update`: Add new command to update an existing maintenance window configuration of a cluster (#26758)
+* `az aks maintenanceconfiguration delete`: Add new command to delete an existing maintenance window configuration of a cluster (#26758)
+* `az aks update`: Fix aks network profile update error (#27006)
+
+**App Config**
+
+* `az appconfig kv delete/set/set-keyvault`: Add key validations for null or empty space keys (#26928)
+* `az appconfig kv export/import/restore`: Update key-value diffing and preview (#26325)
+* `az appconfig snapshot`: Remove status code property from snapshot object (#26891)
+* `az appconfig snapshot list`: Use enums for status parameter (#26879)
+
+**App Service**
+
+* Fix #26214: `az webapp show`: Fix the bug caused by missing leading slash causes web app and plan commands to fail for s-clouds (#26921)
+* Fix #26214: `az appservice plan show`: Fix the bug caused by missing leading slash causes web app and plan commands to fail for s-clouds (#26921)
+* Fix #26601: `az functionapp create`: Throw error for consumption function app created with vnet (#26792)
+* Fix #21133: `az webapp/functionapp config ssl bind/unbind`: Search for matching certificates in the subscription by App Service Plan Id (#26617)
+
+**ARM**
+
+* `az stack`: Fix the bug that the required `--deny-settings-mode` parameter should not return None (should be a string) (#26900)
+* `az stack`: Fix the bug that the `--deny-settings-excluded-principals` parameter was accidentally reset (#26900)
+
+**Batch**
+
+* `az batch job/pool all-statistics`: Remove no longer worked commands (#26766)
+* `az batch pool create`: Add new parameter `--enable-accelerated-networking` to determine whether this pool should enable accelerated networking (#26766)
+
+**Cognitive Services**
+
+* `az cognitiveservices account deployment create`: Add `--sku-name` and `--sku-capacity` parameters (#26995)
+* `az cognitiveservices usage`: Add new command `list` (#26995)
+* `az cognitiveservices model`: Add new command `list` (#26995)
+
+**Compute**
+
+* `az vm/vmss create`: Enable auto upgrading of guest attestation extension by default for Trusted Launch enabled VMs and VMSS (#26878)
+* `az vm/vmss create`: Add new parameter `--disable-integrity-monitoring-autoupgrade` to support disabling auto upgrading of guest attestation extension for Trusted Launch enabled VMs and VMSS (#26878)
+* `az sig image-version undelete`: Add new command to support softdeleted image recovery (#26943)
+* `az vm/vmss/disk create`: Add new option `Standard` for `--security-type` for backward compatibility (#26892)
+* `az sig image-definition create`: Add new option `Standard` for `--security-type` for backward compatibility (#26892)
+
+**Cosmos DB**
+
+* `az cosmosdb restore`: Add `--assign-identity` and `--default-identity` to allow PITR restoring with identity (#26867)
+* `az cosmosdb postgres`: Add new command groups to support Cosmos DB for PostgreSQL (#26729)
+
+**Key Vault**
+
+* `az keyvault restore start`: Add `--key-name` to support selective key restoring (#26907)
+* `az keyvault key sign/verify`: Add new commands to support signing with keyvault key and verify the signature (#26922)
+
+**MySQL**
+
+* `az mysql flexible-server ad-admin set`: Enable AAD for replica (#27007)
+
+**Network**
+
+* `az network nic create/update`: Add parameters `--auxiliary-mode` and `--auxiliary-sku` to support setting auxiliary mode and sku (#26932)
+* `az network public-ip`: Add parameter `--dns-name-scope` to specify different options (#26961)
+* `az network private-endpoint-connection`: Add provider `Microsoft.ElasticSan/elasticSans` (#26988)
+
+**Packaging**
+
+* Drop Python 3.7 support (#26855)
+* Support x86 and x64 MSI builds (#26640)
+
+**Resource**
+
+* `az resource invoke-action`: Add new parameter `--no-wait` to support not waiting the long-running operation to finish (#26877)
+
+**Role**
+
+* `az ad sp create-for-rbac`: Add alias `--json-auth` for `--sdk-auth` (#26572)
+
+**Service Connector**
+
+* `az functionapp connection`: Add new command group to support service connector on Function App (#26825)
+* `az spring connection`: Enable new auth types for Spring Boot and Cosmos SQL connection (#26719)
+
+**SQL**
+
+* `az sql mi start/stop/start-stop-schedule`: Add SQL MI manual and scheduled start stop (#26979)
+
+**Storage**
+
+* `az storage container-rm update`: `--default-encryption-scope` and `--deny-encryption-scope-override` should not be specified during updating (#26948)
+* Fix #22704: `az storage account create`: `--encryption-key-type-for-queue` and `--encryption-key-type-for-table` no longer remove other settings (#26853)
+* Fix #26587: `az storage file upload`: Add `--file-url` to support supplying the url instead of share/file name (#26997)
+
+2.50.0
+++++++
+
+**AKS**
+
+* `az aks get-versions`: Both json payload and table format changed (#26702)
+* `az aks create`: Add condition to disable `--enable-msi-auth-for-monitoring` for service principle (#26528)
+
+**APIM**
+
+* `az apim graphqlapi resolver create`: Add new command to create gql api resolver (#26144)
+* `az apim graphqlapi resolver show`: Add new command to show gql api resolver (#26144)
+* `az apim graphqlapi resolver list`: Add new command to show gql api resolver list (#26144)
+* `az apim graphqlapi resolver delete`: Add new command to delete gql api resolver (#26144)
+* `az apim graphqlapi resolver policy create`: Add new command to create resolver policy (#26144)
+* `az apim graphqlapi resolver policy show`: Add new command to show resolver policy (#26144)
+* `az apim graphqlapi resolver policy list`: Add new command to list resolver policies (#26144)
+* `az apim graphqlapi resolver policy delete`: Add new command to delete a policy (#26144)
+
+**App Config**
+
+* `az appconfig feature`: Improve error handling for invalid feature flags (#26575)
+* `az appconfig snapshot create`: Add new command to support creating a snapshot (#24859)
+* `az appconfig snapshot show`: Add new command to support showing the properties of an app configuration snapshot (#24859)
+* `az appconfig snapshot list`: Add new command to support listing snapshots of a given app configuration (#24859)
+* `az appconfig snapshot archive`: Add new command to support archiving a snapshot (#24859)
+* `az appconfig snapshot recover`: Add new command to support recovering an archived snapshot (#24859)
+
+**App Service**
+
+* Fix #21168: `az webapp deploy`: Call OneDeploy through ARM proxy if `--src-url` is provided (#26620)
+* Fix #26647: `az webapp show`: Remove duplicate IPs from outbound addresses (#26738)
+* Fix #25497: `az webapp deploy`: Fix extension parsing if `src-path` has multiple '.'s (#26709)
+
+**ARM**
+
+* `az managedapp definition create/update`: Add new parameter `--deployment-mode` to support setting deployment policy (#26604)
+* `az resource move`: Add help example for moving multiple resources (#26756)
+* `az stack`: Add new command group to support deployment stacks (#24211)
+* `az stack mg`: Add new command group to manage deployment stack at management group scope (#24211)
+* `az stack sub`: Add new command group to manage deployment stack at subscription scope (#24211)
+* `az stack group`: Add new command group to manage deployment stack at resource group scope (#24211)
+
+**ARO**
+
+* `az aro get-admin-kubeconfig`: Add new command to download an admin kubeconfig for a created ARO cluster (#26342)
+
+**Backup**
+
+* `az backup vault create`: Add parameter `--cross-subscription-restore-state` to set the CSR state of the vault at the time of creation as well as updating (#26506)
+* `az backup recoveryconfig show`: Add parameter `--target-subscription-id` to provide the target subscription as the input while triggering cross subscription restore for SQL or HANA workloads (#26506)
+* `az backup protection backup-now`: Allow `--enable-compression` to be set to `true` for SAPHANA Workloads (#26649)
+* `az backup recoveryconfig show`: Add new parameter `--target-instance-name` to specify the target instance name for the restore operation (#26090)
+
+**Compute**
+
+* `az vmss update`: Add new parameter `--custom-data` to support updating custom data (#26586)
+* `az image builder optimizer`: Add subgroup to manage image template optimizer (#26480)
+* `az image builder create`: Add parameter `--validator` to specify the type of validation to be used on the Image (#26480)
+* `az vm update`: Add parameter `--security-type` to support VM Gen2 to Trusted Launch conversion (#26626)
+* `az sig image-definition create`: Add examples for TrustedLaunchSupported and TrustedLaunchAndConfidentialVmSupported (#26669)
+* `az capacity`: Fix short summaries for groups (#26707)
+* Fix #26516: `az vm create`: Fix warning log for public IP even when no public IP is being created (#26517)
+
+**Eventhub**
+
+* `az eventhubs eventhub`: Enum value for `cleanup_policy` change to `compact` from `compaction` (#26513)
+* `az eventhubs namespace list`: Support list command without mandatory `resource_group` parameter (#26513)
+* `az eventhubs eventhub create/update`: Event Hubs Capture MSI feature added to eventhub entity (#26715)
+
+**IoT**
+
+* `az iot hub route`: Hide the deprecated command, please use `az iot hub message-route` instead of it. (#26535)
+* `az iot hub routing-endpoint`: Hide the deprecated command, please use `az iot hub message-endpoint` instead of it. (#26535)
+
+**Key Vault**
+
+* Fix #26527: `az keyvault certificate show`: Show policy.x509CertificateProperties.subjectAlternativeNames correctly (#26530)
+
+**Monitor**
+
+* `az monitor metrics alert create`: Add `()` into `--condition` grammar (#26616)
+
+**MySQL**
+
+* `az mysql flexible-server import create`: Add new command to facilitate migrations from mysql single to flexible servers (#26606)
+* `az mysql flexible-server restore/geo-restore/replica cerate`: Support `--tags` (#26648)
+
+**NetAppFiles**
+
+* `az netappfiles volume replication resume`: Add warning on action to re-sync replication volumes that if destination volume has quota rules they will be overwritten by the source volumes quota rules. (#26519)
+
+**Network**
+
+* `az network dns zone import`: Fix alias records cannot be imported (#26507)
+* Fix #26438: `az network vnet peering sync`: Doesn't work in cross-tenant scenario (#26559)
+* `az network application-gateway waf-policy policy-setting update`: Add support for log scrubbing (#26602)
+* `az network application-gateway waf-policy policy-setting update`: Add support for inspection limit (#26602)
+* `az network application-gateway waf-policy custom-rule`: Support rate limit in WAF policy (#26579)
+* Fix #24695: `az network traffic-manager`: Add command context (#26624)
+* Fix #26638: `az network traffic-manager endpoint`: Declare `--min-child-endpoints`, `--min-child-ipv4` and `--min-child-ipv6` as integer type (#26641)
+* `az network dns`: Support DNSSEC configuration and DS/TLSA record set (#26727)
+
+**Packaging**
+
+* Add Debian Bookworm support (#26690)
+
+**RDBMS**
+
+* `az postgres flexible-server migration update`: Remove unsupported update parameters `--db-names` and `--overwrite-dbs` (#26720)
+* `az postgres flexible-server migration create`: Add support for tags and location using `--tags` and `--location` (#26720)
+* `az postgres flexible-server revive-dropped`: Add support to revive a dropped PostgreSQL flexible server (#26720)
+* `az postgres flexible-server create`: Add support to create PostgreSQL flexible server with data encryption enabled for geo-backup enabled server by pasing parameters `--geo-redundant-backup`, `--backup-key` and `--backup-identity` (#26720)
+* `az postgres flexible-server show-connection-string`: Add support to pass `--pg-bouncer` in connection strings for cmd and programming languages with PgBouncer enabled for PostgreSQL flexible server. Updated connection strings to show port as well as database (#26720)
+* `az postgres flexible-server update`: Add support for parameter `--private-dns-zone` during update operation, to update private DNS zone for a VNET enabled PostgreSQL flexible server (#26720)
+
+**Service Bus**
+
+* `az servicebus namespace list`: Support list command without mandatory `resource_group` parameter (#26513)
+
+**Service Fabric**
+
+* `az sf managed-cluster network-security-rule add`: Add network security rule to managed cluster (#26510)
+
+**SQL**
+
+* `az sql midb move/copy`: Add new commands for Managed Database Move/Copy feature (#26694)
+
+**SQL VM**
+
+* Fix #2442969: `az sql vm enable-azure-ad-auth/validate-azure-ad-auth`: Workaround Graph API bug by using client side filtering upon failure (#26689)
+* `az sql vm update`: Add configuration options for new SQL Assessment pre-requisites MMA->AMA migration (#26755)
+
+**Storage**
+
+* `az storage blob upload(-batch)/set-tier/copy start(-batch)`: Cold Tier GA, add new tier type `--tier cold` (#26585)
+* `az storage blob download-batch`: When matching pattern, list blobs with prefix to reduce the number of list calls (#26692)
+* Fix #26673: `az storage account or-policy create`: Now throw server error that was previous silently ignored. (#26706)
+
+**Synapse**
+
+* `az synapse workspace create/update`: Support workspace encryption and user-assignment management identity (#26589)
+
+2.49.0
+++++++
+
+**ACR**
+
+* `az acr create`: Remove `Classic` from `sku` option (#26116)
+
+**AKS**
+
+* [BREAKING CHANGE] `az aks create`: Specify `--pod-cidr` with Azure CNI will return an error instead of logging a warning when not use `overlay` mode (#26237)
+* [BREAKING CHANGE] `az aks create`: Change the default value of `--enable-msi-auth-for-monitoring` to true and add check for airgap clouds (#26356)
+* `az aks update`: Support updating user assigned control plane identity for parameter `--assign-identity` (#25973)
+* `az aks install-cli`: Add validation for installation path and update help message for parameters `--install-location` and `--kubelogin-install-location` (#26357)
+* Fix #26353: `az aks install-cli`: Fix incorrect architecture detection on Darwin/arm64 (#26366)
+* `az aks create/update`: Add parameter `--enable-azure-monitor-metrics` to enable managed prometheus (Azure Monitor Metrics Addon) (#26201)
+* `az aks create/update`: Add parameter `--azure-monitor-workspace-resource-id` to store metrics for the managed prometheus addon (#26201)
+* `az aks create/update`: Add parameter `--grafana-resource-id` to link the Azure Monitor Workspace with a Grafana instance for viewing metrics and dashboards (#26201)
+* `az aks create/update`: Add parameter `--enable-windows-recording-rules` to enable windows recording rule groups on the Azure Monitor Workspace (by default they get created but are disabled) (#26201)
+* `az aks create/update`: Add parameter `--ksm-metric-labels-allow-list` to support the additional Kubernetes label keys that will be used in the resource's labels metric (#26201)
+* `az aks create/update`: Add parameter `--ksm-metric-annotations-allow-list` to support the Kubernetes annotations keys that will be used in the resource's labels metric (#26201)
+* `az aks update`: Add parameter `--disable-azure-monitor-metrics` to disable the Azure Monitor Metrics addon (#26201)
+* `az aks create` and `az aks nodepool add`: Add warning message when specifying `--os-sku` to `Mariner` or `CBLMariner` (#26132)
+
+**App Config**
+
+* [BREAKING CHANGE] `az appconfig feature`: Update feature name validation to disallow the colon character (#26079)
+* [BREAKING CHANGE] `az appconfig kv import`: Update feature name validation. Invalid feature flags will be skipped during import (#26079)
+* [BREAKING CHANGE] `az appconfig`: Update default connection string resolution logic (#25120)
+
+**App Service**
+
+* `az functionapp create`: Add new parameter `--min-replicas` and `--max-replicas` to support minimum and maximum replicas (#26169)
+* `az functionapp create`: Add new parameter `--registry-server` to support Centauri function app (#26307)
+* `az functionapp create`: Update the default image to `mcr.microsoft.com` for Centauri (#26351)
+* Fix #26445: `az webapp deploy`: Fix deployment failing with HTTP 400 (#26452)
+
+**ARM**
+
+* Fix #26216: `az bicep format`: Fix the TypeError `expected str, bytes or os.PathLike object, not bool` (#26249)
+* Fix #26256: `az bicep publish/restore/generate-params`: Fix version checks without bicep installed (#26374)
+* `az bicep publish`: Add new parameter `--force` to allow overwriting existing module (#26360)
+* Fix #26352: `az ts create`: Fix for the TypeError `string indices must be integers` (#26363)
+
+**Backup**
+
+* `az backup`: Add support for HANA HSR workload (#26368)
+
+**Compute**
+
+* `az vm create`: Support new license type `UBUNTU_PRO` and `UBUNTU` (#26262)
+* `az vm extension set`: Enable auto-upgrade by default for GuestAttestation extension (#26349)
+* `az image builder trigger`: Add subgroup to manage image builder template trigger (#26261)
+* `az image builder output versioning`: Add subgroup to manage image builder template output versioning (#26261)
+* `az image builder output add`: Add parameter `--versioning` to support describing how to generate new x.y.z version number for distribution (#26261)
+* `az image builder output add`: Add parameter `--vhd-uri` to support specifying storage uri for the distributed VHD blob (#26261)
+
+**Container**
+
+* `az container create`: Add new parameters for container security context for confidential ContainerGroupSku (#26273)
+
+**Cosmos DB**
+
+* [BREAKING CHANGE] `az cosmosdb create/update`: Rename `--enable-public-network true/false` to `--public-network-access ENABLED/DISABLED/SECUREDBYPERIMETER` (#26226)
+* `az cosmosdb create/update`: Add `--continuous-tier` to support continuous backup tier (#26226)
+* `az cosmosdb create/update`: Enable Partition Merge feature for CosmosDB (#26392)
+
+**Eventhub**
+
+* [BREAKING CHANGE] `az eventhubs namespace network-rule`: This command group is removed and replaced by `az eventhubs namespace network-rule-set` (#25792)
+* [BREAKING CHANGE] `az eventhubs namespace network-rule add`: This command is removed and replaced by `az eventhubs namespace network-rule-set ip-rule/virtual-network-rule add` (#25792)
+* [BREAKING CHANGE] `az eventhubs namespace network-rule remove`: This command is removed and replaced by `az eventhubs namespace network-rule-set ip-rule/virtual-network-rule remove` (#25792)
+* [BREAKING CHANGE] `az eventhubs eventhub create/update`: Remove `--message-retention` parameter, it is replaced by `--retention-time-in-hours` (#26168)
+* [BREAKING CHANGE] `az eventhubs namespace application-group policy remove`: Rename `--throttling-policy-config` to `--policy` and remove `metric-id` and `rate-limit-threshold` properties in it (#26032)
+* `az eventhubs eventhub create/update`: Add `--cleanup-policy`, `--retention-time-in-hours` and `--tombstone-retention-time-in-hours` to support `Retention-Description` feature (#26168)
+
+**IoT**
+
+* `az iot hub create/update/delete`: Fix poller issues (#26296)
+
+**Key Vault**
+
+* [BREAKING CHANGE] `az keyvault create`: `--retention-days` becomes required for MHSM creation (#26423)
+* [BREAKING CHANGE] `az keyvault backup start`: The output will only contain `folderUrl` (#26422)
+* [BREAKING CHANGE] `az keyvault restore start`: Nothing will return for successful run (#26422)
+* [BREAKING CHANGE] `az keyvault role assignment delete`: Nothing will return for successful run (#26422)
+* [BREAKING CHANGE] `az keyvault certificate show/set-attributes/import`: No longer return `x509CertificateProperties.basicConstraints`, `pending` (#26242)
+* [BREAKING CHANGE] `az keyvault certificate contact delete`: Return an empty list instead of the deleted contact for consistency if the operation would remove the last contact (#26242)
+* [BREAKING CHANGE] `az keyvault certificate issuer create`: `organizationDetails.zip` is no longer returned by serivce, use 0 as the default (#26242)
+* `az keyvault security-domain upload`: Fix sd warpping keys with passwords (#26288)
+* `az keyvault setting`: New command group to manage MHSM settings (#26422)
+
+**Monitor**
+
+* `az monitor`: Add new subgroup `account` to support managing monitor workspace (#26358)
+* `az monitor log-analytics workspace table create/update`: Max `--total-retention-time` changed from 2555 to 2556 (#26384)
+
+**NetAppFiles**
+
+* [BREAKING CHANGE] `az netappfiles volume create`: Remove optional parameter `--vault-id` as this is not longer needed (#26335)
+* [BREAKING CHANGE] `az netappfiles vault list`: Remove command `vault list` as this is not longer needed (#26335)
+* `az netappfiles account create`: Add optional parameter `--identity-type` (#26335)
+* `az netappfiles account ad add`: Add optional parameter `--preferred-servers-for-ldap-client` (#26335)
+* `az netappfiles volume create`: Add optional parameter `--is-large-volume` (#26335)
+* `az netappfiles volume account create`: Add optional parameter `--identity-type` (#26335)
+* `az netappfiles volume quota-rule update`: Add optional parameter `--tags` (#26335)
+* `az netappfiles volume`: Add new command `break-file-locks` to break all the file locks on a volume (#26335)
+
+**Network**
+
+* [BREAKING CHANGE] `az network cross-region-lb rule`: Remove parameters `--enable-tcp-reset` and `--idle-timeout` (#26275)
+* [BREAKING CHANGE] `az network application-gateway http-settings update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network application-gateway settings update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network application-gateway url-path-map update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network nic update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network nic ip-config update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network nsg rule update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network vnet update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network vnet subnet update`: Use `null` instead of `""` to detach (#26275)
+* [BREAKING CHANGE] `az network application-gateway client-cert remove`: Deprecate the output of command (#26275)
+* [BREAKING CHANGE] `az network application-gateway ssl-profile remove`: Deprecate the output of command (#26275)
+* [BREAKING CHANGE] `az network private-endpoint dns-zone-group remove`: Deprecate the output of command (#26275)
+* [BREAKING CHANGE] `az network private-endpoint ip-config remove`: Deprecate the output of command (#26275)
+* [BREAKING CHANGE] `az network private-endpoint asg remove`: Deprecate the output of command (#26275)
+* [BREAKING CHANGE] `az network nic ip-config address-pool remove`: Deprecate the output of command (#26458)
+* [BREAKING CHANGE] `az network nic ip-config inbound-nat-rule remove`: Deprecate the output of command (#26458)
+* [BREAKING CHANGE] `az network lb address-pool tunnel-interface remove`: Deprecate the output of command (#26458)
+* [BREAKING CHANGE] `az network cross-region-lb address-pool address remove`: Deprecate the output of command (#26458)
+* `az network private-endpoint-connection`: Add provider `Microsoft.HardwareSecurityModules/cloudHsmClusters` (#26235)
+* Fix #26248: `az network dns record-set cname set-record`: Declare TTL as integer type (#26260)
+* Fix #26326: `az network vnet subnet update`: `--nat-gateway` cannot be set to null (#26365)
+* Fix #26318: `az network vnet subnet create`: `--nsg` and `--route-table` cannot be used as name from Azure Stack (#26382)
+
+**RDBMS**
+
+* [BREAKING CHANGE] `az mysql/postgres flexible-server create/update`: Deprecate `Enabled` for `--high-availability` argument (#26276)
+* `az mysql flexible-server restore/georestore/replica create`: Add `--public-access` parameter for restore, replication and georestore (#26424)
+
+**Service Bus**
+
+* [BREAKING CHANGE] `az servicebus georecovery-alias fail-over`: Remove `--parameters` argument (#26054)
+* [BREAKING CHANGE] `az servicebus namespace network-rule`: This command group is removed and replaced by `az servicebus namespace network-rule-set` (#25719)
+* [BREAKING CHANGE] `az servicebus namespace network-rule add`: This command is removed and replaced by `az servicebus namespace network-rule-set ip-rule/virtual-network-rule add` (#25719)
+* [BREAKING CHANGE] `az servicebus namespace network-rule remove`: This is removed and replaced by by `az servicebus namespace network-rule-set ip-rule/virtual-network-rule remove` (#25719)
+* [BREAKING CHANGE] `az servicebus queue update`: Remove deprecated parameters `--enable-partitioning`, `--enable-session` and `--duplicate-detection` (#26478)
+
+**Service Connector**
+
+* `az spring connection create`: Enable user-assigned managed identity for spring apps and deprecate Postgresql single server (#26259)
+
+**SQL**
+
+* [BREAKING CHANGE] `az sql mi link create`: Remove `--replication-mode` argument (#26400)
+* `az sql elastic-pool`: Add `--preferred-enclave-type` argument (#25968)
+* `az sql mi link update`: Fix update command to use PATCH api (#26400)
+
+**Storage**
+
+* `az storage account blob-service-properties cors-rule`: Add new command group to manage blob cors rules (#26447)
+
+2.48.1
+++++++
+
+**App Service**
+
+* Hotfix: Use basic auth with SCM sites if supported, else use AAD auth (#26229)
+
+2.48.0
+++++++
+
+**App Service**
+
+* Fix #25642: `az functionapp deployment user show`: Fix the AttributeError `'function' object has no attribute 'metadata'` (#26078)
+* `az staticwebapp appsettings`: Add `--environment-name` parameter to allow app setting operation on preview environments (#25997)
+* `az functionapp create`: Update 'kind' attribute for Centauri function apps (#26129)
+
+**Compute**
+
+* Fix #26118: `az vm list-ip-addresses`: Fix the KeyError when attributes missing in public IP address (#26135)
+* Fix #26164: `az vmss update`: Fix unexpected error while running the update instance protection command on VMSS flex instances (#26174)
+* Fix #26185: `az sig update`: Fix issues that `is_soft_delete_enabled` may not exist (#26188)
+* `az vm host resize`: Add new command to support resizing dedicated host (#26189)
+* `az vm host list-resize-options`: Add new command to support getting possible resize options (#26189)
+
+**DMS**
+
+* `az dms project tack create`: Add support for database schema migration (#26077)
+
+**Eventhub**
+
+* `az eventhubs namespace application-group policy remove`: Add upcoming breaking change notification (#26041)
+
+**Network**
+
+* `az network nic update`: Add `--ip-configurations` to support shorthand syntax (#26009)
+* `az network public-ip prefix create`: Add parameter `--ip-tags` (#26087)
+* `az network cross-region-lb rule create`: Set default value for `--enable-tcp-reset` and `--idle-timeout` (#26070)
+
+**RDBMS**
+
+* `az mysql flexible-server create/update/gtid reset`: Add GTID reset and fix public-access (#26178)
+
+**SQL**
+
+* `az sql midb ledger-digest-uploads`: Support SQL Ledger (#26043)
+* `az sql mi server-configuration-option`: New command group to manage server configuration options (#26114)
+
+**SQL VM**
+
+* `az sql vm enable-azure-ad-auth/validate-azure-ad-auth`: Single mode improvement (#26133)
+
+**Storage**
+
+* `az storage file/directory`: Add `--auth-mode login` and `--backup-intent` to support OAuth (#25883)
+* `az storage blob sync`: Add positional argument `extra_options` to pass through options to `azcopy` (#26127)
+
+2.47.0
+++++++
+
+**AKS**
+
+* `az aks create/update`: Add `--tier` argument will specify the sku tier that customer wants (#24940)
+* `az aks nodepool operation-abort`: Add new command to support aborting last running operation on nodepool (#25661)
+* `az aks operation-abort`: Add new command to support aborting last running operation on managed cluster (#25661)
+* `az aks create`: Raise a ClientRequestError when creating the same cluster again (#25825)
+* `az aks create/update`: Add new parameter `--enable-image-cleaner` to enable Image Cleaner service (#25957)
+* `az aks create/update`: Add new parameter `--image-cleaner-interval-hours` to set Image Cleaner scanning interval (#25957)
+* `az aks create`: Add new parameter `--network-plugin-mode` to support creating Azure CNI Overlay clusters (#25932)
+* `az aks create/update`: Add new parameter `--enable-workload-identity` to support enabling workload identity addon (#25966)
+* `az aks create`: Add new parameter `--network-dataplane` to support creating Cilium clusters (#25951)
+* `az aks update`: Add prameter `--network-plugin-mode` to update the mode of a network plugin (#25978)
+* `az aks update`: Add prameter `--pod-cidr` to update the pod CIDR for a cluster (#25978)
+
+**App Config**
+
+* `az appconfig import/export`: Add warning log info to output even when `--yes` flag is set (#25560)
+* `az appconfig kv import`: Ensure the case of imported boolean values does not change for string conversion from file (#25758)
+
+**App Service**
+
+* Fix #25375: `az functionapp deployment source config-zip`: Fix the `Could not find a 'AzureWebJobsStorage' application setting` error (#25698)
+* Fix #25876: `az webapp config ssl import`: Fix the UnboundLocalError `local variable 'cert_name' referenced before assignment` (#25891)
+* `az functionapp create`: Support container app deployments (#25680)
+* `az functionapp delete`: Add a validation to check whether Azure Functions is not in the Azure Container app environments (#25979)
+
+**ARM**
+
+* `az deployment group create`: Support deployment with bicepparam files (#25612)
+* `az resource patch`: Add new command to support updating resource by PATCH request (#25746)
+* Fix #25706: `az bicep format`: Fix the TypeError `ensure_bicep_installation() missing 1 required positional argument 'cli_ctx'` (#25707)
+* Fix #25715: `az bicep install/upgrade`: Fix the `configparser.NoSectionError: No section: 'bicep'` (#25729)
+
+**Compute**
+
+* `az vm reimage`: Add new command to support reimaging a virtual machine (#25884)
+* `az vm/vmss create`: Deprecate image alias `UbuntuLTS` and `Win2008R2SP1`. Please use the image alias including the version of the distribution you want to use. For example: Please use `Ubuntu2204` instead of `UbuntuLTS`
+
+**Cosmos DB**
+
+* `az cosmosdb identity assign`: Allow refreshing user assigned identities if they're reassigned to an account (#25712)
+
+**Extension**
+
+* `az extension add`: Add actionable message for extension not found error (#25921)
+
+**Key Vault**
+
+* `az keyvault region`: GA MHSM region commands (#25942)
+
+**Monitor**
+
+* `az monitor activity-log alert`: Adjust help message (#25877)
+
+**NetAppFiles**
+
+* `az netappfiles volume update`: Patch assign snapshotpolicyID (#25789)
+
+**Network**
+
+* [BREAKING CHANGE] `az network`: Clean up irrelevant commands in azure-stack profiles. (#25702)
+* [BREAKING CHANGE] `az network application-gateway waf-policy custom-rule`: Rename output property `applicationGatewayIpConfigurations` to `applicationGatewayIPConfigurations` to keep consistent with the name in API (#25837)
+* `az network routeserver create/update`: Add parameter `--hub-routing-preference` (#25821)
+* Drop `azure-mgmt-network` SDK (#25451)
+* Fix #25784: `az network private-link-service update`: `--lb-frontend-ip-configs` cannot be used (#25840)
+
+**RDBMS**
+
+* [BREAKING CHANGE] `az postgres flexible-server replica create`: Fix the behavior of AZ selection in case zone is not passed as parameter (#25843)
+* Fix #368903181: Fix zone selection during creation of replica (#25843)
+* `az mysql flexible-server restore/geo-restore`: Add parameters to enhance PITR (#25867)
+* `az mysql flexible-server replica create`: Add parameters to support cross region paired vnet (#25926)
+
+**Service Bus**
+
+* `az servicebus namespace/topic/queue authorization-rule keys renew/list`: Add `-n` option for `--authorization-rule-name` to create auth rule (#25728)
+
+**SQL**
+
+* `az sql server refresh-external-governance-status`: New command for refreshing external governance status (#25873)
+* `az sql db geo/ltr-backup restore`: Add more parameters to geo restore and ltr restore (#25681)
+
+**Storage**
+
+* `az storage blob copy start`: Fix auth issue when providing source uri containing sas token (#25880)
+* `az storage container/blob list`: Fix MemoryError when service returns less num than requested (#25915)
+* `az storage account create`: GA partition DNS account support (#25923)
+
+**Synapse**
+
+* `az synapse spark pool create/update`: Update `--node-size-family` and `--node-size` allowed values (#25823)
+
 2.46.0
 ++++++
 
@@ -1011,6 +5532,28 @@ Release History
 * `az synapse workspace`: Add `--last-commit-id` for git repo config (#23257)
 * `az synapse ad-only-auth`: New command group for supporting synapse azure ad only authentication (#23227)
 
+2.38.2
+++++++
+
+This version is only released for CentOS 7 and RHEL 7. CVE-2023-36052 is fixed in this version.
+
+**App Service**
+
+* [BREAKING CHANGE] Redact appsettings output on set/delete commands (#28671)
+* [BREAKING CHANGE] `az webapp config`: Redact webapp config connection-string and storage-account values (#28671)
+* [BREAKING CHANGE] `az functionapp`: Redact key value output on keys set (#28751)
+* [BREAKING CHANGE] `az functionapp/webapp deployment source update-token`: Redact tokens output on deployment source update-token (#28751)
+* [BREAKING CHANGE] Redact output on deployment source config (#28751)
+
+2.38.1
+++++++
+
+This version is only available on CentOS 7 and RHEL 7.
+
+**App Service**
+
+* `az webapp ssh`: Backport #25141 to 2.38 (#26836)
+
 2.38.0
 ++++++
 
@@ -1339,7 +5882,7 @@ Release History
 
 **Role**
 
-* [BREAKING CHANGE] `az az/role`: Migrate the underlying API of `az ad` and `az role` from AD Graph API to Microsoft Graph API. For more details, see [Microsoft Graph migration](https://docs.microsoft.com/en-us/cli/azure/microsoft-graph-migration) (#22432)
+* [BREAKING CHANGE] `az az/role`: Migrate the underlying API of `az ad` and `az role` from AD Graph API to Microsoft Graph API. For more details, see [Microsoft Graph migration](https://learn.microsoft.com/en-us/cli/azure/microsoft-graph-migration) (#22432)
 
 **Security**
 
@@ -3073,7 +7616,7 @@ Workload container registration fix, SDK upgraded to 0.12.0, Fixed and Re-ran te
 
 **Service Fabric**
 
-* [BREAKING CHANGE] `az sf cluster certificate`: Remove all commands under this group. Please follow the instructions here to add/remove cluster certificates: https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-cluster-security-update-certs-azure#add-a-secondary-certificate-using-azure-resource-manager. (#18056)
+* [BREAKING CHANGE] `az sf cluster certificate`: Remove all commands under this group. Please follow the instructions here to add/remove cluster certificates: https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-cluster-security-update-certs-azure#add-a-secondary-certificate-using-azure-resource-manager. (#18056)
 * [BREAKING CHANGE] `az sf managed-service update`: Remove deprecated parameter --drop-source-replica-on-move. (#18056)
 * [BREAKING CHANGE] `az sf managed-service create`: Remove deprecated parameters --service-dns-name, --drop-source-replica-on-move and -instance-close-delay-duration. (#18056)
 * [BREAKING CHANGE] `az sf cluster`: Rename parameter --vault-resource-group to --vault-rg. (#18056)
@@ -6514,8 +11057,8 @@ Added Cluster commands and trusted_service_access_enabled parameter for Networkr
 
 **Batch**
 
-* Expanded `--json-file` capabilities of `az batch pool create` to allow for specifying MountConfigurations for file system mounts(see https://docs.microsoft.com/en-us/rest/api/batchservice/pool/add#request-body for structure)
-* Expanded `--json-file` capabilities of `az batch pool create` with the optional property publicIPs on NetworkConfiguration. This allows specifying publicIPs to be used when deploying pools (see https://docs.microsoft.com/en-us/rest/api/batchservice/pool/add#request-body for structure)
+* Expanded `--json-file` capabilities of `az batch pool create` to allow for specifying MountConfigurations for file system mounts(see https://learn.microsoft.com/en-us/rest/api/batchservice/pool/add#request-body for structure)
+* Expanded `--json-file` capabilities of `az batch pool create` with the optional property publicIPs on NetworkConfiguration. This allows specifying publicIPs to be used when deploying pools (see https://learn.microsoft.com/en-us/rest/api/batchservice/pool/add#request-body for structure)
 * Expanded `--image` capabilities to support Shared Image Galleries images. Similar to the commands support for Managed Images, to use a Shared Image Gallery image simply use the ARM ID as the value to the argument.
 * [BREAKING CHANGE] When not specified, the default value for `--start-task-wait-for-success` on `az batch pool create` is now true (was false).
 * [BREAKING CHANGE] The default value for Scope on AutoUserSpecification is now always Pool (was Task on Windows nodes, Pool on Linux nodes). This argument is not exposed via the commandline, but can be set in the `--json-file` arguments.

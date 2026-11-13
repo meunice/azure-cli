@@ -21,7 +21,7 @@ class EHNamespaceMSITesting(ScenarioTest):
     @ResourceGroupPreparer(name_prefix='cli_test_eh_namespace')
     def test_eh_namespace_encryption(self, resource_group):
         self.kwargs.update({
-            'loc': 'northeurope',
+            'loc': 'uksouth',
             'rg': resource_group,
             'namespacename': self.create_random_name(prefix='eventhubs-nscli', length=20),
             'namespacename1': self.create_random_name(prefix='eventhubs-nscli', length=20),
@@ -60,7 +60,7 @@ class EHNamespaceMSITesting(ScenarioTest):
         identity4 = self.cmd('identity create --name {identity4} --resource-group {rg}').get_output_in_json()
         self.kwargs.update({'id4': identity4['id']})
 
-        keyvaultcreate = self.cmd('keyvault create --resource-group {rg} --name {kv_name} --location {loc} --enable-purge-protection --retention-days 7').get_output_in_json()
+        keyvaultcreate = self.cmd('keyvault create --resource-group {rg} --name {kv_name} --location {loc} --enable-purge-protection --enable-rbac-authorization false --retention-days 7').get_output_in_json()
 
         self.kwargs.update({
             'id1object': identity1['principalId'],
@@ -84,7 +84,7 @@ class EHNamespaceMSITesting(ScenarioTest):
         self.cmd('keyvault key create -n {key3} --vault-name {kv_name}')
 
         namespace = self.cmd(
-            'eventhubs namespace create --resource-group {rg} --name {namespacename} --sku {sku} --location {loc} --mi-system-assigned --mi-user-assigned {id1} {id2}' +
+            'eventhubs namespace create --resource-group {rg} --name {namespacename} --sku {sku} --location {loc} --disable-local-auth true --mi-system-assigned --mi-user-assigned {id1} {id2}' +
             ' --encryption-config key-name={key1} key-vault-uri={key_uri} user-assigned-identity={id1}' +
             ' --encryption-config key-name={key2} key-vault-uri={key_uri} user-assigned-identity={id1}' +
             ' --encryption-config key-name={key3} key-vault-uri={key_uri} user-assigned-identity={id1}'
@@ -96,6 +96,12 @@ class EHNamespaceMSITesting(ScenarioTest):
         n = [i for i in namespace['encryption']['keyVaultProperties']]
         assert len(n) == 3
         self.assertEqual(False, namespace['encryption']['requireInfrastructureEncryption'])
+
+        # Grant KeyVault permissions to the system-assigned identity
+        system_assigned_principal_id = namespace['identity']['principalId']
+        self.kwargs.update({'system_principal_id': system_assigned_principal_id})
+        self.cmd(
+            'keyvault set-policy -n {kv_name} -g {rg} --object-id {system_principal_id} --key-permissions all --secret-permission all')
 
         namespace = self.cmd('eventhubs namespace encryption remove --resource-group {rg} --namespace-name {namespacename}' +
                              ' --encryption-config key-name={key1} key-vault-uri={key_uri} user-assigned-identity={id1}').get_output_in_json()
@@ -141,7 +147,7 @@ class EHNamespaceMSITesting(ScenarioTest):
 
 
         namespace = self.cmd(
-            'eventhubs namespace create --resource-group {rg} --name {namespacename2} --sku {sku} --location {loc} --mi-system-assigned --mi-user-assigned {id1} {id2}' +
+            'eventhubs namespace create --resource-group {rg} --name {namespacename2} --sku {sku} --location {loc} --disable-local-auth true --mi-system-assigned --mi-user-assigned {id1} {id2}' +
             ' --encryption-config key-name={key1} key-vault-uri={key_uri} user-assigned-identity={id1}' +
             ' --encryption-config key-name={key2} key-vault-uri={key_uri} user-assigned-identity={id1}' +
             ' --encryption-config key-name={key3} key-vault-uri={key_uri} user-assigned-identity={id1}' +
@@ -154,6 +160,12 @@ class EHNamespaceMSITesting(ScenarioTest):
         n = [i for i in namespace['encryption']['keyVaultProperties']]
         assert len(n) == 3
         self.assertEqual(True, namespace['encryption']['requireInfrastructureEncryption'])
+
+        # Grant KeyVault permissions to the system-assigned identity for namespacename2
+        system_assigned_principal_id2 = namespace['identity']['principalId']
+        self.kwargs.update({'system_principal_id2': system_assigned_principal_id2})
+        self.cmd(
+            'keyvault set-policy -n {kv_name} -g {rg} --object-id {system_principal_id2} --key-permissions all --secret-permission all')
 
         namespace = self.cmd(
             'eventhubs namespace encryption remove --resource-group {rg} --namespace-name {namespacename2}' +
@@ -178,12 +190,18 @@ class EHNamespaceMSITesting(ScenarioTest):
         assert len(n) == 3
         self.assertEqual(True, namespace['encryption']['requireInfrastructureEncryption'])
         namespace = self.cmd(
-            'eventhubs namespace create --resource-group {rg} --name {namespacename3} --sku {sku} --location {loc} --mi-system-assigned --mi-user-assigned {id1} {id2}'
+            'eventhubs namespace create --resource-group {rg} --name {namespacename3} --sku {sku} --location {loc} --disable-local-auth true --mi-system-assigned --mi-user-assigned {id1} {id2}'
         ).get_output_in_json()
 
         self.assertEqual(namespace['identity']['type'], self.kwargs['systemuser'])
         n = [i for i in namespace['identity']['userAssignedIdentities']]
         assert len(n) == 2
+
+        # Grant KeyVault permissions to the system-assigned identity for namespacename3
+        system_assigned_principal_id3 = namespace['identity']['principalId']
+        self.kwargs.update({'system_principal_id3': system_assigned_principal_id3})
+        self.cmd(
+            'keyvault set-policy -n {kv_name} -g {rg} --object-id {system_principal_id3} --key-permissions all --secret-permission all')
 
         namespace = self.cmd(
             'eventhubs namespace encryption add --resource-group {rg} --namespace-name {namespacename3}' +
@@ -219,7 +237,7 @@ class EHNamespaceMSITesting(ScenarioTest):
         self.assertEqual(True, namespace['encryption']['requireInfrastructureEncryption'])
 
         namespace = self.cmd(
-            'eventhubs namespace create --resource-group {rg} --name {namespacename4} --sku {sku} --location {loc} --mi-system-assigned'
+            'eventhubs namespace create --resource-group {rg} --name {namespacename4} --sku {sku} --location {loc} --disable-local-auth true --mi-system-assigned'
         ).get_output_in_json()
 
         self.kwargs.update({'pId': namespace['identity']['principalId']})

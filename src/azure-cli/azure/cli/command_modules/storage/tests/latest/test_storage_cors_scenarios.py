@@ -7,11 +7,10 @@ import time
 from knack.util import CLIError
 
 from azure.cli.testsdk import (ScenarioTest, JMESPathCheck, ResourceGroupPreparer,
-                               StorageAccountPreparer, api_version_constraint)
+                               StorageAccountPreparer)
 from azure.cli.core.profiles import ResourceType
 
 
-@api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2016-12-01')
 class StorageCorsTests(ScenarioTest):
     @ResourceGroupPreparer()
     @StorageAccountPreparer(parameter_name='account')
@@ -27,7 +26,8 @@ class StorageCorsTests(ScenarioTest):
         self.cmd('storage cors add --method GET --origins http://example.com --services bft '
                  '--connection-string "{}"'.format(connection_string))
 
-        time.sleep(15)
+        if self.is_live:
+            time.sleep(15)
         rules = self.cmd('storage cors list --connection-string "{}"'.format(connection_string)).get_output_in_json()
         self.assertEqual(len(rules), 7)
         for rule in rules:
@@ -36,7 +36,8 @@ class StorageCorsTests(ScenarioTest):
         self.cmd('storage cors clear --services bft --connection-string "{}"'
                  .format(connection_string))
 
-        time.sleep(5)
+        if self.is_live:
+            time.sleep(5)
         self.cmd('storage cors list --connection-string "{}"'.format(connection_string), checks=[
             JMESPathCheck('length(@)', 1),
             JMESPathCheck('[0].Service', 'queue'),
@@ -50,7 +51,8 @@ class StorageCorsTests(ScenarioTest):
             self.cmd('storage cors add --method POST --origins http://example.com --services q '
                      '--max-age 60 --connection-string "{}"'.format(connection_string))
 
-        time.sleep(5)
+        if self.is_live:
+            time.sleep(5)
         self.cmd('storage cors list --connection-string "{}"'.format(connection_string), checks=[
             JMESPathCheck('length(@)', 5),
             JMESPathCheck('[0].Service', 'queue'),
@@ -59,6 +61,7 @@ class StorageCorsTests(ScenarioTest):
         self.cmd('storage cors clear --services q --connection-string "{}"'
                  .format(connection_string))
 
-        time.sleep(5)
+        if self.is_live:
+            time.sleep(5)
         self.cmd('storage cors list --connection-string "{}"'.format(connection_string),
                  checks=JMESPathCheck('length(@)', 0))

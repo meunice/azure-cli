@@ -5,6 +5,7 @@
 
 from datetime import datetime
 import os
+import unittest
 
 from azure.cli.testsdk.preparers import (
     ResourceGroupPreparer,
@@ -15,6 +16,18 @@ from azure.cli.testsdk.preparers import (
 )
 from azure.cli.testsdk.utilities import GraphClientPasswordReplacer
 from azure.cli.command_modules.acs.tests.latest.recording_processors import MOCK_GUID, MOCK_SECRET
+
+
+ENV_VAR_FORCE_RESOURCE_GROUP_LOCATION = "AZURE_CLI_TEST_FORCE_RESOURCE_GROUP_LOCATION"
+
+
+def _normalize_optional_live_test_setting(value):
+    if value is None:
+        return None
+    value = value.strip()
+    if value in {"", "''", '""', "\\'\\'", '\\"\\"'}:
+        return None
+    return value
 
 
 class AKSCustomResourceGroupPreparer(ResourceGroupPreparer):
@@ -34,7 +47,7 @@ class AKSCustomResourceGroupPreparer(ResourceGroupPreparer):
         key="rg",
         preserve_default_location=False,
     ):
-        super(AKSCustomResourceGroupPreparer, self).__init__(
+        super().__init__(
             name_prefix,
             parameter_name,
             parameter_name_for_location,
@@ -45,9 +58,16 @@ class AKSCustomResourceGroupPreparer(ResourceGroupPreparer):
             key,
         )
 
-        # use environment variable to modify the default value of location
+        # A force location is used by managed live-test environments that must
+        # keep every resource group in one compliance-approved region.
+        force_location = _normalize_optional_live_test_setting(
+            os.environ.get(ENV_VAR_FORCE_RESOURCE_GROUP_LOCATION)
+        )
         self.dev_setting_location = os.environ.get(dev_setting_location, None)
-        if not preserve_default_location and self.dev_setting_location:
+        if force_location:
+            self.location = force_location
+            self.dev_setting_location = force_location
+        elif not preserve_default_location and self.dev_setting_location:
             self.location = self.dev_setting_location
         else:
             self.dev_setting_location = location
@@ -73,7 +93,7 @@ class AKSCustomVirtualNetworkPreparer(VirtualNetworkPreparer):
         random_name_length=24,
         key=KEY_VIRTUAL_NETWORK,
     ):
-        super(AKSCustomVirtualNetworkPreparer, self).__init__(
+        super().__init__(
             name_prefix,
             location,
             parameter_name,
@@ -166,7 +186,7 @@ class AKSCustomRoleBasedServicePrincipalPreparer(
         dev_setting_sp_password="AZURE_CLI_TEST_DEV_SP_PASSWORD",
         key="sp",
     ):
-        super(AKSCustomRoleBasedServicePrincipalPreparer, self).__init__(
+        super().__init__(
             name_prefix,
             skip_assignment,
             parameter_name,
@@ -175,26 +195,19 @@ class AKSCustomRoleBasedServicePrincipalPreparer(
             dev_setting_sp_password,
             key,
         )
+        self.dev_setting_sp_name = _normalize_optional_live_test_setting(self.dev_setting_sp_name)
+        self.dev_setting_sp_password = _normalize_optional_live_test_setting(self.dev_setting_sp_password)
+
+    def __call__(self, fn):
+        if not self.dev_setting_sp_name or not self.dev_setting_sp_password:
+            return unittest.skip(
+                "skip test case that requires service principal credentials as they are not provided"
+            )(fn)
+        return super().__call__(fn)
 
     def create_resource(self, name, **kwargs):
-        if not self.dev_setting_sp_name:
-            command = "az ad sp create-for-rbac -n {}{}".format(
-                name, " --skip-assignment" if self.skip_assignment else ""
-            )
-
-            try:
-                self.result = self.live_only_execute(
-                    self.cli_ctx, command
-                ).get_output_in_json()
-            except AttributeError:  # live only execute returns None if playing from record
-                pass
-
-            if self.live_test or self.test_class_instance.in_recording:
-                sp_name = self.result['appId']
-                sp_password = self.result.get("password") or GraphClientPasswordReplacer.PWD_REPLACEMENT
-            else:
-                sp_name = MOCK_GUID
-                sp_password = MOCK_SECRET
+        if not self.dev_setting_sp_name or not self.dev_setting_sp_password:
+            return
         else:
             # call AbstractPreparer.moniker to make resource counts and self.resource_moniker consistent between live
             # and play-back. see SingleValueReplacer.process_request, AbstractPreparer.__call__._preparer_wrapper

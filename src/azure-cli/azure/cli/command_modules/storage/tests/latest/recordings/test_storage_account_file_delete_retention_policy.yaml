@@ -13,10 +13,9 @@ interactions:
       ParameterSetName:
       - --account-name -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":7}}}'
@@ -28,7 +27,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:52 GMT
+      - Sun, 17 May 2026 09:19:28 GMT
       expires:
       - '-1'
       pragma:
@@ -37,12 +36,12 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/0df350a2-fc57-4054-b2b8-124eee66b4cb
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -60,10 +59,9 @@ interactions:
       ParameterSetName:
       - --account-name -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":7}}}'
@@ -75,7 +73,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:52 GMT
+      - Sun, 17 May 2026 09:19:31 GMT
       expires:
       - '-1'
       pragma:
@@ -84,18 +82,18 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/bf13055d-5a07-4cda-a87a-2e3e61d4ec82
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
 - request:
-    body: '{"properties": {"shareDeleteRetentionPolicy": {"enabled": true, "days":
-      7}}}'
+    body: '{"properties": {"protocolSettings": {"smb": {}, "nfs": {}}, "cors": {"corsRules":
+      []}, "shareDeleteRetentionPolicy": {"enabled": true, "days": 7}}}'
     headers:
       Accept:
       - application/json
@@ -106,28 +104,29 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '76'
+      - '147'
       Content-Type:
       - application/json
       ParameterSetName:
       - --account-name -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"shareDeleteRetentionPolicy":{"enabled":true,"days":7}}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":7}}}'
     headers:
       cache-control:
       - no-cache
+      connection:
+      - close
       content-length:
-      - '331'
+      - '355'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:53 GMT
+      - Sun, 17 May 2026 09:19:34 GMT
       expires:
       - '-1'
       pragma:
@@ -136,14 +135,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/badb71d3-0877-4d66-a11d-c9ecde27c8b5
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1196'
+      - '199'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -161,22 +160,23 @@ interactions:
       ParameterSetName:
       - --enable-delete-retention -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":7}}}'
     headers:
       cache-control:
       - no-cache
+      connection:
+      - close
       content-length:
       - '433'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:52 GMT
+      - Sun, 17 May 2026 09:19:36 GMT
       expires:
       - '-1'
       pragma:
@@ -185,17 +185,18 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/c806618a-64b0-4fad-810b-6f17ea50b968
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
 - request:
-    body: '{"properties": {"shareDeleteRetentionPolicy": {"enabled": false}}}'
+    body: '{"properties": {"protocolSettings": {"smb": {}, "nfs": {}}, "cors": {"corsRules":
+      []}, "shareDeleteRetentionPolicy": {"enabled": false}}}'
     headers:
       Accept:
       - application/json
@@ -206,28 +207,27 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '66'
+      - '137'
       Content-Type:
       - application/json
       ParameterSetName:
       - --enable-delete-retention -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"shareDeleteRetentionPolicy":{"enabled":false}}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":false}}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '323'
+      - '347'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:54 GMT
+      - Sun, 17 May 2026 09:19:38 GMT
       expires:
       - '-1'
       pragma:
@@ -236,14 +236,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/d6b42c8d-f54d-4388-891f-b963f4495e92
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1198'
+      - '199'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -261,10 +261,9 @@ interactions:
       ParameterSetName:
       - -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":false,"days":0}}}'
@@ -276,7 +275,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:53 GMT
+      - Sun, 17 May 2026 09:19:41 GMT
       expires:
       - '-1'
       pragma:
@@ -287,6 +286,10 @@ interactions:
       - max-age=31536000; includeSubDomains
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/82ab41a2-ddcb-480d-8f7e-9be667fa55c0
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -304,10 +307,9 @@ interactions:
       ParameterSetName:
       - --account-name -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":false,"days":0}}}'
@@ -319,7 +321,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:54 GMT
+      - Sun, 17 May 2026 09:19:42 GMT
       expires:
       - '-1'
       pragma:
@@ -328,17 +330,18 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/6486a259-1554-4b57-a5d3-0c25ebbff8dc
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
 - request:
-    body: '{"properties": {"shareDeleteRetentionPolicy": {"enabled": false}}}'
+    body: '{"properties": {"protocolSettings": {"smb": {}, "nfs": {}}, "cors": {"corsRules":
+      []}, "shareDeleteRetentionPolicy": {"enabled": false}}}'
     headers:
       Accept:
       - application/json
@@ -349,28 +352,27 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '66'
+      - '137'
       Content-Type:
       - application/json
       ParameterSetName:
       - --account-name -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"shareDeleteRetentionPolicy":{"enabled":false}}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":false}}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '323'
+      - '347'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:54 GMT
+      - Sun, 17 May 2026 09:19:44 GMT
       expires:
       - '-1'
       pragma:
@@ -379,14 +381,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/cf033536-70d2-42d0-a00b-a60c85cd5830
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1195'
+      - '199'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -404,10 +406,9 @@ interactions:
       ParameterSetName:
       - --delete-retention-days -n -g -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":false,"days":0}}}'
@@ -419,7 +420,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:55 GMT
+      - Sun, 17 May 2026 09:19:47 GMT
       expires:
       - '-1'
       pragma:
@@ -428,12 +429,12 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/313fc59c-f2c8-4027-9acc-b12f479f5aa2
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -451,10 +452,9 @@ interactions:
       ParameterSetName:
       - --enable-delete-retention --delete-retention-days -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":false,"days":0}}}'
@@ -466,7 +466,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:55 GMT
+      - Sun, 17 May 2026 09:19:49 GMT
       expires:
       - '-1'
       pragma:
@@ -475,18 +475,18 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/1bd6e073-c1fe-4546-835a-fa984879a56d
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
 - request:
-    body: '{"properties": {"shareDeleteRetentionPolicy": {"enabled": true, "days":
-      10}}}'
+    body: '{"properties": {"protocolSettings": {"smb": {}, "nfs": {}}, "cors": {"corsRules":
+      []}, "shareDeleteRetentionPolicy": {"enabled": true, "days": 10}}}'
     headers:
       Accept:
       - application/json
@@ -497,28 +497,27 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '77'
+      - '148'
       Content-Type:
       - application/json
       ParameterSetName:
       - --enable-delete-retention --delete-retention-days -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"shareDeleteRetentionPolicy":{"enabled":true,"days":10}}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":10}}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '332'
+      - '356'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:55 GMT
+      - Sun, 17 May 2026 09:19:52 GMT
       expires:
       - '-1'
       pragma:
@@ -527,14 +526,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/875c63da-6b81-4da9-bda9-b1c2ba6105f1
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1197'
+      - '199'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
@@ -552,22 +551,23 @@ interactions:
       ParameterSetName:
       - --delete-retention-days -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
       string: '{"sku":{"name":"Standard_LRS","tier":"Standard"},"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"protocolSettings":{"smb":{}},"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":10}}}'
     headers:
       cache-control:
       - no-cache
+      connection:
+      - close
       content-length:
       - '434'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:55 GMT
+      - Sun, 17 May 2026 09:19:54 GMT
       expires:
       - '-1'
       pragma:
@@ -576,18 +576,18 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/09858c43-c5c0-49b1-9249-7976627588ae
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
 - request:
-    body: '{"properties": {"shareDeleteRetentionPolicy": {"enabled": true, "days":
-      1}}}'
+    body: '{"properties": {"protocolSettings": {"smb": {}, "nfs": {}}, "cors": {"corsRules":
+      []}, "shareDeleteRetentionPolicy": {"enabled": true, "days": 1}}}'
     headers:
       Accept:
       - application/json
@@ -598,28 +598,27 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '76'
+      - '147'
       Content-Type:
       - application/json
       ParameterSetName:
       - --delete-retention-days -n -g
       User-Agent:
-      - AZURECLI/2.42.0 azsdk-python-azure-mgmt-storage/21.0.0 Python/3.10.8 (Linux-5.15.0-1022-azure-x86_64-with-glibc2.31)
-        VSTS_7b238909-6802-4b65-b90d-184bca47f458_build_220_0
+      - AZURECLI/2.86.0 azsdk-python-core/1.39.0 Python/3.12.10 (Windows-10-10.0.19045-SP0)
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2022-09-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default?api-version=2026-09-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"shareDeleteRetentionPolicy":{"enabled":true,"days":1}}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_file_soft_delete000001/providers/Microsoft.Storage/storageAccounts/filesoftdelete000002/fileServices/default","name":"default","type":"Microsoft.Storage/storageAccounts/fileServices","properties":{"cors":{"corsRules":[]},"shareDeleteRetentionPolicy":{"enabled":true,"days":1}}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '331'
+      - '355'
       content-type:
       - application/json
       date:
-      - Thu, 17 Nov 2022 10:00:56 GMT
+      - Sun, 17 May 2026 09:19:57 GMT
       expires:
       - '-1'
       pragma:
@@ -628,14 +627,14 @@ interactions:
       - Microsoft-Azure-Storage-Resource-Provider/1.0,Microsoft-HTTPAPI/2.0 Microsoft-HTTPAPI/2.0
       strict-transport-security:
       - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
       x-content-type-options:
       - nosniff
+      x-ms-operation-identifier:
+      - tenantId=54826b22-38d6-4fb2-bad9-b7b93a3e9c5a,objectId=a7250e3a-0e5e-48e2-9a34-45f1f5e1a91e/eastus2euap/41c6d1db-c85b-4dfd-a624-3fcf09729362
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1198'
+      - '199'
+      x-ms-throttling-version:
+      - v2
     status:
       code: 200
       message: OK
